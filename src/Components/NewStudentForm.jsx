@@ -1,3 +1,14 @@
+// to be replaced with DB call
+let tutors = ["Robert Smith"]
+
+function tutorOptions() {
+  return tutors.map((tutor) => {
+    return (
+      <option value={tutor}>{tutor}</option>
+    );
+  });
+}
+
 const NewStudentForm = () => {
   return (
     <form>
@@ -40,7 +51,7 @@ const NewStudentForm = () => {
         <label for="preferredTutor" class="form-label">Preferred Tutor</label>
         <select type="text" class="form-control" id="preferredTutor">
           <option selected>Select One</option>
-          <option value="Robert Smith">Robert Smith</option>
+          {tutorOptions()}
         </select>
       </div>
       
