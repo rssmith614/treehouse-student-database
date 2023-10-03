@@ -2,6 +2,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { Route, Routes } from 'react-router-dom';
 
 import NewProfile from './Pages/NewStudentPage';
+import StudentEval from './Pages/StudentEval';
 
 function App() {
   const getStoredTheme = () => localStorage.getItem('theme')
@@ -25,10 +26,25 @@ function App() {
 
   setTheme(getPreferredTheme());
 
+  let temp = {
+    student_name: "Student A",
+    tutor_name: "Robert",
+    date: "",
+    subject: "",
+    standard: "",
+    grade: 4,
+    progression_standard: "",
+    comments: "",
+    engagement: "",
+    worksheet: "",
+    completion: "",
+    next_session: "",
+  }
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<NewProfile />} />
+        <Route path="/" element={<StudentEval eval={temp} />} />
       </Routes>
     </Router>
   );
