@@ -1,8 +1,10 @@
-import { BrowserRouter as Router } from 'react-router-dom';
-import { Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, useParams } from 'react-router-dom';
+import { Route, Routes, Params } from 'react-router-dom';
 
 import NewProfile from './Pages/NewStudentPage';
 import StudentEval from './Pages/StudentEval';
+import StudentProfile from './Pages/StudentProfile';
+import StudentProfilesList from './Pages/StudentProfilesList';
 
 function App() {
   const getStoredTheme = () => localStorage.getItem('theme')
@@ -44,7 +46,10 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<StudentEval eval={temp} />} />
+        <Route path="/newstudent" element={<NewProfile />} />
+        {/* <Route path='/' element={<StudentEval eval={temp}/>} /> */}
+        <Route path="/students" element={<StudentProfilesList />} />
+        <Route path="/student/:studentid" element={<StudentProfile />} />
       </Routes>
     </Router>
   );

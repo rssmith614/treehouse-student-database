@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { db } from "../Services/firebase";
+
+import { addDoc, collection } from "firebase/firestore";
+
 
 // to be replaced with DB call
 let tutors = ["Robert Smith"]
@@ -50,17 +54,39 @@ const NewStudentForm = () => {
     });
   }
 
+  async function addStudent(e) {
+    e.preventDefault();
+    const newStudent = {
+      student_name: document.getElementById('studentName').value,
+      student_dob: document.getElementById('studentDOB').value,
+      parent_name: document.getElementById('parentName').value,
+      parent_phone: document.getElementById('parentPhone').value,
+      student_grade: document.getElementById('studentGrade').value,
+      student_school: document.getElementById('studentSchool').value,
+      student_source: document.getElementById('studentSource').value,
+      preferred_tutor: document.getElementById('preferredTutor').value,
+      other: document.getElementById('extraInfo').value,
+      medical_conditions: document.getElementById('medicalConditions').value,
+      emergency_contacts: emergencyContacts,
+    }
+  
+    console.log(newStudent);
+
+    const studentCollRef = collection(db, "students");
+    await addDoc(studentCollRef, newStudent);
+  }
+
   return (
     <>
-    <form>
+    <form onSubmit={addStudent}>
       <div className="row">
         <div class="col mb-3">
           <label for="studentName" class="form-label">Student Name</label>
           <input type="text" class="form-control" id="studentName" />
         </div>
         <div class="col mb-3">
-        <label for="birthday" class="form-label">Student DOB</label>
-        <input type="date" class="form-control" id="birthday" />
+        <label for="studentDOB" class="form-label">Student DOB</label>
+        <input type="date" class="form-control" id="studentDOB" />
       </div>
       </div>
       <div className="row">
@@ -91,7 +117,7 @@ const NewStudentForm = () => {
       <div class="mb-3">
         <label for="preferredTutor" class="form-label">Preferred Tutor</label>
         <select type="text" class="form-control" id="preferredTutor">
-          <option selected>Select One</option>
+          <option defaultValue>Select One</option>
           {tutorOptions()}
         </select>
       </div>
@@ -105,7 +131,7 @@ const NewStudentForm = () => {
         <textarea class="form-control" id="medicalConditions" />
       </div>
       <span className="mb-3">Emergency Contacts</span>
-      <div class="mx-3 mb-3">
+      <div class="mx-3 mb-3" id="emergencyContacts">
         {eContacts()}
       </div>
       <button className="btn btn-secondary mb-3" type="button" onClick={addEContact}>Add New Emergency Contact</button>
