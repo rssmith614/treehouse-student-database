@@ -1,12 +1,12 @@
-import { deleteDoc, doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 import { db } from "../Services/firebase";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import EmergencyContactList from "../Components/EmergencyContactList";
 
 const StudentProfileEdit = () => {
   const [student, setStudent] = useState({});
+  const [emergencyContacts, setEmergencyContacts] = useState([]);
 
   const studentRef = useRef();
 
@@ -18,13 +18,34 @@ const StudentProfileEdit = () => {
   
   useEffect(() => {
     const getStudentData = async () => {
-      await getDoc(studentRef.current).then((docs) => setStudent(docs.data()))
+      await getDoc(studentRef.current).then((docs) => {
+        setStudent(docs.data());
+        setEmergencyContacts(docs.data().emergency_contacts);
+      })
     }
 
     getStudentData();
   }, [params.studentid])
+
+  async function updateStudent(e) {
+    e.preventDefault();
+    const newStudent = {
+      student_dob: document.getElementById('studentDOB').value,
+      parent_name: document.getElementById('parentName').value,
+      parent_phone: document.getElementById('parentPhone').value,
+      student_grade: document.getElementById('studentGrade').value,
+      student_school: document.getElementById('studentSchool').value,
+      student_source: document.getElementById('studentSource').value,
+      preferred_tutor: document.getElementById('preferredTutor').value,
+      other: document.getElementById('extraInfo').value,
+      medical_conditions: document.getElementById('medicalConditions').value,
+      emergency_contacts: emergencyContacts,
+    }
+
+    await updateDoc(studentRef.current, newStudent).then(() => navigate('/students'));
+  }
   
-  async function backAction() {
+  function backAction() {
     if (!window.confirm("Changes will not be saved")) {
       return;
     }
@@ -33,24 +54,65 @@ const StudentProfileEdit = () => {
   }
 
   // to be replaced with DB call
-    let tutors = ["Robert Smith"]
+  let tutors = ["Robert Smith"]
 
-    function tutorOptions() {
-        return tutors.map((tutor) => {
-            return (
-            <option value={tutor} key={tutor.id}>{tutor}</option>
-            );
-        });
-    }
+  function tutorOptions() {
+    return tutors.map((tutor) => {
+      return (
+        <option value={tutor} key={tutor.id}>{tutor}</option>
+      );
+    });
+  }
+
+  function addEContact() {
+    setEmergencyContacts([...emergencyContacts, {name:"", relation:"", phone:""}]);
+  }
+
+  function updateEContacts() {
+    let newList = emergencyContacts.map((e) => {return e});
+    newList.forEach((eContact, i) => {
+      eContact.name = document.getElementById(`contact${i}name`).value;
+      eContact.relation = document.getElementById(`contact${i}rel`).value;
+      eContact.phone = document.getElementById(`contact${i}phone`).value;
+    })
+
+    setEmergencyContacts(newList);
+  }
+  
+  function removeEContact(idx) {
+    if (typeof(idx) === "object") idx.preventDefault();
+    let newList = emergencyContacts.map((e) => {return e});
+  
+    newList.forEach((eContact, i) => {
+      document.getElementById(`contact${i}name`).value = "";
+      document.getElementById(`contact${i}rel`).value = "";
+      document.getElementById(`contact${i}phone`).value = "";
+    });
+    
+    newList.splice(idx, 1);
+  
+    newList.forEach((eContact, i) => {
+      document.getElementById(`contact${i}name`).value = eContact.name;
+      document.getElementById(`contact${i}rel`).value = eContact.relation;
+      document.getElementById(`contact${i}phone`).value = eContact.phone;
+    });
+
+    setEmergencyContacts(newList);
+  }
 
   const emergencyContactList = () => {
-    if (!student.emergency_contacts) return null;
-    return student.emergency_contacts.map((c) => {
+    if (Object.keys(student).length === 0) return null;
+    return emergencyContacts.map((c, i) => {
+      let rowid = "contact" + i;
       return (
         <tr>
-          <td>{c.name}</td>
-          <td>{c.relation}</td>
-          <td>{c.phone}</td>
+          <td><button id={rowid + 'del'} type="button" className="btn btn-danger" onClick={() => {removeEContact(i)}}>🗑️</button></td>
+          <td><input id={rowid + 'name'} className="form-control"
+            defaultValue={c.name} onBlur={updateEContacts} /></td>
+          <td><input id={rowid + 'rel'} className="form-control"
+            defaultValue={c.relation} onBlur={updateEContacts} /></td>
+          <td><input id={rowid + 'phone'} className="form-control"
+            defaultValue={c.phone} onBlur={updateEContacts} /></td>
         </tr>
       )
     })
@@ -59,75 +121,73 @@ const StudentProfileEdit = () => {
   return (
     <div className='p-3 d-flex flex-column align-items-start'>
       <h1 className='d-flex display-1'>
-        Student - {student.student_name}
+        Edit Student - {student.student_name}
       </h1>
+      <form onSubmit={updateStudent}>
       <div className='d-flex p-3 card w-75 bg-light-subtle justify-content-center'>
         <div className="d-flex justify-content-start">
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Birthday</div>
-            <input type="date" className="form-control" value={student.student_dob} />
+            <input type="date" id="studentDOB" className="form-control" value={student.student_dob} />
           </div>
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Grade</div>
-            <input type="text" className="form-control" value={student.student_grade} />
+            <input type="text" id="studentGrade" className="form-control" value={student.student_grade} />
           </div>
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">School</div>
-            <input type="text" className="form-control" value={student.student_school} />
+            <input type="text" id="studentSchool" className="form-control" value={student.student_school} />
           </div>
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Source</div>
-            <input type="text" className="form-control" value={student.student_source} />
+            <input type="text" id="studentSource" className="form-control" value={student.student_source} />
           </div>
         </div>
         <div className="d-flex justify-content-start">
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Parent Name</div>
-            <input type="text" className="form-control" value={student.parent_name} />
+            <input type="text" id="parentName" className="form-control" value={student.parent_name} />
           </div>
           <div className="d-flex p-3 flex-column">
-            <div className="d-flex h3">Parent Phone</div>
-            <input type="tel" className="form-control" value={student.parent_phone} />
+            <div className="d-flex h3">Parent Phone Number</div>
+            <input type="tel" id="parentPhone" className="form-control" value={student.parent_phone} />
           </div>
         </div>
         <div className="d-flex justify-content-start">
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Preferred Tutor</div>
             <select type="text" className="form-control" id="preferredTutor">
-                <option defaultValue>Select One</option>
-                {tutorOptions()}
+              <option defaultValue>Select One</option>
+              {tutorOptions()}
             </select>
           </div>
         </div>
         <div className="d-flex justify-content-start">
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Medical Conditions</div>
-            <textarea className="d-flex form-control">{student.medical_conditions}</textarea>
+            <textarea className="d-flex form-control" id="medicalConditions">{student.medical_conditions}</textarea>
           </div>
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Other Info</div>
-            <textarea className="d-flex form-control">{student.other}</textarea>
+            <textarea className="d-flex form-control" id="extraInfo">{student.other}</textarea>
           </div>
         </div>
-        {/* <div className="d-flex justify-content-start table-responsive flex-column">
-            <div className="d-flex p-3 h3">Emergency Contacts</div>
-            <div className="d-flex px-5">
-              <table className="table table-striped">
-                <thead>
-                  <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Relation</th>
-                    <th scope="col">Phone Number</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {emergencyContactList()}
-                </tbody>
-              </table>
-            </div>
-        </div> */}
-        <div>
-            <EmergencyContactList list={student.emergency_contacts}/>
+        <div className="d-flex p-3 h3">Emergency Contacts</div>
+        <div className="d-flex flex-column px-5">
+          <table className="table table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Relation</th>
+                <th>Phone Number</th>
+              </tr>
+            </thead>
+            <tbody>
+              {emergencyContactList()}
+            </tbody>
+          </table>
+          <button type="button" className="d-flex btn btn-secondary" onClick={addEContact}>Add New Emergency Contact</button>
         </div>
       </div>
       <div className="d-flex">
@@ -135,6 +195,7 @@ const StudentProfileEdit = () => {
         <button className="btn btn-primary m-3">Save Changes</button>
         {/* <button className="btn btn-danger m-3" onClick={studentRemoval}>Delete Student</button> */}
       </div>
+    </form>
     </div>
   );
 }

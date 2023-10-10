@@ -74,7 +74,7 @@ const StudentProfile = () => {
             <div className="d-flex">{student.parent_name}</div>
           </div>
           <div className="d-flex p-3 flex-column">
-            <div className="d-flex h3">Parent Phone</div>
+            <div className="d-flex h3">Parent Phone Number</div>
             <div className="d-flex">{student.parent_phone}</div>
           </div>
         </div>
@@ -95,23 +95,21 @@ const StudentProfile = () => {
           </div>
         </div>
         <div className="d-flex justify-content-start table-responsive flex-column">
-          {/* <div className="d-flex flex-column"> */}
-            <div className="d-flex p-3 h3">Emergency Contacts</div>
-            <div className="d-flex px-5">
-              <table className="table table-striped">
-                <thead>
-                  <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Relation</th>
-                    <th scope="col">Phone Number</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {emergencyContactList()}
-                </tbody>
-              </table>
-            </div>
-          {/* </div> */}
+          <div className="d-flex p-3 h3">Emergency Contacts</div>
+          <div className="d-flex px-5">
+            <table className="table table-striped">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Relation</th>
+                  <th scope="col">Phone Number</th>
+                </tr>
+              </thead>
+              <tbody>
+                {emergencyContactList()}
+              </tbody>
+            </table>
+          </div>
         </div>
         <hr />
         <div>
