@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../Services/firebase";
 
 import { addDoc, collection } from "firebase/firestore";
+import EmergencyContactList from "./EmergencyContactList";
+import { useNavigate } from "react-router-dom";
 
 
 // to be replaced with DB call
@@ -10,7 +12,7 @@ let tutors = ["Robert Smith"]
 function tutorOptions() {
   return tutors.map((tutor) => {
     return (
-      <option value={tutor}>{tutor}</option>
+      <option value={tutor} key={tutor.id}>{tutor}</option>
     );
   });
 }
@@ -18,41 +20,12 @@ function tutorOptions() {
 const NewStudentForm = () => {
   const [emergencyContacts, setEmergencyContacts] = useState([]);
 
+  const navigate = useNavigate();
+
   function addEContact() {
-    setEmergencyContacts([...emergencyContacts, {id: emergencyContacts.length, name:"", relation:"", phone:""}]);
+    setEmergencyContacts([...emergencyContacts, {name:"", relation:"", phone:""}]);
   }
 
-  function removeEContact(id) {
-    const newList = emergencyContacts.filter(contact => contact.id !== id);
-    setEmergencyContacts(newList);
-  }
-  
-  function eContacts() {
-    return emergencyContacts.map((contact, i) => {
-      let rowid = "contact" + i;
-      return (
-        <div className="row" key={i}>
-          <div className="col mb-1">
-            <label for={rowid + 'name'} class="form-label">Name</label>
-            <input type="text" class="form-control" id={rowid + 'name'} defaultValue={contact.name} />
-          </div>
-          <div className="col mb-1">
-            <label for={rowid + 'rel'} class="form-label">Relation</label>
-            <input type="text" class="form-control" id={rowid + 'rel'} defaultValue={contact.relation} />
-          </div>
-          <div className="col mb-1">
-            <label for={rowid + 'phone'} class="form-label">Phone</label>
-            <input type="tel" class="form-control" id={rowid + 'phone'} defaultValue={contact.phone} />
-          </div>
-          {/* <div className="col mb-1 position-relative">
-            <button type="button" onClick={() => removeEContact(contact.id)}
-              class="form-control btn btn-danger
-              position-absolute bottom-0">Remove</button>
-          </div> */}
-        </div>
-      );
-    });
-  }
 
   async function addStudent(e) {
     e.preventDefault();
@@ -69,75 +42,73 @@ const NewStudentForm = () => {
       medical_conditions: document.getElementById('medicalConditions').value,
       emergency_contacts: emergencyContacts,
     }
-  
-    console.log(newStudent);
 
     const studentCollRef = collection(db, "students");
-    await addDoc(studentCollRef, newStudent);
+    await addDoc(studentCollRef, newStudent).then(() => navigate('/students'));
   }
 
   return (
     <>
     <form onSubmit={addStudent}>
       <div className="row">
-        <div class="col mb-3">
-          <label for="studentName" class="form-label">Student Name</label>
-          <input type="text" class="form-control" id="studentName" />
+        <div className="col mb-3">
+          <label for="studentName" className="form-label">Student Name</label>
+          <input type="text" className="form-control" id="studentName" />
         </div>
-        <div class="col mb-3">
-        <label for="studentDOB" class="form-label">Student DOB</label>
-        <input type="date" class="form-control" id="studentDOB" />
+        <div className="col mb-3">
+        <label for="studentDOB" className="form-label">Student DOB</label>
+        <input type="date" className="form-control" id="studentDOB" />
       </div>
       </div>
       <div className="row">
-        <div class="col mb-3">
-          <label for="parentName" class="form-label">Parent Name</label>
-          <input type="text" class="form-control" id="parentName" />
+        <div className="col mb-3">
+          <label for="parentName" className="form-label">Parent Name</label>
+          <input type="text" className="form-control" id="parentName" />
         </div>
-        <div class="col mb-3">
-          <label for="parentPhone" class="form-label">Parent Phone</label>
-          <input type="tel" class="form-control" id="parentPhone" />
+        <div className="col mb-3">
+          <label for="parentPhone" className="form-label">Parent Phone</label>
+          <input type="tel" className="form-control" id="parentPhone" />
         </div>
       </div>
       <div className="row">
-        <div class="col mb-3">
-          <label for="studentGrade" class="form-label">Student Grade</label>
-          <input type="text" class="form-control" id="studentGrade" />
+        <div className="col mb-3">
+          <label for="studentGrade" className="form-label">Student Grade</label>
+          <input type="text" className="form-control" id="studentGrade" />
         </div>
-        <div class="col mb-3">
-          <label for="studentSchool" class="form-label">Student School</label>
-          <input type="text" class="form-control" id="studentSchool" />
+        <div className="col mb-3">
+          <label for="studentSchool" className="form-label">Student School</label>
+          <input type="text" className="form-control" id="studentSchool" />
         </div>
       </div>
-      <div class="mb-3">
-        <label for="studentSource" class="form-label">Student Source</label>
-        <input type="text" class="form-control" id="studentSource" />
+      <div className="mb-3">
+        <label for="studentSource" className="form-label">Student Source</label>
+        <input type="text" className="form-control" id="studentSource" />
       </div>
 
-      <div class="mb-3">
-        <label for="preferredTutor" class="form-label">Preferred Tutor</label>
-        <select type="text" class="form-control" id="preferredTutor">
+      <div className="mb-3">
+        <label for="preferredTutor" className="form-label">Preferred Tutor</label>
+        <select type="text" className="form-control" id="preferredTutor">
           <option defaultValue>Select One</option>
           {tutorOptions()}
         </select>
       </div>
       
-      <div class="mb-3">
-        <label for="extraInfo" class="form-label">Other Info</label>
-        <textarea class="form-control" id="extraInfo" />
+      <div className="mb-3">
+        <label for="extraInfo" className="form-label">Other Info</label>
+        <textarea className="form-control" id="extraInfo" />
       </div>
-      <div class="mb-3">
-        <label for="medicalConditions" class="form-label">Medical Conditions</label>
-        <textarea class="form-control" id="medicalConditions" />
+      <div className="mb-3">
+        <label for="medicalConditions" className="form-label">Medical Conditions</label>
+        <textarea className="form-control" id="medicalConditions" />
       </div>
       <span className="mb-3">Emergency Contacts</span>
-      <div class="mx-3 mb-3" id="emergencyContacts">
-        {eContacts()}
+      <div className="mx-3 mb-3" id="emergencyContacts">
+        <EmergencyContactList list={emergencyContacts} setList={setEmergencyContacts} />
       </div>
       <button className="btn btn-secondary mb-3" type="button" onClick={addEContact}>Add New Emergency Contact</button>
 
       <br/>
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="submit" className="btn btn-primary">Submit</button>
     </form>
 
     

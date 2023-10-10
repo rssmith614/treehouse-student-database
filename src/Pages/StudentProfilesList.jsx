@@ -1,24 +1,34 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, deleteDoc } from "firebase/firestore";
 
 import { useNavigate } from 'react-router-dom';
 
 import { db } from "../Services/firebase";
-
-const studentCollRef = collection(db, "students");
-const querySnap = await getDocs(studentCollRef);
-querySnap.docs.forEach(doc => {
-  console.log(doc.id, doc.data())
-});
+import { useEffect, useRef, useState } from "react";
 
 const StudentProfilesList = () => {
+  const [querySnap, setQuerySnap] = useState(null);
+  const studentCollRef = useRef();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const queryStudents = async () => {
+      studentCollRef.current = collection(db, "students");
+      const temp = await getDocs(studentCollRef.current);
+      setQuerySnap(temp);
+    }
+
+    queryStudents();
+  })
 
   function selectStudent(id) {
     navigate(`/student/${id}`)
   }
 
   function studentList() {
+    if (!querySnap) {
+      return null;
+    }
     return querySnap.docs.map((doc) => {
       return (
         <div className="card p-3" key={doc.id} onClick={() => selectStudent(doc.id)}
@@ -37,6 +47,7 @@ const StudentProfilesList = () => {
       <div className='d-flex p-3 card w-75 bg-light-subtle'>
         {studentList()}
       </div>
+      <button className="btn btn-primary m-3" onClick={() => navigate(`/newstudent`)}>Add New Student</button>
     </div>
   );
 }
