@@ -1,4 +1,4 @@
-import { collection, getDocs, deleteDoc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 
 import { useNavigate } from 'react-router-dom';
 
@@ -19,7 +19,7 @@ const StudentProfilesList = () => {
     }
 
     queryStudents();
-  })
+  }, [])
 
   function selectStudent(id) {
     navigate(`/student/${id}`)
@@ -41,9 +41,9 @@ const StudentProfilesList = () => {
 
   return (
     <div className='p-3 d-flex flex-column align-items-start'>
-      <h1 className='d-flex'>
+      <div className='display-1 d-flex'>
         Student Profiles
-      </h1>
+      </div>
       <div className='d-flex p-3 card w-75 bg-light-subtle'>
         {studentList()}
       </div>

@@ -3,8 +3,9 @@ import { deleteDoc, doc, getDoc } from "firebase/firestore";
 import { db } from "../Services/firebase";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import EmergencyContactList from "../Components/EmergencyContactList";
 
-const StudentProfile = () => {
+const StudentProfileEdit = () => {
   const [student, setStudent] = useState({});
 
   const studentRef = useRef();
@@ -23,13 +24,24 @@ const StudentProfile = () => {
     getStudentData();
   }, [params.studentid])
   
-  async function studentRemoval() {
-    if (!window.confirm("Are you sure you want to PERMANENTLY REMOVE the record for this student?")) {
+  async function backAction() {
+    if (!window.confirm("Changes will not be saved")) {
       return;
     }
 
-    await deleteDoc(studentRef.current).then(() => navigate('/students'));
+    navigate(`/student/${studentRef.current.id}`);
   }
+
+  // to be replaced with DB call
+    let tutors = ["Robert Smith"]
+
+    function tutorOptions() {
+        return tutors.map((tutor) => {
+            return (
+            <option value={tutor} key={tutor.id}>{tutor}</option>
+            );
+        });
+    }
 
   const emergencyContactList = () => {
     if (!student.emergency_contacts) return null;
@@ -53,49 +65,51 @@ const StudentProfile = () => {
         <div className="d-flex justify-content-start">
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Birthday</div>
-            <div className="d-flex">{student.student_dob}</div>
+            <input type="date" className="form-control" value={student.student_dob} />
           </div>
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Grade</div>
-            <div className="d-flex">{student.student_grade}</div>
+            <input type="text" className="form-control" value={student.student_grade} />
           </div>
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">School</div>
-            <div className="d-flex">{student.student_school}</div>
+            <input type="text" className="form-control" value={student.student_school} />
           </div>
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Source</div>
-            <div className="d-flex">{student.student_source}</div>
+            <input type="text" className="form-control" value={student.student_source} />
           </div>
         </div>
         <div className="d-flex justify-content-start">
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Parent Name</div>
-            <div className="d-flex">{student.parent_name}</div>
+            <input type="text" className="form-control" value={student.parent_name} />
           </div>
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Parent Phone</div>
-            <div className="d-flex">{student.parent_phone}</div>
+            <input type="tel" className="form-control" value={student.parent_phone} />
           </div>
         </div>
         <div className="d-flex justify-content-start">
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Preferred Tutor</div>
-            <div className="d-flex">{student.preferred_tutor}</div>
+            <select type="text" className="form-control" id="preferredTutor">
+                <option defaultValue>Select One</option>
+                {tutorOptions()}
+            </select>
           </div>
         </div>
         <div className="d-flex justify-content-start">
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Medical Conditions</div>
-            <div className="d-flex">{student.medical_conditions}</div>
+            <textarea className="d-flex form-control">{student.medical_conditions}</textarea>
           </div>
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Other Info</div>
-            <div className="d-flex">{student.other}</div>
+            <textarea className="d-flex form-control">{student.other}</textarea>
           </div>
         </div>
-        <div className="d-flex justify-content-start table-responsive flex-column">
-          {/* <div className="d-flex flex-column"> */}
+        {/* <div className="d-flex justify-content-start table-responsive flex-column">
             <div className="d-flex p-3 h3">Emergency Contacts</div>
             <div className="d-flex px-5">
               <table className="table table-striped">
@@ -111,20 +125,18 @@ const StudentProfile = () => {
                 </tbody>
               </table>
             </div>
-          {/* </div> */}
-        </div>
-        <hr />
+        </div> */}
         <div>
-          Evals, Assessments
+            <EmergencyContactList list={student.emergency_contacts}/>
         </div>
       </div>
       <div className="d-flex">
-        <button className="btn btn-secondary m-3" onClick={() => navigate('/students')}>Back to Student List</button>
-        <button className="btn btn-info m-3" onClick={() => navigate(`/student/edit/${studentRef.current.id}`)}>Make Changes</button>
-        <button className="btn btn-danger m-3" onClick={studentRemoval}>Delete Student</button>
+        <button className="btn btn-secondary m-3" onClick={backAction}>Back to Student</button>
+        <button className="btn btn-primary m-3">Save Changes</button>
+        {/* <button className="btn btn-danger m-3" onClick={studentRemoval}>Delete Student</button> */}
       </div>
     </div>
   );
 }
 
-export default StudentProfile;
+export default StudentProfileEdit;

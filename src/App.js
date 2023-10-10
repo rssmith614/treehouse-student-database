@@ -5,6 +5,7 @@ import NewProfile from './Pages/NewStudentPage';
 import StudentEval from './Pages/StudentEval';
 import StudentProfile from './Pages/StudentProfile';
 import StudentProfilesList from './Pages/StudentProfilesList';
+import StudentProfileEdit from './Pages/StudentProfileEdit';
 
 function App() {
   const getStoredTheme = () => localStorage.getItem('theme')
@@ -50,6 +51,7 @@ function App() {
         {/* <Route path='/' element={<StudentEval eval={temp}/>} /> */}
         <Route path="/students" element={<StudentProfilesList />} />
         <Route path="/student/:studentid" element={<StudentProfile />} />
+        <Route path="student/edit/:studentid" element={<StudentProfileEdit />} />
       </Routes>
     </Router>
   );
