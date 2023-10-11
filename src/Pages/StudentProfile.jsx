@@ -103,7 +103,7 @@ const StudentProfile = () => {
     </div>
     <hr />
     <div>
-      Evals, Assessments
+      Standards Progress, Evals, Assessments
     </div>
     </>
   )

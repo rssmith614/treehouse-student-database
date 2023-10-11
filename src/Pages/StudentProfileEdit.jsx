@@ -141,29 +141,29 @@ const StudentProfileEdit = () => {
       <div className="d-flex justify-content-start">
         <div className="d-flex p-3 flex-column">
           <div className="d-flex h3">Birthday</div>
-          <input type="date" id="studentDOB" className="form-control" value={student.student_dob} />
+          <input type="date" id="studentDOB" className="form-control" defaultValue={student.student_dob} />
         </div>
         <div className="d-flex p-3 flex-column">
           <div className="d-flex h3">Grade</div>
-          <input type="text" id="studentGrade" className="form-control" value={student.student_grade} />
+          <input type="text" id="studentGrade" className="form-control" defaultValue={student.student_grade} />
         </div>
         <div className="d-flex p-3 flex-column">
           <div className="d-flex h3">School</div>
-          <input type="text" id="studentSchool" className="form-control" value={student.student_school} />
+          <input type="text" id="studentSchool" className="form-control" defaultValue={student.student_school} />
         </div>
         <div className="d-flex p-3 flex-column">
           <div className="d-flex h3">Source</div>
-          <input type="text" id="studentSource" className="form-control" value={student.student_source} />
+          <input type="text" id="studentSource" className="form-control" defaultValue={student.student_source} />
         </div>
       </div>
       <div className="d-flex justify-content-start">
         <div className="d-flex p-3 flex-column">
           <div className="d-flex h3">Parent Name</div>
-          <input type="text" id="parentName" className="form-control" value={student.parent_name} />
+          <input type="text" id="parentName" className="form-control" defaultValue={student.parent_name} />
         </div>
         <div className="d-flex p-3 flex-column">
           <div className="d-flex h3">Parent Phone Number</div>
-          <input type="tel" id="parentPhone" className="form-control" value={student.parent_phone} />
+          <input type="tel" id="parentPhone" className="form-control" defaultValue={student.parent_phone} />
         </div>
       </div>
       <div className="d-flex justify-content-start">
