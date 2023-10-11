@@ -1,4 +1,4 @@
-import { deleteDoc, doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
 import { db } from "../Services/firebase";
 import { useEffect, useRef, useState } from "react";
@@ -22,14 +22,6 @@ const StudentProfile = () => {
 
     getStudentData();
   }, [params.studentid])
-  
-  async function studentRemoval() {
-    if (!window.confirm("Are you sure you want to PERMANENTLY REMOVE the record for this student?")) {
-      return;
-    }
-
-    await deleteDoc(studentRef.current).then(() => navigate('/students'));
-  }
 
   const emergencyContactList = () => {
     if (!student.emergency_contacts) return null;
@@ -119,7 +111,6 @@ const StudentProfile = () => {
       <div className="d-flex">
         <button className="btn btn-secondary m-3" onClick={() => navigate('/students')}>Back to Student List</button>
         <button className="btn btn-info m-3" onClick={() => navigate(`/student/edit/${studentRef.current.id}`)}>Make Changes</button>
-        <button className="btn btn-danger m-3" onClick={studentRemoval}>Delete Student</button>
       </div>
     </div>
   );

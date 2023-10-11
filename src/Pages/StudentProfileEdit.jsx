@@ -1,4 +1,4 @@
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 import { db } from "../Services/firebase";
 import { useEffect, useRef, useState } from "react";
@@ -27,6 +27,14 @@ const StudentProfileEdit = () => {
     getStudentData();
   }, [params.studentid])
 
+  async function studentRemoval() {
+    if (!window.confirm("Are you sure you want to PERMANENTLY REMOVE the record for this student?")) {
+      return;
+    }
+
+    await deleteDoc(studentRef.current).then(() => navigate('/students'));
+  }
+
   async function updateStudent(e) {
     e.preventDefault();
     const newStudent = {
@@ -42,7 +50,7 @@ const StudentProfileEdit = () => {
       emergency_contacts: emergencyContacts,
     }
 
-    await updateDoc(studentRef.current, newStudent).then(() => navigate('/students'));
+    await updateDoc(studentRef.current, newStudent).then(() => navigate(`/student/${studentRef.current.id}`));
   }
   
   function backAction() {
@@ -54,13 +62,18 @@ const StudentProfileEdit = () => {
   }
 
   // to be replaced with DB call
-  let tutors = ["Robert Smith"]
+  let tutors = ["Robert Smith", "Marcus Arellano", "Alex Gonzales"]
 
   function tutorOptions() {
     return tutors.map((tutor) => {
-      return (
-        <option value={tutor} key={tutor.id}>{tutor}</option>
-      );
+      if (student.preferred_tutor === tutor)
+        return (
+          <option selected value={tutor} key={tutor}>{tutor}</option>
+        );
+      else
+        return (
+          <option value={tutor} key={tutor.id}>{tutor}</option>
+        );
     });
   }
 
@@ -156,8 +169,8 @@ const StudentProfileEdit = () => {
         <div className="d-flex justify-content-start">
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Preferred Tutor</div>
-            <select type="text" className="form-control" id="preferredTutor">
-              <option defaultValue>Select One</option>
+            <select type="text" className="form-control" id="preferredTutor" required>
+            <option disabled value="">Select One</option>
               {tutorOptions()}
             </select>
           </div>
@@ -165,11 +178,11 @@ const StudentProfileEdit = () => {
         <div className="d-flex justify-content-start">
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Medical Conditions</div>
-            <textarea className="d-flex form-control" id="medicalConditions">{student.medical_conditions}</textarea>
+            <textarea className="d-flex form-control" id="medicalConditions" defaultValue={student.medical_conditions} />
           </div>
           <div className="d-flex p-3 flex-column">
             <div className="d-flex h3">Other Info</div>
-            <textarea className="d-flex form-control" id="extraInfo">{student.other}</textarea>
+            <textarea className="d-flex form-control" id="extraInfo" defaultValue={student.other} />
           </div>
         </div>
         <div className="d-flex p-3 h3">Emergency Contacts</div>
@@ -191,9 +204,9 @@ const StudentProfileEdit = () => {
         </div>
       </div>
       <div className="d-flex">
-        <button className="btn btn-secondary m-3" onClick={backAction}>Back to Student</button>
-        <button className="btn btn-primary m-3">Save Changes</button>
-        {/* <button className="btn btn-danger m-3" onClick={studentRemoval}>Delete Student</button> */}
+        <button type="button" className="btn btn-secondary m-3" onClick={backAction}>Back to Student</button>
+        <button type="submit" className="btn btn-primary m-3">Save Changes</button>
+        <button type="button" className="btn btn-danger m-3" onClick={studentRemoval}>Delete Student</button>
       </div>
     </form>
     </div>
