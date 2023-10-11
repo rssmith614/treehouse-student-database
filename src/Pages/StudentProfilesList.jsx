@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 
 const StudentProfilesList = () => {
   const [querySnap, setQuerySnap] = useState(null);
+  const [loading, setLoading] = useState(true);
   const studentCollRef = useRef();
 
   const navigate = useNavigate();
@@ -18,7 +19,8 @@ const StudentProfilesList = () => {
       setQuerySnap(temp);
     }
 
-    queryStudents();
+    queryStudents()
+      .then(setLoading(false));
   }, [])
 
   function selectStudent(id) {
@@ -28,6 +30,11 @@ const StudentProfilesList = () => {
   function studentList() {
     if (!querySnap) {
       return null;
+    }
+    if (loading) {
+      return (
+        <div className="spinner-border d-flex align-self-center" />
+      );
     }
     return querySnap.docs.map((doc) => {
       return (

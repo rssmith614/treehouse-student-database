@@ -20,6 +20,9 @@ const NewStudentForm = () => {
 
   async function addStudent(e) {
     e.preventDefault();
+
+    document.getElementById("submit").innerHTML = "Submit <span class='spinner-border spinner-border-sm' />";
+
     const newStudent = {
       student_name: document.getElementById('studentName').value,
       student_dob: document.getElementById('studentDOB').value,
@@ -175,7 +178,7 @@ const NewStudentForm = () => {
 
       <br/>
       <button type="button" className="btn btn-secondary m-3" onClick={backAction}>Back</button>
-      <button type="submit" className="btn btn-primary m-3">Submit</button>
+      <button type="submit" className="btn btn-primary m-3" id="submit">Submit</button>
     </form>
 
     

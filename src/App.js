@@ -29,21 +29,6 @@ function App() {
 
   setTheme(getPreferredTheme());
 
-  let temp = {
-    student_name: "Student A",
-    tutor_name: "Robert",
-    date: "",
-    subject: "",
-    standard: "",
-    grade: 4,
-    progression_standard: "",
-    comments: "",
-    engagement: "",
-    worksheet: "",
-    completion: "",
-    next_session: "",
-  }
-
   return (
     <Router>
       <Routes>

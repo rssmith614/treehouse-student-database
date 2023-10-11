@@ -7,6 +7,7 @@ import { useParams, useNavigate } from "react-router-dom";
 const StudentProfileEdit = () => {
   const [student, setStudent] = useState({});
   const [emergencyContacts, setEmergencyContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const studentRef = useRef();
 
@@ -24,7 +25,8 @@ const StudentProfileEdit = () => {
       })
     }
 
-    getStudentData();
+    getStudentData()
+      .then(setLoading(false));
   }, [params.studentid])
 
   async function studentRemoval() {
@@ -37,6 +39,9 @@ const StudentProfileEdit = () => {
 
   async function updateStudent(e) {
     e.preventDefault();
+
+    document.getElementById("saveChanges").innerHTML = "Save Changes <span class='spinner-border spinner-border-sm' />";
+    
     const newStudent = {
       student_dob: document.getElementById('studentDOB').value,
       parent_name: document.getElementById('parentName').value,
@@ -49,7 +54,7 @@ const StudentProfileEdit = () => {
       medical_conditions: document.getElementById('medicalConditions').value,
       emergency_contacts: emergencyContacts,
     }
-
+    
     await updateDoc(studentRef.current, newStudent).then(() => navigate(`/student/${studentRef.current.id}`));
   }
   
@@ -130,85 +135,89 @@ const StudentProfileEdit = () => {
       )
     })
   }
+
+  const innerForm = (
+    <form onSubmit={updateStudent}>
+      <div className="d-flex justify-content-start">
+        <div className="d-flex p-3 flex-column">
+          <div className="d-flex h3">Birthday</div>
+          <input type="date" id="studentDOB" className="form-control" value={student.student_dob} />
+        </div>
+        <div className="d-flex p-3 flex-column">
+          <div className="d-flex h3">Grade</div>
+          <input type="text" id="studentGrade" className="form-control" value={student.student_grade} />
+        </div>
+        <div className="d-flex p-3 flex-column">
+          <div className="d-flex h3">School</div>
+          <input type="text" id="studentSchool" className="form-control" value={student.student_school} />
+        </div>
+        <div className="d-flex p-3 flex-column">
+          <div className="d-flex h3">Source</div>
+          <input type="text" id="studentSource" className="form-control" value={student.student_source} />
+        </div>
+      </div>
+      <div className="d-flex justify-content-start">
+        <div className="d-flex p-3 flex-column">
+          <div className="d-flex h3">Parent Name</div>
+          <input type="text" id="parentName" className="form-control" value={student.parent_name} />
+        </div>
+        <div className="d-flex p-3 flex-column">
+          <div className="d-flex h3">Parent Phone Number</div>
+          <input type="tel" id="parentPhone" className="form-control" value={student.parent_phone} />
+        </div>
+      </div>
+      <div className="d-flex justify-content-start">
+        <div className="d-flex p-3 flex-column">
+          <div className="d-flex h3">Preferred Tutor</div>
+          <select type="text" className="form-control" id="preferredTutor" required>
+          <option disabled value="">Select One</option>
+            {tutorOptions()}
+          </select>
+        </div>
+      </div>
+      <div className="d-flex justify-content-start">
+        <div className="d-flex p-3 flex-column">
+          <div className="d-flex h3">Medical Conditions</div>
+          <textarea className="d-flex form-control" id="medicalConditions" defaultValue={student.medical_conditions} />
+        </div>
+        <div className="d-flex p-3 flex-column">
+          <div className="d-flex h3">Other Info</div>
+          <textarea className="d-flex form-control" id="extraInfo" defaultValue={student.other} />
+        </div>
+      </div>
+      <div className="d-flex p-3 h3">Emergency Contacts</div>
+      <div className="d-flex flex-column px-5">
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Name</th>
+              <th>Relation</th>
+              <th>Phone Number</th>
+            </tr>
+          </thead>
+          <tbody>
+            {emergencyContactList()}
+          </tbody>
+        </table>
+        <button type="button" className="d-flex btn btn-secondary" onClick={addEContact}>Add New Emergency Contact</button>
+      </div>
+      <div className="d-flex">
+        <button type="button" className="btn btn-secondary m-3" onClick={backAction}>Back to Student</button>
+        <button type="submit" className="btn btn-primary m-3" id="saveChanges">Save Changes</button>
+        <button type="button" className="btn btn-danger m-3" onClick={studentRemoval}>Delete Student</button>
+      </div>
+    </form>
+  );
   
   return (
     <div className='p-3 d-flex flex-column align-items-start'>
       <h1 className='d-flex display-1'>
         Edit Student - {student.student_name}
       </h1>
-      <form onSubmit={updateStudent}>
       <div className='d-flex p-3 card w-75 bg-light-subtle justify-content-center'>
-        <div className="d-flex justify-content-start">
-          <div className="d-flex p-3 flex-column">
-            <div className="d-flex h3">Birthday</div>
-            <input type="date" id="studentDOB" className="form-control" value={student.student_dob} />
-          </div>
-          <div className="d-flex p-3 flex-column">
-            <div className="d-flex h3">Grade</div>
-            <input type="text" id="studentGrade" className="form-control" value={student.student_grade} />
-          </div>
-          <div className="d-flex p-3 flex-column">
-            <div className="d-flex h3">School</div>
-            <input type="text" id="studentSchool" className="form-control" value={student.student_school} />
-          </div>
-          <div className="d-flex p-3 flex-column">
-            <div className="d-flex h3">Source</div>
-            <input type="text" id="studentSource" className="form-control" value={student.student_source} />
-          </div>
-        </div>
-        <div className="d-flex justify-content-start">
-          <div className="d-flex p-3 flex-column">
-            <div className="d-flex h3">Parent Name</div>
-            <input type="text" id="parentName" className="form-control" value={student.parent_name} />
-          </div>
-          <div className="d-flex p-3 flex-column">
-            <div className="d-flex h3">Parent Phone Number</div>
-            <input type="tel" id="parentPhone" className="form-control" value={student.parent_phone} />
-          </div>
-        </div>
-        <div className="d-flex justify-content-start">
-          <div className="d-flex p-3 flex-column">
-            <div className="d-flex h3">Preferred Tutor</div>
-            <select type="text" className="form-control" id="preferredTutor" required>
-            <option disabled value="">Select One</option>
-              {tutorOptions()}
-            </select>
-          </div>
-        </div>
-        <div className="d-flex justify-content-start">
-          <div className="d-flex p-3 flex-column">
-            <div className="d-flex h3">Medical Conditions</div>
-            <textarea className="d-flex form-control" id="medicalConditions" defaultValue={student.medical_conditions} />
-          </div>
-          <div className="d-flex p-3 flex-column">
-            <div className="d-flex h3">Other Info</div>
-            <textarea className="d-flex form-control" id="extraInfo" defaultValue={student.other} />
-          </div>
-        </div>
-        <div className="d-flex p-3 h3">Emergency Contacts</div>
-        <div className="d-flex flex-column px-5">
-          <table className="table table-striped">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Name</th>
-                <th>Relation</th>
-                <th>Phone Number</th>
-              </tr>
-            </thead>
-            <tbody>
-              {emergencyContactList()}
-            </tbody>
-          </table>
-          <button type="button" className="d-flex btn btn-secondary" onClick={addEContact}>Add New Emergency Contact</button>
-        </div>
+        {loading ? <div className="spinner-border align-self-center" /> : innerForm}
       </div>
-      <div className="d-flex">
-        <button type="button" className="btn btn-secondary m-3" onClick={backAction}>Back to Student</button>
-        <button type="submit" className="btn btn-primary m-3">Save Changes</button>
-        <button type="button" className="btn btn-danger m-3" onClick={studentRemoval}>Delete Student</button>
-      </div>
-    </form>
     </div>
   );
 }
