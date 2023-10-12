@@ -1,69 +1,100 @@
-// to be replaced with DB call
-let tutors = ["Robert Smith"]
+import { doc, getDoc } from "firebase/firestore";
 
-function tutorOptions() {
-  return tutors.map((tutor) => {
-    return (
-      <option value={tutor}>{tutor}</option>
-    );
-  });
-}
+import { db } from "../Services/firebase";
+
+import { useEffect, useState, useRef } from "react";
+
+// to be replaced with DB call
+let tutors = ["Robert Smith", "Marcus Arellano", "Alex Gonzales"]
 
 const StudentEvalForm = (props) => {
+  const [student, setStudent] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  const studentRef = useRef();
+
+  studentRef.current = doc(db, "students", props.studentid);
+
+  useEffect(() => {
+    const getStudentData = async () => {
+      await getDoc(studentRef.current).then((docs) => setStudent(docs.data()))
+    }
+
+    getStudentData()
+      .then(setLoading(false));
+  }, [props.studentid])
+
+  async function sumbitEval() {
+    
+  }
+
+  function tutorOptions() {
+    return tutors.map((tutor) => {
+      if (student.preferred_tutor === tutor)
+        return (
+          <option selected value={tutor} key={tutor}>{tutor}</option>
+        );
+      else
+        return (
+          <option value={tutor} key={tutor.id}>{tutor}</option>
+        );
+    });
+  }
+
   return (
     <form>
-      <h2 className="">{props.eval.student_name}</h2>
+      <h2 className="h3">{student.student_name}</h2>
       <div className="row my-3">
         <div className="col">
-          <label className="form-label h3">Tutor</label>
-          <select className="form-control">
-            <option selected>Select One</option>
+          <label className="form-label h5">Tutor</label>
+          <select className="form-control" required>
+            <option disabled selected value="">Select One</option>
             {tutorOptions()}
           </select>
         </div>
         <div className="col">
-          <label className="form-label h3">Date</label>
+          <label className="form-label h5">Date</label>
           <input className="form-control" type="date" />
         </div>
         <div className="col">
-          <label className="form-label h3">Subject</label>
+          <label className="form-label h5">Subject</label>
           <input className="form-control" type="text" />
         </div>
         <div className="col">
-          <label className="form-label h3">Standard</label>
+          <label className="form-label h5">Standard</label>
           <input className="form-control" type="text" />
         </div>
         <div className="col">
-          <label className="form-label h3">Grade Level</label>
+          <label className="form-label h5">Grade Level</label>
           <input className="form-control" type="text" />
         </div>
       </div>
       <div className="row my-3">
         <div className="col">
-          <label className="form-label h3">Progression</label>
+          <label className="form-label h5">Progression</label>
           <input className="form-control" type="number" min="1" max="5" step="1" defaultValue="5" />
         </div>
         <div className="col">
-          <label className="form-label h3">Engagement</label>
+          <label className="form-label h5">Engagement</label>
           <input className="form-control" type="number" min="1" max="5" step="1" defaultValue="5" />
         </div>
         <div className="col">
-          <label className="form-label h3">Comments</label>
+          <label className="form-label h5">Comments</label>
           <textarea className="form-control" />
         </div>
       </div>
       <hr />
       <div className="row my-3">
         <div className="col">
-          <label className="form-label h3">Worksheet</label>
+          <label className="form-label h5">Worksheet</label>
           <input className="form-control" type="file" />
         </div>
         <div className="col">
-          <label className="form-label h3">Worksheet Completion</label>
+          <label className="form-label h5">Worksheet Completion</label>
           <input className="form-control" type="text" />
         </div>
         <div className="col">
-          <label className="form-label h3">Next Session Plans</label>
+          <label className="form-label h5">Next Session Plans</label>
           <textarea className="form-control" />
         </div>
       </div>

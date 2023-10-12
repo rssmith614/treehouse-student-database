@@ -117,6 +117,9 @@ const StudentProfile = () => {
         {loading ? <div className="spinner-border align-self-center" /> : innerContent}
       </div>
       <div className="d-flex">
+        <button className="btn btn-primary m-3" onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}>New Session Eval</button>
+      </div>
+      <div className="d-flex">
         <button className="btn btn-secondary m-3" onClick={() => navigate('/students')}>Back to Student List</button>
         <button className="btn btn-info m-3" onClick={() => navigate(`/student/edit/${studentRef.current.id}`)}>Make Changes</button>
       </div>

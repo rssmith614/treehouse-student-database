@@ -33,7 +33,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/newstudent" element={<NewProfile />} />
-        {/* <Route path='/' element={<StudentEval eval={temp}/>} /> */}
+        <Route path='/eval/new/:studentid' element={<StudentEval />} />
         <Route path="/students" element={<StudentProfilesList />} />
         <Route path="/student/:studentid" element={<StudentProfile />} />
         <Route path="student/edit/:studentid" element={<StudentProfileEdit />} />
