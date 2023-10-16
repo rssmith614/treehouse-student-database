@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { db } from "../Services/firebase";
 import { useEffect, useRef, useState } from "react";
+import { Can } from "../Services/can";
 
 const StudentProfilesList = () => {
   const [students, setStudents] = useState(null);
@@ -37,18 +38,19 @@ const StudentProfilesList = () => {
     }
 
     const tableData = students.filter((student) => {
-      return student.data()['student_name'].toLowerCase().includes(search.toLowerCase());
+      return student.data().student_name.toLowerCase().includes(search.toLowerCase());
     })
 
     return tableData.map((student) => {
+      let studentData = student.data();
       return (
         <tr className="p-3" key={student.id} onClick={() => selectStudent(student.id)}
           style={{ cursor: "pointer" }}>
           <td>
-            {student.data()['student_name']}
+            {studentData.student_name}
           </td>
           <td>
-            {student.data()['student_source']}
+            {studentData.student_source}
           </td>
           <td></td>
         </tr>
@@ -78,14 +80,16 @@ const StudentProfilesList = () => {
   );
 
   return (
-    <div className='p-3 d-flex flex-column align-items-start'>
+    <div className='p-3 d-flex flex-column'>
       <div className='display-1 d-flex'>
-        Student Profiles
+        Students
       </div>
-      <div className='d-flex p-3 card w-75 bg-light-subtle'>
+      <div className='d-flex p-3 m-3 card bg-light-subtle'>
         {loading ? <div className="spinner-border d-flex align-self-center" /> : listTable}
       </div>
-      <button className="btn btn-primary m-3" onClick={() => navigate(`/newstudent`)}>Add New Student</button>
+      <Can do="add" on="students">
+        <button className="btn btn-primary m-3 w-25 align-self-end" onClick={() => navigate(`/newstudent`)}>Add New Student</button>
+      </Can>
     </div>
   );
 }

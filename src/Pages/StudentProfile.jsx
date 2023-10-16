@@ -4,6 +4,8 @@ import { db } from "../Services/firebase";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
+import { Can } from "../Services/can";
+
 const StudentProfile = () => {
   const [student, setStudent] = useState({});
   const [loading, setLoading] = useState(true);
@@ -111,7 +113,7 @@ const StudentProfile = () => {
   return (
     <div className='p-3 d-flex flex-column align-items-start'>
       <h1 className='d-flex display-1'>
-        Student - {student.student_name}
+        Student Profile - {student.student_name}
       </h1>
       <div className='d-flex p-3 card w-75 bg-light-subtle justify-content-center'>
         {loading ? <div className="spinner-border align-self-center" /> : innerContent}
@@ -121,7 +123,9 @@ const StudentProfile = () => {
       </div>
       <div className="d-flex">
         <button className="btn btn-secondary m-3" onClick={() => navigate('/students')}>Back to Student List</button>
-        <button className="btn btn-info m-3" onClick={() => navigate(`/student/edit/${studentRef.current.id}`)}>Make Changes</button>
+        <Can do="manage" on="students">
+          <button className="btn btn-info m-3" onClick={() => navigate(`/student/edit/${studentRef.current.id}`)}>Make Changes</button>
+        </Can>
       </div>
     </div>
   );

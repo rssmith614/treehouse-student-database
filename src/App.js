@@ -1,13 +1,27 @@
-import { BrowserRouter as Router, useParams } from 'react-router-dom';
-import { Route, Routes, Params } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import NewProfile from './Pages/NewStudentPage';
 import StudentEval from './Pages/StudentEval';
 import StudentProfile from './Pages/StudentProfile';
 import StudentProfilesList from './Pages/StudentProfilesList';
 import StudentProfileEdit from './Pages/StudentProfileEdit';
+import Login from './Pages/Login';
+import TutorProfilesList from './Pages/TutorProfilesList';
+
+import Navbar from './Components/Navbar';
+
+import { AbilityContext } from './Services/can';
+import defineAbilityFor from "./Services/defineAbility";
+
+import { collection, query, getDocs, where } from 'firebase/firestore';
+
+import { auth, db } from './Services/firebase';
+import { useState } from 'react';
 
 function App() {
+
+  // THEME MANAGEMENT
   const getStoredTheme = () => localStorage.getItem('theme')
   
   const getPreferredTheme = () => {
@@ -29,16 +43,40 @@ function App() {
 
   setTheme(getPreferredTheme());
 
+  // USER / ABILITY MANAGEMENT
+  const [userProfile, setUserProfile] = useState(null);
+
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      if (!userProfile) {
+        const tutorsRef = collection(db, "tutors");
+        const q = query(tutorsRef, where("email", "==", user.email));
+        getDocs(q).then((res) => {
+          setUserProfile(res.docs[0].data());
+        });
+      }
+    } else {
+    }
+  })
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/newstudent" element={<NewProfile />} />
-        <Route path='/eval/new/:studentid' element={<StudentEval />} />
-        <Route path="/students" element={<StudentProfilesList />} />
-        <Route path="/student/:studentid" element={<StudentProfile />} />
-        <Route path="student/edit/:studentid" element={<StudentProfileEdit />} />
-      </Routes>
-    </Router>
+    <AbilityContext.Provider value={defineAbilityFor(userProfile)}>
+      <Router>
+        <Navbar userProfile={userProfile} />
+        <Routes>
+          <Route path="/login" element={<Login userProfile={userProfile} setUserProfile={setUserProfile} />} />
+
+          <Route path='/eval/new/:studentid' element={<StudentEval />} />
+
+          <Route path="/newstudent" element={<NewProfile />} />
+          <Route path="/students" element={<StudentProfilesList />} />
+          <Route path="/student/:studentid" element={<StudentProfile />} />
+          <Route path="student/edit/:studentid" element={<StudentProfileEdit />} />
+
+          <Route path="/tutors" element={<TutorProfilesList />} />
+        </Routes>
+      </Router>
+    </AbilityContext.Provider>
   );
 }
 
