@@ -111,22 +111,22 @@ const StudentProfile = () => {
   )
   
   return (
-    <div className='p-3 d-flex flex-column align-items-start'>
+    <div className='p-3 d-flex flex-column'>
       <h1 className='d-flex display-1'>
         Student Profile - {student.student_name}
       </h1>
-      <div className='d-flex p-3 card w-75 bg-light-subtle justify-content-center'>
-        {loading ? <div className="spinner-border align-self-center" /> : innerContent}
+      <div className="d-flex flex-row justify-content-center">
+        <div className='d-flex p-3 card w-75 bg-light-subtle justify-content-center'>
+          {loading ? <div className="spinner-border align-self-center" /> : innerContent}
+        </div>
       </div>
-      <div className="d-flex">
-        <button className="btn btn-primary m-3" onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}>New Session Eval</button>
-      </div>
-      <div className="d-flex">
-        <button className="btn btn-secondary m-3" onClick={() => navigate('/students')}>Back to Student List</button>
-        <Can do="manage" on="students">
-          <button className="btn btn-info m-3" onClick={() => navigate(`/student/edit/${studentRef.current.id}`)}>Make Changes</button>
-        </Can>
-      </div>
+        <div className="d-flex">
+          <button className="btn btn-secondary m-3" onClick={() => navigate('/students')}>Back to Student List</button>
+          <button className="btn btn-primary m-3" onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}>New Session Eval</button>
+          <Can do="manage" on="students">
+            <button className="btn btn-info m-3" onClick={() => navigate(`/student/edit/${studentRef.current.id}`)}>Make Changes</button>
+          </Can>
+        </div>
     </div>
   );
 }

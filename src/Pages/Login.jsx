@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 
 import { auth, db } from "../Services/firebase";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth"
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { GoogleAuthProvider, signInAnonymously, signInWithPopup, signOut } from "firebase/auth"
+import { collection, getDocs, query, updateDoc, where } from "firebase/firestore";
 
 import { AbilityBuilder } from "@casl/ability";
 import { AbilityContext } from "../Services/can";
@@ -39,11 +39,25 @@ const Login = ( { setUserProfile }) => {
 
         getDocs(q).then((res) => {
           if (res.docs.length === 0) {
-            window.alert(`User ${user.displayName} is not in the database`);
+            window.alert(`User ${user.displayName}: ${user.email} is not in the database`);
             signOut(auth);
           } else {
-            updateAbility(res.docs[0].data());
-            setUserProfile(res.docs[0].data());
+            let attemptedLoginUser = res.docs[0].data();
+
+            if (!attemptedLoginUser.activated) {
+              attemptedLoginUser['activated'] = true;
+              attemptedLoginUser = Object.assign(attemptedLoginUser, JSON.parse(JSON.stringify(user.toJSON())));
+              updateDoc(res.docs[0].ref, attemptedLoginUser);
+            }
+
+            if (attemptedLoginUser.clearance === "held" || attemptedLoginUser.clearance === 'revoked') {
+              window.alert('You do not have access to the Treehouse Student Database. Contact an administrator.');
+              signOut(auth);
+              return;
+            }
+
+            updateAbility(attemptedLoginUser);
+            setUserProfile(attemptedLoginUser);
             navigate('/students');
           }
         })

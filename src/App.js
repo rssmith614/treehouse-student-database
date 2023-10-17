@@ -1,5 +1,5 @@
 import { BrowserRouter as Router } from 'react-router-dom';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Redirect } from 'react-router-dom';
 
 import NewProfile from './Pages/NewStudentPage';
 import StudentEval from './Pages/StudentEval';
@@ -18,6 +18,7 @@ import { collection, query, getDocs, where } from 'firebase/firestore';
 
 import { auth, db } from './Services/firebase';
 import { useState } from 'react';
+import NewTutorPage from './Pages/NewTutorPage';
 
 function App() {
 
@@ -52,7 +53,8 @@ function App() {
         const tutorsRef = collection(db, "tutors");
         const q = query(tutorsRef, where("email", "==", user.email));
         getDocs(q).then((res) => {
-          setUserProfile(res.docs[0].data());
+          if (res.docs.length > 0)
+            setUserProfile(res.docs[0].data());
         });
       }
     } else {
@@ -73,6 +75,7 @@ function App() {
           <Route path="/student/:studentid" element={<StudentProfile />} />
           <Route path="student/edit/:studentid" element={<StudentProfileEdit />} />
 
+          <Route path="/newtutor" element={<NewTutorPage />} />
           <Route path="/tutors" element={<TutorProfilesList />} />
         </Routes>
       </Router>
