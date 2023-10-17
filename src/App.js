@@ -8,6 +8,9 @@ import StudentProfilesList from './Pages/StudentProfilesList';
 import StudentProfileEdit from './Pages/StudentProfileEdit';
 import Login from './Pages/Login';
 import TutorProfilesList from './Pages/TutorProfilesList';
+import NewTutorPage from './Pages/NewTutorPage';
+import TutorProfile from './Pages/TutorProfile';
+import TutorProfileEdit from './Pages/TutorProfileEdit';
 
 import Navbar from './Components/Navbar';
 
@@ -18,7 +21,6 @@ import { collection, query, getDocs, where } from 'firebase/firestore';
 
 import { auth, db } from './Services/firebase';
 import { useState } from 'react';
-import NewTutorPage from './Pages/NewTutorPage';
 
 function App() {
 
@@ -77,6 +79,8 @@ function App() {
 
           <Route path="/newtutor" element={<NewTutorPage />} />
           <Route path="/tutors" element={<TutorProfilesList />} />
+          <Route path="/tutor/:tutorid" element={<TutorProfile />} />
+          <Route path="/tutor/edit/:tutorid" element={<TutorProfileEdit />} />
         </Routes>
       </Router>
     </AbilityContext.Provider>

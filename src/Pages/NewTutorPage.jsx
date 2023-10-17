@@ -8,6 +8,18 @@ const NewTutorPage = () => {
 
   function handleSubmit(e) {
     e.preventDefault();
+
+    let clearance = document.getElementById("tutorclearance").value;
+
+    if (clearance === "admin") {
+      if (!window.confirm(`You are about to GRANT admin permissions to a new user: ${document.getElementById("tutoremail").value}. They will have full read, write, and edit permissions on all data. Are you sure you want to do this?`)) {
+        return;
+      }
+    } else if (clearance === "held" || clearance === "revoked") {
+      if (!window.confirm(`You have assigned the new user ${document.getElementById("tutoremail").value} '${clearance}' permissions. They will not have access to the system. Are you sure you want to do this?`)) {
+        return;
+      }
+    }
   
     const tutorCollRef = collection(db, "tutors");
     addDoc(tutorCollRef, {

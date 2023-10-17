@@ -23,11 +23,19 @@ const TutorProfilesList = () => {
   }, [])
   
   function selectTutor(tutor) {
-    console.log(tutor);
+    navigate(`/tutor/${tutor}`);
   }
 
   function handleSearch(e) {
     setSearch(e.target.value);
+  }
+
+  function capitalize(str) {
+    try {
+      return str.charAt(0).toUpperCase() + str.slice(1)
+    } catch (e) {
+      return '';
+    }
   }
 
   const tutorRows = () => {
@@ -42,7 +50,7 @@ const TutorProfilesList = () => {
           style={{ cursor: "pointer" }}>
           <td>{tutorData.displayName || "Not Activated"}</td>
           <td>{tutorData.email}</td>
-          <td>{tutorData.clearance || 'None Assigned'}</td>
+          <td>{capitalize(tutorData.clearance) || 'None Assigned'}</td>
         </tr>
       )
     })
