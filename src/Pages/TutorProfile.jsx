@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Can } from "../Services/can";
-import { collection, doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../Services/firebase";
-
 
 const TutorProfile = () => {
   const [tutor, setTutor] = useState({});
@@ -45,6 +44,18 @@ const TutorProfile = () => {
     </div>
   );
 
+  class Tutor {
+    constructor(dict) {
+      for (const key in dict) {
+        if (dict.hasOwnProperty(key)) {
+          this[key] = dict[key];
+        }
+      }
+    }
+  }
+
+  let tutorInstance = new Tutor(tutor);
+
   return (
     <div className='p-3 d-flex flex-column'>
       <h1 className='d-flex display-1'>
@@ -57,7 +68,7 @@ const TutorProfile = () => {
       </div>
         <div className="d-flex">
           <button className="btn btn-secondary m-3" onClick={() => navigate('/tutors')}>Back to Tutor List</button>
-          <Can do="manage" on="tutors">
+          <Can I="edit" this={tutorInstance} >
             <button className="btn btn-info m-3" onClick={() => navigate(`/tutor/edit/${tutorDocRef.id}`)}>Make Changes</button>
           </Can>
         </div>

@@ -13,8 +13,6 @@ const Navbar = ({ userProfile }) => {
 
   const ability = useContext(AbilityContext);
 
-  console.log(ability.relevantRuleFor('read', 'tutors'));
-
   useEffect(() => {
     if (userProfile)
       setUserName(userProfile.displayName);
@@ -37,7 +35,7 @@ const Navbar = ({ userProfile }) => {
           <div class="navbar-nav d-flex">
             <button class="nav-link"
               onClick={() => navigate('/students')} style={{ cursor: "pointer" }}>Students</button>
-            <Can do="read" on="tutors">
+            <Can I="read" on="Tutor">
               <button class="nav-link"
                 onClick={() => navigate('/tutors')} style={{ cursor: "pointer" }}>Tutors</button>
             </Can>

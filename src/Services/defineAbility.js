@@ -1,7 +1,7 @@
 import { AbilityBuilder, createMongoAbility } from '@casl/ability';
 
 export default function defineAbilityFor(user) {
-  const { can, build } = new AbilityBuilder(createMongoAbility);
+  const { can, cannot, build } = new AbilityBuilder(createMongoAbility);
   
   if (!user) {
     return build();
@@ -9,6 +9,7 @@ export default function defineAbilityFor(user) {
 
   if (user.clearance === 'admin') {
     can('manage', 'all');
+    cannot('edit', 'Tutor', { email: user.email });
   }
 
   return build();
