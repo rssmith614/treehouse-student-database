@@ -1,4 +1,4 @@
-import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc, getDocs, collection } from "firebase/firestore";
 
 import { db } from "../Services/firebase";
 import { useEffect, useRef, useState } from "react";
@@ -6,6 +6,10 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const StudentProfileEdit = () => {
   const [student, setStudent] = useState({});
+  const [tutors, setTutors] = useState([]);
+
+  const [selectedTutor, setSelectedTutor] = useState("");
+
   const [emergencyContacts, setEmergencyContacts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,15 +22,15 @@ const StudentProfileEdit = () => {
   studentRef.current = doc(db, "students", params.studentid);
   
   useEffect(() => {
-    const getStudentData = async () => {
-      await getDoc(studentRef.current).then((docs) => {
-        setStudent(docs.data());
-        setEmergencyContacts(docs.data().emergency_contacts);
-      })
-    }
+    getDoc(studentRef.current).then((docs) => {
+      setStudent(docs.data());
+      setEmergencyContacts(docs.data().emergency_contacts);
+      setSelectedTutor(docs.data().preferred_tutor);
+    }).then(setLoading(false));
 
-    getStudentData()
-      .then(setLoading(false));
+    getDocs(collection(db, 'tutors'))
+      .then((res) => setTutors(res.docs));
+
   }, [params.studentid])
 
   async function studentRemoval() {
@@ -67,18 +71,13 @@ const StudentProfileEdit = () => {
   }
 
   // to be replaced with DB call
-  let tutors = ["Robert Smith", "Marcus Arellano", "Alex Gonzales"]
+  // let tutors = ["Robert Smith", "Marcus Arellano", "Alex Gonzales"]
 
   function tutorOptions() {
     return tutors.map((tutor) => {
-      if (student.preferred_tutor === tutor)
-        return (
-          <option selected value={tutor} key={tutor}>{tutor}</option>
-        );
-      else
-        return (
-          <option value={tutor} key={tutor.id}>{tutor}</option>
-        );
+      return (
+        <option value={tutor.id} key={tutor.id}>{tutor.data().displayName}</option>
+      );
     });
   }
 
@@ -137,7 +136,7 @@ const StudentProfileEdit = () => {
   }
 
   const innerForm = (
-    <form onSubmit={updateStudent}>
+    <>
       <div className="d-flex justify-content-start">
         <div className="d-flex p-3 flex-column">
           <div className="d-flex h3">Birthday</div>
@@ -169,7 +168,8 @@ const StudentProfileEdit = () => {
       <div className="d-flex justify-content-start">
         <div className="d-flex p-3 flex-column">
           <div className="d-flex h3">Preferred Tutor</div>
-          <select type="text" className="form-control" id="preferredTutor" required>
+          <select type="text" className="form-control" id="preferredTutor"
+            value={selectedTutor} onChange={(e) => setSelectedTutor(e.target.value)}>
           <option disabled value="">Select One</option>
             {tutorOptions()}
           </select>
@@ -200,24 +200,26 @@ const StudentProfileEdit = () => {
             {emergencyContactList()}
           </tbody>
         </table>
-        <button type="button" className="d-flex btn btn-secondary" onClick={addEContact}>Add New Emergency Contact</button>
+        <button type="button" className="btn btn-secondary me-auto" onClick={addEContact}>Add New Emergency Contact</button>
       </div>
-      <div className="d-flex">
-        <button type="button" className="btn btn-secondary m-3" onClick={backAction}>Back to Student</button>
-        <button type="submit" className="btn btn-primary m-3" id="saveChanges">Save Changes</button>
-        <button type="button" className="btn btn-danger m-3" onClick={studentRemoval}>Delete Student</button>
-      </div>
-    </form>
+    </>
   );
   
   return (
-    <div className='p-3 d-flex flex-column align-items-start'>
+    <div className='p-3 d-flex flex-column'>
       <h1 className='d-flex display-1'>
         Edit Student - {student.student_name}
       </h1>
-      <div className='d-flex p-3 card w-75 bg-light-subtle justify-content-center'>
-        {loading ? <div className="spinner-border align-self-center" /> : innerForm}
+      <form onSubmit={updateStudent}>
+        <div className='d-flex p-3 m-3 card bg-light-subtle'>
+          {loading ? <div className="spinner-border align-self-center" /> : innerForm}
+        </div>
+        <div className="d-flex">
+          <button type="button" className="btn btn-secondary m-3 me-auto" onClick={backAction}>Back to Student</button>
+          <button type="button" className="btn btn-danger m-3" onClick={studentRemoval}>Delete Student</button>
+          <button type="submit" className="btn btn-primary m-3" id="saveChanges">Save Changes</button>
       </div>
+      </form>
     </div>
   );
 }

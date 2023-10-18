@@ -47,6 +47,7 @@ const Login = ( { setUserProfile }) => {
             if (!attemptedLoginUser.activated) {
               attemptedLoginUser['activated'] = true;
               attemptedLoginUser = Object.assign(attemptedLoginUser, JSON.parse(JSON.stringify(user.toJSON())));
+              delete attemptedLoginUser.apiKey;
               updateDoc(res.docs[0].ref, attemptedLoginUser);
             }
 

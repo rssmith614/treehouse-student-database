@@ -42,9 +42,9 @@ const TutorProfilesList = () => {
     const tableData = tutors.filter((tutor) => {
       return tutor.data().displayName.toLowerCase().includes(search.toLowerCase());
     })
-    tableData.sort((a,b) => {return a.displayName > b.displayName});
+    tableData.sort((a,b) => { return a.data().displayName.localeCompare(b.data().displayName) });
     return tableData.map((tutor) => {
-      let tutorData =  tutor.data();
+      let tutorData = tutor.data();
       return (
         <tr className="p-3" key={tutor.id} onClick={() => selectTutor(tutor.id)}
           style={{ cursor: "pointer" }}>
@@ -86,7 +86,7 @@ const TutorProfilesList = () => {
         {loading ? <div className="spinner-border d-flex align-self-center" /> : listTable}
       </div>
       <Can do="manage" on="tutors">
-        <button className="btn btn-primary m-3 w-25 align-self-end" onClick={() => navigate('/newtutor')}>Register New Tutor</button>
+        <button className="btn btn-primary m-3 ms-auto" onClick={() => navigate('/newtutor')}>Register New Tutor</button>
       </Can>
     </div>
   )

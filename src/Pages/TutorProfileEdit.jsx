@@ -74,13 +74,13 @@ const TutorProfileEdit = () => {
       </h1>
       <form onSubmit={handleSubmit}>
         <div className="d-flex flex-row justify-content-center">
-          <div className='d-flex p-3 card w-75 bg-light-subtle justify-content-center'>
+          <div className='d-flex flex-fill m-3 p-3 card bg-light-subtle justify-content-center'>
             {loading ? <div className="spinner-border align-self-center" /> : innerContent}
           </div>
         </div>
         <div className="d-flex">
           <button type="button" className="btn btn-secondary m-3" onClick={() => navigate(`/tutor/${tutorDocRef.current.id}`)}>Back</button>
-          <button type="sumbit" className="btn btn-primary m-3">Submit</button>
+          <button type="sumbit" className="btn btn-primary m-3 ms-auto">Submit</button>
         </div>
       </form>
     </div>

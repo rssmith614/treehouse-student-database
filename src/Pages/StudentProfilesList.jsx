@@ -41,6 +41,8 @@ const StudentProfilesList = () => {
       return student.data().student_name.toLowerCase().includes(search.toLowerCase());
     })
 
+    tableData.sort((a,b) => { return a.data().student_name.localeCompare(b.data().student_name) });
+
     return tableData.map((student) => {
       let studentData = student.data();
       return (
@@ -61,7 +63,7 @@ const StudentProfilesList = () => {
   const listTable = (
     <>
     <div className="d-flex">
-      <input type="text" className="form-control my-1 w-25 d-flex" onChange={handleSearch}
+      <input type="text" className="form-control mb-3 w-25 d-flex" onChange={handleSearch}
         placeholder="Search" />
     </div>
     <table className="table table-striped table-hover">
@@ -88,7 +90,7 @@ const StudentProfilesList = () => {
         {loading ? <div className="spinner-border d-flex align-self-center" /> : listTable}
       </div>
       <Can do="add" on="students">
-        <button className="btn btn-primary m-3 w-25 align-self-end" onClick={() => navigate(`/newstudent`)}>Add New Student</button>
+        <button className="btn btn-primary m-3 ms-auto" onClick={() => navigate(`/newstudent`)}>Add New Student</button>
       </Can>
     </div>
   );

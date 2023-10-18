@@ -1,4 +1,4 @@
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, where } from "firebase/firestore";
 
 import { db } from "../Services/firebase";
 import { useEffect, useRef, useState } from "react";
@@ -8,6 +8,7 @@ import { Can } from "../Services/can";
 
 const StudentProfile = () => {
   const [student, setStudent] = useState({});
+  const [preferredTutor, setPreferredTutor] = useState('');
   const [loading, setLoading] = useState(true);
 
   const studentRef = useRef();
@@ -19,12 +20,14 @@ const StudentProfile = () => {
   studentRef.current = doc(db, "students", params.studentid);
   
   useEffect(() => {
-    const getStudentData = async () => {
-      await getDoc(studentRef.current).then((docs) => setStudent(docs.data()))
-    }
 
-    getStudentData()
-      .then(setLoading(false));
+    getDoc(studentRef.current)
+      .then((res) => {
+        setStudent(res.data());
+        getDoc(doc(db, 'tutors', res.data().preferred_tutor))
+          .then((res) => setPreferredTutor(res.data().displayName))  
+      }).then(setLoading(false))
+
   }, [params.studentid])
 
   const emergencyContactList = () => {
@@ -73,7 +76,7 @@ const StudentProfile = () => {
     <div className="d-flex justify-content-start">
       <div className="d-flex p-3 flex-column">
         <div className="d-flex h3">Preferred Tutor</div>
-        <div className="d-flex">{student.preferred_tutor}</div>
+        <div className="d-flex">{preferredTutor}</div>
       </div>
     </div>
     <div className="d-flex justify-content-start">
@@ -115,17 +118,17 @@ const StudentProfile = () => {
       <h1 className='d-flex display-1'>
         Student Profile - {student.student_name}
       </h1>
-      <div className="d-flex flex-row justify-content-center">
-        <div className='d-flex p-3 card w-75 bg-light-subtle justify-content-center'>
+      <div className="d-flex ">
+        <div className='d-flex p-3 m-3 card bg-light-subtle flex-fill'>
           {loading ? <div className="spinner-border align-self-center" /> : innerContent}
         </div>
       </div>
         <div className="d-flex">
-          <button className="btn btn-secondary m-3" onClick={() => navigate('/students')}>Back to Student List</button>
-          <button className="btn btn-primary m-3" onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}>New Session Eval</button>
+          <button className="btn btn-secondary m-3 me-auto" onClick={() => navigate('/students')}>Back to Student List</button>
           <Can do="manage" on="students">
             <button className="btn btn-info m-3" onClick={() => navigate(`/student/edit/${studentRef.current.id}`)}>Make Changes</button>
           </Can>
+          <button className="btn btn-primary m-3" onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}>New Session Eval</button>
         </div>
     </div>
   );

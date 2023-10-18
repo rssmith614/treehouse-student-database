@@ -99,7 +99,7 @@ const StudentEvalForm = (props) => {
         </div>
       </div>
 
-      <button className="btn btn-primary" type="submit">Submit</button>
+      <button className="d-flex btn btn-primary m-3 ms-auto" type="submit">Submit</button>
     </form>
   );
 }

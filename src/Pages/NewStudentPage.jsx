@@ -7,7 +7,7 @@ const NewProfile = () => {
         New Student
       </div>
       <div className='d-flex flex-row justify-content-center'>
-        <div className='d-flex p-3 m-3 card w-75 bg-light-subtle'>
+        <div className='d-flex p-3 m-3 card bg-light-subtle flex-fill'>
           <NewStudentForm />
         </div>
       </div>

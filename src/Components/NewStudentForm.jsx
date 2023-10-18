@@ -1,18 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../Services/firebase";
 
-import { addDoc, collection } from "firebase/firestore";
-// import EmergencyContactList from "./EmergencyContactList";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 
 // to be replaced with DB call
-let tutors = ["Robert Smith", "Marcus Arellano", "Alex Gonzales"];
+// let tutors = ["Robert Smith", "Marcus Arellano", "Alex Gonzales"];
 
 const NewStudentForm = () => {
+  const [tutors, setTutors] = useState([]);
   const [emergencyContacts, setEmergencyContacts] = useState([]);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getDocs(collection(db, "tutors"))
+      .then((res) => setTutors(res.docs));
+  })
 
   function addEContact() {
     setEmergencyContacts([...emergencyContacts, {name:"", relation:"", phone:""}]);
@@ -91,7 +96,7 @@ const NewStudentForm = () => {
   function tutorOptions() {
     return tutors.map((tutor) => {
       return (
-        <option value={tutor} key={tutor.id}>{tutor}</option>
+        <option value={tutor.id} key={tutor.id}>{tutor.data().displayName}</option>
       );
     });
   }
@@ -173,10 +178,9 @@ const NewStudentForm = () => {
             {emergencyContactList()}
           </tbody>
         </table>
-        <button className="d-flex btn btn-secondary mb-3" type="button" onClick={addEContact}>Add New Emergency Contact</button>
+        <button className="btn btn-secondary mb-3 me-auto" type="button" onClick={addEContact}>Add New Emergency Contact</button>
       </div>
 
-      <br/>
       <button type="button" className="btn btn-secondary m-3" onClick={backAction}>Back</button>
       <button type="submit" className="btn btn-primary m-3" id="submit">Submit</button>
     </form>

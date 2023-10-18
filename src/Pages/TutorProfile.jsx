@@ -33,6 +33,7 @@ const TutorProfile = () => {
 
   const innerContent = (
     <div className="d-flex">
+      <img src={tutor.photoURL} alt="" />
       <div className="d-flex flex-column p-3">
         <div className="h3">Email</div>
         <div>{tutor.email}</div>
@@ -62,14 +63,14 @@ const TutorProfile = () => {
         Tutor Profile - {tutor.displayName}
       </h1>
       <div className="d-flex flex-row justify-content-center">
-        <div className='d-flex p-3 card w-75 bg-light-subtle justify-content-center'>
+        <div className='d-flex flex-fill m-3 p-3 card bg-light-subtle justify-content-center'>
           {loading ? <div className="spinner-border align-self-center" /> : innerContent}
         </div>
       </div>
         <div className="d-flex">
           <button className="btn btn-secondary m-3" onClick={() => navigate('/tutors')}>Back to Tutor List</button>
           <Can I="edit" this={tutorInstance} >
-            <button className="btn btn-info m-3" onClick={() => navigate(`/tutor/edit/${tutorDocRef.current.id}`)}>Make Changes</button>
+            <button className="btn btn-info m-3 ms-auto" onClick={() => navigate(`/tutor/edit/${tutorDocRef.current.id}`)}>Make Changes</button>
           </Can>
         </div>
     </div>
