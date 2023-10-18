@@ -1,4 +1,4 @@
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../Services/firebase";
 import { useNavigate } from "react-router-dom";
 
@@ -10,23 +10,32 @@ const NewTutorPage = () => {
     e.preventDefault();
 
     let clearance = document.getElementById("tutorclearance").value;
+    let email = document.getElementById("tutoremail").value;
 
-    if (clearance === "admin") {
-      if (!window.confirm(`You are about to GRANT admin permissions to a new user: ${document.getElementById("tutoremail").value}. They will have full read, write, and edit permissions on all data. Are you sure you want to do this?`)) {
-        return;
-      }
-    } else if (clearance === "held" || clearance === "revoked") {
-      if (!window.confirm(`You have assigned the new user ${document.getElementById("tutoremail").value} '${clearance}' permissions. They will not have access to the system. Are you sure you want to do this?`)) {
-        return;
-      }
-    }
-  
     const tutorCollRef = collection(db, "tutors");
-    addDoc(tutorCollRef, {
-      email: document.getElementById("tutoremail").value,
-      clearance: document.getElementById("tutorclearance").value,
-      activated: false,
-    }).then(() => navigate('/tutors'));
+    const q = query(tutorCollRef, where("email", "==", email));
+
+    getDocs(q).then((res) => {
+      if (res.docs.length !== 0) {
+        window.alert(`The email ${email} is already registered to a Tutor account.`);
+        return;
+      }
+      if (clearance === "admin") {
+        if (!window.confirm(`You are about to GRANT admin permissions to a new user: ${email}. They will have full read, write, and edit permissions on all data. Are you sure you want to do this?`)) {
+          return;
+        }
+      } else if (clearance === "held" || clearance === "revoked") {
+        if (!window.confirm(`You have assigned the new user ${email} '${clearance}' permissions. They will not have access to the system. Are you sure you want to do this?`)) {
+          return;
+        }
+      }
+    
+      addDoc(tutorCollRef, {
+        email: document.getElementById("tutoremail").value,
+        clearance: document.getElementById("tutorclearance").value,
+        activated: false,
+      }).then(() => navigate('/tutors'));
+    })
   }
 
   return (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Can } from "../Services/can";
@@ -13,11 +13,11 @@ const TutorProfile = () => {
 
   const params = useParams();
 
-  const tutorDocRef = doc(db, 'tutors', params.tutorid);
+  const tutorDocRef = useRef(doc(db, 'tutors', params.tutorid));
 
   useEffect(() => {
 
-    getDoc(tutorDocRef)
+    getDoc(tutorDocRef.current)
       .then((doc) => setTutor(doc.data()))
       .then(setLoading(false));
 
@@ -69,7 +69,7 @@ const TutorProfile = () => {
         <div className="d-flex">
           <button className="btn btn-secondary m-3" onClick={() => navigate('/tutors')}>Back to Tutor List</button>
           <Can I="edit" this={tutorInstance} >
-            <button className="btn btn-info m-3" onClick={() => navigate(`/tutor/edit/${tutorDocRef.id}`)}>Make Changes</button>
+            <button className="btn btn-info m-3" onClick={() => navigate(`/tutor/edit/${tutorDocRef.current.id}`)}>Make Changes</button>
           </Can>
         </div>
     </div>

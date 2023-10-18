@@ -25,22 +25,22 @@ const Navbar = ({ userProfile }) => {
 
   return (
     <nav className="navbar navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid">
-        <button class="btn btn-link navbar-brand"
+      <div className="container-fluid">
+        <button className="btn btn-link navbar-brand"
           onClick={() => navigate('/students')} style={{ cursor: "pointer" }}>Welcome, {userName}</button>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span className="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <div class="navbar-nav d-flex">
-            <button class="nav-link"
+        <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div className="navbar-nav d-flex">
+            <button className="nav-link"
               onClick={() => navigate('/students')} style={{ cursor: "pointer" }}>Students</button>
             <Can I="read" on="Tutor">
-              <button class="nav-link"
+              <button className="nav-link"
                 onClick={() => navigate('/tutors')} style={{ cursor: "pointer" }}>Tutors</button>
             </Can>
           </div>
-          <button className="btn btn-secondary ms-auto" onClick={() => signOut(auth).then(navigate('/login'))}>Log Out</button>
+          <button className="btn btn-secondary ms-auto align-self-end" onClick={() => signOut(auth).then(navigate('/login'))}>Log Out</button>
         </div>
       </div>
     </nav>

@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Can } from "../Services/can";
-import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../Services/firebase";
 
 
-const TutorProfile = () => {
+const TutorProfileEdit = () => {
   const [tutor, setTutor] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -14,11 +13,11 @@ const TutorProfile = () => {
 
   const params = useParams();
 
-  const tutorDocRef = doc(db, 'tutors', params.tutorid);
+  const tutorDocRef = useRef(doc(db, 'tutors', params.tutorid));
 
   useEffect(() => {
 
-    getDoc(tutorDocRef)
+    getDoc(tutorDocRef.current)
       .then((doc) => setTutor(doc.data()))
       .then(setLoading(false));
 
@@ -45,14 +44,15 @@ const TutorProfile = () => {
 
     tutor.clearance = newClearance;
 
-    updateDoc(tutorDocRef, tutor).then(() => navigate(`/tutor/${tutorDocRef.id}`));
+    updateDoc(tutorDocRef.current, tutor).then(() => navigate(`/tutor/${tutorDocRef.current.id}`));
   }
 
   const innerContent = (
     <div className="d-flex">
       <div className="d-flex flex-column p-3">
         <div className="h3">Email</div>
-        <div>{tutor.email}</div>
+        <input className="form-control m-1" value={tutor.email || ''} disabled
+          data-toggle="tooltip" title="Email cannot be modified"></input>
       </div>
       <div className="d-flex flex-column p-3">
         <div className="h3">Clearance</div>
@@ -79,7 +79,7 @@ const TutorProfile = () => {
           </div>
         </div>
         <div className="d-flex">
-          <button type="button" className="btn btn-secondary m-3" onClick={() => navigate(`/tutor/${tutorDocRef.id}`)}>Back</button>
+          <button type="button" className="btn btn-secondary m-3" onClick={() => navigate(`/tutor/${tutorDocRef.current.id}`)}>Back</button>
           <button type="sumbit" className="btn btn-primary m-3">Submit</button>
         </div>
       </form>
@@ -87,4 +87,4 @@ const TutorProfile = () => {
   )
 }
 
-export default TutorProfile;
+export default TutorProfileEdit;
