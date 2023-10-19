@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Can } from "../Services/can";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../Services/firebase";
 
 const TutorProfile = () => {
   const [tutor, setTutor] = useState({});
+  const [evals, setEvals] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -21,6 +22,9 @@ const TutorProfile = () => {
       .then((doc) => setTutor(doc.data()))
       .then(setLoading(false));
 
+    getDocs(query(collection(db, 'evaluations'), where('tutor_id', '==', tutorDocRef.current.id)))
+      .then((res) => setEvals(res.docs));
+
   }, [params.tutorid])
 
   function capitalize(str) {
@@ -31,18 +35,66 @@ const TutorProfile = () => {
     }
   }
 
+  function selectEval(evalid) {
+    navigate(`/eval/${evalid}`);
+  }
+
+  function evalList() {
+    // if (evals.length === 0) {
+    //   return null
+    // }
+
+    // const tableData = evals.filter((evaluation) => {
+    //   return evaluation.data().student_name.toLowerCase().includes(search.toLowerCase());
+    // })
+
+    // const tableData = evals.filter(() => { return true });
+
+    evals.sort((a,b) => { return a.data().date < b.data().date });
+
+    return evals.map((evaluation) => {
+      let evaluationData = evaluation.data();
+      return (
+        <tr className="p-3" key={evaluation.id} onClick={() => selectEval(evaluation.id)}
+          style={{ cursor: "pointer" }}>
+          <td>{evaluationData.date}</td>
+          <td>{evaluationData.student_name}</td>
+          <td>{evaluationData.subject}</td>
+        </tr>
+      )
+    })
+  }
+
   const innerContent = (
-    <div className="d-flex">
-      <img src={tutor.photoURL} alt="" />
-      <div className="d-flex flex-column p-3">
-        <div className="h3">Email</div>
-        <div>{tutor.email}</div>
+    <>
+      <div className="d-flex">
+        <img src={tutor.photoURL} alt="" />
+        <div className="d-flex flex-column p-3">
+          <div className="h3">Email</div>
+          <div>{tutor.email}</div>
+        </div>
+        <div className="d-flex flex-column p-3">
+          <div className="h3">Clearance</div>
+          <div>{capitalize(tutor.clearance)}</div>
+        </div>
       </div>
-      <div className="d-flex flex-column p-3">
-        <div className="h3">Clearance</div>
-        <div>{capitalize(tutor.clearance)}</div>
+      <hr />
+      <div className="h3">Evaluations</div>
+      <div className="d-flex">
+        <table className="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Student</th>
+              <th>Subject</th>
+            </tr>
+          </thead>
+          <tbody>
+            {evalList()}
+          </tbody>
+        </table>
       </div>
-    </div>
+    </>
   );
 
   class Tutor {
@@ -68,7 +120,6 @@ const TutorProfile = () => {
         </div>
       </div>
         <div className="d-flex">
-          <button className="btn btn-secondary m-3" onClick={() => navigate('/tutors')}>Back to Tutor List</button>
           <Can I="edit" this={tutorInstance} >
             <button className="btn btn-info m-3 ms-auto" onClick={() => navigate(`/tutor/edit/${tutorDocRef.current.id}`)}>Make Changes</button>
           </Can>

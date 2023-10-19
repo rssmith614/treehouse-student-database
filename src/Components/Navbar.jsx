@@ -15,7 +15,7 @@ const Navbar = ({ userProfile }) => {
 
   useEffect(() => {
     if (userProfile)
-      setUserName(userProfile.displayName);
+      setUserName(userProfile.data().displayName);
     else
       setUserName('');
   }, [userProfile])
@@ -26,8 +26,7 @@ const Navbar = ({ userProfile }) => {
   return (
     <nav className="navbar navbar-expand-lg bg-body-tertiary">
       <div className="container-fluid">
-        <button className="btn btn-link navbar-brand"
-          onClick={() => navigate('/students')} style={{ cursor: "pointer" }}>Welcome, {userName}</button>
+        <button className="btn btn-link navbar-brand" data-bs-toggle="dropdown" aria-expanded="false">Welcome, {userName}</button>  
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
@@ -39,8 +38,14 @@ const Navbar = ({ userProfile }) => {
               <button className="nav-link"
                 onClick={() => navigate('/tutors')} style={{ cursor: "pointer" }}>Tutors</button>
             </Can>
+            <div className="nav-item dropdown">
+              <button className="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Options</button>
+              <div className="dropdown-menu">
+                <div><button className="dropdown-item" onClick={() => {navigate(`/tutor/${userProfile.id}`)}}>View Tutor Profile</button></div>
+                <div><button className="dropdown-item" onClick={() => signOut(auth).then(navigate('/login'))}>Log Out</button></div>
+              </div>
+            </div>
           </div>
-          <button className="btn btn-secondary ms-auto align-self-end" onClick={() => signOut(auth).then(navigate('/login'))}>Log Out</button>
         </div>
       </div>
     </nav>

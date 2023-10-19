@@ -62,7 +62,7 @@ function App() {
         const q = query(tutorsRef, where("email", "==", user.email));
         getDocs(q).then((res) => {
           if (res.docs.length > 0)
-            setUserProfile(res.docs[0].data());
+            setUserProfile(res.docs[0]);
         });
       }
     } else {

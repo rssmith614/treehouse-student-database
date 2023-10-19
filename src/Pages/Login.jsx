@@ -58,8 +58,8 @@ const Login = ( { setUserProfile }) => {
             }
 
             updateAbility(attemptedLoginUser);
-            setUserProfile(attemptedLoginUser);
-            navigate('/students');
+            setUserProfile(res.docs[0]);
+            navigate(`/tutor/${res.docs[0].id}`);
           }
         })
 

@@ -7,12 +7,12 @@ export default function defineAbilityFor(user) {
     return build();
   }
 
-  if (user.clearance === 'admin') {
+  if (user.data().clearance === 'admin') {
     can('manage', 'all');
     cannot('edit', 'Tutor', { email: user.email }).because("Admin cannot change their own clearance");
   }
 
-  else if (user.clearance === "tutor") {
+  else if (user.data().clearance === "tutor") {
     can('edit', 'Eval', { owner: user.email })
   }
 
