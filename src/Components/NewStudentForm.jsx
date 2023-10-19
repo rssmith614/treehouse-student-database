@@ -83,7 +83,7 @@ const NewStudentForm = () => {
     return emergencyContacts.map((c, i) => {
       let rowid = "contact" + i;
       return (
-        <tr>
+        <tr key={i}>
           <td><button id={rowid + 'del'} type="button" className="btn btn-danger" onClick={() => {removeEContact(i)}}>🗑️</button></td>
           <td><input id={rowid + 'name'} className="form-control" onBlur={updateEContacts} /></td>
           <td><input id={rowid + 'rel'} className="form-control" onBlur={updateEContacts} /></td>
@@ -114,53 +114,53 @@ const NewStudentForm = () => {
     <form onSubmit={addStudent}>
       <div className="row">
         <div className="col mb-3">
-          <label for="studentName" className="form-label h5">Student Name</label>
+          <label htmlFor="studentName" className="form-label h5">Student Name</label>
           <input type="text" className="form-control" id="studentName" required />
         </div>
         <div className="col mb-3">
-        <label for="studentDOB" className="form-label h5">Student DOB</label>
+        <label htmlFor="studentDOB" className="form-label h5">Student DOB</label>
         <input type="date" className="form-control" id="studentDOB" />
       </div>
       </div>
       <div className="row">
         <div className="col mb-3">
-          <label for="parentName" className="form-label h5">Parent Name</label>
+          <label htmlFor="parentName" className="form-label h5">Parent Name</label>
           <input type="text" className="form-control" id="parentName" />
         </div>
         <div className="col mb-3">
-          <label for="parentPhone" className="form-label h5">Parent Phone Number</label>
+          <label htmlFor="parentPhone" className="form-label h5">Parent Phone Number</label>
           <input type="tel" className="form-control" id="parentPhone" />
         </div>
       </div>
       <div className="row">
         <div className="col mb-3">
-          <label for="studentGrade" className="form-label h5">Student Grade</label>
+          <label htmlFor="studentGrade" className="form-label h5">Student Grade</label>
           <input type="text" className="form-control" id="studentGrade" />
         </div>
         <div className="col mb-3">
-          <label for="studentSchool" className="form-label h5">Student School</label>
+          <label htmlFor="studentSchool" className="form-label h5">Student School</label>
           <input type="text" className="form-control" id="studentSchool" />
         </div>
       </div>
       <div className="mb-3">
-        <label for="studentSource" className="form-label h5">Student Source</label>
+        <label htmlFor="studentSource" className="form-label h5">Student Source</label>
         <input type="text" className="form-control" id="studentSource" />
       </div>
 
       <div className="mb-3">
-        <label for="preferredTutor" className="form-label h5">Preferred Tutor</label>
-        <select type="text" className="form-control" id="preferredTutor" required>
-          <option disabled selected value="">Select One</option>
+        <label htmlFor="preferredTutor" className="form-label h5">Preferred Tutor</label>
+        <select type="text" className="form-control" id="preferredTutor" defaultValue="" required>
+          <option disabled value="">Select One</option>
           {tutorOptions()}
         </select>
       </div>
       
       <div className="mb-3">
-        <label for="extraInfo" className="form-label h5">Other Info</label>
+        <label htmlFor="extraInfo" className="form-label h5">Other Info</label>
         <textarea className="form-control" id="extraInfo" />
       </div>
       <div className="mb-3">
-        <label for="medicalConditions" className="form-label h5">Medical Conditions</label>
+        <label htmlFor="medicalConditions" className="form-label h5">Medical Conditions</label>
         <textarea className="form-control" id="medicalConditions" />
       </div>
       <div className="mb-3 h5">Emergency Contacts</div>

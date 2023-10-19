@@ -1,15 +1,19 @@
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Route, Routes, Redirect } from 'react-router-dom';
 
-import NewProfile from './Pages/NewStudentPage';
-import StudentEval from './Pages/StudentEval';
+import Login from './Pages/Login';
+
+import NewStudentEval from './Pages/NewStudentEval';
+import StudentEvalsList from './Pages/StudentEvalsList';
+
+import NewStudentPage from './Pages/NewStudentPage';
 import StudentProfile from './Pages/StudentProfile';
 import StudentProfilesList from './Pages/StudentProfilesList';
 import StudentProfileEdit from './Pages/StudentProfileEdit';
-import Login from './Pages/Login';
-import TutorProfilesList from './Pages/TutorProfilesList';
+
 import NewTutorPage from './Pages/NewTutorPage';
 import TutorProfile from './Pages/TutorProfile';
+import TutorProfilesList from './Pages/TutorProfilesList';
 import TutorProfileEdit from './Pages/TutorProfileEdit';
 
 import Navbar from './Components/Navbar';
@@ -21,6 +25,8 @@ import { collection, query, getDocs, where } from 'firebase/firestore';
 
 import { auth, db } from './Services/firebase';
 import { useState } from 'react';
+import StudentEval from './Pages/StudentEval';
+import StudentEvalEdit from './Pages/StudentEvalEdit';
 
 function App() {
 
@@ -70,9 +76,12 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login userProfile={userProfile} setUserProfile={setUserProfile} />} />
 
-          <Route path='/eval/new/:studentid' element={<StudentEval />} />
+          <Route path='/eval/new/:studentid' element={<NewStudentEval />} />
+          <Route path='/eval/:evalid' element={<StudentEval />} />
+          <Route path='/evals/:studentid' element={<StudentEvalsList />} />
+          <Route path='/eval/edit/:evalid' element={<StudentEvalEdit />} />
 
-          <Route path="/newstudent" element={<NewProfile />} />
+          <Route path="/newstudent" element={<NewStudentPage />} />
           <Route path="/students" element={<StudentProfilesList />} />
           <Route path="/student/:studentid" element={<StudentProfile />} />
           <Route path="student/edit/:studentid" element={<StudentProfileEdit />} />

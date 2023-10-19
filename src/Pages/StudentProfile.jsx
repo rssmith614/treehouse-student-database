@@ -34,7 +34,7 @@ const StudentProfile = () => {
     if (!student.emergency_contacts) return null;
     return student.emergency_contacts.map((c) => {
       return (
-        <tr>
+        <tr key={c.name}>
           <td>{c.name}</td>
           <td>{c.relation}</td>
           <td>{c.phone}</td>
@@ -45,6 +45,7 @@ const StudentProfile = () => {
 
   const innerContent = (
     <>
+    <div className="h1">About</div>
     <div className="d-flex justify-content-start">
       <div className="d-flex p-3 flex-column">
         <div className="d-flex h3">Birthday</div>
@@ -107,8 +108,10 @@ const StudentProfile = () => {
       </div>
     </div>
     <hr />
-    <div>
+    <div className="h1 d-flex flex-column">
       Standards Progress, Evals, Assessments
+      <button className="btn btn-secondary m-3 me-auto"
+        onClick={() => navigate(`/evals/${studentRef.current.id}`)}>View {student.student_name}'s Evaluations</button>
     </div>
     </>
   )

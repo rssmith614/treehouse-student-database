@@ -13,7 +13,7 @@ export default function defineAbilityFor(user) {
   }
 
   else if (user.clearance === "tutor") {
-    // TODO: define tutor clearances
+    can('edit', 'Eval', { owner: user.email })
   }
 
   return build();
