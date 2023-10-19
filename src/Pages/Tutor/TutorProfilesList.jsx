@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { db } from "../Services/firebase";
+import { db } from "../../Services/firebase";
 
 import { collection, getDocs } from "firebase/firestore";
-import { Can } from "../Services/can";
+import { Can } from "../../Services/can";
 import { useNavigate } from "react-router-dom";
 
 const TutorProfilesList = () => {

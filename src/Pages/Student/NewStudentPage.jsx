@@ -1,4 +1,4 @@
-import NewStudentForm from '../Components/NewStudentForm';
+import NewStudentForm from '../../Components/NewStudentForm';
 
 const NewProfile = () => {
   return (

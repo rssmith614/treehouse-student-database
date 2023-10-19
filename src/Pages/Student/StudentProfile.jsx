@@ -1,10 +1,10 @@
 import { doc, getDoc, where } from "firebase/firestore";
 
-import { db } from "../Services/firebase";
+import { db } from "../../Services/firebase";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import { Can } from "../Services/can";
+import { Can } from "../../Services/can";
 
 const StudentProfile = () => {
   const [student, setStudent] = useState({});

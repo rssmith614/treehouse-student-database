@@ -3,18 +3,18 @@ import { Route, Routes, Redirect } from 'react-router-dom';
 
 import Login from './Pages/Login';
 
-import NewStudentEval from './Pages/NewStudentEval';
-import StudentEvalsList from './Pages/StudentEvalsList';
+import NewStudentEval from './Pages/Eval/NewStudentEval';
+import StudentEvalsList from './Pages/Eval/StudentEvalsList';
 
-import NewStudentPage from './Pages/NewStudentPage';
-import StudentProfile from './Pages/StudentProfile';
-import StudentProfilesList from './Pages/StudentProfilesList';
-import StudentProfileEdit from './Pages/StudentProfileEdit';
+import NewStudentPage from './Pages/Student/NewStudentPage';
+import StudentProfile from './Pages/Student/StudentProfile';
+import StudentProfilesList from './Pages/Student/StudentProfilesList';
+import StudentProfileEdit from './Pages/Student/StudentProfileEdit';
 
-import NewTutorPage from './Pages/NewTutorPage';
-import TutorProfile from './Pages/TutorProfile';
-import TutorProfilesList from './Pages/TutorProfilesList';
-import TutorProfileEdit from './Pages/TutorProfileEdit';
+import NewTutorPage from './Pages/Tutor/NewTutorPage';
+import TutorProfile from './Pages/Tutor/TutorProfile';
+import TutorProfilesList from './Pages/Tutor/TutorProfilesList';
+import TutorProfileEdit from './Pages/Tutor/TutorProfileEdit';
 
 import Navbar from './Components/Navbar';
 
@@ -25,8 +25,8 @@ import { collection, query, getDocs, where } from 'firebase/firestore';
 
 import { auth, db } from './Services/firebase';
 import { useState } from 'react';
-import StudentEval from './Pages/StudentEval';
-import StudentEvalEdit from './Pages/StudentEvalEdit';
+import StudentEval from './Pages/Eval/StudentEval';
+import StudentEvalEdit from './Pages/Eval/StudentEvalEdit';
 
 function App() {
 

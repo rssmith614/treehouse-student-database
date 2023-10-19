@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../Services/firebase";
+import { db } from "../../Services/firebase";
 
 
 const TutorProfileEdit = () => {

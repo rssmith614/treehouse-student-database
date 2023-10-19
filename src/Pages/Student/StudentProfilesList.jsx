@@ -2,9 +2,9 @@ import { collection, getDocs } from "firebase/firestore";
 
 import { useNavigate } from 'react-router-dom';
 
-import { db } from "../Services/firebase";
+import { db } from "../../Services/firebase";
 import { useEffect, useRef, useState } from "react";
-import { Can } from "../Services/can";
+import { Can } from "../../Services/can";
 
 const StudentProfilesList = () => {
   const [students, setStudents] = useState(null);

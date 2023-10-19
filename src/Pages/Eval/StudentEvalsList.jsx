@@ -1,7 +1,7 @@
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { db } from "../Services/firebase";
+import { db } from "../../Services/firebase";
 
 
 const StudentEvalsList = () => {

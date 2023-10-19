@@ -2,8 +2,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { doc, getDoc } from "firebase/firestore";
 
-import { db } from "../Services/firebase";
-import { Can } from "../Services/can";
+import { db } from "../../Services/firebase";
+import { Can } from "../../Services/can";
 
 
 const StudentEval = () => {
