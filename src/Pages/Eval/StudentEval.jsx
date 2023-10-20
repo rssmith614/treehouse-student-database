@@ -103,6 +103,15 @@ const StudentEval = () => {
             <div id="next_session" className="">{evaluation.next_session}</div>
           </div>
         </div>
+        <Can I="manage" on="Eval">
+          <hr />
+          <div className="row my-3">
+            <div className="col">
+              <label className="form-label h5">Eval Created By</label>
+              <div id="creator" className="">{evaluation.owner}</div>
+            </div>
+          </div>
+        </Can>
 
       </div>
       <div className="d-flex">

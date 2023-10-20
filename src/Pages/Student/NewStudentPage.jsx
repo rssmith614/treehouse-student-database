@@ -188,7 +188,9 @@ const NewProfile = () => {
 
             {/* <button type="button" className="btn btn-secondary m-3" onClick={backAction}>Back</button> */}
           </div>
-          <button type="submit" className="btn btn-primary m-3 me-auto" id="submit">Submit</button>
+          <div className="d-flex">
+            <button type="submit" className="btn btn-primary m-3 ms-auto" id="submit">Submit</button>
+          </div>
         </form>
       </div>
     </div>
