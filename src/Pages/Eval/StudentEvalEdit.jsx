@@ -92,7 +92,7 @@ const StudentEvalEdit = () => {
             </div>
             <div className="col">
               <label className="form-label h5">Date</label>
-              <input id="date" className="form-control" type="date" defaultValue={todayStr} />
+              <input id="date" className="form-control" type="date" defaultValue={evaluation.date} />
             </div>
             <div className="col">
               <label className="form-label h5">Subject</label>

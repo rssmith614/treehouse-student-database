@@ -2,11 +2,15 @@ import { collection, doc, getDoc, getDocs, query, where } from "firebase/firesto
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { db } from "../../Services/firebase";
+import dayjs from "dayjs";
 
 
 const StudentEvalsList = () => {
   const [evals, setEvals] = useState([]);
   const [studentName, setStudentName] = useState('');
+
+  const [tableSort, setTableSort] = useState('date_desc');
+  const [tableFilter, setTableFilter] = useState('');
 
   const [loading, setLoading] = useState(true);
 
@@ -31,6 +35,25 @@ const StudentEvalsList = () => {
     navigate(`/eval/${evalid}`)
   }
 
+  function filterIcon(column) {
+    switch (column) {
+      case 'date':
+        if (tableSort === 'date_asc')
+          return <i className="bi bi-sort-up ms-auto" />
+        else if (tableSort === 'date_desc')
+          return <i className="bi bi-sort-down ms-auto" />
+        else
+          return <i className="bi bi-filter ms-auto" />
+
+      case 'tutor':
+        if (tableFilter !== '')
+          return <i className="bi bi-funnel ms-auto" />
+        
+      default:
+        return <i className="bi bi-filter ms-auto" />
+    }
+  }
+
   function evalList() {
     // if (evals.length === 0) {
     //   return null
@@ -41,23 +64,33 @@ const StudentEvalsList = () => {
     // })
 
     // const tableData = evals.filter(() => { return true });
+    
+    const tableData = evals.filter((evaluation) => {
+      return evaluation.data().tutor_name.toLowerCase().includes(tableFilter.toLowerCase());
+    })
 
-    evals.sort((a,b) => { return a.data().date < b.data().date });
+    // const tableData = evals.filter(() => { return true });
 
-    return evals.map((evaluation) => {
+    switch (tableSort) {
+      case 'date_asc':
+        tableData.sort((a,b) => { return dayjs(a.data().date).diff(dayjs(b.data().date)) });
+        break;
+      case 'date_desc':
+        tableData.sort((a,b) => { return dayjs(b.data().date).diff(dayjs(a.data().date)) });
+        break;
+      default:
+        break;
+    }
+
+
+    return tableData.map((evaluation) => {
       let evaluationData = evaluation.data();
       return (
-        <tr className="p-3" key={evaluation.id} onClick={() => selectEval(evaluation.id)}
+        <tr key={evaluation.id} onClick={() => selectEval(evaluation.id)}
           style={{ cursor: "pointer" }}>
-          <td>
-            {evaluationData.date}
-          </td>
-          <td>
-            {evaluationData.tutor_name}
-          </td>
-          <td>
-            {evaluationData.subject}
-          </td>
+          <td>{dayjs(evaluationData.date).format('MMMM DD, YYYY')}</td>
+          <td>{evaluationData.tutor_name}</td>
+          <td>{evaluationData.subject}</td>
         </tr>
       )
     })
@@ -70,17 +103,38 @@ const StudentEvalsList = () => {
         placeholder="Search" />
     </div> */}
     <table className="table table-striped table-hover">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Tutor</th>
-          <th>Subject</th>
-        </tr>
-      </thead>
-      <tbody>
-        {evalList()}
-      </tbody>
-    </table>
+          <thead>
+            <tr>
+              <th>
+                <div className="dropdown">
+                  <div className="d-flex" data-bs-toggle="dropdown">
+                    Date
+                    {filterIcon('date')}
+                  </div>
+                  <ul className="dropdown-menu dropdown-menu-lg-end">
+                    <li><div className="dropdown-item" onClick={() => setTableSort('date_desc')}>Newer First</div></li>
+                    <li><div className="dropdown-item" onClick={() => setTableSort('date_asc')}>Older First</div></li>
+                  </ul>
+                </div>
+              </th>
+              <th>
+                <div className="dropup">
+                  <div className="d-flex" data-bs-toggle="dropdown">
+                    Tutor
+                    {filterIcon('tutor')}
+                  </div>
+                  <ul className="dropdown-menu dropdown-menu-lg-end">
+                    <li><input className="dropdown-item form-control" placeholder="Search" onChange={(e) => setTableFilter(e.target.value)}></input></li>
+                  </ul>
+                </div>
+              </th>
+              <th className="w-50">Subject</th>
+            </tr>
+          </thead>
+          <tbody>
+            {evalList()}
+          </tbody>
+        </table>
     </>
   );
 

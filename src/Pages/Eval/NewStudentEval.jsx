@@ -2,8 +2,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
 
-import { auth, db } from "../../Services/firebase";
+import { auth, db, storage } from "../../Services/firebase";
 import dayjs from "dayjs";
+import { ref, uploadBytes } from "firebase/storage";
 
 
 // to be replaced with DB call
@@ -37,11 +38,15 @@ const NewStudentEval = () => {
   function sumbitEval(e) {
     e.preventDefault();
 
+    document.getElementById("submit").innerHTML = "Submit <span class='spinner-border spinner-border-sm' />";
+
     let tutorName;
     tutors.forEach((tutor) => {
       if (tutor.id === document.getElementById("tutor").value)
         tutorName = tutor.data().displayName;
     })
+
+    const worksheetUpload = document.getElementById("worksheet").files[0];
 
     const newEval = {
       student_id: studentRef.current.id,
@@ -59,8 +64,26 @@ const NewStudentEval = () => {
       owner: auth.currentUser.email,
     }
 
-    addDoc(collection(db, "evaluations"), newEval)
-      .then(() => navigate(`/student/${params.studentid}`));
+    if (worksheetUpload) {
+      const worksheetRef = ref(storage, `worksheets/${worksheetUpload.name}`);
+
+      newEval.worksheet = worksheetRef.fullPath;
+
+      uploadBytes(worksheetRef, worksheetUpload)
+        .then(() => 
+          addDoc(collection(db, "evaluations"), newEval)
+            .then(() =>
+              navigate(`/student/${params.studentid}`)
+            )
+        )
+    } else {
+      newEval.worksheet = '';
+
+      addDoc(collection(db, "evaluations"), newEval)
+        .then(() =>
+          navigate(`/student/${params.studentid}`)
+        )
+    }
   }
 
   function tutorOptions() {

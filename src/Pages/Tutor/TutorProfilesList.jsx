@@ -59,7 +59,7 @@ const TutorProfilesList = () => {
   const listTable = (
     <>
     <div className="d-flex">
-      <input type="text" className="form-control my-1 w-25 d-flex" onChange={handleSearch}
+      <input type="text" className="form-control mb-3 w-25 d-flex" onChange={handleSearch}
         placeholder="Search" />
     </div>
     <table className="table table-striped table-hover">

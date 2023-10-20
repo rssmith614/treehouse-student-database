@@ -6,7 +6,7 @@ import { db } from "../../Services/firebase";
 import { useEffect, useRef, useState } from "react";
 import { Can } from "../../Services/can";
 
-const NewEval = () => {
+const Evals = () => {
   const [students, setStudents] = useState(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -29,7 +29,7 @@ const NewEval = () => {
   }
 
   function selectStudent(id) {
-    navigate(`/eval/new/${id}`)
+    navigate(`/evals/${id}`)
   }
 
   function studentList() {
@@ -84,7 +84,7 @@ const NewEval = () => {
       <div className='display-1 d-flex'>
         Select a Student
       </div>
-      <div className="h5">To Record a New Session Evaluation</div>
+      <div className='h5'>To View All Session Evaluations</div>
       <div className='d-flex p-3 m-3 card bg-light-subtle'>
         {loading ? <div className="spinner-border d-flex align-self-center" /> : listTable}
       </div>
@@ -92,4 +92,4 @@ const NewEval = () => {
   );
 }
 
-export default NewEval;
+export default Evals;

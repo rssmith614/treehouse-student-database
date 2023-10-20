@@ -28,6 +28,7 @@ import { useState } from 'react';
 import StudentEval from './Pages/Eval/StudentEval';
 import StudentEvalEdit from './Pages/Eval/StudentEvalEdit';
 import NewEval from './Pages/Eval/NewEval';
+import Evals from './Pages/Eval/Evals';
 
 function App() {
 
@@ -77,6 +78,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login userProfile={userProfile} setUserProfile={setUserProfile} />} />
 
+          <Route path='/evals' element={<Evals />} />
           <Route path='/eval/new' element={<NewEval />} />
           <Route path='/eval/new/:studentid' element={<NewStudentEval />} />
           <Route path='/eval/:evalid' element={<StudentEval />} />

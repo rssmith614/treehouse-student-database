@@ -2,8 +2,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { doc, getDoc } from "firebase/firestore";
 
-import { db } from "../../Services/firebase";
+import { db, storage } from "../../Services/firebase";
 import { Can } from "../../Services/can";
+import { getDownloadURL, ref } from "firebase/storage";
+import { Document, Page } from "react-pdf";
+
+import { pdfjs } from 'react-pdf';
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.js',
+  import.meta.url,
+).toString();
 
 
 const StudentEval = () => {
@@ -12,17 +21,30 @@ const StudentEval = () => {
 
   const [loading, setLoading] = useState(true);
 
+  const [worksheet, setWorksheet] = useState(null);
+
   const params = useParams();
 
   const evalRef = useRef(doc(db, "evaluations", params.evalid));
+  const worksheetRef = useRef();
 
   const navigate = useNavigate();
 
   useEffect(() => {
 
     getDoc(evalRef.current)
-      .then((res) => setEvaluation(res.data()))
-      .then(setLoading(false));
+      .then((res) => {
+        setEvaluation(res.data());
+        if (res.data().worksheet === '' || !res.data().worksheet) return;
+        
+        worksheetRef.current = ref(storage, res.data().worksheet);
+        getDownloadURL(worksheetRef.current)
+          .then((url) => {
+            setWorksheet(url);
+          })
+      }).then(setLoading(false));
+
+    
 
   }, [params.studentid])
 
@@ -92,7 +114,9 @@ const StudentEval = () => {
         <div className="row my-3">
           <div className="col">
             <label className="form-label h5">Worksheet</label>
-            <div id="worksheet" className="">TODO: link to worksheet</div>
+            <div>
+              <a id="worksheet" className="" href={worksheet} target="_blank">{evaluation.worksheet}</a>
+            </div>
           </div>
           <div className="col">
             <label className="form-label h5">Worksheet Completion</label>

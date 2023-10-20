@@ -4,11 +4,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Can } from "../../Services/can";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../Services/firebase";
+import dayjs from "dayjs";
 
 const TutorProfile = () => {
   const [tutor, setTutor] = useState({});
   const [evals, setEvals] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [tableSort, setTableSort] = useState('date_desc');
+  const [tableFilter, setTableFilter] = useState('');
 
   const navigate = useNavigate();
 
@@ -44,25 +48,54 @@ const TutorProfile = () => {
     //   return null
     // }
 
-    // const tableData = evals.filter((evaluation) => {
-    //   return evaluation.data().student_name.toLowerCase().includes(search.toLowerCase());
-    // })
+    const tableData = evals.filter((evaluation) => {
+      return evaluation.data().student_name.toLowerCase().includes(tableFilter.toLowerCase());
+    })
 
     // const tableData = evals.filter(() => { return true });
 
-    evals.sort((a,b) => { return a.data().date < b.data().date });
+    switch (tableSort) {
+      case 'date_asc':
+        tableData.sort((a,b) => { return dayjs(a.data().date).diff(dayjs(b.data().date)) });
+        break;
+      case 'date_desc':
+        tableData.sort((a,b) => { return dayjs(b.data().date).diff(dayjs(a.data().date)) });
+        break;
+      default:
+        break;
+    }
 
-    return evals.map((evaluation) => {
+
+    return tableData.map((evaluation) => {
       let evaluationData = evaluation.data();
       return (
-        <tr className="p-3" key={evaluation.id} onClick={() => selectEval(evaluation.id)}
+        <tr key={evaluation.id} onClick={() => selectEval(evaluation.id)}
           style={{ cursor: "pointer" }}>
-          <td>{evaluationData.date}</td>
+          <td>{dayjs(evaluationData.date).format('MMMM DD, YYYY')}</td>
           <td>{evaluationData.student_name}</td>
           <td>{evaluationData.subject}</td>
         </tr>
       )
     })
+  }
+
+  function filterIcon(column) {
+    switch (column) {
+      case 'date':
+        if (tableSort === 'date_asc')
+          return <i className="bi bi-sort-up ms-auto" />
+        else if (tableSort === 'date_desc')
+          return <i className="bi bi-sort-down ms-auto" />
+        else
+          return <i className="bi bi-filter ms-auto" />
+
+      case 'student':
+        if (tableFilter !== '')
+          return <i className="bi bi-funnel ms-auto" />
+        
+      default:
+        return <i className="bi bi-filter ms-auto" />
+    }
   }
 
   const innerContent = (
@@ -84,9 +117,32 @@ const TutorProfile = () => {
         <table className="table table-striped table-hover">
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Student</th>
-              <th>Subject</th>
+              <th>
+                <div className="dropdown">
+                  <div className="d-flex" data-bs-toggle="dropdown">
+                    Date
+                    {filterIcon('date')}
+                  </div>
+                  <ul className="dropdown-menu dropdown-menu-lg-end">
+                    <li><div className="dropdown-item" onClick={() => setTableSort('date_desc')}>Newer First</div></li>
+                    <li><div className="dropdown-item" onClick={() => setTableSort('date_asc')}>Older First</div></li>
+                  </ul>
+                </div>
+              </th>
+              <th>
+                <div className="dropup">
+                  <div className="d-flex" data-bs-toggle="dropdown">
+                    Student
+                    {filterIcon('student')}
+                  </div>
+                  <ul className="dropdown-menu dropdown-menu-lg-end">
+                    {/* <li><div className="dropdown-item" onClick={() => setTableFilter('student_asc')}>Ascending</div></li>
+                    <li><div className="dropdown-item" onClick={() => setTableFilter('student_desc')}>Descending</div></li> */}
+                    <li><input className="dropdown-item form-control" placeholder="Search" onChange={(e) => setTableFilter(e.target.value)}></input></li>
+                  </ul>
+                </div>
+              </th>
+              <th className="w-50">Subject</th>
             </tr>
           </thead>
           <tbody>
