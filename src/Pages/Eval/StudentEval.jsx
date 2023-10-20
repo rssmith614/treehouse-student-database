@@ -5,15 +5,6 @@ import { doc, getDoc } from "firebase/firestore";
 import { db, storage } from "../../Services/firebase";
 import { Can } from "../../Services/can";
 import { getDownloadURL, ref } from "firebase/storage";
-import { Document, Page } from "react-pdf";
-
-import { pdfjs } from 'react-pdf';
-
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url,
-).toString();
-
 
 const StudentEval = () => {
 

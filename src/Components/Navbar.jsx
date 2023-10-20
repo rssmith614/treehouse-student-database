@@ -1,8 +1,8 @@
 import { signOut } from "firebase/auth";
 import { auth } from "../Services/firebase";
 import { useLocation, useNavigate } from "react-router-dom";
-import { AbilityContext, Can } from "../Services/can";
-import { useContext, useEffect, useState } from "react";
+import { Can } from "../Services/can";
+import { useEffect, useState } from "react";
 
 
 const Navbar = ({ userProfile }) => {
@@ -10,8 +10,6 @@ const Navbar = ({ userProfile }) => {
   const { pathname } = useLocation();
 
   const [userName, setUserName] = useState('');
-
-  const ability = useContext(AbilityContext);
 
   useEffect(() => {
     if (userProfile)

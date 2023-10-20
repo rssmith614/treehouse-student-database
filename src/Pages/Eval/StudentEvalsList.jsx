@@ -48,7 +48,7 @@ const StudentEvalsList = () => {
       case 'tutor':
         if (tableFilter !== '')
           return <i className="bi bi-funnel ms-auto" />
-        
+      break;
       default:
         return <i className="bi bi-filter ms-auto" />
     }

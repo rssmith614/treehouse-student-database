@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 import { db } from "../../Services/firebase";
 import { useEffect, useRef, useState } from "react";
-import { Can } from "../../Services/can";
 
 const NewEval = () => {
   const [students, setStudents] = useState(null);

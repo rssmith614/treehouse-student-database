@@ -92,7 +92,7 @@ const TutorProfile = () => {
       case 'student':
         if (tableFilter !== '')
           return <i className="bi bi-funnel ms-auto" />
-        
+      break;        
       default:
         return <i className="bi bi-filter ms-auto" />
     }

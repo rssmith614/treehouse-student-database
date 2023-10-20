@@ -1,9 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { addDoc, collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
 
-import { auth, db } from "../../Services/firebase";
-import dayjs from "dayjs";
+import { db } from "../../Services/firebase";
 
 
 // to be replaced with DB call
@@ -71,8 +70,6 @@ const StudentEvalEdit = () => {
       );
     });
   }
-
-  const todayStr = dayjs().format('YYYY-MM-DD');
 
   return (
     <div className='p-3 d-flex flex-column'>

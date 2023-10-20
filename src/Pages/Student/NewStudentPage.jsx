@@ -101,14 +101,6 @@ const NewProfile = () => {
     });
   }
 
-  function backAction() {
-    if (!window.confirm("Changes will not be saved")) {
-      return;
-    }
-
-    navigate('/students');
-  }
-
   return (
     <div className='p-3 d-flex flex-column'>
       <div className='d-flex display-1'>

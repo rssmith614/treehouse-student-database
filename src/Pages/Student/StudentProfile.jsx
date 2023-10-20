@@ -1,4 +1,4 @@
-import { doc, getDoc, where } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
 import { db } from "../../Services/firebase";
 import { useEffect, useRef, useState } from "react";
@@ -8,7 +8,6 @@ import { Can } from "../../Services/can";
 
 const StudentProfile = () => {
   const [student, setStudent] = useState({});
-  const [preferredTutor, setPreferredTutor] = useState('');
   const [loading, setLoading] = useState(true);
 
   const studentRef = useRef();
