@@ -106,9 +106,9 @@ const StudentEval = () => {
 
       </div>
       <div className="d-flex">
-        <button type="button" className="btn btn-secondary m-3 me-auto" onClick={() => navigate(`/evals/${evaluation.student_id}`)}>Back to {evaluation.student_name}'s Evals</button>
+        {/* <button type="button" className="btn btn-secondary m-3 me-auto" onClick={() => navigate(`/evals/${evaluation.student_id}`)}>Back to {evaluation.student_name}'s Evals</button> */}
         <Can I="edit" this={evalInstance}>
-          <button className="btn btn-info m-3" onClick={() => navigate(`/eval/edit/${evalRef.current.id}`)}>Make Changes</button>
+          <button className="btn btn-info m-3 ms-auto" onClick={() => navigate(`/eval/edit/${evalRef.current.id}`)}>Make Changes</button>
         </Can>
       </div>
     </div>

@@ -38,6 +38,8 @@ const Navbar = ({ userProfile }) => {
               <button className="nav-link"
                 onClick={() => navigate('/tutors')} style={{ cursor: "pointer" }}>Tutors</button>
             </Can>
+            <button className="nav-link"
+              onClick={() => navigate(`/eval/new`)}>New Eval</button>
             <div className="nav-item dropdown">
               <button className="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Options</button>
               <div className="dropdown-menu">

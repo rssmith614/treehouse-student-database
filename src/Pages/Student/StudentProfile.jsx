@@ -24,8 +24,8 @@ const StudentProfile = () => {
     getDoc(studentRef.current)
       .then((res) => {
         setStudent(res.data());
-        getDoc(doc(db, 'tutors', res.data().preferred_tutor))
-          .then((res) => setPreferredTutor(res.data().displayName))  
+        // getDoc(doc(db, 'tutors', res.data().preferred_tutor))
+        //   .then((res) => setPreferredTutor(res.data().displayName))  
       }).then(setLoading(false))
 
   }, [params.studentid])
@@ -77,7 +77,7 @@ const StudentProfile = () => {
     <div className="d-flex justify-content-start">
       <div className="d-flex p-3 flex-column">
         <div className="d-flex h3">Preferred Tutor</div>
-        <div className="d-flex">{preferredTutor}</div>
+        <div className="d-flex">{student.preferred_tutor_name}</div>
       </div>
     </div>
     <div className="d-flex justify-content-start">
@@ -127,11 +127,11 @@ const StudentProfile = () => {
         </div>
       </div>
         <div className="d-flex">
-          <button className="btn btn-secondary m-3 me-auto" onClick={() => navigate('/students')}>Back to Student List</button>
+          {/* <button className="btn btn-secondary m-3 me-auto" onClick={() => navigate('/students')}>Back to Student List</button> */}
           <Can do="manage" on="students">
             <button className="btn btn-info m-3" onClick={() => navigate(`/student/edit/${studentRef.current.id}`)}>Make Changes</button>
           </Can>
-          <button className="btn btn-primary m-3" onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}>New Session Eval</button>
+          <button className="btn btn-primary m-3 ms-auto" onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}>New Session Eval</button>
         </div>
     </div>
   );

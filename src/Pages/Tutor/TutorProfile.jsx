@@ -80,7 +80,7 @@ const TutorProfile = () => {
       </div>
       <hr />
       <div className="h3">Evaluations</div>
-      <div className="d-flex">
+      <div className="d-flex flex-column">
         <table className="table table-striped table-hover">
           <thead>
             <tr>
@@ -93,6 +93,7 @@ const TutorProfile = () => {
             {evalList()}
           </tbody>
         </table>
+        <button className="btn btn-primary m-3 ms-auto" onClick={() => navigate(`/eval/new`)}>New Eval</button>
       </div>
     </>
   );

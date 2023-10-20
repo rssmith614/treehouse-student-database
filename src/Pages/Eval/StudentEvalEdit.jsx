@@ -141,8 +141,8 @@ const StudentEvalEdit = () => {
 
         </div>
         <div className="d-flex">
-          <button type="button" className="btn btn-secondary m-3 me-auto" onClick={() => navigate(`/eval/${evalRef.current.id}`)}>Back</button>
-          <button className="btn btn-primary m-3" type="submit">Submit</button>
+          {/* <button type="button" className="btn btn-secondary m-3 me-auto" onClick={() => navigate(`/eval/${evalRef.current.id}`)}>Back</button> */}
+          <button className="btn btn-primary m-3 ms-auto" type="submit">Submit</button>
         </div>
       </form>
     </div>

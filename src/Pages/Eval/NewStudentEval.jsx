@@ -140,8 +140,8 @@ const NewStudentEval = () => {
 
         </div>
         <div className="d-flex">
-          <button type="button" className="btn btn-secondary m-3 me-auto" onClick={() => navigate(`/student/${params.studentid}`)}>Back</button>
-          <button className="btn btn-primary m-3" type="submit">Submit</button>
+          {/* <button type="button" className="btn btn-secondary m-3 me-auto" onClick={() => navigate(`/student/${params.studentid}`)}>Back</button> */}
+          <button className="btn btn-primary m-3 ms-auto" type="submit">Submit</button>
         </div>
       </form>
     </div>

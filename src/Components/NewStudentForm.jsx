@@ -28,6 +28,8 @@ const NewStudentForm = () => {
 
     document.getElementById("submit").innerHTML = "Submit <span class='spinner-border spinner-border-sm' />";
 
+    let preferredTutorName = tutors.find(tutor => tutor.id === document.getElementById('preferredTutor').value).data().displayName;
+
     const newStudent = {
       student_name: document.getElementById('studentName').value,
       student_dob: document.getElementById('studentDOB').value,
@@ -37,6 +39,7 @@ const NewStudentForm = () => {
       student_school: document.getElementById('studentSchool').value,
       student_source: document.getElementById('studentSource').value,
       preferred_tutor: document.getElementById('preferredTutor').value,
+      preferred_tutor_name: preferredTutorName,
       other: document.getElementById('extraInfo').value,
       medical_conditions: document.getElementById('medicalConditions').value,
       emergency_contacts: emergencyContacts,
@@ -181,7 +184,7 @@ const NewStudentForm = () => {
         <button className="btn btn-secondary mb-3 me-auto" type="button" onClick={addEContact}>Add New Emergency Contact</button>
       </div>
 
-      <button type="button" className="btn btn-secondary m-3" onClick={backAction}>Back</button>
+      {/* <button type="button" className="btn btn-secondary m-3" onClick={backAction}>Back</button> */}
       <button type="submit" className="btn btn-primary m-3" id="submit">Submit</button>
     </form>
 

@@ -45,6 +45,8 @@ const StudentProfileEdit = () => {
     e.preventDefault();
 
     document.getElementById("saveChanges").innerHTML = "Save Changes <span class='spinner-border spinner-border-sm' />";
+
+    let preferredTutorName = tutors.find(tutor => tutor.id === document.getElementById('preferredTutor').value).data().displayName;
     
     const newStudent = {
       student_dob: document.getElementById('studentDOB').value,
@@ -54,6 +56,7 @@ const StudentProfileEdit = () => {
       student_school: document.getElementById('studentSchool').value,
       student_source: document.getElementById('studentSource').value,
       preferred_tutor: document.getElementById('preferredTutor').value,
+      preferred_tutor_name: preferredTutorName,
       other: document.getElementById('extraInfo').value,
       medical_conditions: document.getElementById('medicalConditions').value,
       emergency_contacts: emergencyContacts,
