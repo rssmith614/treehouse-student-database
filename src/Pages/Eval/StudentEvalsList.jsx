@@ -99,45 +99,45 @@ const StudentEvalsList = () => {
   }
 
   const listTable = (
-    <>
-    {/* <div className="d-flex">
-      <input type="text" className="form-control mb-3 w-25 d-flex" onChange={handleSearch}
-        placeholder="Search" />
-    </div> */}
     <table className="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th>
-                <div className="dropdown">
-                  <div className="d-flex" data-bs-toggle="dropdown">
-                    Date
-                    {filterIcon('date')}
-                  </div>
-                  <ul className="dropdown-menu dropdown-menu-lg-end">
-                    <li><div className="dropdown-item" onClick={() => setTableSort('date_desc')}>Newer First</div></li>
-                    <li><div className="dropdown-item" onClick={() => setTableSort('date_asc')}>Older First</div></li>
-                  </ul>
-                </div>
-              </th>
-              <th>
-                <div className="dropup">
-                  <div className="d-flex" data-bs-toggle="dropdown">
-                    Tutor
-                    {filterIcon('tutor')}
-                  </div>
-                  <ul className="dropdown-menu dropdown-menu-lg-end">
-                    <li><input className="dropdown-item form-control" placeholder="Search" onChange={(e) => setTableFilter(e.target.value)}></input></li>
-                  </ul>
-                </div>
-              </th>
-              <th className="w-50">Subject</th>
-            </tr>
-          </thead>
-          <tbody>
-            {evalList()}
-          </tbody>
-        </table>
-    </>
+      <thead>
+        <tr>
+          <th className="w-25">
+            <div className="dropup">
+              <div className="d-flex" data-bs-toggle="dropdown">
+                Date
+                {filterIcon('date')}
+              </div>
+              <ul className="dropdown-menu dropdown-menu-lg-end">
+                <li><div className="dropdown-item" onClick={() => setTableSort('date_desc')}>Newer First</div></li>
+                <li><div className="dropdown-item" onClick={() => setTableSort('date_asc')}>Older First</div></li>
+              </ul>
+            </div>
+          </th>
+          <th>
+            <div className="dropup">
+              <div className="d-flex" data-bs-toggle="dropdown">
+                Tutor
+                {filterIcon('tutor')}
+              </div>
+              <ul className="dropdown-menu dropdown-menu-lg-end">
+              <li className="px-2">
+              <div className="input-group">
+                <input className="form-control" type="text" placeholder="Search" value={tableFilter}
+                  onChange={(e) => setTableFilter(e.target.value)} />
+                <i className="bi bi-x-lg input-group-text" style={{ cursor: "pointer" }} onClick={() => setTableFilter('')} />
+              </div>
+            </li>
+              </ul>
+            </div>
+          </th>
+          <th className="w-50">Subject</th>
+        </tr>
+      </thead>
+      <tbody>
+        {evalList()}
+      </tbody>
+    </table>
   );
 
   return (
@@ -145,7 +145,7 @@ const StudentEvalsList = () => {
       <div className='display-1 d-flex'>
         Evaluations - {studentName}
       </div>
-      <div className='d-flex p-3 m-3 card bg-light-subtle'>
+      <div className='d-flex pt-3 px-3 m-3 card bg-light-subtle'>
         {loading ? <div className="spinner-border d-flex align-self-center" /> : listTable}
       </div>
       <button className="btn btn-primary m-3 ms-auto" onClick={() => navigate(`/eval/new/${params.studentid}`)}>New Session Eval</button>

@@ -24,7 +24,7 @@ const Navbar = ({ userProfile }) => {
   return (
     <nav className="navbar navbar-expand-lg bg-body-tertiary">
       <div className="container-fluid">
-        <button className="btn btn-link navbar-brand" data-bs-toggle="dropdown" aria-expanded="false">Welcome, {userName}</button>  
+        <button className="btn navbar-brand" data-bs-toggle="dropdown" aria-expanded="false">Welcome, {userName}</button>  
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
