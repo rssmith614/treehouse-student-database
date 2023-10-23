@@ -91,6 +91,8 @@ const TutorProfile = () => {
 
       case 'student':
         if (tableFilter !== '')
+          return <i className="bi bi-funnel-fill ms-auto" />
+        else
           return <i className="bi bi-funnel ms-auto" />
       break;        
       default:
