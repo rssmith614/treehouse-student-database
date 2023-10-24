@@ -126,7 +126,7 @@ const StudentProfileEdit = () => {
       let rowid = "contact" + i;
       return (
         <tr>
-          <td><button id={rowid + 'del'} type="button" className="btn btn-danger" onClick={() => {removeEContact(i)}}>🗑️</button></td>
+          <td><button id={rowid + 'del'} type="button" className="btn btn-danger" onClick={() => {removeEContact(i)}}><i className="bi bi-trash-fill" /></button></td>
           <td><input id={rowid + 'name'} className="form-control"
             defaultValue={c.name} onBlur={updateEContacts} /></td>
           <td><input id={rowid + 'rel'} className="form-control"
@@ -141,36 +141,36 @@ const StudentProfileEdit = () => {
   const innerForm = (
     <>
       <div className="d-flex justify-content-start">
-        <div className="d-flex p-3 flex-column">
-          <div className="d-flex h3">Birthday</div>
+        <div className="d-flex p-3 flex-column flex-fill">
+          <div className="d-flex h5">Birthday</div>
           <input type="date" id="studentDOB" className="form-control" defaultValue={student.student_dob} />
         </div>
-        <div className="d-flex p-3 flex-column">
-          <div className="d-flex h3">Grade</div>
+        <div className="d-flex p-3 flex-column flex-fill">
+          <div className="d-flex h5">Grade</div>
           <input type="text" id="studentGrade" className="form-control" defaultValue={student.student_grade} />
         </div>
-        <div className="d-flex p-3 flex-column">
-          <div className="d-flex h3">School</div>
+        <div className="d-flex p-3 flex-column flex-fill">
+          <div className="d-flex h5">School</div>
           <input type="text" id="studentSchool" className="form-control" defaultValue={student.student_school} />
         </div>
-        <div className="d-flex p-3 flex-column">
-          <div className="d-flex h3">Source</div>
+        <div className="d-flex p-3 flex-column flex-fill">
+          <div className="d-flex h5">Source</div>
           <input type="text" id="studentSource" className="form-control" defaultValue={student.student_source} />
         </div>
       </div>
       <div className="d-flex justify-content-start">
-        <div className="d-flex p-3 flex-column">
-          <div className="d-flex h3">Parent Name</div>
+        <div className="d-flex p-3 flex-column flex-fill">
+          <div className="d-flex h5">Parent Name</div>
           <input type="text" id="parentName" className="form-control" defaultValue={student.parent_name} />
         </div>
-        <div className="d-flex p-3 flex-column">
-          <div className="d-flex h3">Parent Phone Number</div>
+        <div className="d-flex p-3 flex-column flex-fill">
+          <div className="d-flex h5">Parent Phone Number</div>
           <input type="tel" id="parentPhone" className="form-control" defaultValue={student.parent_phone} />
         </div>
       </div>
       <div className="d-flex justify-content-start">
-        <div className="d-flex p-3 flex-column">
-          <div className="d-flex h3">Preferred Tutor</div>
+        <div className="d-flex p-3 flex-column flex-fill">
+          <div className="d-flex h5">Preferred Tutor</div>
           <select type="text" className="form-control" id="preferredTutor"
             value={selectedTutor} onChange={(e) => setSelectedTutor(e.target.value)}>
           <option disabled value="">Select One</option>
@@ -179,16 +179,16 @@ const StudentProfileEdit = () => {
         </div>
       </div>
       <div className="d-flex justify-content-start">
-        <div className="d-flex p-3 flex-column">
-          <div className="d-flex h3">Medical Conditions</div>
+        <div className="d-flex p-3 flex-column flex-fill">
+          <div className="d-flex h5">Medical Conditions</div>
           <textarea className="d-flex form-control" id="medicalConditions" defaultValue={student.medical_conditions} />
         </div>
-        <div className="d-flex p-3 flex-column">
-          <div className="d-flex h3">Other Info</div>
+        <div className="d-flex p-3 flex-column flex-fill">
+          <div className="d-flex h5">Other Info</div>
           <textarea className="d-flex form-control" id="extraInfo" defaultValue={student.other} />
         </div>
       </div>
-      <div className="d-flex p-3 h3">Emergency Contacts</div>
+      <div className="d-flex p-3 h5">Emergency Contacts</div>
       <div className="d-flex flex-column px-5">
         <table className="table table-striped">
           <thead>

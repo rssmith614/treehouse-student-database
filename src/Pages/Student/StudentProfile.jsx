@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import { Can } from "../../Services/can";
+import EvalsTable from "../../Components/EvalsTable";
 
 const StudentProfile = () => {
   const [student, setStudent] = useState({});
@@ -23,8 +24,6 @@ const StudentProfile = () => {
     getDoc(studentRef.current)
       .then((res) => {
         setStudent(res.data());
-        // getDoc(doc(db, 'tutors', res.data().preferred_tutor))
-        //   .then((res) => setPreferredTutor(res.data().displayName))  
       }).then(setLoading(false))
 
   }, [params.studentid])
@@ -44,73 +43,95 @@ const StudentProfile = () => {
 
   const innerContent = (
     <>
-    <div className="h1">About</div>
-    <div className="d-flex justify-content-start">
-      <div className="d-flex p-3 flex-column">
-        <div className="d-flex h3">Birthday</div>
-        <div className="d-flex">{student.student_dob}</div>
-      </div>
-      <div className="d-flex p-3 flex-column">
-        <div className="d-flex h3">Grade</div>
-        <div className="d-flex">{student.student_grade}</div>
-      </div>
-      <div className="d-flex p-3 flex-column">
-        <div className="d-flex h3">School</div>
-        <div className="d-flex">{student.student_school}</div>
-      </div>
-      <div className="d-flex p-3 flex-column">
-        <div className="d-flex h3">Source</div>
-        <div className="d-flex">{student.student_source}</div>
-      </div>
+    <div className="card-header">
+      <ul class="nav nav-underline">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" aria-current="true" href="#about">About</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" href="#evals">Evaluations</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" href="#standards">Standards</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" href="#assessments">Assessments</button>
+        </li>
+      </ul>
     </div>
-    <div className="d-flex justify-content-start">
-      <div className="d-flex p-3 flex-column">
-        <div className="d-flex h3">Parent Name</div>
-        <div className="d-flex">{student.parent_name}</div>
+    <div className="card-body tab-content">
+      <div className="tab-pane active" id="about">
+        <div className="d-flex justify-content-start">
+          <div className="d-flex p-3 flex-column flex-fill">
+            <div className="d-flex h5">Birthday</div>
+            <div className="d-flex">{student.student_dob}</div>
+          </div>
+          <div className="d-flex p-3 flex-column flex-fill">
+            <div className="d-flex h5">Grade</div>
+            <div className="d-flex">{student.student_grade}</div>
+          </div>
+          <div className="d-flex p-3 flex-column flex-fill">
+            <div className="d-flex h5">School</div>
+            <div className="d-flex">{student.student_school}</div>
+          </div>
+          <div className="d-flex p-3 flex-column flex-fill">
+            <div className="d-flex h5">Source</div>
+            <div className="d-flex">{student.student_source}</div>
+          </div>
+        </div>
+        <div className="d-flex justify-content-start">
+          <div className="d-flex p-3 flex-column flex-fill">
+            <div className="d-flex h5">Parent Name</div>
+            <div className="d-flex">{student.parent_name}</div>
+          </div>
+          <div className="d-flex p-3 flex-column flex-fill">
+            <div className="d-flex h5">Parent Phone Number</div>
+            <div className="d-flex">{student.parent_phone}</div>
+          </div>
+        </div>
+        <div className="d-flex justify-content-start">
+          <div className="d-flex p-3 flex-column flex-fill">
+            <div className="d-flex h5">Preferred Tutor</div>
+            <div className="d-flex">{student.preferred_tutor_name}</div>
+          </div>
+        </div>
+        <div className="d-flex justify-content-start">
+          <div className="d-flex p-3 flex-column flex-fill">
+            <div className="d-flex h5">Medical Conditions</div>
+            <div className="d-flex">{student.medical_conditions}</div>
+          </div>
+          <div className="d-flex p-3 flex-column flex-fill">
+            <div className="d-flex h5">Other Info</div>
+            <div className="d-flex">{student.other}</div>
+          </div>
+        </div>
+        <div className="d-flex justify-content-start table-responsive flex-column flex-fill">
+          <div className="d-flex p-3 h5">Emergency Contacts</div>
+          <div className="d-flex px-5">
+            <table className="table table-striped">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Relation</th>
+                  <th scope="col">Phone Number</th>
+                </tr>
+              </thead>
+              <tbody>
+                {emergencyContactList()}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div className="d-flex p-3 flex-column">
-        <div className="d-flex h3">Parent Phone Number</div>
-        <div className="d-flex">{student.parent_phone}</div>
+      <div className="tab-pane" id="evals">
+        <EvalsTable filterBy='student' id={studentRef.current.id} />
       </div>
-    </div>
-    <div className="d-flex justify-content-start">
-      <div className="d-flex p-3 flex-column">
-        <div className="d-flex h3">Preferred Tutor</div>
-        <div className="d-flex">{student.preferred_tutor_name}</div>
+      <div className="tab-pane" id="standards">
+        <div className="card-title">Standards</div>
       </div>
-    </div>
-    <div className="d-flex justify-content-start">
-      <div className="d-flex p-3 flex-column">
-        <div className="d-flex h3">Medical Conditions</div>
-        <div className="d-flex">{student.medical_conditions}</div>
+      <div className="tab-pane" id="assessments">
+        <div className="card-title">Assessments</div>
       </div>
-      <div className="d-flex p-3 flex-column">
-        <div className="d-flex h3">Other Info</div>
-        <div className="d-flex">{student.other}</div>
-      </div>
-    </div>
-    <div className="d-flex justify-content-start table-responsive flex-column">
-      <div className="d-flex p-3 h3">Emergency Contacts</div>
-      <div className="d-flex px-5">
-        <table className="table table-striped">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Relation</th>
-              <th scope="col">Phone Number</th>
-            </tr>
-          </thead>
-          <tbody>
-            {emergencyContactList()}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <hr />
-    <div className="h1 d-flex flex-column">
-      Standards Progress, Evals, Assessments
-      <button className="btn btn-secondary m-3 me-auto"
-        onClick={() => navigate(`/evals/${studentRef.current.id}`)}>View {student.student_name}'s Evaluations</button>
     </div>
     </>
   )
@@ -121,7 +142,7 @@ const StudentProfile = () => {
         Student Profile - {student.student_name}
       </h1>
       <div className="d-flex ">
-        <div className='d-flex p-3 m-3 card bg-light-subtle flex-fill'>
+        <div className='d-flex m-3 card bg-light-subtle flex-fill'>
           {loading ? <div className="spinner-border align-self-center" /> : innerContent}
         </div>
       </div>
