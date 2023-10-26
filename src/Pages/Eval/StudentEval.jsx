@@ -106,7 +106,7 @@ const StudentEval = () => {
           <div className="col">
             <label className="form-label h5">Worksheet</label>
             <div>
-              <a id="worksheet" className="" href={worksheet} target="_blank">{evaluation.worksheet}</a>
+              <a id="worksheet" className="" href={worksheet} target="_blank" rel="noreferrer">{evaluation.worksheet}</a>
             </div>
           </div>
           <div className="col">

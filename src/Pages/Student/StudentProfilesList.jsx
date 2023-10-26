@@ -95,7 +95,7 @@ const StudentProfilesList = () => {
           else if (tableSort === 'name_desc')
             return <i className="bi bi-sort-alpha-down-alt ms-auto" />
         }
-          
+        break;
 
       case 'dob':
         if (tableSort === 'dob_asc')
@@ -130,7 +130,6 @@ const StudentProfilesList = () => {
         else
           return <i className="bi bi-funnel ms-auto" />
 
-      break;
       default:
         return <i className="bi bi-filter ms-auto" />
     }

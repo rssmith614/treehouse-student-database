@@ -65,16 +65,13 @@ const StudentProfileEdit = () => {
     await updateDoc(studentRef.current, newStudent).then(() => navigate(`/student/${studentRef.current.id}`));
   }
   
-  function backAction() {
-    if (!window.confirm("Changes will not be saved")) {
-      return;
-    }
+  // function backAction() {
+  //   if (!window.confirm("Changes will not be saved")) {
+  //     return;
+  //   }
 
-    navigate(`/student/${studentRef.current.id}`);
-  }
-
-  // to be replaced with DB call
-  // let tutors = ["Robert Smith", "Marcus Arellano", "Alex Gonzales"]
+  //   navigate(`/student/${studentRef.current.id}`);
+  // }
 
   function tutorOptions() {
     return tutors.map((tutor) => {
@@ -218,7 +215,7 @@ const StudentProfileEdit = () => {
           {loading ? <div className="spinner-border align-self-center" /> : innerForm}
         </div>
         <div className="d-flex">
-          <button type="button" className="btn btn-secondary m-3 me-auto" onClick={backAction}>Back to Student</button>
+          {/* <button type="button" className="btn btn-secondary m-3 me-auto" onClick={backAction}>Back to Student</button> */}
           <button type="button" className="btn btn-danger m-3" onClick={studentRemoval}>Delete Student</button>
           <button type="submit" className="btn btn-primary m-3" id="saveChanges">Save Changes</button>
       </div>

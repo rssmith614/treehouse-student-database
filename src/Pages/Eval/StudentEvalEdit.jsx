@@ -5,9 +5,6 @@ import { collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore"
 import { db } from "../../Services/firebase";
 
 
-// to be replaced with DB call
-// let tutors = ["Robert Smith", "Marcus Arellano", "Alex Gonzales"]
-
 const StudentEvalEdit = () => {
   const [evaluation, setEvaluation] = useState({});
   const [tutors, setTutors] = useState([]);

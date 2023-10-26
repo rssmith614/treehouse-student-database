@@ -7,9 +7,6 @@ import dayjs from "dayjs";
 import { ref, uploadBytes } from "firebase/storage";
 
 
-// to be replaced with DB call
-// let tutors = ["Robert Smith", "Marcus Arellano", "Alex Gonzales"]
-
 const NewStudentEval = () => {
   const [student, setStudent] = useState({});
   const [tutors, setTutors] = useState([]);

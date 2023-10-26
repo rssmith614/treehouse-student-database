@@ -85,8 +85,6 @@ const TutorProfilesList = () => {
     }
   }
 
-  let temp = <div>Search <i className="bi bi-x ms-auto" /></div>
-
   const listTable = (
     <table className="table table-striped table-hover">
       <thead>

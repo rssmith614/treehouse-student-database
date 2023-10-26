@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
 import { auth, db } from "../Services/firebase";
-import { GoogleAuthProvider, signInAnonymously, signInWithPopup, signOut } from "firebase/auth"
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth"
 import { collection, getDocs, query, updateDoc, where } from "firebase/firestore";
 
 import { AbilityBuilder } from "@casl/ability";
