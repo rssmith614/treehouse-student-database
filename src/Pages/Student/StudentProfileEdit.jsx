@@ -1,8 +1,9 @@
 import { doc, getDoc, updateDoc, deleteDoc, getDocs, collection } from "firebase/firestore";
 
 import { db } from "../../Services/firebase";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { ToastContext } from "../../Services/toast";
 
 const StudentProfileEdit = () => {
   const [student, setStudent] = useState({});
@@ -14,6 +15,8 @@ const StudentProfileEdit = () => {
   const [loading, setLoading] = useState(true);
 
   const studentRef = useRef();
+
+  const setToast = useContext(ToastContext);
 
   const navigate = useNavigate();
   
@@ -62,7 +65,9 @@ const StudentProfileEdit = () => {
       emergency_contacts: emergencyContacts,
     }
     
-    await updateDoc(studentRef.current, newStudent).then(() => navigate(`/student/${studentRef.current.id}`));
+    updateDoc(studentRef.current, newStudent)
+      .then(() => setToast({header: 'Changes Saved', message: `Student ${student.student_name}'s profile has been updated`}))
+      .then(() => navigate(`/student/${studentRef.current.id}`));
   }
   
   // function backAction() {

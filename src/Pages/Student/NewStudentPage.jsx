@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { db } from "../../Services/firebase";
 
 import { addDoc, collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { ToastContext } from "../../Services/toast";
 
 
 const NewProfile = () => {
   const [tutors, setTutors] = useState([]);
   const [emergencyContacts, setEmergencyContacts] = useState([]);
+
+  const setToast = useContext(ToastContext);
 
   const navigate = useNavigate();
 
@@ -43,7 +46,9 @@ const NewProfile = () => {
     }
 
     const studentCollRef = collection(db, "students");
-    await addDoc(studentCollRef, newStudent).then(() => navigate('/students'));
+    addDoc(studentCollRef, newStudent)
+      .then(() => setToast({header: 'Registration Complete', message: `Student ${newStudent.student_name} has been registered`}))
+      .then(() => navigate('/students'));
   }
 
   function updateEContacts() {

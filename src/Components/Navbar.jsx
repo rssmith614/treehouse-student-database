@@ -3,6 +3,7 @@ import { auth } from "../Services/firebase";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Can } from "../Services/can";
 import { useEffect, useState } from "react";
+import { Container, Dropdown, Navbar as BsNavbar, Nav, NavDropdown } from "react-bootstrap";
 
 
 const Navbar = ({ userProfile }) => {
@@ -22,40 +23,33 @@ const Navbar = ({ userProfile }) => {
     return <></>;
 
   return (
-    <nav className="navbar navbar-expand-lg bg-body-tertiary">
-      <div className="container-fluid">
-        <button className="btn navbar-brand" data-bs-toggle="dropdown" aria-expanded="false">Welcome, {userName}</button>  
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <div className="navbar-nav d-flex">
-            <button className="nav-link"
-              onClick={() => navigate('/students')} style={{ cursor: "pointer" }}>Students</button>
+    <BsNavbar className="bg-body-tertiary" expand="lg">
+      <Container fluid>
+        <BsNavbar.Brand aria-expanded="false">Welcome, {userName}</BsNavbar.Brand>
+        <BsNavbar.Toggle aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation" />
+        <BsNavbar.Collapse id="navbarNavAltMarkup">
+          <Nav>
+            <Nav.Link
+              onClick={() => navigate('/students')} style={{ cursor: "pointer" }}>Students</Nav.Link>
+
             <Can I="read" on="Tutor">
-              <button className="nav-link"
-                onClick={() => navigate('/tutors')} style={{ cursor: "pointer" }}>Tutors</button>
+              <Nav.Link
+                onClick={() => navigate('/tutors')} style={{ cursor: "pointer" }}>Tutors</Nav.Link>
             </Can>
-            <div className="nav-item dropdown">
-              <button className="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Evaluations</button>
-              <div className="dropdown-menu">
-                <div><button className="dropdown-item"
-                  onClick={() => navigate(`/evals`)}>Past Evaluations</button></div>
-                <div><button className="dropdown-item"
-                  onClick={() => navigate(`/eval/new`)}>New Session Evaluation</button></div>
-              </div>
-            </div>
-            <div className="nav-item dropdown">
-              <button className="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Options</button>
-              <div className="dropdown-menu">
-                <div><button className="dropdown-item" onClick={() => {navigate(`/tutor/${userProfile.id}`)}}>View Tutor Profile</button></div>
-                <div><button className="dropdown-item" onClick={() => signOut(auth).then(navigate('/login'))}>Log Out</button></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
+
+            <NavDropdown title="Evaluations">
+              <NavDropdown.Item onClick={() => navigate(`/evals`)}>Past Evaluations</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => navigate(`/eval/new`)}>New Session Evaluations</NavDropdown.Item>
+            </NavDropdown>
+
+            <NavDropdown title="Options">
+              <NavDropdown.Item onClick={() => navigate(`/tutor/${userProfile.id}`)}>View Tutor Profile</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => signOut(auth).then(navigate('/login'))}>Log Out</NavDropdown.Item>
+            </NavDropdown>
+          </Nav>
+        </BsNavbar.Collapse>
+      </Container>
+    </BsNavbar>
   )
 }
 

@@ -1,10 +1,14 @@
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { ToastContext } from "../../Services/toast";
 
 
 const NewTutorPage = () => {
   const navigate = useNavigate();
+
+  const setToast = useContext(ToastContext);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -34,7 +38,9 @@ const NewTutorPage = () => {
         email: document.getElementById("tutoremail").value,
         clearance: document.getElementById("tutorclearance").value,
         activated: false,
-      }).then(() => navigate('/tutors'));
+      })
+        .then(() => setToast({header: 'Registration Complete', message: `${email} has been registered with ${clearance} clearance. They need to sign in to finish activation`}))
+        .then(() => navigate('/tutors'));
     })
   }
 

@@ -1,8 +1,9 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
 
 import { db } from "../../Services/firebase";
+import { ToastContext } from "../../Services/toast";
 
 
 const StudentEvalEdit = () => {
@@ -12,6 +13,8 @@ const StudentEvalEdit = () => {
   const [selectedTutor, setSelectedTutor] = useState('');
 
   const [loading, setLoading] = useState(true);
+
+  const setToast = useContext(ToastContext);
 
   const params = useParams();
 
@@ -56,6 +59,7 @@ const StudentEvalEdit = () => {
     }
 
     updateDoc(evalRef.current, newEval)
+      .then(() => setToast({header: 'Changes Saved', message: `Session evaluation for ${newEval.student_name} was successfully updated`}))
       .then(() => navigate(`/eval/${evalRef.current.id}`));
   }
 

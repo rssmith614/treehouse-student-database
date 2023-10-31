@@ -7,6 +7,8 @@ import { collection, getDocs, query, updateDoc, where } from "firebase/firestore
 import { AbilityBuilder } from "@casl/ability";
 import { AbilityContext } from "../Services/can";
 import { useAbility } from "@casl/react";
+import { useContext } from "react";
+import { ToastContext } from "../Services/toast";
 
 const Login = ( { setUserProfile }) => {
   
@@ -71,9 +73,13 @@ const Login = ( { setUserProfile }) => {
       });
   }
 
+  const setToast = useContext(ToastContext);
+
   return (
     <div className="position-absolute top-50 start-50">
       <button className="btn btn-primary" onClick={handleSignIn}>Google Sign-In</button>
+      <button className="btn btn-secondary" onClick={() => setToast({header: 'hi', message: 'woah'})}>Toast</button>
+      <button className="btn btn-secondary" onClick={() => setToast({header: 'other toast', message: 'electric boogaloo'})}>Toast 2</button>
     </div>
   );
 }

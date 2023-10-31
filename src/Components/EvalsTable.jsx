@@ -1,10 +1,11 @@
 import { collection, doc, getDocs, query, where } from "firebase/firestore";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import dayjs from "dayjs";
 
 import { db } from "../Services/firebase";
 import { useNavigate } from "react-router-dom";
+import { Dropdown, DropdownButton, InputGroup, Modal, Table, Form } from "react-bootstrap";
 
 
 const EvalsTable = ({ filterBy, id }) => {
@@ -96,57 +97,75 @@ const EvalsTable = ({ filterBy, id }) => {
   if (loading)
     return <div className="spinner-border align-self-center" />;
 
+  const DropdownTableHeaderToggle = React.forwardRef(({children, onClick}, ref) => (
+    <div className="d-flex"
+      ref={ref}
+      onClick={(e) => {
+        e.preventDefault();
+        onClick(e);
+      }}>
+      {children}
+    </div>
+  )) 
+
+  const DropdownTableHeader = React.forwardRef(({ children, style, className, 'aria-labelledby': labeledBy, value }, ref) => (
+    <div
+      ref={ref}
+      style={style}
+      className={className}
+      aria-labelledby={labeledBy}>
+      <Dropdown.Item>
+        <InputGroup>
+          <Form.Control autoFocus type="text" placeholder="Search" value={value}
+            onChange={(e) => setTutorFilter(e.target.value)} />
+          <i className="bi bi-x-lg input-group-text" style={{ cursor: "pointer" }} onClick={() => setTutorFilter('')} />
+        </InputGroup>
+      </Dropdown.Item>
+    </div>
+  ))
+
   return (
-    <table className="table table-striped table-hover">
+    <Table striped hover>
       <thead>
         <tr>
           <th className="w-25">
-            <div className="dropup">
-              <div className="d-flex" data-bs-toggle="dropdown">
-                Date
-                {filterIcon('date')}
-              </div>
-              <ul className="dropdown-menu dropdown-menu-lg-end">
-                <li><div className="dropdown-item" onClick={() => setTableSort('date_desc')}>Newer First</div></li>
-                <li><div className="dropdown-item" onClick={() => setTableSort('date_asc')}>Older First</div></li>
-              </ul>
-            </div>
+            <Dropdown variant="" drop="up">
+              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                Date {filterIcon('date')}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => setTableSort('date_desc')}>Newer First</Dropdown.Item>
+                <Dropdown.Item onClick={() => setTableSort('date_asc')}>Older First</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           </th>
           {filterBy === 'tutor' ? 
-          <th>
-            <div className="dropup">
-              <div className="d-flex" data-bs-toggle="dropdown">
-                Student
-                {filterIcon('student')}
-              </div>
-              <ul className="dropdown-menu dropdown-menu-lg-end">
-              <li className="px-2">
-              <div className="input-group">
-                <input className="form-control" type="text" placeholder="Search" value={studentFilter}
-                  onChange={(e) => setStudentFilter(e.target.value)} />
-                <i className="bi bi-x-lg input-group-text" style={{ cursor: "pointer" }} onClick={() => setStudentFilter('')} />
-              </div>
-            </li>
-              </ul>
-            </div>
+          <th className="w-25">
+            <Dropdown autoClose='outside' drop='up'>
+              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                Student {filterIcon('student')}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item>
+                  <div className="input-group">
+                    <input className="form-control" type="text" placeholder="Search" value={studentFilter}
+                      onChange={(e) => setStudentFilter(e.target.value)} />
+                    <i className="bi bi-x-lg input-group-text" style={{ cursor: "pointer" }} onClick={() => setStudentFilter('')} />
+                  </div>
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           </th>
           :
-          <th>
-            <div className="dropup">
-              <div className="d-flex" data-bs-toggle="dropdown">
-                Tutor
-                {filterIcon('tutor')}
-              </div>
-              <ul className="dropdown-menu dropdown-menu-lg-end">
-              <li className="px-2">
-              <div className="input-group">
-                <input className="form-control" type="text" placeholder="Search" value={tutorFilter}
-                  onChange={(e) => setTutorFilter(e.target.value)} />
-                <i className="bi bi-x-lg input-group-text" style={{ cursor: "pointer" }} onClick={() => setTutorFilter('')} />
-              </div>
-            </li>
-              </ul>
-            </div>
+          <th className="w-25">
+            <Dropdown autoClose='outside' drop='up'>
+              <Dropdown.Toggle as={DropdownTableHeaderToggle} id="tutor-filter">
+                Tutor {filterIcon('tutor')}
+              </Dropdown.Toggle>
+              
+              <Dropdown.Menu as={DropdownTableHeader} value={tutorFilter}>
+              </Dropdown.Menu>
+            </Dropdown>
           </th>
           }
           <th className="w-50">Subject</th>
@@ -155,7 +174,7 @@ const EvalsTable = ({ filterBy, id }) => {
       <tbody>
         {evalList()}
       </tbody>
-    </table>
+    </Table>
   )
 }
 

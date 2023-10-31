@@ -49,12 +49,12 @@ const TutorProfile = () => {
       <div className="d-flex flex-row justify-content-center">
         <div className='d-flex flex-fill m-3 card bg-light-subtle justify-content-center'>
           <div className="card-header">
-            <ul class="nav nav-underline">
-              <li class="nav-item">
-                <button class="nav-link active" data-bs-toggle="tab" aria-current="true" href="#about">About</button>
+            <ul className="nav nav-underline">
+              <li className="nav-item">
+                <button className="nav-link active" data-bs-toggle="tab" aria-current="true" href="#about">About</button>
               </li>
-              <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" href="#evals">Evaluations</button>
+              <li className="nav-item">
+                <button className="nav-link" data-bs-toggle="tab" href="#evals">Evaluations</button>
               </li>
             </ul>
           </div>

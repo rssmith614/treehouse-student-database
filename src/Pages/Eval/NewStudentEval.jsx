@@ -1,10 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
 
 import { auth, db, storage } from "../../Services/firebase";
 import dayjs from "dayjs";
 import { ref, uploadBytes } from "firebase/storage";
+import { ToastContext } from "../../Services/toast";
 
 
 const NewStudentEval = () => {
@@ -14,6 +15,8 @@ const NewStudentEval = () => {
   const [selectedTutor, setSelectedTutor] = useState("");
 
   const [loading, setLoading] = useState(true);
+
+  const setToast = useContext(ToastContext);
 
   const params = useParams();
 
@@ -68,15 +71,19 @@ const NewStudentEval = () => {
 
       uploadBytes(worksheetRef, worksheetUpload)
         .then(() => 
-          addDoc(collection(db, "evaluations"), newEval)
-            .then(() =>
+            addDoc(collection(db, "evaluations"), newEval)
+          .then(() => 
+            setToast({header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded`}))
+          .then(() =>
               navigate(`/student/${params.studentid}`)
-            )
+          )
         )
     } else {
       newEval.worksheet = '';
 
       addDoc(collection(db, "evaluations"), newEval)
+        .then(() => 
+          setToast({header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded`}))
         .then(() =>
           navigate(`/student/${params.studentid}`)
         )

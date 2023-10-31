@@ -1,6 +1,8 @@
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Route, Routes } from 'react-router-dom';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import Login from './Pages/Login';
 
 import NewStudentEval from './Pages/Eval/NewStudentEval';
@@ -29,6 +31,8 @@ import StudentEval from './Pages/Eval/StudentEval';
 import StudentEvalEdit from './Pages/Eval/StudentEvalEdit';
 import NewEval from './Pages/Eval/NewEval';
 import Evals from './Pages/Eval/Evals';
+import DocSubmissionToast from './Components/DocSumbissionToast';
+import { ToastContext } from './Services/toast';
 
 function App() {
 
@@ -71,31 +75,36 @@ function App() {
     }
   })
 
+  const [toast, setToast] = useState({header: '', message: ''});
+
   return (
     <AbilityContext.Provider value={defineAbilityFor(userProfile)}>
-      <Router>
-        <Navbar userProfile={userProfile} />
-        <Routes>
-          <Route path="/login" element={<Login userProfile={userProfile} setUserProfile={setUserProfile} />} />
+      <ToastContext.Provider value={setToast}>
+        <Router>
+          <Navbar userProfile={userProfile} />
+          <Routes>
+            <Route path="/login" element={<Login userProfile={userProfile} setUserProfile={setUserProfile} />} />
 
-          <Route path='/evals' element={<Evals />} />
-          <Route path='/eval/new' element={<NewEval />} />
-          <Route path='/eval/new/:studentid' element={<NewStudentEval />} />
-          <Route path='/eval/:evalid' element={<StudentEval />} />
-          <Route path='/evals/:studentid' element={<StudentEvalsList />} />
-          <Route path='/eval/edit/:evalid' element={<StudentEvalEdit />} />
+            <Route path='/evals' element={<Evals />} />
+            <Route path='/eval/new' element={<NewEval />} />
+            <Route path='/eval/new/:studentid' element={<NewStudentEval />} />
+            <Route path='/eval/:evalid' element={<StudentEval />} />
+            <Route path='/evals/:studentid' element={<StudentEvalsList />} />
+            <Route path='/eval/edit/:evalid' element={<StudentEvalEdit />} />
 
-          <Route path="/newstudent" element={<NewStudentPage />} />
-          <Route path="/students" element={<StudentProfilesList />} />
-          <Route path="/student/:studentid" element={<StudentProfile />} />
-          <Route path="student/edit/:studentid" element={<StudentProfileEdit />} />
+            <Route path="/newstudent" element={<NewStudentPage />} />
+            <Route path="/students" element={<StudentProfilesList />} />
+            <Route path="/student/:studentid" element={<StudentProfile />} />
+            <Route path="student/edit/:studentid" element={<StudentProfileEdit />} />
 
-          <Route path="/newtutor" element={<NewTutorPage />} />
-          <Route path="/tutors" element={<TutorProfilesList />} />
-          <Route path="/tutor/:tutorid" element={<TutorProfile />} />
-          <Route path="/tutor/edit/:tutorid" element={<TutorProfileEdit />} />
-        </Routes>
-      </Router>
+            <Route path="/newtutor" element={<NewTutorPage />} />
+            <Route path="/tutors" element={<TutorProfilesList />} />
+            <Route path="/tutor/:tutorid" element={<TutorProfile />} />
+            <Route path="/tutor/edit/:tutorid" element={<TutorProfileEdit />} />
+          </Routes>
+        </Router>
+        <DocSubmissionToast toast={toast} />
+      </ToastContext.Provider>
     </AbilityContext.Provider>
   );
 }

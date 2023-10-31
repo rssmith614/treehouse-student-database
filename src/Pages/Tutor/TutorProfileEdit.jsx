@@ -1,8 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../Services/firebase";
+import { ToastContext } from "../../Services/toast";
 
 
 const TutorProfileEdit = () => {
@@ -10,6 +11,8 @@ const TutorProfileEdit = () => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
+
+  const setToast = useContext(ToastContext);
 
   const params = useParams();
 
@@ -44,7 +47,9 @@ const TutorProfileEdit = () => {
 
     tutor.clearance = newClearance;
 
-    updateDoc(tutorDocRef.current, tutor).then(() => navigate(`/tutor/${tutorDocRef.current.id}`));
+    updateDoc(tutorDocRef.current, tutor)
+      .then(() => setToast({header: 'Changes Saved', message: `Tutor ${tutor.displayName}'s profile has been updated`}))
+      .then(() => navigate(`/tutor/${tutorDocRef.current.id}`));
   }
 
   const innerContent = (
