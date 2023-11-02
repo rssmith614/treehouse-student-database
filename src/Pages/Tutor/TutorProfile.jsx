@@ -17,6 +17,7 @@ const TutorProfile = () => {
   const tutorDocRef = useRef(doc(db, 'tutors', params.tutorid));
 
   useEffect(() => {
+    tutorDocRef.current = doc(db, 'tutors', params.tutorid);
 
     getDoc(tutorDocRef.current)
       .then((doc) => setTutor(doc.data()))
