@@ -219,7 +219,7 @@ const StudentProfileEdit = () => {
         <div className='d-flex p-3 m-3 card bg-light-subtle'>
           {loading ? <div className="spinner-border align-self-center" /> : innerForm}
         </div>
-        <div className="d-flex">
+        <div className="d-flex justify-content-end">
           {/* <button type="button" className="btn btn-secondary m-3 me-auto" onClick={backAction}>Back to Student</button> */}
           <button type="button" className="btn btn-danger m-3" onClick={studentRemoval}>Delete Student</button>
           <button type="submit" className="btn btn-primary m-3" id="saveChanges">Save Changes</button>

@@ -78,8 +78,6 @@ const Login = ( { setUserProfile }) => {
   return (
     <div className="position-absolute top-50 start-50">
       <button className="btn btn-primary" onClick={handleSignIn}>Google Sign-In</button>
-      <button className="btn btn-secondary" onClick={() => setToast({header: 'hi', message: 'woah'})}>Toast</button>
-      <button className="btn btn-secondary" onClick={() => setToast({header: 'other toast', message: 'electric boogaloo'})}>Toast 2</button>
     </div>
   );
 }

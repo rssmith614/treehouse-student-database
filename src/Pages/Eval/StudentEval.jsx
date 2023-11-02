@@ -55,19 +55,19 @@ const StudentEval = () => {
     <div className='p-3 d-flex flex-column'>
       <h1 className="display-1">Session Evaluation</h1>
           <div className="d-flex flex-fill card p-3 m-3 bg-light-subtle">
-          <div className="h3"
+          <a className="h3 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
             data-toggle="tooltip" title={"View " + evaluation.student_name + "'s Profile"}
-            style={{ cursor: "pointer" }} onClick={() => navigate(`/student/${evaluation.student_id}`)}>{evaluation.student_name}</div>
+            style={{ cursor: "pointer" }} onClick={() => navigate(`/student/${evaluation.student_id}`)}>{evaluation.student_name}</a>
           <div className="row my-3">
             <div className="col">
-              <label className="form-label h5">Tutor</label>
+              <label className="form-label h5">Tutor</label><br />
               <Can I="view" on="Tutor">
-                <div id="tutor" className=""
+                <a id="tutor" className="h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                   data-toggle="tooltip" title={"View " + evaluation.tutor_name + "'s Profile"}
-                  style={{ cursor: "pointer" }} onClick={() => navigate(`/tutor/${evaluation.tutor_id}`)}>{evaluation.tutor_name}</div>
+                  style={{ cursor: "pointer" }} onClick={() => navigate(`/tutor/${evaluation.tutor_id}`)}>{evaluation.tutor_name}</a>
               </Can>
               <Can not I="view" on="Tutor">
-                <div id="tutor" className="">{evaluation.tutor_name}</div>
+                <div id="tutor" className="h6">{evaluation.tutor_name}</div>
               </Can>
           </div>
           <div className="col">

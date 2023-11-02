@@ -108,7 +108,7 @@ const EvalsTable = ({ filterBy, id }) => {
     </div>
   )) 
 
-  const DropdownTableHeader = React.forwardRef(({ children, style, className, 'aria-labelledby': labeledBy, value }, ref) => (
+  const FilterTableHeader = React.forwardRef(({ children, style, className, 'aria-labelledby': labeledBy, value, valueSetter }, ref) => (
     <div
       ref={ref}
       style={style}
@@ -117,8 +117,8 @@ const EvalsTable = ({ filterBy, id }) => {
       <Dropdown.Item>
         <InputGroup>
           <Form.Control autoFocus type="text" placeholder="Search" value={value}
-            onChange={(e) => setTutorFilter(e.target.value)} />
-          <i className="bi bi-x-lg input-group-text" style={{ cursor: "pointer" }} onClick={() => setTutorFilter('')} />
+            onChange={(e) => valueSetter(e.target.value)} />
+          <i className="bi bi-x-lg input-group-text" style={{ cursor: "pointer" }} onClick={() => valueSetter('')} />
         </InputGroup>
       </Dropdown.Item>
     </div>
@@ -142,18 +142,11 @@ const EvalsTable = ({ filterBy, id }) => {
           {filterBy === 'tutor' ? 
           <th className="w-25">
             <Dropdown autoClose='outside' drop='up'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+            <Dropdown.Toggle as={DropdownTableHeaderToggle} id="student-filter">
                 Student {filterIcon('student')}
               </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item>
-                  <div className="input-group">
-                    <input className="form-control" type="text" placeholder="Search" value={studentFilter}
-                      onChange={(e) => setStudentFilter(e.target.value)} />
-                    <i className="bi bi-x-lg input-group-text" style={{ cursor: "pointer" }} onClick={() => setStudentFilter('')} />
-                  </div>
-                </Dropdown.Item>
-              </Dropdown.Menu>
+              
+              <Dropdown.Menu as={FilterTableHeader} value={studentFilter} valueSetter={setStudentFilter} />
             </Dropdown>
           </th>
           :
@@ -163,8 +156,7 @@ const EvalsTable = ({ filterBy, id }) => {
                 Tutor {filterIcon('tutor')}
               </Dropdown.Toggle>
               
-              <Dropdown.Menu as={DropdownTableHeader} value={tutorFilter}>
-              </Dropdown.Menu>
+              <Dropdown.Menu as={FilterTableHeader} value={tutorFilter} valueSetter={setTutorFilter} />
             </Dropdown>
           </th>
           }

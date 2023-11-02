@@ -5,6 +5,7 @@ import { Can } from "../../Services/can";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import EvalsTable from "../../Components/EvalsTable";
+import { Card, CardBody, CardHeader, Nav, Tab, Tabs } from "react-bootstrap";
 
 const TutorProfile = () => {
   const [tutor, setTutor] = useState({});
@@ -21,6 +22,8 @@ const TutorProfile = () => {
       .then((doc) => setTutor(doc.data()))
 
   }, [params.tutorid])
+
+  const [key, setKey] = useState('about');
 
   function capitalize(str) {
     try {
@@ -47,38 +50,38 @@ const TutorProfile = () => {
         Tutor Profile - {tutor.displayName}
       </h1>
       <div className="d-flex flex-row justify-content-center">
-        <div className='d-flex flex-fill m-3 card bg-light-subtle justify-content-center'>
-          <div className="card-header">
-            <ul className="nav nav-underline">
-              <li className="nav-item">
-                <button className="nav-link active" data-bs-toggle="tab" aria-current="true" href="#about">About</button>
-              </li>
-              <li className="nav-item">
-                <button className="nav-link" data-bs-toggle="tab" href="#evals">Evaluations</button>
-              </li>
-            </ul>
-          </div>
-          <div className="card-body tab-content">
-            <div className="tab-pane active" id="about">
-              <div className="d-flex">
-                <img src={tutor.photoURL} alt="" />
-                <div className="d-flex flex-column p-3">
-                  <div className="h3">Email</div>
-                  <div>{tutor.email}</div>
+        <Card className='d-flex flex-fill m-3 bg-light-subtle justify-content-center'>
+          <Tab.Container defaultActiveKey='about'>
+            <Nav variant="underline" className="card-header">
+              <Nav.Item>
+                <Nav.Link eventKey='about'>About</Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey='evals'>Evaluations</Nav.Link>
+              </Nav.Item>
+            </Nav>
+            <Tab.Content className="card-body">
+              <Tab.Pane eventKey='about'>
+                <div className="d-flex p-3">
+                  <img src={tutor.photoURL} alt="" />
+                  <div className="d-flex flex-column p-3">
+                    <div className="h3">Email</div>
+                    <div>{tutor.email}</div>
+                  </div>
+                  <div className="d-flex flex-column p-3">
+                    <div className="h3">Clearance</div>
+                    <div>{capitalize(tutor.clearance)}</div>
+                  </div>
                 </div>
+              </Tab.Pane>
+              <Tab.Pane eventKey='evals'>
                 <div className="d-flex flex-column p-3">
-                  <div className="h3">Clearance</div>
-                  <div>{capitalize(tutor.clearance)}</div>
+                  <EvalsTable filterBy='tutor' id={tutorDocRef.current.id} />
                 </div>
-              </div>
-            </div>
-            <div className="tab-pane" id="evals">
-              <div className="d-flex flex-column">
-                <EvalsTable filterBy='tutor' id={tutorDocRef.current.id} />
-              </div>
-            </div>
-          </div>
-        </div>
+              </Tab.Pane>
+            </Tab.Content>
+          </Tab.Container>
+        </Card>
       </div>
         <div className="d-flex">
           <Can I="edit" this={tutorInstance} >

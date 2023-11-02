@@ -6,6 +6,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 import { Can } from "../../Services/can";
 import EvalsTable from "../../Components/EvalsTable";
+import { Nav, Tab } from "react-bootstrap";
 
 const StudentProfile = () => {
   const [student, setStudent] = useState({});
@@ -42,25 +43,25 @@ const StudentProfile = () => {
   }
 
   const innerContent = (
-    <>
+    <Tab.Container defaultActiveKey='about'>
     <div className="card-header">
-      <ul class="nav nav-underline">
-        <li class="nav-item">
-          <button class="nav-link active" data-bs-toggle="tab" aria-current="true" href="#about">About</button>
-        </li>
-        <li class="nav-item">
-          <button class="nav-link" data-bs-toggle="tab" href="#evals">Evaluations</button>
-        </li>
-        <li class="nav-item">
-          <button class="nav-link" data-bs-toggle="tab" href="#standards">Standards</button>
-        </li>
-        <li class="nav-item">
-          <button class="nav-link" data-bs-toggle="tab" href="#assessments">Assessments</button>
-        </li>
-      </ul>
+      <Nav variant="underline">
+        <Nav.Item>
+          <Nav.Link class="active" data-bs-toggle="tab" aria-current="true" eventKey='about'>About</Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link data-bs-toggle="tab" eventKey='evals'>Evaluations</Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link data-bs-toggle="tab" eventKey='standards'>Standards</Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link data-bs-toggle="tab" eventKey='assessments'>Assessments</Nav.Link>
+        </Nav.Item>
+      </Nav>
     </div>
-    <div className="card-body tab-content">
-      <div className="tab-pane active" id="about">
+    <Tab.Content className="card-body">
+      <Tab.Pane eventKey="about">
         <div className="d-flex justify-content-start">
           <div className="d-flex p-3 flex-column flex-fill">
             <div className="d-flex h5">Birthday</div>
@@ -122,18 +123,18 @@ const StudentProfile = () => {
             </table>
           </div>
         </div>
-      </div>
-      <div className="tab-pane" id="evals">
+      </Tab.Pane>
+      <Tab.Pane eventKey="evals">
         <EvalsTable filterBy='student' id={studentRef.current.id} />
-      </div>
-      <div className="tab-pane" id="standards">
+      </Tab.Pane>
+      <Tab.Pane eventKey="standards">
         <div className="card-title">Standards</div>
-      </div>
-      <div className="tab-pane" id="assessments">
+      </Tab.Pane>
+      <Tab.Pane eventKey="assessments">
         <div className="card-title">Assessments</div>
-      </div>
-    </div>
-    </>
+      </Tab.Pane>
+    </Tab.Content>
+    </Tab.Container>
   )
   
   return (
@@ -146,12 +147,12 @@ const StudentProfile = () => {
           {loading ? <div className="spinner-border align-self-center" /> : innerContent}
         </div>
       </div>
-        <div className="d-flex">
+        <div className="d-flex justify-content-end">
           {/* <button className="btn btn-secondary m-3 me-auto" onClick={() => navigate('/students')}>Back to Student List</button> */}
           <Can do="manage" on="students">
             <button className="btn btn-info m-3" onClick={() => navigate(`/student/edit/${studentRef.current.id}`)}>Make Changes</button>
           </Can>
-          <button className="btn btn-primary m-3 ms-auto" onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}>New Session Eval</button>
+          <button className="btn btn-primary m-3" onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}>New Session Eval</button>
         </div>
     </div>
   );
