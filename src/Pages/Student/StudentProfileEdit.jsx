@@ -127,7 +127,7 @@ const StudentProfileEdit = () => {
     return emergencyContacts.map((c, i) => {
       let rowid = "contact" + i;
       return (
-        <tr>
+        <tr key={i}>
           <td><button id={rowid + 'del'} type="button" className="btn btn-danger" onClick={() => {removeEContact(i)}}><i className="bi bi-trash-fill" /></button></td>
           <td><input id={rowid + 'name'} className="form-control"
             defaultValue={c.name} onBlur={updateEContacts} /></td>

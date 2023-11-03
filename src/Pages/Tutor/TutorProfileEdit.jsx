@@ -4,11 +4,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
+import { Form } from "react-bootstrap";
 
 
 const TutorProfileEdit = () => {
   const [tutor, setTutor] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const [selectedClearance, setSelectedClearance] = useState('');
 
   const navigate = useNavigate();
 
@@ -21,7 +24,7 @@ const TutorProfileEdit = () => {
   useEffect(() => {
 
     getDoc(tutorDocRef.current)
-      .then((doc) => setTutor(doc.data()))
+      .then((doc) => {setTutor(doc.data()); setSelectedClearance(doc.data().clearance)})
       .then(setLoading(false));
 
   }, [params.tutorid])
@@ -61,13 +64,14 @@ const TutorProfileEdit = () => {
       </div>
       <div className="d-flex flex-column p-3">
         <div className="h3">Clearance</div>
-        <select id="tutorclearance" className="form-control m-1" required>
+        <Form.Select id="tutorclearance" className="m-1" required value={selectedClearance}
+          onChange={(e) => setSelectedClearance(e.target.value)}>
           <option value="" disabled>Assign Clearance</option>
-          <option value="admin" selected={tutor.clearance === "admin"}>Admin</option>
-          <option value="tutor" selected={tutor.clearance === "tutor"}>Tutor</option>
-          <option value="held" selected={tutor.clearance === "held"}>Held</option>
-          <option value="revoked" selected={tutor.clearance === "revoked"}>Revoked</option>
-        </select>
+          <option value="admin">Admin</option>
+          <option value="tutor">Tutor</option>
+          <option value="held">Held</option>
+          <option value="revoked">Revoked</option>
+        </Form.Select>
       </div>
     </div>
   );

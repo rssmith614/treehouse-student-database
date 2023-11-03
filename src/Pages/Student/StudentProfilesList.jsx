@@ -176,8 +176,8 @@ const StudentProfilesList = () => {
           <i className="bi bi-x-lg input-group-text" style={{ cursor: "pointer" }} onClick={() => valueSetter('')} />
         </InputGroup>
       </Dropdown.Item>
-      <Dropdown.Item onClick={() => setTableSort('name_desc')}>A - Z</Dropdown.Item>
-      <Dropdown.Item onClick={() => setTableSort('name_asc')}>Z - A</Dropdown.Item>
+      <Dropdown.Item onClick={() => setTableSort('name_asc')}>A - Z</Dropdown.Item>
+      <Dropdown.Item onClick={() => setTableSort('name_desc')}>Z - A</Dropdown.Item>
     </div>
   ))
 

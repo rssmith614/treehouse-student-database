@@ -31,9 +31,9 @@ const StudentProfile = () => {
 
   const emergencyContactList = () => {
     if (!student.emergency_contacts) return null;
-    return student.emergency_contacts.map((c) => {
+    return student.emergency_contacts.map((c, i) => {
       return (
-        <tr key={c.name}>
+        <tr key={i}>
           <td>{c.name}</td>
           <td>{c.relation}</td>
           <td>{c.phone}</td>
@@ -47,7 +47,7 @@ const StudentProfile = () => {
     <div className="card-header">
       <Nav variant="underline">
         <Nav.Item>
-          <Nav.Link class="active" data-bs-toggle="tab" aria-current="true" eventKey='about'>About</Nav.Link>
+          <Nav.Link data-bs-toggle="tab" aria-current="true" eventKey='about'>About</Nav.Link>
         </Nav.Item>
         <Nav.Item>
           <Nav.Link data-bs-toggle="tab" eventKey='evals'>Evaluations</Nav.Link>
