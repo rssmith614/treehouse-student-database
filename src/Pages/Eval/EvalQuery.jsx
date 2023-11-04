@@ -132,33 +132,33 @@ const EvalQuery = () => {
 
     studentQueryConditions.unshift(collection(db, 'students'));
     let studentCount = (await getAggregateFromServer(collection(db, 'students'), {count: count()})).data().count;
-    let studentCandidates = await getDocs(query.apply(null, studentQueryConditions));
+    let studentCandidates = (await getDocs(query.apply(null, studentQueryConditions))).docs;
 
 
     if (studentNameMatching === 'like') {
       let studentName = document.getElementById('student_name').value;
-      filterInPlace(studentCandidates.docs, s => s.data().student_name.toLowerCase().includes(studentName.toLowerCase()));
+      filterInPlace(studentCandidates, s => s.data().student_name.toLowerCase().includes(studentName.toLowerCase()));
     }
 
     if (schoolMatching === 'like') {
       let studentSchool = document.getElementById('student_school').value;
-      filterInPlace(studentCandidates.docs, s => s.data().student_school.toLowerCase().includes(studentSchool.toLowerCase()));
+      filterInPlace(studentCandidates, s => s.data().student_school.toLowerCase().includes(studentSchool.toLowerCase()));
     }
 
     if (sourceMatching === 'like') {
       let studentSource = document.getElementById('student_source').value;
-      filterInPlace(studentCandidates.docs, s => s.data().student_source.toLowerCase().includes(studentSource.toLowerCase()));
+      filterInPlace(studentCandidates, s => s.data().student_source.toLowerCase().includes(studentSource.toLowerCase()));
     }
 
     if (gradeMatching === 'like') {
       let studentGrade = document.getElementById('student_grade').value;
-      filterInPlace(studentCandidates.docs, s => s.data().student_grade.toLowerCase().includes(studentGrade.toLowerCase()));
+      filterInPlace(studentCandidates, s => s.data().student_grade.toLowerCase().includes(studentGrade.toLowerCase()));
     }
 
-    if (studentCount > studentCandidates.docs.length) {
-      if (studentCandidates.docs.length !== 0) {
+    if (studentCount > studentCandidates.length) {
+      if (studentCandidates.length !== 0) {
         evalQueryConditions.push(
-          where('student_id', 'in', studentCandidates.docs.map(s => s.id))
+          where('student_id', 'in', studentCandidates.map(s => s.id))
         )
       }
     }
@@ -182,17 +182,17 @@ const EvalQuery = () => {
 
     evalQueryConditions.unshift(collection(db, 'evaluations'));
     let evalQuery = query.apply(null, evalQueryConditions);
-    console.log(evalQuery);
 
     getDocs(evalQuery)
-      .then(res => setEvals(res.docs))
-
-    if (subjectMatching === 'like') {
-      let evalSubject = document.getElementById('subject').value;
-      setEvals(evals.filter(e => e.data().subject.toLowerCase().includes(evalSubject.toLowerCase())));
-    }
-
-    setLoading(false);
+      .then(res => {
+        if (subjectMatching === 'like') {
+          let evalSubject = document.getElementById('subject').value;
+          setEvals(res.docs.filter(e => e.data().subject.toLowerCase().includes(evalSubject.toLowerCase())));
+        } else {
+          setEvals(res.docs)
+        }
+      })
+      .then(setLoading(false))
 
   }
 
@@ -390,7 +390,7 @@ const EvalQuery = () => {
       <Form onSubmit={queryEvals}>
       <Card className="p-3 bg-light-subtle">
         <Row>
-          <div className="h4">Eval</div>
+          <div className="h4">Evaluation</div>
         </Row>
         <Row>
           <Col>

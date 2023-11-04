@@ -23,7 +23,7 @@ const Navbar = ({ userProfile }) => {
     return <></>;
 
   return (
-    <BsNavbar className="bg-body-tertiary sticky" expand="lg">
+    <BsNavbar className="bg-body-tertiary sticky-top" expand="lg">
       <Container fluid>
         <BsNavbar.Brand aria-expanded="false">Welcome, {userName}</BsNavbar.Brand>
         <BsNavbar.Toggle aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation" />
