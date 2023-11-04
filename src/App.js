@@ -33,6 +33,7 @@ import NewEval from './Pages/Eval/NewEval';
 import Evals from './Pages/Eval/Evals';
 import DocSubmissionToast from './Components/DocSumbissionToast';
 import { ToastContext } from './Services/toast';
+import EvalQuery from './Pages/Eval/EvalQuery';
 
 function App() {
 
@@ -91,6 +92,7 @@ function App() {
             <Route path='/eval/:evalid' element={<StudentEval />} />
             <Route path='/evals/:studentid' element={<StudentEvalsList />} />
             <Route path='/eval/edit/:evalid' element={<StudentEvalEdit />} />
+            <Route path='/eval/query' element={<EvalQuery />} />
 
             <Route path="/newstudent" element={<NewStudentPage />} />
             <Route path="/students" element={<StudentProfilesList />} />

@@ -23,7 +23,7 @@ const Navbar = ({ userProfile }) => {
     return <></>;
 
   return (
-    <BsNavbar className="bg-body-tertiary" expand="lg">
+    <BsNavbar className="bg-body-tertiary sticky" expand="lg">
       <Container fluid>
         <BsNavbar.Brand aria-expanded="false">Welcome, {userName}</BsNavbar.Brand>
         <BsNavbar.Toggle aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation" />
@@ -40,6 +40,7 @@ const Navbar = ({ userProfile }) => {
             <NavDropdown title="Evaluations">
               <NavDropdown.Item onClick={() => navigate(`/evals`)}>Past Evaluations</NavDropdown.Item>
               <NavDropdown.Item onClick={() => navigate(`/eval/new`)}>New Session Evaluation</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => navigate(`/eval/query`)}>Find Evals</NavDropdown.Item>
             </NavDropdown>
 
             <NavDropdown title="Options">
