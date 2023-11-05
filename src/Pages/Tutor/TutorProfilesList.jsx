@@ -89,7 +89,7 @@ const TutorProfilesList = () => {
     <table className="table table-striped table-hover">
       <thead>
         <tr>
-          <th>
+          <th style={{ cursor: "pointer" }}>
             <div className="dropup">
               <div className="d-flex" data-bs-toggle="dropdown">
                 <div className="me-auto">Name</div> {filterIcon('name')}

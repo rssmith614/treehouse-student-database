@@ -40,7 +40,9 @@ const Navbar = ({ userProfile }) => {
             <NavDropdown title="Evaluations">
               <NavDropdown.Item onClick={() => navigate(`/evals`)}>Past Evaluations</NavDropdown.Item>
               <NavDropdown.Item onClick={() => navigate(`/eval/new`)}>New Session Evaluation</NavDropdown.Item>
-              <NavDropdown.Item onClick={() => navigate(`/eval/query`)}>Find Evals</NavDropdown.Item>
+              <Can I="query" on="evals">
+                <NavDropdown.Item onClick={() => navigate(`/eval/query`)}>Find Evals</NavDropdown.Item>
+              </Can>
             </NavDropdown>
 
             <NavDropdown title="Options">

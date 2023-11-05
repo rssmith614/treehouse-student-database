@@ -63,6 +63,8 @@ const EvalsTable = ({ filterBy, id }) => {
           <td>{dayjs(evaluationData.date).format('MMMM DD, YYYY')}</td>
           <td>{filterBy === 'tutor' ? evaluationData.student_name : evaluationData.tutor_name}</td>
           <td>{evaluationData.subject}</td>
+          <td>{evaluationData.engagement}</td>
+          <td>{evaluationData.progression}</td>
         </tr>
       )
     })
@@ -128,7 +130,7 @@ const EvalsTable = ({ filterBy, id }) => {
     <Table striped hover>
       <thead>
         <tr>
-          <th className="w-25">
+          <th className="w-25" style={{ cursor: "pointer" }}>
             <Dropdown variant="" drop="up">
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Date {filterIcon('date')}
@@ -140,7 +142,7 @@ const EvalsTable = ({ filterBy, id }) => {
             </Dropdown>
           </th>
           {filterBy === 'tutor' ? 
-          <th className="w-25">
+          <th className="w-25" style={{ cursor: "pointer" }}>
             <Dropdown autoClose='outside' drop='up'>
             <Dropdown.Toggle as={DropdownTableHeaderToggle} id="student-filter">
                 Student {filterIcon('student')}
@@ -150,7 +152,7 @@ const EvalsTable = ({ filterBy, id }) => {
             </Dropdown>
           </th>
           :
-          <th className="w-25">
+          <th className="w-25" style={{ cursor: "pointer" }}>
             <Dropdown autoClose='outside' drop='up'>
               <Dropdown.Toggle as={DropdownTableHeaderToggle} id="tutor-filter">
                 Tutor {filterIcon('tutor')}
@@ -161,6 +163,8 @@ const EvalsTable = ({ filterBy, id }) => {
           </th>
           }
           <th className="w-50">Subject</th>
+          <th>Engagement</th>
+          <th>Progression</th>
         </tr>
       </thead>
       <tbody>

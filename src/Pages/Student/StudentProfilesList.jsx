@@ -185,7 +185,7 @@ const StudentProfilesList = () => {
     <Table striped hover>
       <thead>
         <tr>
-          <th>
+          <th style={{ cursor: "pointer" }}>
             <Dropdown drop='up' autoClose='outside'>
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Student Name {filterIcon('name')}
@@ -193,7 +193,7 @@ const StudentProfilesList = () => {
               <Dropdown.Menu as={ComboTableHeader} value={nameFilter} valueSetter={setNameFilter} />
             </Dropdown>
           </th>
-          <th>
+          <th style={{ cursor: "pointer" }}>
             <Dropdown drop='up' autoClose='outside'>
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Preferred Tutor {filterIcon('tutor')}
@@ -201,7 +201,7 @@ const StudentProfilesList = () => {
               <Dropdown.Menu as={FilterTableHeader} value={tutorFilter} valueSetter={setTutorFilter} />
             </Dropdown>
           </th>
-          <th>
+          <th style={{ cursor: "pointer" }}>
             <Dropdown drop="up" autoClose='outside'>
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Student School {filterIcon('school')}
@@ -209,7 +209,7 @@ const StudentProfilesList = () => {
               <Dropdown.Menu as={FilterTableHeader} value={schoolFilter} valueSetter={setSchoolFilter} />
             </Dropdown>
           </th>
-          <th>
+          <th style={{ cursor: "pointer" }}>
             <Dropdown drop="up" autoClose='outside'>
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Student Source {filterIcon('source')}
@@ -217,7 +217,7 @@ const StudentProfilesList = () => {
               <Dropdown.Menu as={FilterTableHeader} value={sourceFilter} valueSetter={setSourceFilter} />
             </Dropdown>
           </th>
-          <th>
+          <th style={{ cursor: "pointer" }}>
             <Dropdown drop="up" autoClose='outside'>
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Grade {filterIcon('grade')}
@@ -225,7 +225,7 @@ const StudentProfilesList = () => {
               <Dropdown.Menu as={FilterTableHeader} value={gradeFilter} valueSetter={setGradeFilter} />
             </Dropdown>
           </th>
-          <th>
+          <th style={{ cursor: "pointer" }}>
             <Dropdown drop="up">
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Date of Birth {filterIcon('dob')}

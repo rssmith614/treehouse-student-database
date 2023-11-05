@@ -51,7 +51,7 @@ const TutorProfile = () => {
         Tutor Profile - {tutor.displayName}
       </h1>
       <div className="d-flex flex-row justify-content-center">
-        <Card className='d-flex flex-fill m-3 bg-light-subtle justify-content-center'>
+        <Card className='d-flex flex-fill bg-light-subtle justify-content-center'>
           <Tab.Container defaultActiveKey='about'>
             <Nav variant="underline" className="card-header">
               <Nav.Item>
@@ -76,7 +76,7 @@ const TutorProfile = () => {
                 </div>
               </Tab.Pane>
               <Tab.Pane eventKey='evals'>
-                <div className="d-flex flex-column p-3">
+                <div className="d-flex flex-column">
                   <EvalsTable filterBy='tutor' id={tutorDocRef.current.id} />
                 </div>
               </Tab.Pane>

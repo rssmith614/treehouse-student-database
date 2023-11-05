@@ -144,15 +144,15 @@ const NewEval = () => {
     <table className="table table-striped table-hover">
       <thead>
         <tr>
-          <th>
+          <th style={{ cursor: "pointer" }}>
             <Dropdown drop='up' autoClose='outside'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+              <Dropdown.Toggle as={DropdownTableHeaderToggle} >
                 Student Name {filterIcon('name')}
               </Dropdown.Toggle>
               <Dropdown.Menu as={ComboTableHeader} value={nameFilter} valueSetter={setNameFilter} />
             </Dropdown>
           </th>
-          <th>
+          <th style={{ cursor: "pointer" }}>
             <Dropdown drop="up" autoClose='outside'>
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Preferred Tutor {filterIcon('tutor')}
@@ -174,7 +174,7 @@ const NewEval = () => {
         Select a Student
       </div>
       <div className="h5">To Record a New Session Evaluation</div>
-      <div className='d-flex pt-3 px-3 m-3 card bg-light-subtle'>
+      <div className='d-flex pt-3 px-3 card bg-light-subtle'>
         {loading ? <div className="spinner-border d-flex align-self-center" /> : listTable}
       </div>
     </div>
