@@ -1,6 +1,6 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { Card, Col, Container, OverlayTrigger, Popover, Row, Tooltip } from "react-bootstrap";
+import { Card, Col, Container, OverlayTrigger, Popover, Row } from "react-bootstrap";
 import { db } from "../Services/firebase";
 
 
@@ -55,7 +55,17 @@ const StandardsOfCategory = ({ grade, category }) => {
                             {standard.key}
                           </Popover.Header>
                           <Popover.Body>
+                            <div className="text-decoration-underline">Description</div>
                             {standard.description}
+                            {standard.questions !== undefined ? 
+                              <>
+                                <div className="text-decoration-underline">Example Question</div>
+                                <div>Q: {standard.questions[0].question}</div>
+                                <div>A: {standard.questions[0].answer}</div>
+                              </>
+                              :
+                              <></>
+                            }
                           </Popover.Body>
                         </Popover>
                       }>

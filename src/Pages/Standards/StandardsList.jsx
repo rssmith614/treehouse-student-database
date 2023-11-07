@@ -1,4 +1,4 @@
-import { Card, Nav, Tab } from "react-bootstrap";
+import { Card, Nav } from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { useEffect, useState } from "react";
 
