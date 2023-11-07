@@ -45,6 +45,9 @@ const Navbar = ({ userProfile }) => {
               </Can>
             </NavDropdown>
 
+            <Nav.Link
+              onClick={() => navigate('/standards')} style={{ cursor: "pointer" }}>Standards</Nav.Link>
+
             <NavDropdown title="Options">
               <NavDropdown.Item onClick={() => navigate(`/tutor/${userProfile.id}`)}>View Tutor Profile</NavDropdown.Item>
               <NavDropdown.Item onClick={() => signOut(auth).then(navigate('/login'))}>Log Out</NavDropdown.Item>

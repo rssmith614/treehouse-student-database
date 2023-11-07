@@ -1,4 +1,4 @@
-import { and, collection, count, getAggregateFromServer, getDocs, query, where } from "firebase/firestore";
+import { collection, count, getAggregateFromServer, getDocs, query, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Dropdown, Form, InputGroup, Row, Table } from "react-bootstrap";
 import { db } from "../../Services/firebase";
@@ -287,6 +287,8 @@ const EvalQuery = () => {
         return 'On or After';
       case 'between':
         return 'Between';
+      default:
+        return '';
     }
   }
 

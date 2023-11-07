@@ -34,6 +34,7 @@ import Evals from './Pages/Eval/Evals';
 import DocSubmissionToast from './Components/DocSumbissionToast';
 import { ToastContext } from './Services/toast';
 import EvalQuery from './Pages/Eval/EvalQuery';
+import StandardsList from './Pages/Standards/StandardsList';
 
 function App() {
 
@@ -103,6 +104,8 @@ function App() {
             <Route path="/tutors" element={<TutorProfilesList />} />
             <Route path="/tutor/:tutorid" element={<TutorProfile />} />
             <Route path="/tutor/edit/:tutorid" element={<TutorProfileEdit />} />
+
+            <Route path="/standards" element={<StandardsList />} />
           </Routes>
         </Router>
         <DocSubmissionToast toast={toast} />
