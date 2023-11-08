@@ -35,6 +35,7 @@ import DocSubmissionToast from './Components/DocSumbissionToast';
 import { ToastContext } from './Services/toast';
 import EvalQuery from './Pages/Eval/EvalQuery';
 import StandardsList from './Pages/Standards/StandardsList';
+import TrackStandard from './Pages/Standards/TrackStandard';
 
 function App() {
 
@@ -106,6 +107,7 @@ function App() {
             <Route path="/tutor/edit/:tutorid" element={<TutorProfileEdit />} />
 
             <Route path="/standards" element={<StandardsList />} />
+            <Route path="/standard/new/:studentid" element={<TrackStandard />} />
           </Routes>
         </Router>
         <DocSubmissionToast toast={toast} />

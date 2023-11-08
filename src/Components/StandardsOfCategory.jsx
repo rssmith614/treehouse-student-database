@@ -4,7 +4,7 @@ import { Card, Col, Container, OverlayTrigger, Popover, Row } from "react-bootst
 import { db } from "../Services/firebase";
 
 
-const StandardsOfCategory = ({ grade, category }) => {
+const StandardsOfCategory = ({ grade, category, setSelection }) => {
 
   const [subcategories, setSubcategories] = useState({});
   const [loading, setLoading] = useState(true);
@@ -69,7 +69,13 @@ const StandardsOfCategory = ({ grade, category }) => {
                           </Popover.Body>
                         </Popover>
                       }>
-                      <div>{standard.key}</div>
+                      {setSelection ? 
+                        <div className="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" style={{ cursor: 'pointer' }}
+                          onClick={() => setSelection(standard)}>{standard.key}</div>
+                      :
+                        <div>{standard.key}</div>
+                      }
+
                     </OverlayTrigger>
                   </Col>
                 )

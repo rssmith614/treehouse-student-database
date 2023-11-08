@@ -15,9 +15,9 @@ const StandardsList = () => {
   }, [grade, category])
 
   const gradeTabs = (
-    grades.map((g) => {
+    grades.map((g, i) => {
       return (
-        <Nav.Item>
+        <Nav.Item key={i}>
           <Nav.Link data-bs-toggle="tab" aria-current="true"
             eventKey={g.at(0)} onClick={() => setGrade(g.at(0))}>{g}</Nav.Link>
         </Nav.Item>
@@ -26,9 +26,9 @@ const StandardsList = () => {
   );
   
   const categoryTabs = (
-    categories.map((c) => {
+    categories.map((c, i) => {
       return (
-        <Nav.Item>
+        <Nav.Item key={i}>
           <Nav.Link data-bs-toggle="tab" aria-current="true"
           eventKey={c} onClick={() => setCategory(c)}>{c}</Nav.Link>
         </Nav.Item>
