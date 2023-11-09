@@ -1,6 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
+from google.cloud.firestore_v1 import aggregation
 
 import pandas as pd
 import numpy as np
@@ -15,10 +16,13 @@ app = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 standards_ref = db.collection('standards')
-# docs = students_ref.stream()
+# docs = standards_ref.stream()
 
 # for d in docs:
-#     print(d)
+#     data = d.to_dict()
+#     if 'description' not in data:
+#         d.reference.delete()
+        # print(data['key'])
 
 # all_standards = pd.read_excel('Standards K-8.xlsx', sheet_name='ALL', header=None)
 
@@ -78,7 +82,37 @@ for i in range(len(k_math.index)):
     # print(key)
     # print(desc)
 
-    query_res = standards_ref.where(filter=FieldFilter('key', '==', key)).stream()
+    # query_res = standards_ref.where(filter=FieldFilter('key', '==', key)).stream()
 
-    for doc in query_res:
-        doc.reference.update({'description': desc})
+    # for doc in query_res:
+    #     doc.reference.update({'description': desc})
+
+    res = aggregation.AggregationQuery(standards_ref.where(filter=FieldFilter('key', '==', key))).count(alias='all').get()
+
+    for r in res:
+        if r[0].value == 0:
+            print("==========================")
+            print("Key:", key)
+            print("Description:", desc)
+            grade = key[0]
+            print("Grade:", grade)
+            cat = 'Math'
+            # cat = 'Reading'
+            print("Category:", cat)
+            subcat = input("Subcategory: ")
+            if subcat == 's':
+                print('Skipped')
+                break
+
+            new_standard = {
+                'key': key,
+                'description': desc,
+                'grade': grade,
+                'category': cat,
+                'sub_category': subcat
+            }
+
+            standards_ref.add(new_standard)
+            print('Added', key)
+    
+print("All done!")
