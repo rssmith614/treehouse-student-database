@@ -191,7 +191,7 @@ const StudentProfile = () => {
       <Tab.Pane eventKey="standards">
         <StandardsOfStudent standards={student.standards || []} setSelectedStandard={setSelectedStandard} />
         <div className="d-flex justify-content-end">
-          <button className="btn btn-primary m-3" onClick={() => navigate(`/standard/new/${studentRef.current.id}`)}>Track New Standard</button>
+          <button className="btn btn-primary m-3" onClick={() => navigate(`/standard/new/${studentRef.current.id}`)}>Track New Standards</button>
         </div>
       </Tab.Pane>
       <Tab.Pane eventKey="assessments">

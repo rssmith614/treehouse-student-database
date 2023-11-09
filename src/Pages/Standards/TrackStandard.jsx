@@ -86,7 +86,7 @@ const TrackStandard = () => {
   return (
     <div className="d-flex flex-column p-3">
       <div className="display-1">
-        Track New Standard
+        Track New Standards
       </div>
       <div className="h5">Select a Standard to Track with {student.student_name}</div>
       <Card className="bg-light-subtle">
