@@ -12,7 +12,12 @@ const StandardsOfStudent = ({ standards, setSelectedStandard }) => {
 
   const standardsList = () => {
     return standards.sort((a, b) => {
-      return a.key.split('.')[1].localeCompare(b.key.split('.')[1]) || a.key.split('.')[2] - b.key.split('.')[2] || a.key.localeCompare(b.key)
+      return (
+        a.key.split('.')[0].localeCompare(b.key.split('.')[0]) ||
+        a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
+        a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
+        a.key.localeCompare(b.key)
+      )
     }).map((s, i) => {
       return (
         <tr key={i} style={{ cursor: 'pointer' }}

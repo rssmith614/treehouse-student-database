@@ -43,7 +43,11 @@ const StandardsOfCategory = ({ grade, category, setSelection }) => {
           <Container>
             <Row xs={{ cols: 'auto' }}>
               {subCat[1].sort((a,b) => {
-                return a.key.split('.')[2] - b.key.split('.')[2] || a.key.localeCompare(b.key)
+                return (
+                  a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
+                  a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
+                  a.key.localeCompare(b.key)
+                )
               })
               .map((standard, i) => {
                 return (
@@ -57,7 +61,7 @@ const StandardsOfCategory = ({ grade, category, setSelection }) => {
                           <Popover.Body>
                             <div className="text-decoration-underline">Description</div>
                             {standard.description}
-                            {standard.questions !== undefined ? 
+                            {/* {standard.questions !== undefined ? 
                               <>
                                 <div className="text-decoration-underline">Example Question</div>
                                 <div>Q: {standard.questions[0].question}</div>
@@ -65,7 +69,7 @@ const StandardsOfCategory = ({ grade, category, setSelection }) => {
                               </>
                               :
                               <></>
-                            }
+                            } */}
                           </Popover.Body>
                         </Popover>
                       }>

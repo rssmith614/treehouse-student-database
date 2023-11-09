@@ -20,7 +20,7 @@ const TrackStandard = () => {
 
   const [show, setShow] = useState(false);
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => {setShow(false); setSelectedStandard(null);}
   const handleShow = () => setShow(true);
 
   const setToast = useContext(ToastContext);
@@ -114,7 +114,20 @@ const TrackStandard = () => {
           </Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          {selectedStandard ? selectedStandard.description : ''}
+          <p className="fst-italic text-decoration-underline">Description</p>
+          <p>{selectedStandard ? selectedStandard.description : ''}</p>
+          {selectedStandard ? 
+            selectedStandard.questions !== undefined ? 
+            <>
+              <p className="fst-italic text-decoration-underline">Example Question</p>
+              <div>Q: {selectedStandard.questions[0].question}</div>
+              <div>A: {selectedStandard.questions[0].answer}</div>
+            </>
+            :
+            <></> // it's ok I hate this syntax too
+            :
+            <></>
+          }
           <hr />
           <Form onSubmit={addStandard}>
             <Form.Label>Current Progression</Form.Label>
