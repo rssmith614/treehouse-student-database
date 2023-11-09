@@ -16,6 +16,7 @@ const StudentProfile = () => {
 
   const [selectedStandard, setSelectedStandard] = useState(null);
 
+  const [tab, setTab] = useState(localStorage.getItem('student_tab') || 'about');
   const [show, setShow] = useState(false);
 
   const studentRef = useRef();
@@ -37,6 +38,10 @@ const StudentProfile = () => {
     onSnapshot(studentRef.current, s => setStudent(s.data()));
 
   }, [params.studentid])
+
+  useEffect(() => {
+    localStorage.setItem('student_tab', tab);
+  }, [tab])
 
   const emergencyContactList = () => {
     if (!student.emergency_contacts) return null;
@@ -87,20 +92,24 @@ const StudentProfile = () => {
   }
 
   const innerContent = (
-    <Tab.Container defaultActiveKey='about'>
+    <Tab.Container defaultActiveKey={tab}>
     <div className="card-header">
-      <Nav variant="underline">
+      <Nav variant="underline" activeKey={tab}>
         <Nav.Item>
-          <Nav.Link data-bs-toggle="tab" aria-current="true" eventKey='about'>About</Nav.Link>
+          <Nav.Link data-bs-toggle="tab"
+            eventKey='about' onClick={() => setTab('about')}>About</Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link data-bs-toggle="tab" eventKey='evals'>Evaluations</Nav.Link>
+          <Nav.Link data-bs-toggle="tab"
+          eventKey='evals' onClick={() => setTab('evals')}>Evaluations</Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link data-bs-toggle="tab" eventKey='standards'>Standards</Nav.Link>
+          <Nav.Link data-bs-toggle="tab"
+          eventKey='standards' onClick={() => setTab('standards')}>Standards</Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link data-bs-toggle="tab" eventKey='assessments'>Assessments</Nav.Link>
+          <Nav.Link data-bs-toggle="tab"
+          eventKey='assessments' onClick={() => setTab('assessments')}>Assessments</Nav.Link>
         </Nav.Item>
       </Nav>
     </div>
@@ -202,7 +211,7 @@ const StudentProfile = () => {
           {loading ? <div className="spinner-border align-self-center" /> : innerContent}
         </div>
       </div>
-      <Offcanvas show={show} onHide={() => setShow(false)} placement="end">
+      <Offcanvas show={show} onHide={() => {setShow(false); setSelectedStandard(null)}} placement="end">
         <Offcanvas.Header>
           <Offcanvas.Title>Standard {selectedStandard ? selectedStandard.key : ''}</Offcanvas.Title>
         </Offcanvas.Header>
@@ -210,6 +219,7 @@ const StudentProfile = () => {
           {selectedStandard ?
             <Form onSubmit={handleSubmit}>
               <div>{selectedStandard.description}</div>
+              <hr />
               <Form.Label>Current Progression</Form.Label>
               <Form.Select defaultValue={selectedStandard.status} id="status" onChange={() => document.getElementById('update').removeAttribute('disabled')}>
                 <option value='1'>1 - Far Below Expectations</option>

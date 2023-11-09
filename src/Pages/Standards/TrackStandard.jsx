@@ -114,6 +114,8 @@ const TrackStandard = () => {
           </Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
+          {selectedStandard ? selectedStandard.description : ''}
+          <hr />
           <Form onSubmit={addStandard}>
             <Form.Label>Current Progression</Form.Label>
             <Form.Select defaultValue='3' id='status' required >
