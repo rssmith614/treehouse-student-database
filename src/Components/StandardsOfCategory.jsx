@@ -73,16 +73,10 @@ const StandardsOfCategory = ({ grade, category, setSelection }) => {
                           </Popover.Body>
                         </Popover>
                       }>
-                      {setSelection ? 
-                        <button className="btn btn-link link-body-emphasis link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => setSelection(standard)}>{standard.key}</button>
-                      :
-                        <button className="btn btn-link link-body-emphasis link-underline link-underline-opacity-0"
-                          style={{ cursor: 'default' }}>
+                      <button className="btn btn-link link-body-emphasis link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => setSelection(standard)}>
                           {standard.key}</button>
-                      }
-
                     </OverlayTrigger>
                   </Col>
                 )
