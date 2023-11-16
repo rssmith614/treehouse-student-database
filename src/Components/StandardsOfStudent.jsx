@@ -1,4 +1,7 @@
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { useEffect, useState } from "react";
 import { Table } from "react-bootstrap";
+import { db } from "../Services/firebase";
 
 
 const statuses = {
@@ -10,8 +13,23 @@ const statuses = {
 
 const StandardsOfStudent = ({ standards, setSelectedStandard }) => {
 
+  const [standardsDocs, setStandardsDocs] = useState(null);
+
+  useEffect(() => {
+    Promise.all(standards.map(async (s) => {
+      return {
+        ...(await getDocs(query(collection(db, 'standards'), where('key', '==', s.key)))).docs[0].data(),
+        status: s.status
+      }
+    })).then(res => setStandardsDocs(res))
+
+  }, [standards])
+
   const standardsList = () => {
-    return standards.sort((a, b) => {
+    if (!standardsDocs)
+      return <></>
+    
+    return standardsDocs.sort((a, b) => {
       return (
         a.key.split('.')[0].localeCompare(b.key.split('.')[0]) ||
         a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||

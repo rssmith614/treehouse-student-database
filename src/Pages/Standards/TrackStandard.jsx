@@ -20,7 +20,7 @@ const TrackStandard = () => {
 
   const [show, setShow] = useState(false);
 
-  const handleClose = () => {setShow(false); setSelectedStandard(null);}
+  const handleClose = () => {setShow(false);}
   const handleShow = () => setShow(true);
 
   const setToast = useContext(ToastContext);
@@ -53,7 +53,7 @@ const TrackStandard = () => {
     document.getElementById('addStandard').innerHTML = "Add <span class='spinner-border spinner-border-sm' />";
     let status = document.getElementById('status').value;
 
-    updateDoc(studentRef.current, {standards: arrayUnion({...selectedStandard, status: status})})
+    updateDoc(studentRef.current, {standards: arrayUnion({key: selectedStandard.key, status: status})})
       .then(() => {
         // document.getElementById('addStandard').innerHTML = "Add";
         handleClose();
@@ -107,7 +107,7 @@ const TrackStandard = () => {
       <div className="d-flex p-3">
         <Button variant='secondary' onClick={() => navigate(`/student/${studentRef.current.id}`)}>Done</Button>
       </div>
-      <Offcanvas show={show} onHide={handleClose} placement='end'>
+      <Offcanvas show={show} onHide={handleClose} onExited={() => setSelectedStandard(null)} placement='end'>
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>
             Add <strong>{selectedStandard ? selectedStandard.key : ''}</strong> to the list of tracked standards for {student.student_name}

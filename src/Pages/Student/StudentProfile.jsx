@@ -70,8 +70,8 @@ const StudentProfile = () => {
 
     let status = document.getElementById('status').value;
 
-    updateDoc(studentRef.current, {standards: arrayRemove(selectedStandard)})
-      .then(updateDoc(studentRef.current, {standards: arrayUnion({...selectedStandard, status: status})}))
+    updateDoc(studentRef.current, {standards: arrayRemove({key: selectedStandard.key, status: selectedStandard.status})})
+      .then(updateDoc(studentRef.current, {standards: arrayUnion({key: selectedStandard.key, status: status})}))
       .then(() => {
         setShow(false);
         setToast({header: 'Standard Progress Updated', message: `${student.student_name}'s progression for Standard ${selectedStandard.key} has been successfully updated.`})
@@ -84,7 +84,7 @@ const StudentProfile = () => {
     document.getElementById('remove').innerHTML = "Removing <span class='spinner-border spinner-border-sm' />";
     document.getElementById('remove').setAttribute('disabled', true);
 
-    updateDoc(studentRef.current, {standards: arrayRemove(selectedStandard)})
+    updateDoc(studentRef.current, {standards: arrayRemove({key: selectedStandard.key, status: selectedStandard.status})})
       .then(() => {
         setShow(false);
         setToast({header: 'Standard Progress Removed', message: `No longer tracking ${student.student_name}'s progression for ${selectedStandard.key}`});
@@ -211,26 +211,28 @@ const StudentProfile = () => {
           {loading ? <div className="spinner-border align-self-center" /> : innerContent}
         </div>
       </div>
-      <Offcanvas show={show} onHide={() => {setShow(false); setSelectedStandard(null)}} placement="end">
+      <Offcanvas show={show} onHide={() => {setShow(false); }} onExited={() => setSelectedStandard(null)} placement="end">
         <Offcanvas.Header>
           <Offcanvas.Title>Standard {selectedStandard ? selectedStandard.key : ''}</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
           {selectedStandard ?
-            <Form onSubmit={handleSubmit}>
-              <div>{selectedStandard.description}</div>
-              <hr />
-              <Form.Label>Current Progression</Form.Label>
-              <Form.Select defaultValue={selectedStandard.status} id="status" onChange={() => document.getElementById('update').removeAttribute('disabled')}>
-                <option value='1'>1 - Far Below Expectations</option>
-                <option value='2'>2 - Below Expectations</option>
-                <option value='3'>3 - Meets Expectations</option>
-                <option value='4'>4 - Exceeds Expectations</option>
-              </Form.Select>
-              <Button variant='danger' className="m-3" type="button" id='remove'
-                onClick={handleRemove}>Stop Tracking</Button>
-              <Button className="m-3" type="submit" id='update' disabled>Update Progression</Button>
-            </Form>
+            <div className="d-flex flex-column">
+              <Form onSubmit={handleSubmit}>
+                <div>{selectedStandard.description}</div>
+                <hr />
+                <Form.Label>Current Progression</Form.Label>
+                <Form.Select defaultValue={selectedStandard.status} id="status" onChange={() => document.getElementById('update').removeAttribute('disabled')}>
+                  <option value='1'>1 - Far Below Expectations</option>
+                  <option value='2'>2 - Below Expectations</option>
+                  <option value='3'>3 - Meets Expectations</option>
+                  <option value='4'>4 - Exceeds Expectations</option>
+                </Form.Select>
+                <Button variant='danger' className="m-3" type="button" id='remove'
+                  onClick={handleRemove}>Stop Tracking</Button>
+                <Button className="m-3" type="submit" id='update' disabled>Update Progression</Button>
+              </Form>
+            </div>
             : ''
           }
         </Offcanvas.Body>
