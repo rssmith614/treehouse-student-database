@@ -53,7 +53,7 @@ const TrackStandard = () => {
     document.getElementById('addStandard').innerHTML = "Add <span class='spinner-border spinner-border-sm' />";
     let status = document.getElementById('status').value;
 
-    updateDoc(studentRef.current, {standards: arrayUnion({key: selectedStandard.key, status: status})})
+    updateDoc(studentRef.current, {standards: arrayUnion({id: selectedStandard.id, status: status})})
       .then(() => {
         // document.getElementById('addStandard').innerHTML = "Add";
         handleClose();

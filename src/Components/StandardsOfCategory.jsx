@@ -21,9 +21,9 @@ const StandardsOfCategory = ({ grade, category, setSelection }) => {
         let newSubcategories = {};
         res.docs.forEach((standard) => {
           if (newSubcategories[standard.data().sub_category]) {
-            newSubcategories[standard.data().sub_category].push(standard.data());
+            newSubcategories[standard.data().sub_category].push({...standard.data(), id: standard.id});
           } else {
-            newSubcategories[standard.data().sub_category] = [standard.data()];
+            newSubcategories[standard.data().sub_category] = [{...standard.data(), id: standard.id}];
           }
         })
         setSubcategories(newSubcategories);

@@ -70,8 +70,8 @@ const StudentProfile = () => {
 
     let status = document.getElementById('status').value;
 
-    updateDoc(studentRef.current, {standards: arrayRemove({key: selectedStandard.key, status: selectedStandard.status})})
-      .then(updateDoc(studentRef.current, {standards: arrayUnion({key: selectedStandard.key, status: status})}))
+    updateDoc(studentRef.current, {standards: arrayRemove({id: selectedStandard.id, status: selectedStandard.status})})
+      .then(updateDoc(studentRef.current, {standards: arrayUnion({id: selectedStandard.id, status: status})}))
       .then(() => {
         setShow(false);
         setToast({header: 'Standard Progress Updated', message: `${student.student_name}'s progression for Standard ${selectedStandard.key} has been successfully updated.`})
@@ -84,7 +84,7 @@ const StudentProfile = () => {
     document.getElementById('remove').innerHTML = "Removing <span class='spinner-border spinner-border-sm' />";
     document.getElementById('remove').setAttribute('disabled', true);
 
-    updateDoc(studentRef.current, {standards: arrayRemove({key: selectedStandard.key, status: selectedStandard.status})})
+    updateDoc(studentRef.current, {standards: arrayRemove({id: selectedStandard.id, status: selectedStandard.status})})
       .then(() => {
         setShow(false);
         setToast({header: 'Standard Progress Removed', message: `No longer tracking ${student.student_name}'s progression for ${selectedStandard.key}`});

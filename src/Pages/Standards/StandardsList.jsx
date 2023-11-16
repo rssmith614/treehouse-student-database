@@ -56,6 +56,12 @@ const StandardsList = () => {
   function handleSubmit(e) {
     e.preventDefault();
 
+    document.getElementById('submitChanges').innerHTML = "Saving <span class='spinner-border spinner-border-sm' />";
+    document.getElementById('submitChanges').setAttribute('disabled', true);
+
+    if (document.getElementById('key').value !== selectedStandard.key) {
+    }
+
     let newStandard = {
       key: document.getElementById('key').value,
       grade: document.getElementById('grade').value,
@@ -72,7 +78,7 @@ const StandardsList = () => {
   }
 
   const displayStandard = (
-    <Offcanvas show={show} onHide={() => {setShow(false); setSelectedStandard(false)}} placement='end'>
+    <Offcanvas show={show} onHide={() => {setShow(false)}} onExited={() => setSelectedStandard(null)} placement='end'>
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>
           <strong>{selectedStandard ? selectedStandard.key : ''}</strong>
@@ -104,7 +110,7 @@ const StandardsList = () => {
   );
 
   const editStandard = (
-    <Offcanvas show={show} onHide={() => {setShow(false); setEdit(false); setSelectedStandard(null)}} placement='end'>
+    <Offcanvas show={show} onHide={() => setShow(false)} onExited={() => {setSelectedStandard(null); setEdit(false);}} placement='end'>
       {selectedStandard ?
         <>
         <Offcanvas.Header closeButton>
@@ -132,7 +138,7 @@ const StandardsList = () => {
             <Form.Label className="pt-3">Description</Form.Label>
             <Form.Control as='textarea' defaultValue={selectedStandard.description} id="description" style={{ height: '150px' }} />
 
-            <p className="pt-3">Questions</p>
+            {/* <p className="pt-3">Questions</p>
             {selectedStandard.questions !== undefined ?
               selectedStandard.questions.map((q) => {
                 return (
@@ -154,11 +160,11 @@ const StandardsList = () => {
             }
             <div className="d-flex pt-3">
               <Button variant='secondary' className="flex-fill">+</Button>
-            </div>
+            </div> */}
 
             <div className="d-flex">
               <Button type='button' className="mt-3" variant="secondary" onClick={() => setEdit(false)}>Back</Button>
-              <Button type='submit' className="ms-auto mt-3">Save Changes</Button>
+              <Button type='submit' className="ms-auto mt-3" id='submitChanges'>Save Changes</Button>
             </div>
           </Form>
         </Offcanvas.Body>
