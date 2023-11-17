@@ -7,8 +7,6 @@ import { collection, getDocs, query, updateDoc, where } from "firebase/firestore
 import { AbilityBuilder } from "@casl/ability";
 import { AbilityContext } from "../Services/can";
 import { useAbility } from "@casl/react";
-import { useContext } from "react";
-import { ToastContext } from "../Services/toast";
 
 const Login = ( { setUserProfile }) => {
   
@@ -72,8 +70,6 @@ const Login = ( { setUserProfile }) => {
         console.log(error);
       });
   }
-
-  const setToast = useContext(ToastContext);
 
   return (
     <div className="position-absolute top-50 start-50">

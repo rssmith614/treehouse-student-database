@@ -14,7 +14,7 @@ const StudentEvalEdit = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const setToast = useContext(ToastContext);
+  const addToast = useContext(ToastContext);
 
   const params = useParams();
 
@@ -59,7 +59,7 @@ const StudentEvalEdit = () => {
     }
 
     updateDoc(evalRef.current, newEval)
-      .then(() => setToast({header: 'Changes Saved', message: `Session evaluation for ${newEval.student_name} was successfully updated`}))
+      .then(() => addToast({header: 'Changes Saved', message: `Session evaluation for ${newEval.student_name} was successfully updated`}))
       .then(() => navigate(`/eval/${evalRef.current.id}`));
   }
 

@@ -8,7 +8,7 @@ import { ToastContext } from "../../Services/toast";
 const NewTutorPage = () => {
   const navigate = useNavigate();
 
-  const setToast = useContext(ToastContext);
+  const addToast = useContext(ToastContext);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -39,7 +39,7 @@ const NewTutorPage = () => {
         clearance: document.getElementById("tutorclearance").value,
         activated: false,
       })
-        .then(() => setToast({header: 'Registration Complete', message: `${email} has been registered with ${clearance} clearance. They need to sign in to finish activation`}))
+        .then(() => addToast({header: 'Registration Complete', message: `${email} has been registered with ${clearance} clearance. They need to sign in to finish activation`}))
         .then(() => navigate('/tutors'));
     })
   }

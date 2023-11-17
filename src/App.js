@@ -36,6 +36,7 @@ import { ToastContext } from './Services/toast';
 import EvalQuery from './Pages/Eval/EvalQuery';
 import StandardsList from './Pages/Standards/StandardsList';
 import TrackStandard from './Pages/Standards/TrackStandard';
+import { Toast, ToastBody, ToastHeader } from 'react-bootstrap';
 
 function App() {
 
@@ -78,11 +79,35 @@ function App() {
     }
   })
 
-  const [toast, setToast] = useState({header: '', message: ''});
+  const [toasts, setToasts] = useState([]);
+  const [shownToasts, setShownToasts] = useState([]);
+
+  function addToast(newToast) {
+    setToasts([...toasts, newToast]);
+    setShownToasts([...shownToasts, newToast]);
+  }
+
+  const toastElements = (
+    toasts.map((t, i) => {
+      return (
+        <Toast id="liveToast" key={i} role="alert" aria-live="assertive" aria-atomic="true"
+          show={shownToasts.includes(t)} delay={5000} autohide
+          onClose={() => {setShownToasts(toasts.filter(toast => toast !== t))}}
+          onExited={() => {setToasts(toasts.filter(toast => toast !== t))}}>
+          <ToastHeader>
+            <strong className="me-auto">{t.header}</strong>
+          </ToastHeader>
+          <ToastBody>
+            {t.message}
+          </ToastBody>
+        </Toast>
+      )
+    })
+  )
 
   return (
     <AbilityContext.Provider value={defineAbilityFor(userProfile)}>
-      <ToastContext.Provider value={setToast}>
+      <ToastContext.Provider value={addToast}>
         <Router>
           <Navbar userProfile={userProfile} />
           <Routes>
@@ -110,7 +135,7 @@ function App() {
             <Route path="/standard/new/:studentid" element={<TrackStandard />} />
           </Routes>
         </Router>
-        <DocSubmissionToast toast={toast} />
+        <DocSubmissionToast toasts={toastElements} />
       </ToastContext.Provider>
     </AbilityContext.Provider>
   );

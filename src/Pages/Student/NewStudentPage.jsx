@@ -10,7 +10,7 @@ const NewProfile = () => {
   const [tutors, setTutors] = useState([]);
   const [emergencyContacts, setEmergencyContacts] = useState([]);
 
-  const setToast = useContext(ToastContext);
+  const addToast = useContext(ToastContext);
 
   const navigate = useNavigate();
 
@@ -47,7 +47,7 @@ const NewProfile = () => {
 
     const studentCollRef = collection(db, "students");
     addDoc(studentCollRef, newStudent)
-      .then(() => setToast({header: 'Registration Complete', message: `Student ${newStudent.student_name} has been registered`}))
+      .then(() => addToast({header: 'Registration Complete', message: `Student ${newStudent.student_name} has been registered`}))
       .then(() => navigate('/students'));
   }
 

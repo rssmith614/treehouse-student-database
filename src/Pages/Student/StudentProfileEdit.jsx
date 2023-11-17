@@ -16,7 +16,7 @@ const StudentProfileEdit = () => {
 
   const studentRef = useRef();
 
-  const setToast = useContext(ToastContext);
+  const addToast = useContext(ToastContext);
 
   const navigate = useNavigate();
   
@@ -66,7 +66,7 @@ const StudentProfileEdit = () => {
     }
     
     updateDoc(studentRef.current, newStudent)
-      .then(() => setToast({header: 'Changes Saved', message: `Student ${student.student_name}'s profile has been updated`}))
+      .then(() => addToast({header: 'Changes Saved', message: `Student ${student.student_name}'s profile has been updated`}))
       .then(() => navigate(`/student/${studentRef.current.id}`));
   }
   

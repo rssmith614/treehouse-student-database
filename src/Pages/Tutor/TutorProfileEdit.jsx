@@ -15,7 +15,7 @@ const TutorProfileEdit = () => {
 
   const navigate = useNavigate();
 
-  const setToast = useContext(ToastContext);
+  const addToast = useContext(ToastContext);
 
   const params = useParams();
 
@@ -51,7 +51,7 @@ const TutorProfileEdit = () => {
     tutor.clearance = newClearance;
 
     updateDoc(tutorDocRef.current, tutor)
-      .then(() => setToast({header: 'Changes Saved', message: `Tutor ${tutor.displayName}'s profile has been updated`}))
+      .then(() => addToast({header: 'Changes Saved', message: `Tutor ${tutor.displayName}'s profile has been updated`}))
       .then(() => navigate(`/tutor/${tutorDocRef.current.id}`));
   }
 

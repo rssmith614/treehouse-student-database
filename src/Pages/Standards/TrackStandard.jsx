@@ -23,7 +23,7 @@ const TrackStandard = () => {
   const handleClose = () => {setShow(false);}
   const handleShow = () => setShow(true);
 
-  const setToast = useContext(ToastContext);
+  const addToast = useContext(ToastContext);
 
   const navigate = useNavigate();
 
@@ -57,7 +57,7 @@ const TrackStandard = () => {
       .then(() => {
         // document.getElementById('addStandard').innerHTML = "Add";
         handleClose();
-        setToast({header: 'Standard Added', message: `Standard ${selectedStandard.key} was successfully added to ${student.student_name}'s profile`})
+        addToast({header: 'Standard Added', message: `Standard ${selectedStandard.key} was successfully added to ${student.student_name}'s profile`})
       })
   }
 

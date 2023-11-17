@@ -1,4 +1,4 @@
-import { Button, Card, Form, Nav, Offcanvas, Table } from "react-bootstrap";
+import { Button, Card, Form, Nav, Offcanvas } from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { useContext, useEffect, useState } from "react";
 import { Can } from "../../Services/can";
@@ -18,7 +18,7 @@ const StandardsList = () => {
 
   const [edit, setEdit] = useState(false);
 
-  const setToast = useContext(ToastContext);
+  const addToast = useContext(ToastContext);
 
   useEffect(() => {
     localStorage.setItem('grade', grade)
@@ -72,7 +72,7 @@ const StandardsList = () => {
 
     getDocs(query(collection(db, 'standards'), where('key', '==', selectedStandard.key)))
       .then((res) => updateDoc(doc(db, 'standards', res.docs[0].id), newStandard)
-        .then(setToast({header: 'Changes Saved', message: `Standard ${newStandard.key} has been updated (Refresh to see)`}))
+        .then(addToast({header: 'Changes Saved', message: `Standard ${newStandard.key} has been updated (Refresh to see)`}))
         .then(() => {setEdit(false); setShow(false)}))
      
   }

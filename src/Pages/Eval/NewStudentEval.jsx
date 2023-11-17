@@ -16,7 +16,7 @@ const NewStudentEval = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const setToast = useContext(ToastContext);
+  const addToast = useContext(ToastContext);
 
   const params = useParams();
 
@@ -73,7 +73,7 @@ const NewStudentEval = () => {
         .then(() => 
             addDoc(collection(db, "evaluations"), newEval)
           .then(() => 
-            setToast({header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded`}))
+            addToast({header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded`}))
           .then(() =>
               navigate(`/student/${params.studentid}`)
           )
@@ -83,7 +83,7 @@ const NewStudentEval = () => {
 
       addDoc(collection(db, "evaluations"), newEval)
         .then(() => 
-          setToast({header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded`}))
+          addToast({header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded`}))
         .then(() =>
           navigate(`/student/${params.studentid}`)
         )

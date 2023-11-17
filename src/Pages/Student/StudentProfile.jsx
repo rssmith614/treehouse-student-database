@@ -22,7 +22,7 @@ const StudentProfile = () => {
   const studentRef = useRef();
 
   const navigate = useNavigate();
-  const setToast = useContext(ToastContext);
+  const addToast = useContext(ToastContext);
   
   const params = useParams();
   
@@ -74,7 +74,7 @@ const StudentProfile = () => {
       .then(updateDoc(studentRef.current, {standards: arrayUnion({id: selectedStandard.id, status: status})}))
       .then(() => {
         setShow(false);
-        setToast({header: 'Standard Progress Updated', message: `${student.student_name}'s progression for Standard ${selectedStandard.key} has been successfully updated.`})
+        addToast({header: 'Standard Progress Updated', message: `${student.student_name}'s progression for Standard ${selectedStandard.key} has been successfully updated.`})
       })
   }
 
@@ -87,7 +87,7 @@ const StudentProfile = () => {
     updateDoc(studentRef.current, {standards: arrayRemove({id: selectedStandard.id, status: selectedStandard.status})})
       .then(() => {
         setShow(false);
-        setToast({header: 'Standard Progress Removed', message: `No longer tracking ${student.student_name}'s progression for ${selectedStandard.key}`});
+        addToast({header: 'Standard Progress Removed', message: `No longer tracking ${student.student_name}'s progression for ${selectedStandard.key}`});
       })
   }
 
