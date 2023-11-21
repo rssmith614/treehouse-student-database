@@ -1,0 +1,15 @@
+@import "../node_modules/bootstrap/scss/functions";
+
+$primary: hsl(48.470588235294116,100%,50%);
+$secondary: hsl(218.1818181818182,37.28813559322033%,23.137254901960784%);
+$info: hsl(0,0%,0%);
+
+@import "../node_modules/bootstrap/scss/variables";
+
+$body-tertiary-bg:                  tint-color($secondary, 50%);
+
+@import "../node_modules/bootstrap/scss/variables-dark";
+
+$body-tertiary-bg-dark:             $secondary;
+
+@import "../node_modules/bootstrap/scss/bootstrap";
