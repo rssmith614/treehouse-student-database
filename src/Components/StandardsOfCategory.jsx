@@ -1,10 +1,10 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { Card, Col, Container, OverlayTrigger, Popover, Row } from "react-bootstrap";
+import { Button, Card, Col, Container, OverlayTrigger, Popover, Row } from "react-bootstrap";
 import { db } from "../Services/firebase";
 
 
-const StandardsOfCategory = ({ grade, category, setSelection }) => {
+const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
 
   const [subcategories, setSubcategories] = useState({});
   const [loading, setLoading] = useState(true);
@@ -39,7 +39,15 @@ const StandardsOfCategory = ({ grade, category, setSelection }) => {
     Object.entries(subcategories).sort((a,b) => a[0].localeCompare(b[0])).map((subCat, i) => {
       return (
         <Card className="p-3 my-3" key={i}>
-          <div className="h5">{subCat[0]}</div>
+          {track ?
+            <Button variant="link" className="me-auto link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+            onClick={() => setSelection(subCat[1])}>
+              <h5>{subCat[0]}</h5></Button>
+            :
+            <Button variant="link" className="me-auto link-underline link-underline-opacity-0"
+            style={{ cursor: 'default' }}>
+              <h5>{subCat[0]}</h5></Button>
+          }
           <Container>
             <Row xs={{ cols: 'auto' }}>
               {subCat[1].sort((a,b) => {

@@ -18,10 +18,8 @@ const TrackStandard = () => {
   const [grade, setGrade] = useState(localStorage.getItem('grade') || 'K');
   const [category, setCategory] = useState(localStorage.getItem('category') || 'Math');
 
-  const [show, setShow] = useState(false);
-
-  const handleClose = () => {setShow(false);}
-  const handleShow = () => setShow(true);
+  const [showSingle, setShowSingle] = useState(false);
+  const [showSubcat, setShowSubcat] = useState(false);
 
   const addToast = useContext(ToastContext);
 
@@ -43,7 +41,10 @@ const TrackStandard = () => {
 
   useEffect(() => {
     if (selectedStandard) {
-      handleShow();
+      if (selectedStandard instanceof Array)
+        setShowSubcat(true);
+      else
+        setShowSingle(true);
     }
   }, [selectedStandard])
 
@@ -53,12 +54,24 @@ const TrackStandard = () => {
     document.getElementById('addStandard').innerHTML = "Add <span class='spinner-border spinner-border-sm' />";
     let status = document.getElementById('status').value;
 
-    updateDoc(studentRef.current, {standards: arrayUnion({id: selectedStandard.id, status: status})})
-      .then(() => {
+    if (selectedStandard instanceof Array) {
+      Promise.all(selectedStandard.map((s) => {
+        return updateDoc(studentRef.current, {standards: arrayUnion({id: s.id, status: status})})  
+      })).then(() => {
         // document.getElementById('addStandard').innerHTML = "Add";
-        handleClose();
-        addToast({header: 'Standard Added', message: `Standard ${selectedStandard.key} was successfully added to ${student.student_name}'s profile`})
-      })
+        setShowSubcat(false);
+        addToast({header: 'Standards Added', message: `${selectedStandard.length} standards were successfully added to ${student.student_name}'s profile`})
+      });
+
+    } else {
+      updateDoc(studentRef.current, {standards: arrayUnion({id: selectedStandard.id, status: status})})
+        .then(() => {
+          // document.getElementById('addStandard').innerHTML = "Add";
+          setShowSingle(false);
+          addToast({header: 'Standard Added', message: `Standard ${selectedStandard.key} was successfully added to ${student.student_name}'s profile`})
+        })
+    }
+
   }
 
   const gradeTabs = (
@@ -83,6 +96,65 @@ const TrackStandard = () => {
     })
   );
 
+  const addSingle = (
+    <>
+      <Offcanvas.Header closeButton>
+        <Offcanvas.Title>
+          Add <strong>{selectedStandard?.key}</strong> to the list of tracked standards for {student.student_name}
+        </Offcanvas.Title>
+      </Offcanvas.Header>
+      <Offcanvas.Body>
+        <p className="fst-italic text-decoration-underline">Description</p>
+        <p>{selectedStandard?.description}</p>
+        {selectedStandard?.questions !== undefined ? 
+          <>
+            <p className="fst-italic text-decoration-underline">Example Question</p>
+            <div>Q: {selectedStandard.questions[0].question}</div>
+            <div>A: {selectedStandard.questions[0].answer}</div>
+          </>
+          :
+          <></>
+        }
+        <hr />
+        <Form onSubmit={addStandard}>
+          <Form.Label>Current Progression</Form.Label>
+          <Form.Select defaultValue='3' id='status' required >
+            <option value='1'>1 - Far Below Expectations</option>
+            <option value='2'>2 - Below Expectations</option>
+            <option value='3'>3 - Meets Expectations</option>
+            <option value='4'>4 - Exceeds Expectations</option>
+          </Form.Select>
+
+          <Button className="mt-3" type="submit" id='addStandard'>Add</Button>
+        </Form>
+      </Offcanvas.Body>
+    </>
+  )
+
+  const addSubcat = (
+    <>
+      <Offcanvas.Header closeButton>
+        <Offcanvas.Title>
+          Add all <strong>{selectedStandard instanceof Array ? selectedStandard.at(0)?.sub_category : ''}</strong> standards to the list of tracked standards for {student.student_name}
+        </Offcanvas.Title>
+      </Offcanvas.Header>
+      <Offcanvas.Body>
+        <Form onSubmit={addStandard}>
+          <Form.Label>Default Progression</Form.Label>
+          <Form.Select id='status'>
+            <option>None</option>
+            <option value='1'>1 - Far Below Expectations</option>
+            <option value='2'>2 - Below Expectations</option>
+            <option value='3'>3 - Meets Expectations</option>
+            <option value='4'>4 - Exceeds Expectations</option>
+          </Form.Select>
+
+          <Button className="mt-3" type="submit" id='addStandard'>Add {selectedStandard?.length} standard{selectedStandard?.length > 1 ? 's':''}</Button>
+        </Form>
+      </Offcanvas.Body>
+    </>
+  )
+
   return (
     <div className="d-flex flex-column p-3">
       <div className="display-1">
@@ -101,46 +173,18 @@ const TrackStandard = () => {
           </Nav>
         </Card.Header>
         <Card.Body>
-          <StandardsOfCategory grade={grade} category={category} setSelection={setSelectedStandard} />
+          <StandardsOfCategory grade={grade} category={category} setSelection={setSelectedStandard} track />
         </Card.Body>
       </Card>
       <div className="d-flex p-3">
         <Button variant='secondary' onClick={() => navigate(`/student/${studentRef.current.id}`)}>Done</Button>
       </div>
-      <Offcanvas show={show} onHide={handleClose} onExited={() => setSelectedStandard(null)} placement='end'>
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>
-            Add <strong>{selectedStandard ? selectedStandard.key : ''}</strong> to the list of tracked standards for {student.student_name}
-          </Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <p className="fst-italic text-decoration-underline">Description</p>
-          <p>{selectedStandard ? selectedStandard.description : ''}</p>
-          {selectedStandard ? 
-            selectedStandard.questions !== undefined ? 
-            <>
-              <p className="fst-italic text-decoration-underline">Example Question</p>
-              <div>Q: {selectedStandard.questions[0].question}</div>
-              <div>A: {selectedStandard.questions[0].answer}</div>
-            </>
-            :
-            <></> // it's ok I hate this syntax too
-            :
-            <></>
-          }
-          <hr />
-          <Form onSubmit={addStandard}>
-            <Form.Label>Current Progression</Form.Label>
-            <Form.Select defaultValue='3' id='status' required >
-              <option value='1'>1 - Far Below Expectations</option>
-              <option value='2'>2 - Below Expectations</option>
-              <option value='3'>3 - Meets Expectations</option>
-              <option value='4'>4 - Exceeds Expectations</option>
-            </Form.Select>
-
-            <Button className="mt-3" type="submit" id='addStandard'>Add</Button>
-          </Form>
-        </Offcanvas.Body>
+      <Offcanvas show={showSingle || showSubcat} onHide={() => {setShowSingle(false); setShowSubcat(false)}} onExited={() => setSelectedStandard(null)} placement='end'>
+        {showSingle ?
+          addSingle
+        :
+          addSubcat
+        }
       </Offcanvas>
     </div>
   )
