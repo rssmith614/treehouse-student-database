@@ -10,6 +10,12 @@ import { Button, Form, Nav, Offcanvas, Tab } from "react-bootstrap";
 import StandardsOfStudent from "../../Components/StandardsOfStudent";
 import { ToastContext } from "../../Services/toast";
 
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import relativeTime from "dayjs/plugin/relativeTime"
+dayjs.extend(duration);
+dayjs.extend(relativeTime);
+
 const StudentProfile = () => {
   const [student, setStudent] = useState({});
   const [loading, setLoading] = useState(true);
@@ -230,6 +236,7 @@ const StudentProfile = () => {
                 <Button variant='danger' className="m-3" type="button" id='remove'
                   onClick={handleRemove}>Stop Tracking</Button>
                 <Button className="m-3" type="submit" id='update'>Update Progression</Button>
+                <div className="fs-6 fst-italic text-end">Last updated {dayjs.unix(selectedStandard.timestamp.seconds).format('MM/DD/YYYY')} ({dayjs.duration(dayjs().diff(dayjs.unix(selectedStandard.timestamp.seconds))).humanize()} ago)</div>
               </Form>
             </div>
             : ''

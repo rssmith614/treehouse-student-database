@@ -2,6 +2,11 @@ import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Container, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
 import { db } from "../Services/firebase";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import relativeTime from "dayjs/plugin/relativeTime"
+dayjs.extend(duration);
+dayjs.extend(relativeTime);
 
 
 const statuses = {
@@ -49,18 +54,22 @@ const StandardsOfStudent = ({ student, setSelectedStandard }) => {
       })
   }, [student])
 
-  function color(status) {
-    switch (status) {
+  function color(standard) {
+    let res = ''
+    if (dayjs().diff(dayjs.unix(standard.timestamp.seconds), 'month') > 0)
+      res += 'text-decoration-line-through '
+
+    switch (standard.status) {
       case '1':
-        return 'link-danger';
+        return res + 'link-danger';
       case '2':
-        return 'link-warning';
+        return res + 'link-warning';
       case '3':
-        return 'link-success';
+        return res + 'link-success';
       case '4':
-        return 'link-primary'
+        return res + 'link-primary'
       default:
-        return 'link-light';
+        return res + 'link-body-emphasis';
     }
   }
 
@@ -97,10 +106,18 @@ const StandardsOfStudent = ({ student, setSelectedStandard }) => {
                               <hr />
                               <div className="text-decoration-underline">Progression</div>
                               {statuses[standard.status]}
+                              {dayjs().diff(dayjs.unix(standard.timestamp.seconds), 'month') > 0 ?
+                                <>
+                                  <hr />
+                                  Last updated {dayjs.duration(dayjs().diff(dayjs.unix(standard.timestamp.seconds))).humanize()} ago
+                                </>
+                              : 
+                              <></>
+                              }
                             </Popover.Body>
                           </Popover>
                         }>
-                        <button className={`btn btn-link ${color(standard.status)}
+                        <button className={`btn btn-link ${color(standard)}
                           link-underline-opacity-0 link-underline-opacity-75-hover`}
                           style={{ cursor: 'pointer' }}
                           onClick={() => setSelectedStandard(standard)}>
