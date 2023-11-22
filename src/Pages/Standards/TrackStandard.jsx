@@ -1,4 +1,4 @@
-import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
+import { addDoc, arrayUnion, collection, doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { db } from "../../Services/firebase";
@@ -30,6 +30,11 @@ const TrackStandard = () => {
   const studentRef = useRef();
 
   useEffect(() => {
+    localStorage.setItem('grade', grade)
+    localStorage.setItem('category', category)
+  }, [grade, category])
+
+  useEffect(() => {
     studentRef.current = doc(db, "students", params.studentid);
 
     getDoc(studentRef.current)
@@ -56,17 +61,17 @@ const TrackStandard = () => {
 
     if (selectedStandard instanceof Array) {
       Promise.all(selectedStandard.map((s) => {
-        return updateDoc(studentRef.current, {standards: arrayUnion({id: s.id, status: status})})  
+        return setDoc(doc(studentRef.current, 'standards', s.id), {status: status, timestamp: serverTimestamp()})
       })).then(() => {
-        // document.getElementById('addStandard').innerHTML = "Add";
         setShowSubcat(false);
         addToast({header: 'Standards Added', message: `${selectedStandard.length} standards were successfully added to ${student.student_name}'s profile`})
       });
 
     } else {
-      updateDoc(studentRef.current, {standards: arrayUnion({id: selectedStandard.id, status: status})})
-        .then(() => {
-          // document.getElementById('addStandard').innerHTML = "Add";
+      
+      setDoc(doc(studentRef.current, 'standards', selectedStandard.id), {status: status, timestamp: serverTimestamp()})
+        .then((res) => {
+          console.log(res)
           setShowSingle(false);
           addToast({header: 'Standard Added', message: `Standard ${selectedStandard.key} was successfully added to ${student.student_name}'s profile`})
         })
@@ -118,7 +123,8 @@ const TrackStandard = () => {
         <hr />
         <Form onSubmit={addStandard}>
           <Form.Label>Current Progression</Form.Label>
-          <Form.Select defaultValue='3' id='status' required >
+          <Form.Select id='status' >
+            <option>None</option>
             <option value='1'>1 - Far Below Expectations</option>
             <option value='2'>2 - Below Expectations</option>
             <option value='3'>3 - Meets Expectations</option>

@@ -1,4 +1,4 @@
-import { arrayRemove, arrayUnion, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
+import { arrayRemove, arrayUnion, deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 
 import { db } from "../../Services/firebase";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -70,8 +70,7 @@ const StudentProfile = () => {
 
     let status = document.getElementById('status').value;
 
-    updateDoc(studentRef.current, {standards: arrayRemove({id: selectedStandard.id, status: selectedStandard.status})})
-      .then(updateDoc(studentRef.current, {standards: arrayUnion({id: selectedStandard.id, status: status})}))
+    setDoc(doc(studentRef.current, 'standards', selectedStandard.id), {status: status, timestamp: serverTimestamp()})
       .then(() => {
         setShow(false);
         addToast({header: 'Standard Progress Updated', message: `${student.student_name}'s progression for Standard ${selectedStandard.key} has been successfully updated.`})
@@ -84,7 +83,7 @@ const StudentProfile = () => {
     document.getElementById('remove').innerHTML = "Removing <span class='spinner-border spinner-border-sm' />";
     document.getElementById('remove').setAttribute('disabled', true);
 
-    updateDoc(studentRef.current, {standards: arrayRemove({id: selectedStandard.id, status: selectedStandard.status})})
+    deleteDoc(doc(studentRef.current, 'standards', selectedStandard.id))
       .then(() => {
         setShow(false);
         addToast({header: 'Standard Progress Removed', message: `No longer tracking ${student.student_name}'s progression for ${selectedStandard.key}`});
@@ -189,7 +188,7 @@ const StudentProfile = () => {
         </div>
       </Tab.Pane>
       <Tab.Pane eventKey="standards">
-        <StandardsOfStudent standards={student.standards || []} setSelectedStandard={setSelectedStandard} />
+        <StandardsOfStudent student={studentRef.current} setSelectedStandard={setSelectedStandard} />
         <div className="d-flex justify-content-end">
           <button className="btn btn-primary m-3" onClick={() => navigate(`/standard/new/${studentRef.current.id}`)}>Track New Standards</button>
         </div>
@@ -222,7 +221,7 @@ const StudentProfile = () => {
                 <div>{selectedStandard.description}</div>
                 <hr />
                 <Form.Label>Current Progression</Form.Label>
-                <Form.Select defaultValue={selectedStandard.status} id="status" onChange={() => document.getElementById('update').removeAttribute('disabled')}>
+                <Form.Select defaultValue={selectedStandard.status} id="status">
                   <option value='1'>1 - Far Below Expectations</option>
                   <option value='2'>2 - Below Expectations</option>
                   <option value='3'>3 - Meets Expectations</option>
@@ -230,7 +229,7 @@ const StudentProfile = () => {
                 </Form.Select>
                 <Button variant='danger' className="m-3" type="button" id='remove'
                   onClick={handleRemove}>Stop Tracking</Button>
-                <Button className="m-3" type="submit" id='update' disabled>Update Progression</Button>
+                <Button className="m-3" type="submit" id='update'>Update Progression</Button>
               </Form>
             </div>
             : ''

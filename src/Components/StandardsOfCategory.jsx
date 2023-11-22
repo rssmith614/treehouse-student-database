@@ -53,6 +53,7 @@ const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
               {subCat[1].sort((a,b) => {
                 return (
                   a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
+                  a.key.split('.')[2] - b.key.split('.')[2] ||
                   a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
                   a.key.localeCompare(b.key)
                 )
