@@ -1,14 +1,16 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 
 import { db, storage } from "../../Services/firebase";
 import { Can } from "../../Services/can";
 import { getDownloadURL, ref } from "firebase/storage";
+import { OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
 
 const StudentEval = () => {
 
   const [evaluation, setEvaluation] = useState({});
+  const [tasks, setTasks] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -35,9 +37,61 @@ const StudentEval = () => {
           })
       }).then(setLoading(false));
 
-    
+    getDocs(collection(evalRef.current, 'tasks'))
+      .then(res => {
+        let compiledTasks = new Array(res.docs.length);
+        Promise.all(res.docs.map(async (t, i) => {
+          if (t.data().standard === '')
+            return compiledTasks[i] = {...res.docs[i].data(), standard: {key: "None", description: ""}};
+          else
+            return getDoc(doc(db, 'standards', t.data().standard))
+              .then(s => {
+                compiledTasks[i] = {...res.docs[i].data(), standard: s.data()};
+              })
+        }))
+        .then(() => {
+          setTasks(compiledTasks);
+        })
+      });
 
-  }, [params.studentid])
+  }, [params.evalid])
+
+  const tasksList = tasks.map((task, idx) => {
+    return (
+      <tr className="my-3" key={idx}>
+        <td>
+          <div id="subject">{task.subject}</div>
+        </td>
+        <td>
+          <OverlayTrigger
+            overlay={task.standard.key !== 'None' ?
+              <Popover className="">
+                <Popover.Header>
+                  {task.standard.key}
+                </Popover.Header>
+                <Popover.Body>
+                  <div className="text-decoration-underline">Description</div>
+                  {task.standard.description}
+                </Popover.Body>
+              </Popover>
+              : 
+              <></>
+            }>
+            <div>{task.standard.key}</div>
+          </OverlayTrigger>
+        </td>
+        <td>
+          <div id="progression">{task.progression}</div>
+        </td>
+        <td>
+          <div id="engagement">{task.engagement}</div>
+        </td>
+        <td>
+          <div id="comments">{task.comments}</div>
+        </td>
+      </tr>
+    )
+  })
 
   class Eval {
     constructor(dict) {
@@ -74,33 +128,25 @@ const StudentEval = () => {
             <label className="form-label h5">Date</label>
             <div id="date" className="">{evaluation.date}</div>
           </div>
-          <div className="col">
-            <label className="form-label h5">Subject</label>
-            <div id="subject" className="">{evaluation.subject}</div>
-          </div>
-          <div className="col">
-            <label className="form-label h5">Standard</label>
-            <div id="standard" className="">{evaluation.standard}</div>
-          </div>
-          {/* <div className="col">
-            <label className="form-label h5">Grade Level</label>
-            <div id="grade_level" className="">{evaluation.student_grade}</div>
-          </div> */}
         </div>
-        <div className="row my-3">
-          <div className="col">
-            <label className="form-label h5">Progression</label>
-            <div id="progression" className="">{evaluation.progression}</div>
-          </div>
-          <div className="col">
-            <label className="form-label h5">Engagement</label>
-            <div id="engagement" className="">{evaluation.engagement}</div>
-          </div>
-          <div className="col">
-            <label className="form-label h5">Comments</label>
-            <div id="comments" className="">{evaluation.comments}</div>
-          </div>
-        </div>
+        <hr />
+        <div className="h5">Tasks</div>
+        <Row className="d-flex px-3">
+          <Table striped>
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Standard</th>
+                <th>Progression</th>
+                <th>Engagement</th>
+                <th>Comments</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tasksList}
+            </tbody>
+          </Table>
+        </Row>
         <hr />
         <div className="row my-3">
           <div className="col">

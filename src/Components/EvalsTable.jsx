@@ -62,9 +62,9 @@ const EvalsTable = ({ filterBy, id }) => {
           style={{ cursor: "pointer" }}>
           <td>{dayjs(evaluationData.date).format('MMMM DD, YYYY')}</td>
           <td>{filterBy === 'tutor' ? evaluationData.student_name : evaluationData.tutor_name}</td>
-          <td>{evaluationData.subject}</td>
+          {/* <td>{evaluationData.subject}</td>
           <td>{evaluationData.engagement}</td>
-          <td>{evaluationData.progression}</td>
+          <td>{evaluationData.progression}</td> */}
         </tr>
       )
     })
@@ -162,9 +162,9 @@ const EvalsTable = ({ filterBy, id }) => {
             </Dropdown>
           </th>
           }
-          <th className="w-50">Subject</th>
+          {/* <th className="w-50">Subject</th>
           <th>Engagement</th>
-          <th>Progression</th>
+          <th>Progression</th> */}
         </tr>
       </thead>
       <tbody>

@@ -71,7 +71,6 @@ const TrackStandard = () => {
       
       setDoc(doc(studentRef.current, 'standards', selectedStandard.id), {status: status, timestamp: serverTimestamp()})
         .then((res) => {
-          console.log(res)
           setShowSingle(false);
           addToast({header: 'Standard Added', message: `Standard ${selectedStandard.key} was successfully added to ${student.student_name}'s profile`})
         })
