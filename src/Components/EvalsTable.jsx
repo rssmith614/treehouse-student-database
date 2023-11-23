@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 
 import dayjs from "dayjs";
@@ -24,47 +24,68 @@ const EvalsTable = ({ filterBy, id }) => {
   useEffect(() => {
     docRef.current = doc(db, filterBy, id);
 
+    let q;
+
     if (filterBy === 'tutor') {
-      getDocs(query(collection(db, 'evaluations'), where('tutor_id', '==', id)))
-        .then((res) => setEvals(res.docs))
-        .then(setLoading(false));
+      q = query(collection(db, 'evaluations'), where('tutor_id', '==', id));
     } else if (filterBy === 'student') {
-      getDocs(query(collection(db, 'evaluations'), where('student_id', '==', id)))
-        .then((res) => setEvals(res.docs))
-        .then(setLoading(false));
+      q = query(collection(db, 'evaluations'), where('student_id', '==', id));
     }
 
+    getDocs(q)
+      .then((res) => {
+        Promise.all(res.docs.map(async evaluation => {
+          return compileTasks(evaluation)
+            .then(compiledTasks => {
+              return {...evaluation.data(), id: evaluation.id, tasks: compiledTasks};
+            })
+        }))
+          .then(compiledEvals => setEvals(compiledEvals))
+      })
+      .then(setLoading(false));
+
   }, [filterBy, id])
+
+  async function compileTasks(evaluation) {
+    return Promise.all((await getDocs(collection(evaluation.ref, 'tasks'))).docs.map(task => {
+      return taskWithStandard(task);
+    }))
+  }
+
+  async function taskWithStandard(task) {
+    if (task.data().standard === '')
+      return task.data().subject;
+    else {
+      return `${task.data().subject}: ${(await getDoc(doc(db, 'standards', task.data().standard))).data().key}`
+    }
+  }
 
   function evalList() {
     const tableData = evals.filter((evaluation) => {
       return (
-        evaluation.data().student_name.toLowerCase().includes(studentFilter.toLowerCase()) &&
-        evaluation.data().tutor_name.toLowerCase().includes(tutorFilter.toLowerCase())
+        evaluation.student_name.toLowerCase().includes(studentFilter.toLowerCase()) &&
+        evaluation.tutor_name.toLowerCase().includes(tutorFilter.toLowerCase())
       );
     })
     
     switch (tableSort) {
       case 'date_asc':
-        tableData.sort((a,b) => { return dayjs(a.data().date).diff(dayjs(b.data().date)) });
+        tableData.sort((a,b) => { return dayjs(a.date).diff(dayjs(b.date)) });
         break;
       case 'date_desc':
-        tableData.sort((a,b) => { return dayjs(b.data().date).diff(dayjs(a.data().date)) });
+        tableData.sort((a,b) => { return dayjs(b.date).diff(dayjs(a.date)) });
         break;
       default:
         break;
     }
 
     return tableData.map((evaluation) => {
-      let evaluationData = evaluation.data();
       return (
         <tr key={evaluation.id} onClick={() => navigate(`/eval/${evaluation.id}`)}
           style={{ cursor: "pointer" }}>
-          <td>{dayjs(evaluationData.date).format('MMMM DD, YYYY')}</td>
-          <td>{filterBy === 'tutor' ? evaluationData.student_name : evaluationData.tutor_name}</td>
-          {/* <td>{evaluationData.subject}</td>
-          <td>{evaluationData.engagement}</td>
-          <td>{evaluationData.progression}</td> */}
+          <td>{dayjs(evaluation.date).format('MMMM DD, YYYY')}</td>
+          <td>{filterBy === 'tutor' ? evaluation.student_name : evaluation.tutor_name}</td>
+          <td>{evaluation.tasks.join(', ')}</td>
         </tr>
       )
     })
@@ -162,6 +183,7 @@ const EvalsTable = ({ filterBy, id }) => {
             </Dropdown>
           </th>
           }
+          <th>Tasks</th>
           {/* <th className="w-50">Subject</th>
           <th>Engagement</th>
           <th>Progression</th> */}

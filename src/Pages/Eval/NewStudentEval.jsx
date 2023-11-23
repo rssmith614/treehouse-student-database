@@ -56,7 +56,7 @@ const NewStudentEval = () => {
   }, [params.studentid])
 
   function addTask() {
-    setTasks([...tasks, {subject: "", standard: "", progression: "", engagement: "", comments: ""}]);
+    setTasks([...tasks, {subject: "", standard: "", progression: "5", engagement: "5", comments: ""}]);
   }
 
   function sumbitEval(e) {
