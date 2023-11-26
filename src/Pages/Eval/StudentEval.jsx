@@ -35,14 +35,14 @@ const StudentEval = () => {
           .then((url) => {
             setWorksheet(url);
           })
-      }).then(setLoading(false));
+      })
 
     getDocs(collection(evalRef.current, 'tasks'))
       .then(res => {
         let compiledTasks = new Array(res.docs.length);
         Promise.all(res.docs.map(async (t, i) => {
           if (t.data().standard === '')
-            return compiledTasks[i] = {...res.docs[i].data(), standard: {key: "None", description: ""}};
+            return compiledTasks[i] = {...res.docs[i].data(), standard: {key: "", description: ""}};
           else
             return getDoc(doc(db, 'standards', t.data().standard))
               .then(s => {
@@ -50,9 +50,19 @@ const StudentEval = () => {
               })
         }))
         .then(() => {
+          compiledTasks.sort((a, b) => {
+            let a_standard = a.standard.key || '0.0.0';
+            let b_standard = b.standard.key || '0.0.0';
+            return (
+              a_standard.split('.')[1].localeCompare(b_standard.split('.')[1]) ||
+              a_standard.split('.')[2] - b_standard.split('.')[2] ||
+              a_standard.split('.')[2].localeCompare(b_standard.split('.')[2]) ||
+              a_standard.localeCompare(b_standard)
+            )
+          })
           setTasks(compiledTasks);
         })
-      });
+      }).then(() => setLoading(false));
 
   }, [params.evalid])
 

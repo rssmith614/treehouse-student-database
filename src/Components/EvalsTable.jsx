@@ -35,30 +35,35 @@ const EvalsTable = ({ filterBy, id }) => {
     getDocs(q)
       .then((res) => {
         Promise.all(res.docs.map(async evaluation => {
-          return compileTasks(evaluation)
+          return Promise.all((await getDocs(collection(evaluation.ref, 'tasks'))).docs.map(async task => {
+            if (task.data().standard === '')
+              return task.data().subject;
+            else {
+              return `${task.data().subject}: ${(await getDoc(doc(db, 'standards', task.data().standard))).data().key}`
+            }
+          }))
             .then(compiledTasks => {
-              return {...evaluation.data(), id: evaluation.id, tasks: compiledTasks};
+              return {
+                ...evaluation.data(),
+                id: evaluation.id,
+                tasks: compiledTasks.sort((a, b) => {
+                  let a_standard = a.split(':').at(1) || '0.0.0';
+                  let b_standard = b.split(':').at(1) || '0.0.0';
+                  return (
+                    a_standard.split('.')[1].localeCompare(b_standard.split('.')[1]) ||
+                    a_standard.split('.')[2] - b_standard.split('.')[2] ||
+                    a_standard.split('.')[2].localeCompare(b_standard.split('.')[2]) ||
+                    a_standard.localeCompare(b_standard)
+                  )
+                })
+              };
             })
         }))
           .then(compiledEvals => setEvals(compiledEvals))
       })
-      .then(setLoading(false));
+      .then(() => setLoading(false));
 
   }, [filterBy, id])
-
-  async function compileTasks(evaluation) {
-    return Promise.all((await getDocs(collection(evaluation.ref, 'tasks'))).docs.map(task => {
-      return taskWithStandard(task);
-    }))
-  }
-
-  async function taskWithStandard(task) {
-    if (task.data().standard === '')
-      return task.data().subject;
-    else {
-      return `${task.data().subject}: ${(await getDoc(doc(db, 'standards', task.data().standard))).data().key}`
-    }
-  }
 
   function evalList() {
     const tableData = evals.filter((evaluation) => {
@@ -85,7 +90,7 @@ const EvalsTable = ({ filterBy, id }) => {
           style={{ cursor: "pointer" }}>
           <td>{dayjs(evaluation.date).format('MMMM DD, YYYY')}</td>
           <td>{filterBy === 'tutor' ? evaluation.student_name : evaluation.tutor_name}</td>
-          <td>{evaluation.tasks.join(', ')}</td>
+          <td>{evaluation.tasks.join(' || ')}</td>
         </tr>
       )
     })

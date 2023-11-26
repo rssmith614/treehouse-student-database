@@ -188,9 +188,9 @@ const StudentProfile = () => {
         </Can>
       </Tab.Pane>
       <Tab.Pane eventKey="evals">
-        <EvalsTable filterBy='student' id={studentRef.current.id} />
-        <div className="d-flex justify-content-end">
-          <button className="btn btn-primary m-3" onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}>New Session Eval</button>
+        <div className="d-flex flex-column">
+          <EvalsTable filterBy='student' id={studentRef.current.id} />
+          <button className="btn btn-primary m-3 align-self-end" onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}>New Session Eval</button>
         </div>
       </Tab.Pane>
       <Tab.Pane eventKey="standards">
