@@ -2,7 +2,7 @@ import { Button, Card, Form, Nav, Offcanvas } from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { useContext, useEffect, useState } from "react";
 import { Can } from "../../Services/can";
-import { collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
 
@@ -70,10 +70,9 @@ const StandardsList = () => {
       description: document.getElementById('description').value
     }
 
-    getDocs(query(collection(db, 'standards'), where('key', '==', selectedStandard.key)))
-      .then((res) => updateDoc(doc(db, 'standards', res.docs[0].id), newStandard)
-        .then(addToast({header: 'Changes Saved', message: `Standard ${newStandard.key} has been updated (Refresh to see)`}))
-        .then(() => {setEdit(false); setShow(false)}))
+    updateDoc(doc(db, 'standards', selectedStandard.id), newStandard)
+      .then(addToast({header: 'Changes Saved', message: `Standard ${newStandard.key} has been updated (Refresh to see)`}))
+      .then(() => {setEdit(false); setShow(false)})
      
   }
 

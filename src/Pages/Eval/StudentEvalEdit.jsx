@@ -1,13 +1,17 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useRef, useContext } from "react";
-import { collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
 
 import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
+import { Button, Row, Table } from "react-bootstrap";
 
 
 const StudentEvalEdit = () => {
   const [evaluation, setEvaluation] = useState({});
+  const [tasks, setTasks] = useState([]);
+
+  const [standards, setStandards] = useState([]);
   const [tutors, setTutors] = useState([]);
 
   const [selectedTutor, setSelectedTutor] = useState('');
@@ -26,12 +30,63 @@ const StudentEvalEdit = () => {
 
     getDoc(evalRef.current)
       .then((res) => { setEvaluation(res.data()); setSelectedTutor(res.data().tutor_id) })
-      .then(setLoading(false));
 
     getDocs(collection(db, 'tutors'))
       .then((res) => setTutors(res.docs));
 
+    getDocs(collection(evalRef.current, 'tasks'))
+      .then(res => {
+        let compiledTasks = new Array(res.docs.length);
+        Promise.all(res.docs.map(async (t, i) => {
+          if (t.data().standard === '')
+            return compiledTasks[i] = {...t.data(), id: t.id};
+          else
+            return getDoc(doc(db, 'standards', t.data().standard))
+              .then(s => {
+                compiledTasks[i] = {...t.data(), id: t.id, standard: s.id};
+              })
+        }))
+        .then(() => {
+          compiledTasks.sort((a, b) => {
+            let a_standard = a.standard.key || '0.0.0';
+            let b_standard = b.standard.key || '0.0.0';
+            return (
+              a_standard.split('.')[1].localeCompare(b_standard.split('.')[1]) ||
+              a_standard.split('.')[2] - b_standard.split('.')[2] ||
+              a_standard.split('.')[2].localeCompare(b_standard.split('.')[2]) ||
+              a_standard.localeCompare(b_standard)
+            )
+          })
+          setTasks(compiledTasks);
+        })
+      }).then(() => setLoading(false));
+
   }, [params.evalid])
+
+  useEffect(() => {
+    if (!evaluation.student_id)
+      return
+
+    getDoc(doc(db, 'students', evaluation.student_id))
+      .then((docs) => {
+        setSelectedTutor(docs.data().preferred_tutor);
+        getDocs(collection(doc(db, 'students', evaluation.student_id), 'standards'))
+          .then(subCollStandards => {
+            let compiledStandards = [];
+            Promise.all(subCollStandards.docs.map(async s => {
+              return getDoc(doc(db, 'standards', s.id))
+                .then(standard => {
+                  compiledStandards.push({...s.data(), ...standard.data(), id: standard.id});
+                })
+            }))
+              .then(() => {
+                setStandards(compiledStandards);
+              });
+          })
+          .then(setLoading(false));
+        });
+
+  }, [evaluation])
 
   function sumbitEval(e) {
     e.preventDefault();
@@ -48,17 +103,18 @@ const StudentEvalEdit = () => {
       tutor_id: document.getElementById("tutor").value,
       tutor_name: tutorName,
       date: document.getElementById("date").value,
-      subject: document.getElementById("subject").value,
-      standard: document.getElementById("standard").value,
-      progression: document.getElementById("progression").value,
-      engagement: document.getElementById("engagement").value,
-      comments: document.getElementById("comments").value,
       worksheet_completion: document.getElementById("worksheet_completion").value,
       next_session: document.getElementById("next_session").value,
       owner: evaluation.owner,                  // not mutable
     }
 
     updateDoc(evalRef.current, newEval)
+      .then(() => {
+        tasks.forEach((t) => {
+          let {id: _, ...rest} = t;
+          setDoc(doc(db, 'evaluations', evalRef.current.id, 'tasks', t.id), rest);
+        })
+      })
       .then(() => addToast({header: 'Changes Saved', message: `Session evaluation for ${newEval.student_name} was successfully updated`}))
       .then(() => navigate(`/eval/${evalRef.current.id}`));
   }
@@ -71,6 +127,64 @@ const StudentEvalEdit = () => {
       );
     });
   }
+
+  const standardOptions = standards.sort((a,b) => {
+    return (
+      a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
+      a.key.split('.')[2] - b.key.split('.')[2] ||
+      a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
+      a.key.localeCompare(b.key)
+    )}).map((s, i) => {
+      return (
+        <option value={s.id} key={s.id}>{s.key}</option>
+      );
+  });
+
+  const tasksList = tasks.map((task, idx) => {
+    return (
+      <tr className="my-3" key={idx}>
+        <td><Button type="button" variant="danger" onClick={() => {setTasks(tasks.filter((t, i) => i !== idx))}}><i className="bi bi-trash-fill" /></Button></td>
+        <td>
+          <input id="subject" className="form-control" type="text"
+            value={task.subject} onChange={e => setTasks(tasks.map((t, i) => {
+              if (i !== idx) return t;
+              else return {...t, subject: e.target.value};
+            }))} required />
+        </td>
+        <td>
+          <select id="standard" className="form-control"
+            value={task.standard} onChange={e => setTasks(tasks.map((t, i) => {
+              if (i !== idx) return t;
+              else return {...t, standard: e.target.value};
+            }))}>
+              <option value=''>None</option>
+              {standardOptions}
+            </select>
+        </td>
+        <td>
+          <input id="progression" className="form-control" type="number" min="1" max="5" step="1"
+            value={task.progression} onChange={e => setTasks(tasks.map((t, i) => {
+              if (i !== idx) return t;
+              else return {...t, progression: e.target.value};
+            }))} />
+        </td>
+        <td>
+          <input id="engagement" className="form-control" type="number" min="1" max="5" step="1"
+            value={task.engagement} onChange={e => setTasks(tasks.map((t, i) => {
+              if (i !== idx) return t;
+              else return {...t, engagement: e.target.value};
+            }))} />
+        </td>
+        <td>
+          <textarea id="comments" className="form-control"
+            value={task.comments} onChange={e => setTasks(tasks.map((t, i) => {
+              if (i !== idx) return t;
+              else return {...t, comments: e.target.value};
+            }))} />
+        </td>
+      </tr>
+    )
+  })
 
   return (
     <div className='p-3 d-flex flex-column'>
@@ -92,34 +206,30 @@ const StudentEvalEdit = () => {
               <label className="form-label h5">Date</label>
               <input id="date" className="form-control" type="date" defaultValue={evaluation.date} />
             </div>
-            <div className="col">
-              <label className="form-label h5">Subject</label>
-              <input id="subject" className="form-control" type="text" defaultValue={evaluation.subject} required />
-            </div>
-            <div className="col">
-              <label className="form-label h5">Standard</label>
-              <input id="standard" className="form-control" type="text" defaultValue={evaluation.standard} />
-            </div>
-            {/* <div className="col">
-              <label className="form-label h5">Grade Level</label>
-              <input id="grade_level" className="form-control" type="text" value={student.student_grade || ''}
-               data-toggle="tooltip" title="Contact an administrator if this is incorrect" readOnly />
-            </div> */}
           </div>
-          <div className="row my-3">
-            <div className="col">
-              <label className="form-label h5">Progression</label>
-              <input id="progression" className="form-control" type="number" min="1" max="5" step="1" defaultValue={evaluation.progression} />
-            </div>
-            <div className="col">
-              <label className="form-label h5">Engagement</label>
-              <input id="engagement" className="form-control" type="number" min="1" max="5" step="1" defaultValue={evaluation.engagement} />
-            </div>
-            <div className="col">
-              <label className="form-label h5">Comments</label>
-              <textarea id="comments" className="form-control" defaultValue={evaluation.comments} />
-            </div>
-          </div>
+          <hr />
+          <div className="h5">Tasks</div>
+          <Row className="d-flex px-3">
+            {loading ?
+            <div className="spinner-border align-self-center" />
+          :
+            <Table striped>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Subject</th>
+                  <th>Standard</th>
+                  <th>Progression</th>
+                  <th>Engagement</th>
+                  <th>Comments</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tasksList}
+              </tbody>
+            </Table>
+            }
+          </Row>
           <hr />
           <div className="row my-3">
             <div className="col">
@@ -147,4 +257,4 @@ const StudentEvalEdit = () => {
   );
 };
 
-export default StudentEvalEdit;
+export default StudentEvalEdit; 
