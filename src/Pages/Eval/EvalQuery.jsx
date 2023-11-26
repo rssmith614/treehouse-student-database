@@ -1,4 +1,4 @@
-import { collection, count, getAggregateFromServer, getDocs, query, where } from "firebase/firestore";
+import { collection, collectionGroup, count, getAggregateFromServer, getDocs, query, where, documentId, getDoc, doc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Dropdown, Form, InputGroup, Row, Table } from "react-bootstrap";
 import { db } from "../../Services/firebase";
@@ -87,8 +87,12 @@ const EvalQuery = () => {
 
     if (subjectMatching === 'exact') {
       let evalSubject = document.getElementById('subject').value;
+      let evalIds = [];
+      (await getDocs(query(collectionGroup(db, 'tasks'), where('subject', '==', evalSubject)))).forEach((task) => {
+        evalIds.push(task.ref.parent.parent.id);
+      });
       evalQueryConditions.push(
-        where('subject', '==', evalSubject)
+        where(documentId(), 'in', evalIds)
       );
     }
 
@@ -185,12 +189,44 @@ const EvalQuery = () => {
 
     getDocs(evalQuery)
       .then(res => {
-        if (subjectMatching === 'like') {
-          let evalSubject = document.getElementById('subject').value;
-          setEvals(res.docs.filter(e => e.data().subject.toLowerCase().includes(evalSubject.toLowerCase())));
-        } else {
-          setEvals(res.docs)
-        }
+        Promise.all(res.docs.map(async evaluation => {
+          return Promise.all((await getDocs(collection(evaluation.ref, 'tasks'))).docs.map(async task => {
+            if (task.data().standard === '')
+              return task.data().subject;
+            else {
+              return `${task.data().subject}: ${(await getDoc(doc(db, 'standards', task.data().standard))).data().key}`
+            }
+          }))
+            .then(compiledTasks => {
+              return {
+                ...evaluation.data(),
+                id: evaluation.id,
+                tasks: compiledTasks.sort((a, b) => {
+                  let a_standard = a.split(':').at(1) || '0.0.0';
+                  let b_standard = b.split(':').at(1) || '0.0.0';
+                  return (
+                    a_standard.split('.')[1].localeCompare(b_standard.split('.')[1]) ||
+                    a_standard.split('.')[2] - b_standard.split('.')[2] ||
+                    a_standard.split('.')[2].localeCompare(b_standard.split('.')[2]) ||
+                    a_standard.localeCompare(b_standard)
+                  )
+                })
+              };
+            })
+        }))
+          .then(compiledEvals => {
+            console.log(compiledEvals)
+            if (subjectMatching === 'like') {
+              let evalSubject = document.getElementById('subject').value;
+              setEvals(compiledEvals.filter(e => {
+                let taskString = e.tasks.join(' ');
+                return taskString.toLowerCase().includes(evalSubject.toLowerCase())
+              }));
+            } else {
+              setEvals(compiledEvals)
+            }
+          })
+        
       })
       .then(setLoading(false))
 
@@ -251,12 +287,12 @@ const EvalQuery = () => {
           onChange={(e) => setSearch(e.target.value)}
           value={search}
         />
-        <Form.Check
+        {/* <Form.Check
           label='Select All'
           className="mx-3 my-2 w-auto"
           checked={value.length === tutors.length}
           onChange={e => e.target.checked ? valueSetter(tutors) : valueSetter([])}
-        />
+        /> */}
         {tutors.filter(t => t.data().displayName.toLowerCase().includes(search.toLowerCase())).map((tutor, i) => {
           return (
             <Form.Check
@@ -300,33 +336,30 @@ const EvalQuery = () => {
   function evalList() {
     const tableData = evals.filter((evaluation) => {
       return (
-        evaluation.data().student_name.toLowerCase().includes(studentFilter.toLowerCase()) &&
-        evaluation.data().tutor_name.toLowerCase().includes(tutorFilter.toLowerCase())
+        evaluation.student_name.toLowerCase().includes(studentFilter.toLowerCase()) &&
+        evaluation.tutor_name.toLowerCase().includes(tutorFilter.toLowerCase())
       );
     })
     
     switch (tableSort) {
       case 'date_asc':
-        tableData.sort((a,b) => { return dayjs(a.data().date).diff(dayjs(b.data().date)) });
+        tableData.sort((a,b) => { return dayjs(a.date).diff(dayjs(b.date)) });
         break;
       case 'date_desc':
-        tableData.sort((a,b) => { return dayjs(b.data().date).diff(dayjs(a.data().date)) });
+        tableData.sort((a,b) => { return dayjs(b.date).diff(dayjs(a.date)) });
         break;
       default:
         break;
     }
 
     return tableData.map((evaluation) => {
-      let evaluationData = evaluation.data();
       return (
         <tr key={evaluation.id} onClick={() => navigate(`/eval/${evaluation.id}`)}
           style={{ cursor: "pointer" }}>
-          <td>{dayjs(evaluationData.date).format('MMMM DD, YYYY')}</td>
-          <td>{evaluationData.student_name}</td>
-          <td>{evaluationData.tutor_name}</td>
-          <td>{evaluationData.subject}</td>
-          <td>{evaluationData.engagement}</td>
-          <td>{evaluationData.progression}</td>
+          <td>{dayjs(evaluation.date).format('MMMM DD, YYYY')}</td>
+          <td>{evaluation.student_name}</td>
+          <td>{evaluation.tutor_name}</td>
+          <td>{evaluation.tasks.join(' || ')}</td>
         </tr>
       )
     })
@@ -528,7 +561,7 @@ const EvalQuery = () => {
       <></>
       :
       <Card className="px-3 pt-3 bg-light-subtle">
-        <div className="h3">{evals.length} results</div>
+        <div className="h3">{evals.length} result{evals.length !== 1 ? 's' : ''}</div>
         <Table striped hover>
           <thead>
             <tr>
@@ -561,9 +594,10 @@ const EvalQuery = () => {
                   <Dropdown.Menu as={FilterTableHeader} value={tutorFilter} valueSetter={setTutorFilter} />
                 </Dropdown>
               </th>
-              <th className="w-50">Subject</th>
+              <th>Tasks</th>
+              {/* <th className="w-50">Subject</th>
               <th className="">Engagement</th>
-              <th className="">Progression</th>
+              <th className="">Progression</th> */}
             </tr>
           </thead>
           <tbody>
