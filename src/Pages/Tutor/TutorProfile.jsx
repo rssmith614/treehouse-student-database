@@ -5,7 +5,7 @@ import { Can } from "../../Services/can";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import EvalsTable from "../../Components/EvalsTable";
-import { Card, CardBody, CardHeader, Nav, Tab, Tabs } from "react-bootstrap";
+import { Card, Nav, Tab } from "react-bootstrap";
 
 const TutorProfile = () => {
   const [tutor, setTutor] = useState({});
@@ -23,8 +23,6 @@ const TutorProfile = () => {
       .then((doc) => setTutor(doc.data()))
 
   }, [params.tutorid])
-
-  const [key, setKey] = useState('about');
 
   function capitalize(str) {
     try {
@@ -48,7 +46,7 @@ const TutorProfile = () => {
   return (
     <div className='p-3 d-flex flex-column'>
       <h1 className='d-flex display-1'>
-        Tutor Profile - {tutor.displayName}
+        Tutor Profile - {tutor?.displayName}
       </h1>
       <div className="d-flex flex-row justify-content-center">
         <Card className='d-flex flex-fill bg-light-subtle justify-content-center'>
@@ -64,14 +62,14 @@ const TutorProfile = () => {
             <Tab.Content className="card-body">
               <Tab.Pane eventKey='about'>
                 <div className="d-flex p-3">
-                  <img src={tutor.photoURL} alt="" />
+                  <img src={tutor?.photoURL} alt="" />
                   <div className="d-flex flex-column p-3">
                     <div className="h3">Email</div>
-                    <div>{tutor.email}</div>
+                    <div>{tutor?.email}</div>
                   </div>
                   <div className="d-flex flex-column p-3">
                     <div className="h3">Clearance</div>
-                    <div>{capitalize(tutor.clearance)}</div>
+                    <div>{capitalize(tutor?.clearance)}</div>
                   </div>
                 </div>
               </Tab.Pane>

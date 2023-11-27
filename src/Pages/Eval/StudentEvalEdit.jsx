@@ -69,7 +69,6 @@ const StudentEvalEdit = () => {
 
     getDoc(doc(db, 'students', evaluation.student_id))
       .then((docs) => {
-        setSelectedTutor(docs.data().preferred_tutor);
         getDocs(collection(doc(db, 'students', evaluation.student_id), 'standards'))
           .then(subCollStandards => {
             let compiledStandards = [];
@@ -213,6 +212,7 @@ const StudentEvalEdit = () => {
             {loading ?
             <div className="spinner-border align-self-center" />
           :
+              <div className="d-flex flex-column">
             <Table striped>
               <thead>
                 <tr>
@@ -228,6 +228,8 @@ const StudentEvalEdit = () => {
                 {tasksList}
               </tbody>
             </Table>
+            <Button type="button" variant="secondary" className="me-auto" onClick={() => setTasks([...tasks, {subject: "", standard: "", progression: "5", engagement: "5", comments: ""}])}>Add Task</Button>
+            </div>
             }
           </Row>
           <hr />

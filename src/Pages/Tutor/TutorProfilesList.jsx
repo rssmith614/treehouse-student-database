@@ -39,7 +39,7 @@ const TutorProfilesList = () => {
 
   const tutorRows = () => {
     const tableData = tutors.filter((tutor) => {
-      return tutor.data().displayName.toLowerCase().includes(nameFilter.toLowerCase());
+      return tutor.data().displayName?.toLowerCase().includes(nameFilter.toLowerCase());
     })
 
     if (tableSort === 'name_asc')
