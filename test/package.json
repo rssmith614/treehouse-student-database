@@ -1,0 +1,18 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "Unit tests for firestore",
+  "main": "test.js",
+  "scripts": {
+    "test": "mocha --exit"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.1",
+    "mocha": "^10.2.0"
+  },
+  "dependencies": {
+    "@firebase/firestore": "^4.3.2"
+  }
+}

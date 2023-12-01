@@ -1,0 +1,53 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin(uid) {
+      return get(/databases/$(database)/documents/tutors/$(uid)).data.clearance == 'admin';
+    }
+
+    function isTutor(uid) {
+      return get(/databases/$(database)/documents/tutors/$(uid)).data.clearance == 'tutor';
+    }
+
+    match /tutors/{document} {
+      allow update:
+        if request.auth != null && isAdmin(request.auth.uid) && request.resource.id != request.auth.uid;
+      allow read, create:
+        if request.auth != null && isAdmin(request.auth.uid);
+    }
+
+    match /students/{document} {
+      allow read, write: if request.auth != null && isAdmin(request.auth.uid);
+      allow read: if request.auth != null && isTutor(request.auth.uid);
+
+      match /standards/{document} {
+        allow read, write: if request.auth != null && isAdmin(request.auth.uid);
+        allow read, write: if request.auth != null && isTutor(request.auth.uid);
+      }
+    }
+
+    match /evaluations/{eval} {
+      allow read, write: if request.auth != null && isAdmin(request.auth.uid);
+      
+      allow read, create: if request.auth != null && isTutor(request.auth.uid);
+      allow update:
+        if request.auth != null && isTutor(request.auth.uid) && request.resource.data.owner == request.auth.uid;
+    
+      match /tasks/{task} {
+        allow read, write: if request.auth != null && isAdmin(request.auth.uid);
+      
+        allow read: if request.auth != null && isTutor(request.auth.uid);
+        allow write:
+          if request.auth != null && isTutor(request.auth.uid);
+      }
+    }
+
+    match /standards/{document} {
+      allow read: if request.auth != null
+      allow update: if request.auth != null && isAdmin(request.auth.uid);
+    }
+
+  }
+}
