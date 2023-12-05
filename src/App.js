@@ -24,7 +24,7 @@ import Navbar from './Components/Navbar';
 import { AbilityContext } from './Services/can';
 import defineAbilityFor from "./Services/defineAbility";
 
-import { collection, query, getDocs, where } from 'firebase/firestore';
+import { getDoc, doc } from 'firebase/firestore';
 
 import { auth, db } from './Services/firebase';
 import { useState } from 'react';
@@ -69,12 +69,12 @@ function App() {
   auth.onAuthStateChanged((user) => {
     if (user) {
       if (!userProfile) {
-        const tutorsRef = collection(db, "tutors");
-        const q = query(tutorsRef, where("email", "==", user.email));
-        getDocs(q).then((res) => {
-          if (res.docs.length > 0)
-            setUserProfile(res.docs[0]);
-        });
+        getDoc(doc(db, 'tutors', user.uid))
+          .then(userDoc => {
+            if (userDoc.exists()) {
+              setUserProfile(userDoc);
+            }
+          })
       }
     } else {
     }

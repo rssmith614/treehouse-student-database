@@ -1,13 +1,25 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
 
 import { auth, db, storage } from "../../Services/firebase";
 import dayjs from "dayjs";
 import { ref, uploadBytes } from "firebase/storage";
 import { ToastContext } from "../../Services/toast";
-import { Button, Row, Table } from "react-bootstrap";
+import { Button, Dropdown, InputGroup, Row, Table, Form, OverlayTrigger, Popover } from "react-bootstrap";
 
+
+const grades = {
+  'K': 'Kindergarten',
+  '1': '1st Grade',
+  '2': '2nd Grade',
+  '3': '3rd Grade',
+  '4': '4th Grade',
+  '5': '5th Grade',
+  '6': '6th Grade',
+  '7': '7th Grade',
+  '8': '8th Grade',
+}
 
 const NewStudentEval = () => {
   const [student, setStudent] = useState({});
@@ -92,7 +104,7 @@ const NewStudentEval = () => {
         .then(() => 
             addDoc(collection(db, "evaluations"), newEval)
           .then((doc) => {
-            tasks.forEach(t => addDoc(collection(doc, 'tasks'), t));
+            tasks.forEach(t => addDoc(collection(doc, 'tasks'), {...t, standard: t.standard?.id || ''}));
             addToast({header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded`})
           })
           .then(() =>
@@ -104,7 +116,7 @@ const NewStudentEval = () => {
 
       addDoc(collection(db, "evaluations"), newEval)
         .then((d) => {
-          tasks.forEach(t => addDoc(collection(d, 'tasks'), t));
+          tasks.forEach(t => addDoc(collection(d, 'tasks'), {...t, standard: t.standard?.id || ''}));
           addToast({header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded`})
         })
         .then(() =>
@@ -134,6 +146,109 @@ const NewStudentEval = () => {
       );
   });
 
+  const StandardDropdownToggle = React.forwardRef(({ style, className, onClick, value }, ref) => (
+    <Form.Control
+      ref={ref}
+      style={{...style, cursor: 'pointer'}}
+      className={className}
+      onClick={(e) => {
+        e.preventDefault();
+        onClick(e);
+      }}
+      onChange={(e) => console.log(e)}
+      value={value?.key || 'None'}
+      readOnly>
+    </Form.Control>
+  ))
+
+  const StandardDropdown = React.forwardRef(({ style, className, value, valueSetter }, ref) => {
+    const [search, setSearch] = useState('');
+
+    return (
+      <div
+        ref={ref}
+        style={style}
+        className={className}
+        onClick={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <Form.Control
+          className="mx-3 my-2 w-auto"
+          placeholder="Search"
+          onChange={(e) => setSearch(e.target.value)}
+          value={search}
+        />
+        <Form.Check
+          key={0}
+          type={'radio'}
+          checked={!value}
+          label={'None'}
+          className="mx-3 my-2 w-auto"
+          onChange={(e) => {
+            if (e.target.checked) {
+              valueSetter(null)
+            }
+          }} />
+        {standards.filter(s => {
+          return -(
+            s.key.toLowerCase().includes(search.toLowerCase()) ||
+            s.category.toLowerCase().includes(search.toLowerCase()) ||
+            s.sub_category.toLowerCase().includes(search.toLowerCase()) ||
+            s.description.toLowerCase().includes(search.toLowerCase())
+          )
+        })
+        .sort((a,b) => {
+          return (
+            a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
+            a.key.split('.')[2] - b.key.split('.')[2] ||
+            a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
+            a.key.localeCompare(b.key)
+        )})
+        .map((standard, i) => {
+          return (
+            <OverlayTrigger
+              placement="right"
+              key={standard.id}
+              overlay={
+                <Popover className="">
+                  <Popover.Header>
+                    {standard.key} <br />
+                    {`${grades[standard.grade]} ${standard.category}: ${standard.sub_category}`}
+                  </Popover.Header>
+                  <Popover.Body>
+                    <div className="text-decoration-underline">Description</div>
+                    {standard.description}
+                  </Popover.Body>
+                </Popover>
+              }>
+              <div key={standard.id}>
+                <Form.Check
+                  type={'radio'}
+                  checked={value.id === standard.id}
+                  label={standard.key}
+                  className="mx-3 my-2 w-auto"
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      valueSetter(standard)
+                    }
+                  }} />
+              </div>
+            </OverlayTrigger>
+          )
+        })}
+        <div className="d-flex flex-column">
+          <div className="px-3 fs-6 fst-italic text-end">
+            Can't find what you're looking for?
+          </div>
+          <Button className="align-self-end" variant='link' onClick={() => navigate(`/standard/new/${studentRef.current.id}`)}>
+            Track new standards
+          </Button>
+        </div>
+      </div>
+    );
+  })
+
   const tasksList = tasks.map((task, idx) => {
     return (
       <tr className="my-3" key={idx}>
@@ -146,14 +261,24 @@ const NewStudentEval = () => {
             }))} required />
         </td>
         <td>
-          <select id="standard" className="form-control"
+          {/* <select id="standard" className="form-control"
             value={task.standard} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
               else return {...t, standard: e.target.value};
             }))}>
               <option value=''>None</option>
               {standardOptions}
-            </select>
+            </select> */}
+          <InputGroup>
+              <Dropdown>
+                <Dropdown.Toggle as={StandardDropdownToggle} value={task.standard} />
+                <Dropdown.Menu as={StandardDropdown} value={task.standard}
+                  valueSetter={s => setTasks(tasks.map((t, i) => {
+                    if (i !== idx) return t;
+                    else return {...t, standard: s || ''};
+                  }))} />
+              </Dropdown>
+            </InputGroup>
         </td>
         <td>
           <input id="progression" className="form-control" type="number" min="1" max="5" step="1"

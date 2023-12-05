@@ -4,28 +4,11 @@ import { auth, db } from "../Services/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth"
 import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
 
-import { AbilityBuilder } from "@casl/ability";
-import { AbilityContext } from "../Services/can";
-import { useAbility } from "@casl/react";
-
 const Login = ( { setUserProfile }) => {
   
   const provider = new GoogleAuthProvider();
   
   const navigate = useNavigate();
-  
-  
-  const { can, rules } = new AbilityBuilder(AbilityContext);
-  
-  const ability = useAbility(AbilityContext);
-  
-  function updateAbility(user) {
-    if (user.clearance === 'admin') {
-      can('manage', 'all');
-    }
-    
-    ability.update(rules);
-  }
 
   const handleSignIn = () => {
     signInWithPopup(auth, provider)
@@ -41,8 +24,7 @@ const Login = ( { setUserProfile }) => {
                 signOut(auth);
                 return;
               }
-  
-              updateAbility(userDoc);
+
               setUserProfile(userDoc);
               navigate(`/tutor/${userDoc.id}`);
             } else {
@@ -64,7 +46,6 @@ const Login = ( { setUserProfile }) => {
                     setDoc(doc(db, 'tutors', user.uid), attemptedLoginUser)
                   }
       
-                  updateAbility(attemptedLoginUser);
                   setUserProfile(attemptedLoginUser);
                   navigate(`/tutor/${attemptedLoginUser.id}`);
                 }
