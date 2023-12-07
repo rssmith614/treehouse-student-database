@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, onSnapshot, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, onSnapshot, query, updateDoc, where } from "firebase/firestore";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { db, storage } from "../../Services/firebase";
@@ -125,14 +125,35 @@ const AssessmentEdit = () => {
     document.getElementById('save-q-changes').setAttribute('disabled', true);
     document.getElementById('save-q-changes').innerHTML = "Save Changes <span class='spinner-border spinner-border-sm' />";
 
-    let newQuestions = Object.assign({}, ...questions.map(q => ({ [q.num]: { question: q.question, sample_answer: q.sample_answer, standard: q.standard } })))
+    let ok = true;
 
-    await updateDoc(doc(db, 'assessments', params.assessmentid), { 'questions': newQuestions })
+    await questions.reduce(async (a, q) => {
+      await a;
+      if (q.standard !== '') {
+        let res = await getDocs(query(collection(db, 'standards'), where('key', '==', q.standard)))
+        
+        if (res.docs.length === 0) {
+          window.alert(`Error: Standard '${q.standard}' on question ${q.num} doesn't exist`);
+          ok = false;
+          console.log(ok)
+          return;
+        }
+      }
+    }, Promise.resolve());
 
+    console.log(ok)
+
+    if (ok) {
+      let newQuestions = Object.assign({}, ...questions.map(q => ({ [q.num]: { question: q.question, sample_answer: q.sample_answer, standard: q.standard } })))
+
+      await updateDoc(doc(db, 'assessments', params.assessmentid), { 'questions': newQuestions })
+
+      
+      addToast({ header: "Answer Key Updated", message: `Questions, Answers, and Standards for ${assessment.grade} ${assessment.category} assessment have been updated` })
+    }
+    
     document.getElementById('save-q-changes').removeAttribute('disabled');
     document.getElementById('save-q-changes').innerHTML = "Save Changes";
-
-    addToast({ header: "Questions Updated", message: `Questions, Answers, and Standards for ${assessment.grade} ${assessment.category} assessment have been updated` })
   }
 
   return (
