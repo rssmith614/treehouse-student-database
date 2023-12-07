@@ -38,6 +38,8 @@ import EvalQuery from './Pages/Eval/EvalQuery';
 import StandardsList from './Pages/Standards/StandardsList';
 import TrackStandard from './Pages/Standards/TrackStandard';
 import { Toast, ToastBody, ToastHeader } from 'react-bootstrap';
+import AssessmentsList from './Pages/Assessments/AssessmentsList';
+import AssessmentEdit from './Pages/Assessments/AssessmentEdit';
 
 function App() {
 
@@ -134,6 +136,9 @@ function App() {
 
             <Route path="/standards" element={<StandardsList />} />
             <Route path="/standard/new/:studentid" element={<TrackStandard />} />
+
+            <Route path='/assessments' element={<AssessmentsList />} />
+            <Route path='/assessments/edit/:assessmentid' element={<AssessmentEdit />} />
           </Routes>
         </Router>
         <DocSubmissionToast toasts={toastElements} />

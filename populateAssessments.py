@@ -27,11 +27,11 @@ for grade in grades:
             'category': category,
             'file': '',
             'questions': {
-                str(x): {
+                '1': {
                     'question': '',
                     'sample_answer': '',
                     'standard': '',
-                } for x in range(10)
+                }
             }
         }
         assessments_ref.add(new_assessment)
