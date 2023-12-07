@@ -3,7 +3,7 @@ import { auth } from "../Services/firebase";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Can } from "../Services/can";
 import { useEffect, useState } from "react";
-import { Container, Dropdown, Navbar as BsNavbar, Nav, NavDropdown } from "react-bootstrap";
+import { Container, Navbar as BsNavbar, Nav, NavDropdown } from "react-bootstrap";
 
 
 const Navbar = ({ userProfile }) => {
@@ -47,6 +47,11 @@ const Navbar = ({ userProfile }) => {
 
             <Nav.Link
               onClick={() => navigate('/standards')} style={{ cursor: "pointer" }}>Standards</Nav.Link>
+
+            <Can I='manage' on="assessments">
+              <Nav.Link
+                onClick={() => navigate('/assessments')} style={{ cursor: "pointer" }}>Assessments</Nav.Link>
+            </Can>
 
             <NavDropdown title="Options">
               <NavDropdown.Item onClick={() => navigate(`/tutor/${userProfile.id}`)}>View Tutor Profile</NavDropdown.Item>
