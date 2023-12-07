@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, onSnapshot, updateDoc } from "firebase/firestore";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { db, storage } from "../../Services/firebase";
@@ -47,6 +47,13 @@ const AssessmentEdit = () => {
         getDownloadURL(assessmentFileRef.current)
           .then(url => setAssessmentFile(url));
       })
+
+    onSnapshot(doc(db, 'assessments', params.assessmentid), res => {
+      setAssessment(res.data());
+      setQuestions(Object.keys(res.data().questions).map(key => {
+        return { ...res.data().questions[key], num: key }
+      }));
+    })
 
   }, [params.assessmentid])
 
@@ -97,14 +104,14 @@ const AssessmentEdit = () => {
       let amtFileRef = ref(storage, `/assessments/${assessment.grade}/${assessment.category}/${amtFile.name}`);
 
       let numOfQuestions = parseInt(document.getElementById('q-num').value);
-      let newQuestions = Object.assign({}, ...[...Array(numOfQuestions).keys()].map(x => ({[x+1]: {"question": "", "sample_answer": "", "standard": ""}})))
+      let newQuestions = Object.assign({}, ...[...Array(numOfQuestions).keys()].map(x => ({ [x + 1]: { "question": "", "sample_answer": "", "standard": "" } })))
 
       console.log(numOfQuestions, newQuestions)
 
       await updateDoc(doc(db, 'assessments', params.assessmentid), { 'questions': newQuestions, 'file': amtFileRef.fullPath });
       await uploadBytes(amtFileRef, amtFile);
 
-      addToast({"header": "Assessment File Updated", "message": `${grades[assessment.grade]} ${assessment.category} Assessment's file has been updated, and answer key has been reset. (Refresh to see)`});
+      addToast({ "header": "Assessment File Updated", "message": `${grades[assessment.grade]} ${assessment.category} Assessment's file has been updated, and answer key has been reset.` });
       setShow(false);
     }
 
@@ -118,7 +125,7 @@ const AssessmentEdit = () => {
     document.getElementById('save-q-changes').setAttribute('disabled', true);
     document.getElementById('save-q-changes').innerHTML = "Save Changes <span class='spinner-border spinner-border-sm' />";
 
-    let newQuestions = Object.assign({}, ...questions.map(q => ({[q.num]: {question: q.question, sample_answer: q.sample_answer, standard: q.standard}})))
+    let newQuestions = Object.assign({}, ...questions.map(q => ({ [q.num]: { question: q.question, sample_answer: q.sample_answer, standard: q.standard } })))
 
     await updateDoc(doc(db, 'assessments', params.assessmentid), { 'questions': newQuestions })
 
@@ -172,7 +179,7 @@ const AssessmentEdit = () => {
           </div>
         </div>
         <hr />
-        <div className="h5">Questions, Answers, and Standards</div>
+        <div className="h5">Answer Key and Standards</div>
         <Table>
           <thead>
             <tr>
@@ -238,8 +245,8 @@ const AssessmentEdit = () => {
           </div>
           <div id="csv-upload" className="d-flex flex-column pt-5 d-none">
             {/* <div className="d-flex flex-row justify-content-between"> */}
-              <div className="h6">Upload .csv file with Questions, Answers, and Standards</div>
-              <input type="file" className="form-control" />
+            <div className="h6">Upload .csv file with Questions, Answers, and Standards</div>
+            <input type="file" className="form-control" />
             {/* </div> */}
             <div className="d-flex flex-row pt-3">
               <Button id="submit-csv" className="ms-auto" onClick={handleAnswerKeySubmit}>Submit</Button>
