@@ -20,23 +20,30 @@ assessments_ref = db.collection('assessments')
 grades = ['K', '1', '2', '3', '4', '5', '6', '7', '8']
 categories = ['Reading', 'Math']
 
-# for grade in grades:
-#     for category in categories:
-#         new_assessment = {
-#             'grade': grade,
-#             'category': category,
-#             'file': '',
-#         }
-#         _, new_ref = assessments_ref.add(new_assessment)
-
-assessments = assessments_ref.stream()
-
-for a in assessments:
-    for i in range(10):
-        q = {
-            'num': i+1,
-            'question': '',
-            'sample_answer': '',
-            'standard': '',
+for grade in grades:
+    for category in categories:
+        new_assessment = {
+            'grade': grade,
+            'category': category,
+            'file': '',
+            'questions': {
+                str(x): {
+                    'question': '',
+                    'sample_answer': '',
+                    'standard': '',
+                } for x in range(10)
+            }
         }
-        db.collection('assessments').document(a.id).collection('questions').add(q)
+        assessments_ref.add(new_assessment)
+
+# assessments = assessments_ref.stream()
+
+# for a in assessments:
+#     for i in range(10):
+#         q = {
+#             'num': i+1,
+#             'question': '',
+#             'sample_answer': '',
+#             'standard': '',
+#         }
+#         db.collection('assessments').document(a.id).collection('questions').add(q)
