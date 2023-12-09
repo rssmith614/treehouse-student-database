@@ -13,6 +13,7 @@ import { ToastContext } from "../../Services/toast";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime"
+import AssessmentsOfStudent from "../../Components/AssessmentsOfStudent";
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
@@ -41,7 +42,9 @@ const StudentProfile = () => {
         setStudent(res.data());
       }).then(setLoading(false))
 
-    onSnapshot(studentRef.current, s => setStudent(s.data()));
+    const unsubscribe = onSnapshot(studentRef.current, s => setStudent(s.data()));
+
+    return () => unsubscribe();
 
   }, [params.studentid])
 
@@ -183,7 +186,7 @@ const StudentProfile = () => {
         </div>
         <Can do="manage" on="students">
           <div className="d-flex justify-content-end">
-            <button className="btn btn-info m-3" onClick={() => navigate(`/student/edit/${studentRef.current.id}`)}>Make Changes</button>
+            <button className="btn btn-info m-3" onClick={() => navigate(`/students/edit/${studentRef.current.id}`)}>Make Changes</button>
           </div>
         </Can>
       </Tab.Pane>
@@ -200,7 +203,10 @@ const StudentProfile = () => {
         </div>
       </Tab.Pane>
       <Tab.Pane eventKey="assessments">
-        <div className="card-title">Assessments</div>
+        <AssessmentsOfStudent student={studentRef.current} setSelectedAssessment={() => {}} />
+        <div className="d-flex justify-content-end">
+          <button className="btn btn-primary m-3" onClick={() => navigate(`/assessments/new/${studentRef.current.id}`)}>Issue New Assessment</button>
+        </div>
       </Tab.Pane>
     </Tab.Content>
     </Tab.Container>
@@ -245,7 +251,7 @@ const StudentProfile = () => {
       </Offcanvas>
         {/* <div className="d-flex justify-content-end">
           <Can do="manage" on="students">
-            <button className="btn btn-info m-3" onClick={() => navigate(`/student/edit/${studentRef.current.id}`)}>Make Changes</button>
+            <button className="btn btn-info m-3" onClick={() => navigate(`/students/edit/${studentRef.current.id}`)}>Make Changes</button>
           </Can>
           <button className="btn btn-primary m-3" onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}>New Session Eval</button>
         </div> */}

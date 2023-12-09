@@ -35,7 +35,7 @@ const StudentProfilesList = () => {
   }, [])
 
   function selectStudent(id) {
-    navigate(`/student/${id}`)
+    navigate(`/students/${id}`)
   }
 
   function studentList() {

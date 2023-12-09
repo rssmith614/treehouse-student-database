@@ -122,7 +122,7 @@ const StudentEval = () => {
           <div className="d-flex flex-fill card p-3 m-3 bg-light-subtle">
           <a className="h3 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
             data-toggle="tooltip" title={"View " + evaluation.student_name + "'s Profile"}
-            style={{ cursor: "pointer" }} onClick={() => navigate(`/student/${evaluation.student_id}`)}>{evaluation.student_name}</a>
+            style={{ cursor: "pointer" }} onClick={() => navigate(`/students/${evaluation.student_id}`)}>{evaluation.student_name}</a>
           <div className="row my-3">
             <div className="col">
               <label className="form-label h5">Tutor</label><br />

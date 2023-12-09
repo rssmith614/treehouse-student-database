@@ -67,7 +67,7 @@ const StudentProfileEdit = () => {
     
     updateDoc(studentRef.current, newStudent)
       .then(() => addToast({header: 'Changes Saved', message: `Student ${student.student_name}'s profile has been updated`}))
-      .then(() => navigate(`/student/${studentRef.current.id}`));
+      .then(() => navigate(`/students/${studentRef.current.id}`));
   }
   
   // function backAction() {
@@ -75,7 +75,7 @@ const StudentProfileEdit = () => {
   //     return;
   //   }
 
-  //   navigate(`/student/${studentRef.current.id}`);
+  //   navigate(`/students/${studentRef.current.id}`);
   // }
 
   function tutorOptions() {
