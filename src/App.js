@@ -41,6 +41,7 @@ import { Toast, ToastBody, ToastHeader } from 'react-bootstrap';
 import AssessmentsList from './Pages/Assessments/AssessmentsList';
 import AssessmentEdit from './Pages/Assessments/AssessmentEdit';
 import NewStudentAssessment from './Pages/Assessments/NewStudentAssessment';
+import StudentAssessment from './Pages/Assessments/StudentAssessment';
 
 function App() {
 
@@ -143,6 +144,7 @@ function App() {
             <Route path='/assessments' element={<AssessmentsList />} />
             <Route path='/assessments/edit/:assessmentid' element={<AssessmentEdit />} />
             <Route path='/assessments/new/:studentid' element={<NewStudentAssessment />} />
+            <Route path='/assessments/:assessmentid' element={<StudentAssessment />} />
           </Routes>
         </Router>
         <DocSubmissionToast toasts={toastElements} />

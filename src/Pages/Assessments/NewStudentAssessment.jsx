@@ -30,6 +30,8 @@ const NewStudentAssessment = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedAssessment, setSelectedAssessment] = useState({});
 
+  const [fileURL, setFileURL] = useState('');
+
   const params = useParams();
 
   const navigate = useNavigate();
@@ -69,13 +71,18 @@ const NewStudentAssessment = () => {
     if (selectedGrade === '' || selectedCategory === '') return;
     let newAssessment = assessments[selectedGrade].find((amt) => amt.category === selectedCategory);
 
+    if (newAssessment.questions !== undefined) {
+      newAssessment.questions = Object.entries(newAssessment.questions).reduce((newq, q) => { return {...newq, [q[0]]: {...q[1], score: 0, student_answer: ''}} }, {});
+    }
+
     if (!newAssessment) return setSelectedCategory('');
 
     if (newAssessment?.file === '' || !newAssessment?.file) return setSelectedAssessment(newAssessment);
 
     getDownloadURL(ref(storage, newAssessment?.file))
       .then((url) => {
-        setSelectedAssessment({ ...newAssessment, file: url });
+        setSelectedAssessment(newAssessment);
+        setFileURL(url);
       })
 
   }, [selectedGrade, selectedCategory, assessments])
@@ -92,6 +99,7 @@ const NewStudentAssessment = () => {
           addDoc(collection(db, 'student_assessments'),
             {...selectedAssessment,
               student_id: student.id,
+              student_name: student.student_name,
               issued_by: selectedTutor,
               issued_by_name: tutors.find((t) => t.id === selectedTutor).displayName,
               date: document.getElementById('date').value,
@@ -103,6 +111,7 @@ const NewStudentAssessment = () => {
       addDoc(collection(db, 'student_assessments'),
         {...selectedAssessment,
           student_id: student.id,
+          student_name: student.student_name,
           issued_by: selectedTutor,
           issued_by_name: tutors.find((t) => t.id === selectedTutor).displayName,
           date: document.getElementById('date').value,
@@ -137,12 +146,18 @@ const NewStudentAssessment = () => {
     if (selectedGrade === '' || selectedCategory === '' || !selectedAssessment?.questions) return;
 
     let questionsWithScores = Object.entries(selectedAssessment.questions).map((q) => ({...q[1], num: q[0], score: q[1].score || 0}));
-    
+
     let questionList = questionsWithScores.map((q) => (
       <tr key={q.num}>
         <td>{q.num}</td>
         <td>{q.question}</td>
         <td>{q.sample_answer}</td>
+        <td>
+          <Form.Control as='textarea' rows={3} value={q.student_answer || ''}
+            onChange={(e) => setSelectedAssessment({...selectedAssessment, questions: questionsWithScores.reduce((newq, a) => {
+              return {...newq, [a.num]: {...a, student_answer: a.num === q.num ? e.target.value : a.student_answer}}
+            }, {})})}/>
+        </td>
         <td>
           <Form.Control type='number' value={q.score} min={0} max={5}
             onChange={(e) => setSelectedAssessment({...selectedAssessment, questions: questionsWithScores.reduce((newq, a) => {
@@ -151,6 +166,7 @@ const NewStudentAssessment = () => {
         </td>
       </tr>
     ));
+
     return questionList;
   }
 
@@ -198,7 +214,7 @@ const NewStudentAssessment = () => {
                 {selectedAssessment?.file !== '' && selectedAssessment?.file !== undefined ?
                   <Row>
                     <Col className='d-flex flex-column justify-content-center'>
-                      <Button href={selectedAssessment?.file} className='' target='_blank' rel='noreferrer'>Download Blank Assessment</Button>
+                      <Button href={fileURL} className='' target='_blank' rel='noreferrer'>Download Blank Assessment</Button>
                     </Col>
                     <Col>
                       <Form.Label className='h5'>Upload Completed Assessment</Form.Label>
@@ -215,6 +231,7 @@ const NewStudentAssessment = () => {
                       <th>#</th>
                       <th>Question</th>
                       <th>Sample Answer</th>
+                      <th>Student's Answer</th>
                       <th>Score</th>
                     </tr>
                   </thead>

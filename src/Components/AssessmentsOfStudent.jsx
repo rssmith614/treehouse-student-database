@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../Services/firebase';
 import { Table } from 'react-bootstrap';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 
 
 const grades = {
@@ -19,6 +20,8 @@ const grades = {
 function AssessmentsOfStudent({ student, setSelectedAssessment }) {
   const [assessments, setAssessments] = useState([]);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const unsubscribe = onSnapshot(
       query(
@@ -27,8 +30,8 @@ function AssessmentsOfStudent({ student, setSelectedAssessment }) {
       ),
       (snapshot) => {
         const newAssessments = snapshot.docs.map((doc) => ({
+          ...doc.data(),
           id: doc.id,
-          ...doc.data()
         }));
 
         setAssessments(newAssessments);
@@ -38,7 +41,7 @@ function AssessmentsOfStudent({ student, setSelectedAssessment }) {
   }, [student]);
 
   return (
-    <Table>
+    <Table striped hover>
       <thead>
         <tr>
           <th>Date</th>
@@ -48,7 +51,7 @@ function AssessmentsOfStudent({ student, setSelectedAssessment }) {
       </thead>
       <tbody>
         {assessments.map((assessment) => (
-          <tr key={assessment.id} style={{ cursor: "pointer" }} onClick={() => {setSelectedAssessment(assessment)}}>
+          <tr key={assessment.id} style={{ cursor: "pointer" }} onClick={() => {navigate(`/assessments/${assessment.id}`)}}>
             <td>{assessment.date}</td>
             <td>{grades[assessment.grade]} {assessment.category}</td>
             <td>{assessment.issued_by_name}</td>
