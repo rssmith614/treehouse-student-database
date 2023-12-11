@@ -3,6 +3,7 @@ import { db } from '../Services/firebase';
 import { Table } from 'react-bootstrap';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 
 const grades = {
@@ -52,7 +53,7 @@ function AssessmentsOfStudent({ student, setSelectedAssessment }) {
       <tbody>
         {assessments.map((assessment) => (
           <tr key={assessment.id} style={{ cursor: "pointer" }} onClick={() => {navigate(`/assessments/${assessment.id}`)}}>
-            <td>{assessment.date}</td>
+            <td>{dayjs(assessment.date).format('MMMM DD, YYYY')}</td>
             <td>{grades[assessment.grade]} {assessment.category}</td>
             <td>{assessment.issued_by_name}</td>
           </tr>
