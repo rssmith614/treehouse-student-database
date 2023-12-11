@@ -42,6 +42,7 @@ import AssessmentsList from './Pages/Assessments/AssessmentsList';
 import AssessmentEdit from './Pages/Assessments/AssessmentEdit';
 import NewStudentAssessment from './Pages/Assessments/NewStudentAssessment';
 import StudentAssessment from './Pages/Assessments/StudentAssessment';
+import StudentAssessmentEdit from './Pages/Assessments/StudentAssessmentEdit';
 
 function App() {
 
@@ -145,6 +146,7 @@ function App() {
             <Route path='/assessments/edit/:assessmentid' element={<AssessmentEdit />} />
             <Route path='/assessments/new/:studentid' element={<NewStudentAssessment />} />
             <Route path='/assessments/:assessmentid' element={<StudentAssessment />} />
+            <Route path='/assessments/student/edit/:assessmentid' element={<StudentAssessmentEdit />} />
           </Routes>
         </Router>
         <DocSubmissionToast toasts={toastElements} />

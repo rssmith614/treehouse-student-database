@@ -35,7 +35,7 @@ const StudentAssessment = () => {
       (snapshot) => {
         setAssessment({
           ...snapshot.data(),
-          id: snapshot.assessmentid,
+          id: snapshot.id,
         });
         if (snapshot.data().file !== '') {
           getDownloadURL(ref(storage, snapshot.data().file))
@@ -70,6 +70,18 @@ const StudentAssessment = () => {
     })
     return list;
   }
+
+  class Assessment {
+    constructor(dict) {
+      for (const key in dict) {
+        if (dict.hasOwnProperty(key)) {
+          this[key] = dict[key];
+        }
+      }
+    }
+  }
+
+  let amtInstance = new Assessment(assessment);
 
   return (
     <div className='p-3 d-flex flex-column'>
@@ -132,6 +144,9 @@ const StudentAssessment = () => {
           </Table>
         </Row>
       </div>
+      <Can I="edit" this={amtInstance}>
+        <Button variant="info" className="m-3 ms-auto" onClick={() => navigate(`/assessments/student/edit/${assessment.id}`)}>Make Changes</Button>
+      </Can>
     </div>
   )
 }

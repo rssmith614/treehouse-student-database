@@ -16,7 +16,8 @@ export default function defineAbilityFor(user) {
   }
 
   else if (tutorClearance === "tutor") {
-    can('edit', 'Eval', { owner: user.id })
+    can('edit', 'Eval', { owner: user.id });
+    can('edit', 'Assessment', { issued_by: user.id });
   }
 
   return build();
