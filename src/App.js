@@ -27,7 +27,7 @@ import defineAbilityFor from "./Services/defineAbility";
 import { getDoc, doc } from 'firebase/firestore';
 
 import { auth, db } from './Services/firebase';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import StudentEval from './Pages/Eval/StudentEval';
 import StudentEvalEdit from './Pages/Eval/StudentEvalEdit';
 import NewEval from './Pages/Eval/NewEval';
@@ -40,6 +40,9 @@ import TrackStandard from './Pages/Standards/TrackStandard';
 import { Toast, ToastBody, ToastHeader } from 'react-bootstrap';
 import AssessmentsList from './Pages/Assessments/AssessmentsList';
 import AssessmentEdit from './Pages/Assessments/AssessmentEdit';
+import NewStudentAssessment from './Pages/Assessments/NewStudentAssessment';
+import StudentAssessment from './Pages/Assessments/StudentAssessment';
+import StudentAssessmentEdit from './Pages/Assessments/StudentAssessmentEdit';
 
 function App() {
 
@@ -68,19 +71,21 @@ function App() {
   // USER / ABILITY MANAGEMENT
   const [userProfile, setUserProfile] = useState(null);
 
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      if (!userProfile) {
-        getDoc(doc(db, 'tutors', user.uid))
-          .then(userDoc => {
-            if (userDoc.exists()) {
-              setUserProfile(userDoc);
-            }
-          })
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        if (!userProfile) {
+          getDoc(doc(db, 'tutors', user.uid))
+            .then(userDoc => {
+              if (userDoc.exists()) {
+                setUserProfile(userDoc);
+              }
+            })
+        }
+      } else {
       }
-    } else {
-    }
-  })
+    })
+  }, [userProfile])
 
   const [toasts, setToasts] = useState([]);
   const [shownToasts, setShownToasts] = useState([]);
@@ -126,7 +131,7 @@ function App() {
 
             <Route path="/newstudent" element={<NewStudentPage />} />
             <Route path="/students" element={<StudentProfilesList />} />
-            <Route path="/student/:studentid" element={<StudentProfile />} />
+            <Route path="/students/:studentid" element={<StudentProfile />} />
             <Route path="student/edit/:studentid" element={<StudentProfileEdit />} />
 
             <Route path="/newtutor" element={<NewTutorPage />} />
@@ -139,6 +144,9 @@ function App() {
 
             <Route path='/assessments' element={<AssessmentsList />} />
             <Route path='/assessments/edit/:assessmentid' element={<AssessmentEdit />} />
+            <Route path='/assessments/new/:studentid' element={<NewStudentAssessment />} />
+            <Route path='/assessments/:assessmentid' element={<StudentAssessment />} />
+            <Route path='/assessments/student/edit/:assessmentid' element={<StudentAssessmentEdit />} />
           </Routes>
         </Router>
         <DocSubmissionToast toasts={toastElements} />
