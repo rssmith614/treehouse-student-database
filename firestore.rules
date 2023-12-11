@@ -11,11 +11,17 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/tutors/$(uid)).data.clearance == 'tutor';
     }
 
+    function resourceOwnedByUser(resourceOwner, uid) {
+      return resourceOwner == uid;
+    }
+
     match /tutors/{document} {
       allow update:
-        if request.auth != null && isAdmin(request.auth.uid) && request.resource.id != request.auth.uid;
+        if request.auth != null && isAdmin(request.auth.uid) && !resourceOwnedByUser(resource.id, request.auth.uid);
       allow read, create:
         if request.auth != null && isAdmin(request.auth.uid);
+      allow get:
+      	if request.auth != null && isTutor(request.auth.uid);
     }
 
     match /students/{document} {
@@ -33,7 +39,7 @@ service cloud.firestore {
       
       allow read, create: if request.auth != null && isTutor(request.auth.uid);
       allow update:
-        if request.auth != null && isTutor(request.auth.uid) && request.resource.data.owner == request.auth.uid;
+        if request.auth != null && isTutor(request.auth.uid) && resourceOwnedByUser(resource.data.owner, request.auth.uid);
     
       match /tasks/{task} {
         allow read, write: if request.auth != null && isAdmin(request.auth.uid);
@@ -44,9 +50,21 @@ service cloud.firestore {
       }
     }
 
-    match /standards/{document} {
-      allow read: if request.auth != null
+    match /standards/{standard} {
+      allow read: if request.auth != null;
       allow update: if request.auth != null && isAdmin(request.auth.uid);
+    }
+    
+    match /assessments/{assessment} {
+      allow read, write: if request.auth != null && isAdmin(request.auth.uid);
+      allow read: if request.auth != null && isTutor(request.auth.uid);
+    }
+    
+    match /student_assessments/{assessment} {
+      allow update, delete:
+        if request.auth != null && isTutor(request.auth.uid) && resourceOwnedByUser(resource.data.issued_by, request.auth.uid);
+      allow read, create: if request.auth != null && isTutor(request.auth.uid);
+    	allow read, write: if request.auth != null && isAdmin(request.auth.uid);
     }
 
   }
