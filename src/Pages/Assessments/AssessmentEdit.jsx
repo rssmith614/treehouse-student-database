@@ -1,6 +1,6 @@
 import { collection, doc, getDoc, getDocs, onSnapshot, query, updateDoc, where } from "firebase/firestore";
 import { useContext, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { db, storage } from "../../Services/firebase";
 import { Button, Card, Offcanvas, Table } from "react-bootstrap";
 import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
@@ -31,15 +31,30 @@ const AssessmentEdit = () => {
 
   const addToast = useContext(ToastContext);
 
+  const navigate = useNavigate();
+
   const params = useParams();
 
   useEffect(() => {
     getDoc(doc(db, 'assessments', params.assessmentid))
-      .then(res => {
+      .then(async res => {
         setAssessment(res.data());
-        setQuestions(Object.keys(res.data().questions).map(key => {
-          return { ...res.data().questions[key], num: key }
-        }));
+        setQuestions(
+          await Promise.all(
+            Object.keys(res.data().questions).map(async (key) => {
+              if (res.data().questions[key].standard !== '') {
+                const standard = await getDoc(doc(db, 'standards', res.data().questions[key].standard));
+                return {
+                  ...res.data().questions[key],
+                  num: key,
+                  standard: standard.data().key,
+                };
+              } else {
+                return { ...res.data().questions[key], num: key };
+              }
+            })
+          )
+        );
 
         if (res.data().file === '' || !res.data().file) return;
 
@@ -48,12 +63,25 @@ const AssessmentEdit = () => {
           .then(url => setAssessmentFile(url));
       })
 
-    onSnapshot(doc(db, 'assessments', params.assessmentid), res => {
+    onSnapshot(doc(db, 'assessments', params.assessmentid), async (res) => {
       setAssessment(res.data());
-      setQuestions(Object.keys(res.data().questions).map(key => {
-        return { ...res.data().questions[key], num: key }
-      }));
-    })
+      setQuestions(
+        await Promise.all(
+          Object.keys(res.data().questions).map(async (key) => {
+            if (res.data().questions[key].standard !== '') {
+              const standard = await getDoc(doc(db, 'standards', res.data().questions[key].standard));
+              return {
+                ...res.data().questions[key],
+                num: key,
+                standard: standard.data().key,
+              };
+            } else {
+              return { ...res.data().questions[key], num: key };
+            }
+          })
+        )
+      );
+    });
 
   }, [params.assessmentid])
 
@@ -137,19 +165,20 @@ const AssessmentEdit = () => {
           ok = false;
           console.log(ok)
           return;
+        } else {
+          q.standard = res.docs[0].id;
         }
       }
     }, Promise.resolve());
-
-    console.log(ok)
 
     if (ok) {
       let newQuestions = Object.assign({}, ...questions.map(q => ({ [q.num]: { question: q.question, sample_answer: q.sample_answer, standard: q.standard } })))
 
       await updateDoc(doc(db, 'assessments', params.assessmentid), { 'questions': newQuestions })
 
+      navigate(`/assessments`)
       
-      addToast({ header: "Answer Key Updated", message: `Questions, Answers, and Standards for ${assessment.grade} ${assessment.category} assessment have been updated` })
+      addToast({ header: "Answer Key Updated", message: `Questions, Answers, and Standards for ${grades[assessment.grade]} ${assessment.category} assessment have been updated` })
     }
     
     document.getElementById('save-q-changes').removeAttribute('disabled');
@@ -239,7 +268,7 @@ const AssessmentEdit = () => {
             })}
           </tbody>
         </Table>
-        <Button id="save-q-changes" onClick={handleQuestionChanges}>Save Changes</Button>
+        <Button id="save-q-changes" className="ms-auto" onClick={handleQuestionChanges}>Save Changes</Button>
       </Card>
       <Offcanvas show={show} onHide={() => setShow(false)} placement="end">
         <Offcanvas.Header>
