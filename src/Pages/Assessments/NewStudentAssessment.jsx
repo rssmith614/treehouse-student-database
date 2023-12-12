@@ -120,7 +120,7 @@ const NewStudentAssessment = () => {
         .then(() => navigate(`/students/${student.id}`))
     }
     
-    console.log(selectedAssessment);
+    // console.log(selectedAssessment);
   }
 
   function tutorOptions() {

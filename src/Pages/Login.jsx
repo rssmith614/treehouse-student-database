@@ -14,7 +14,7 @@ const Login = ( { setUserProfile }) => {
     signInWithPopup(auth, provider)
       .then(async (result) => {
         const user = result.user;
-        console.log(user);
+        // console.log(user);
 
         getDoc(doc(db, 'tutors', user.uid))
           .then(userDoc => {
@@ -54,7 +54,7 @@ const Login = ( { setUserProfile }) => {
           })
 
       }).catch((error) => {
-        console.log(error);
+        // console.log(error);
       });
   }
 

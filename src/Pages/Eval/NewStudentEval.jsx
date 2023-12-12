@@ -155,7 +155,7 @@ const NewStudentEval = () => {
         e.preventDefault();
         onClick(e);
       }}
-      onChange={(e) => console.log(e)}
+      // onChange={(e) => console.log(e)}
       value={value?.key || 'None'}
       readOnly>
     </Form.Control>

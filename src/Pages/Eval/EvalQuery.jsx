@@ -215,7 +215,7 @@ const EvalQuery = () => {
             })
         }))
           .then(compiledEvals => {
-            console.log(compiledEvals)
+            // console.log(compiledEvals)
             if (subjectMatching === 'like') {
               let evalSubject = document.getElementById('subject').value;
               setEvals(compiledEvals.filter(e => {

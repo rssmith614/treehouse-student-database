@@ -133,7 +133,7 @@ const AssessmentEdit = () => {
       let answerKeyText = await document.getElementById('answer-key').files[0].text();
 
       if (answerKeyText) {
-        console.log(CSVToArray(answerKeyText))
+        // console.log(CSVToArray(answerKeyText))
         let newQuestions = await Promise.all(CSVToArray(answerKeyText).slice(1).map(async item => {
           if (item[3] === '') return item;
           let res = await getDocs(query(collection(db, 'standards'), where('key', '==', item[3])));
@@ -165,7 +165,7 @@ const AssessmentEdit = () => {
       let numOfQuestions = parseInt(document.getElementById('q-num').value);
       let newQuestions = Object.assign({}, ...[...Array(numOfQuestions).keys()].map(x => ({ [x + 1]: { "question": "", "sample_answer": "", "standard": "" } })))
 
-      console.log(numOfQuestions, newQuestions)
+      // console.log(numOfQuestions, newQuestions)
 
       await updateDoc(doc(db, 'assessments', params.assessmentid), { 'questions': newQuestions, 'file': amtFileRef.fullPath });
       await uploadBytes(amtFileRef, amtFile);
@@ -194,7 +194,7 @@ const AssessmentEdit = () => {
         if (res.docs.length === 0) {
           window.alert(`Error: Standard '${q.standard}' on question ${q.num} doesn't exist`);
           ok = false;
-          console.log(ok)
+          // console.log(ok)
           return;
         } else {
           q.standard = res.docs[0].id;

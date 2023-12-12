@@ -1,8 +1,9 @@
 import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button, Card, Form, Table } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { db } from '../../Services/firebase';
+import { ToastContext } from '../../Services/toast';
 
 const grades = {
   'K': 'Kindergarten',
@@ -28,6 +29,8 @@ const StudentAssessmentEdit = () => {
   const params = useParams();
 
   const navigate = useNavigate();
+
+  const addToast = useContext(ToastContext);
 
   useEffect(() => {
 
@@ -59,6 +62,7 @@ const StudentAssessmentEdit = () => {
       date: e.target.date.value,
     }, { merge: true })
       .then(() => {
+        addToast({ header: "Student Assessment Updated", message: "The student assessment has been updated successfully"})
         navigate(`/assessments/${params.assessmentid}`);
       })
     
@@ -137,7 +141,7 @@ const StudentAssessmentEdit = () => {
                   <div className='h6 text-center'>No file for the selected assessment</div>
                 } */}
                 <div className='h3'>Questions</div>
-                <Table>
+                <Table striped>
                   <thead>
                     <tr>
                       <th>#</th>
