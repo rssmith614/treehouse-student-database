@@ -62,7 +62,7 @@ const StudentAssessment = () => {
         <tr key={num}>
           <td>{num}</td>
           <td>{question.question}</td>
-          <td>{question.correct_answer}</td>
+          <td>{question.sample_answer}</td>
           <td>{question.student_answer}</td>
           <td>{question.score}</td>
         </tr>
@@ -96,7 +96,7 @@ const StudentAssessment = () => {
             <Can I="view" on="Tutor">
               <a id="tutor" className="h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                 data-toggle="tooltip" title={"View " + assessment.issued_by_name + "'s Profile"}
-                style={{ cursor: "pointer" }} onClick={() => navigate(`/tutor/${assessment.tutor_id}`)}>{assessment.issued_by_name}</a>
+                style={{ cursor: "pointer" }} onClick={() => navigate(`/tutor/${assessment.issued_by}`)}>{assessment.issued_by_name}</a>
             </Can>
             <Can not I="view" on="Tutor">
               <div id="tutor" className="h6">{assessment.issued_by_name}</div>
@@ -118,7 +118,7 @@ const StudentAssessment = () => {
             <Col className='h6 text-center'>No file for the selected assessment</Col>
           }
           {assessment?.completed_file !== '' && assessment?.completed_file !== undefined ?
-            <Col>
+            <Col className='d-flex flex-column justify-content-center'>
               <Button href={completedFileURL} className='' target='_blank' rel='noreferrer'>Download Completed Assessment</Button>
             </Col>
             :

@@ -36,25 +36,6 @@ const AssessmentEdit = () => {
 
   const params = useParams();
 
-  // parser.on('readable', async () => {
-  //   let item;
-  //   while (item = parser.read()) {
-  //     let res = await getDocs(query(collection(db, 'standards'), where('key', '==', item[3])));
-  //     if (res.docs.length === 0) {
-  //       throw new Error(`Error: Standard '${item[3]}' on question ${item[0]} doesn't exist`);
-  //     } else {
-  //       item[3] = res.docs[0].id;
-  //     }
-  //     setAnswerKeyItems([...answerKeyItems, item]);
-  //   }
-  //   console.log(answerKeyItems)
-  // })
-
-  // parser.on('error', err => {
-  //   console.error(err.message);
-  //   setAnswerKeyItems([]);
-  // })
-
   useEffect(() => {
     getDoc(doc(db, 'assessments', params.assessmentid))
       .then(async res => {
