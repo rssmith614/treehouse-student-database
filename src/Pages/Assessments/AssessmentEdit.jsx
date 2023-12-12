@@ -5,6 +5,7 @@ import { db, storage } from "../../Services/firebase";
 import { Button, Card, Offcanvas, Table } from "react-bootstrap";
 import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 import { ToastContext } from "../../Services/toast";
+import CSVToArray from "../../Services/csv";
 
 
 const grades = {
@@ -34,6 +35,25 @@ const AssessmentEdit = () => {
   const navigate = useNavigate();
 
   const params = useParams();
+
+  // parser.on('readable', async () => {
+  //   let item;
+  //   while (item = parser.read()) {
+  //     let res = await getDocs(query(collection(db, 'standards'), where('key', '==', item[3])));
+  //     if (res.docs.length === 0) {
+  //       throw new Error(`Error: Standard '${item[3]}' on question ${item[0]} doesn't exist`);
+  //     } else {
+  //       item[3] = res.docs[0].id;
+  //     }
+  //     setAnswerKeyItems([...answerKeyItems, item]);
+  //   }
+  //   console.log(answerKeyItems)
+  // })
+
+  // parser.on('error', err => {
+  //   console.error(err.message);
+  //   setAnswerKeyItems([]);
+  // })
 
   useEffect(() => {
     getDoc(doc(db, 'assessments', params.assessmentid))
@@ -126,7 +146,37 @@ const AssessmentEdit = () => {
     e.target.innerHTML = "Submit <span class='spinner-border spinner-border-sm' />";
 
     if (e.target.id === 'submit-csv') {
-      window.alert("TODO: .csv answer key processing")
+      let amtFile = document.getElementById('amt-file').files[0];
+      let amtFileRef = ref(storage, `/assessments/${assessment.grade}/${assessment.category}/${amtFile.name}`);
+
+      let answerKeyText = await document.getElementById('answer-key').files[0].text();
+
+      if (answerKeyText) {
+        console.log(CSVToArray(answerKeyText))
+        let newQuestions = await Promise.all(CSVToArray(answerKeyText).slice(1).map(async item => {
+          if (item[3] === '') return item;
+          let res = await getDocs(query(collection(db, 'standards'), where('key', '==', item[3])));
+          if (res.docs.length === 0) {
+            throw new Error(`Error: Standard '${item[3]}' on question ${item[0]} doesn't exist`);
+          } else {
+            item[3] = res.docs[0].id;
+          }
+          return item;
+        })).catch(err => {
+          window.alert(err.message);
+          return [];
+        });
+
+        await updateDoc(doc(db, 'assessments', params.assessmentid), { 'questions': Object.assign({}, ...newQuestions.map(q => ({ [q[0]]: { question: q[1], sample_answer: q[2], standard: q[3] } }))), 'file': amtFileRef.fullPath });
+        await uploadBytes(amtFileRef, amtFile);
+
+        addToast({ "header": "Assessment File Updated", "message": `${grades[assessment.grade]} ${assessment.category} Assessment's file has been updated, and answer key has been pre-populated.` });
+        setShow(false);
+      } else {
+        window.alert("Please select a file first");
+      }
+
+
     } else if (e.target.id === 'submit-q-num') {
       let amtFile = document.getElementById('amt-file').files[0];
       let amtFileRef = ref(storage, `/assessments/${assessment.grade}/${assessment.category}/${amtFile.name}`);
@@ -296,7 +346,7 @@ const AssessmentEdit = () => {
           <div id="csv-upload" className="d-flex flex-column pt-5 d-none">
             {/* <div className="d-flex flex-row justify-content-between"> */}
             <div className="h6">Upload .csv file with Questions, Answers, and Standards</div>
-            <input type="file" className="form-control" />
+            <input type="file" id="answer-key" className="form-control" accept="csv" />
             {/* </div> */}
             <div className="d-flex flex-row pt-3">
               <Button id="submit-csv" className="ms-auto" onClick={handleAnswerKeySubmit}>Submit</Button>
