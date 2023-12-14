@@ -5,6 +5,8 @@ import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth"
 import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
 
+const treehouseLogo = require('../images/TreeHouse-Tutoring-Logo-02.svg').default;
+
 const Login = ({ setUserProfile }) => {
 
   const provider = new GoogleAuthProvider();
@@ -62,9 +64,11 @@ const Login = ({ setUserProfile }) => {
   return (
     <div className="d-flex flex-column vh-100 justify-content-center p-3">
       <Card className="d-flex flex-row bg-light-subtle p-3">
-        <img src="images/TreeHouse-Tutoring-Logo-02.svg" alt="Treehouse Logo"
-          style={{ filter: "invert(69%) sepia(83%) saturate(739%) hue-rotate(359deg) brightness(104%) contrast(105%)",
-            height: 200 }} />
+        <img src={treehouseLogo} alt="Treehouse Logo"
+          style={{
+            filter: "invert(69%) sepia(83%) saturate(739%) hue-rotate(359deg) brightness(104%) contrast(105%)",
+            height: 200
+            }} />
         <div className="d-flex flex-column justify-content-evenly align-items-center">
           <div className="display-1">
             Treehouse Tutoring
@@ -73,7 +77,7 @@ const Login = ({ setUserProfile }) => {
             Student Database
           </div>
           <Button variant="primary" className="" onClick={handleSignIn}>
-            Sign In <i class="bi bi-google" />
+            Sign In <i className="bi bi-google" />
           </Button>
         </div>
       </Card>
