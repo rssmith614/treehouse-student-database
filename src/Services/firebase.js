@@ -6,7 +6,7 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 // import { connectAuthEmulator } from "firebase/auth";
 import { getStorage } from "firebase/storage";
-import { getFunctions } from "firebase/functions";
+// import { getFunctions } from "firebase/functions";
 // import { connectFunctionsEmulator } from "firebase/functions";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -30,7 +30,7 @@ const analytics = getAnalytics(app);
 const db = getFirestore(app);
 const auth = getAuth();
 const storage = getStorage(app);
-const functions = getFunctions(app);
+// const functions = getFunctions(app);
 
 // eslint-disable-next-line no-restricted-globals
 // if (location.hostname === 'localhost') {
