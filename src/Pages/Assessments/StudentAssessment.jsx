@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db, storage } from "../../Services/firebase";
 import { getDownloadURL, ref } from "firebase/storage";
+import { Assessment } from "../../Services/defineAbility";
 
 
 const grades = {
@@ -69,16 +70,6 @@ const StudentAssessment = () => {
       )
     })
     return list;
-  }
-
-  class Assessment {
-    constructor(dict) {
-      for (const key in dict) {
-        if (dict.hasOwnProperty(key)) {
-          this[key] = dict[key];
-        }
-      }
-    }
   }
 
   let amtInstance = new Assessment(assessment);

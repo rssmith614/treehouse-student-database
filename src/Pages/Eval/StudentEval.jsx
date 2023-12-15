@@ -6,6 +6,7 @@ import { db, storage } from "../../Services/firebase";
 import { Can } from "../../Services/can";
 import { getDownloadURL, ref } from "firebase/storage";
 import { OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
+import { Eval } from "../../Services/defineAbility";
 
 const StudentEval = () => {
 
@@ -104,16 +105,6 @@ const StudentEval = () => {
       </tr>
     )
   })
-
-  class Eval {
-    constructor(dict) {
-      for (const key in dict) {
-        if (dict.hasOwnProperty(key)) {
-          this[key] = dict[key];
-        }
-      }
-    }
-  }
 
   let evalInstance = new Eval(evaluation);
 

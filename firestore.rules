@@ -20,6 +20,7 @@ service cloud.firestore {
         if request.auth != null && isAdmin(request.auth.uid) && !resourceOwnedByUser(resource.id, request.auth.uid);
       allow read, delete:
         if request.auth != null && isAdmin(request.auth.uid);
+      allow read: if request.auth != null && isTutor(request.auth.uid);
       allow create, get:
       	if request.auth != null;
     }
