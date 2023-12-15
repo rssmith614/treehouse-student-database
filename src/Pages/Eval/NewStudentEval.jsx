@@ -276,7 +276,8 @@ const NewStudentEval = () => {
                   valueSetter={s => setTasks(tasks.map((t, i) => {
                     if (i !== idx) return t;
                     else return {...t, standard: s || ''};
-                  }))} />
+                  }))} 
+                  style={{ height: 350, overflow: 'scroll' }}/>
               </Dropdown>
             </InputGroup>
         </td>
