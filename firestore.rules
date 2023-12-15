@@ -18,9 +18,9 @@ service cloud.firestore {
     match /tutors/{document} {
       allow update:
         if request.auth != null && isAdmin(request.auth.uid) && !resourceOwnedByUser(resource.id, request.auth.uid);
-      // allow create:
-      //   if request.auth != null && isAdmin(request.auth.uid);
-      allow create, read, delete:
+      allow read, delete:
+        if request.auth != null && isAdmin(request.auth.uid);
+      allow create, get:
       	if request.auth != null;
     }
 

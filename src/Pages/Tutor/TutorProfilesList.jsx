@@ -4,7 +4,7 @@ import { db } from "../../Services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { Can } from "../../Services/can";
 import { useNavigate } from "react-router-dom";
-import { Dropdown, Form, InputGroup } from "react-bootstrap";
+import { Card, Dropdown, Form, InputGroup } from "react-bootstrap";
 
 const TutorProfilesList = () => {
   const [tutors, setTutors] = useState([]);
@@ -15,7 +15,7 @@ const TutorProfilesList = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() =>{
+  useEffect(() => {
     const tutorCollRef = collection(db, "tutors");
     const queryTutors = async () => {
       await getDocs(tutorCollRef).then((res) => setTutors(res.docs));
@@ -24,7 +24,7 @@ const TutorProfilesList = () => {
     queryTutors()
       .then(setLoading(false));
   }, [])
-  
+
   function selectTutor(tutor) {
     navigate(`/tutor/${tutor}`);
   }
@@ -39,13 +39,31 @@ const TutorProfilesList = () => {
 
   const tutorRows = () => {
     const tableData = tutors.filter((tutor) => {
-      return tutor.data().displayName?.toLowerCase().includes(nameFilter.toLowerCase());
+      return tutor.data().clearance !== 'pending' && tutor.data().displayName?.toLowerCase().includes(nameFilter.toLowerCase());
     })
 
     if (tableSort === 'name_asc')
-      tableData.sort((a,b) => { return a.data().displayName.localeCompare(b.data().displayName) });
+      tableData.sort((a, b) => { return a.data().displayName.localeCompare(b.data().displayName) });
     else if (tableSort === 'name_desc')
-      tableData.sort((a,b) => { return b.data().displayName.localeCompare(a.data().displayName) });
+      tableData.sort((a, b) => { return b.data().displayName.localeCompare(a.data().displayName) });
+
+    return tableData.map((tutor) => {
+      let tutorData = tutor.data();
+      return (
+        <tr className="p-3" key={tutor.id} onClick={() => selectTutor(tutor.id)}
+          style={{ cursor: "pointer" }}>
+          <td>{tutorData.displayName || "Not Activated"}</td>
+          <td>{tutorData.email}</td>
+          <td>{capitalize(tutorData.clearance) || 'None Assigned'}</td>
+        </tr>
+      )
+    })
+  }
+
+  const pendingTutorRows = () => {
+    const tableData = tutors.filter((tutor) => {
+      return tutor.data().clearance === 'pending';
+    })
 
     return tableData.map((tutor) => {
       let tutorData = tutor.data();
@@ -86,7 +104,7 @@ const TutorProfilesList = () => {
     }
   }
 
-  const DropdownTableHeaderToggle = React.forwardRef(({children, onClick}, ref) => (
+  const DropdownTableHeaderToggle = React.forwardRef(({ children, onClick }, ref) => (
     <div className="d-flex"
       ref={ref}
       onClick={(e) => {
@@ -95,7 +113,7 @@ const TutorProfilesList = () => {
       }}>
       {children}
     </div>
-  )) 
+  ))
 
   const ComboTableHeader = React.forwardRef(({ children, style, className, 'aria-labelledby': labeledBy, value, valueSetter }, ref) => (
     <div
@@ -137,6 +155,30 @@ const TutorProfilesList = () => {
     </table>
   );
 
+  const pendingTable = (
+    <Card className="d-flex pt-3 px-3 m-3 bg-light-subtle">
+      <table className="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th style={{ cursor: "pointer" }}>
+              <Dropdown drop='up' autoClose='outside'>
+                <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                  Student Name {filterIcon('name')}
+                </Dropdown.Toggle>
+                <Dropdown.Menu as={ComboTableHeader} value={nameFilter} valueSetter={setNameFilter} />
+              </Dropdown>
+            </th>
+            <th>Email</th>
+            <th>Clearance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pendingTutorRows()}
+        </tbody>
+      </table>
+    </Card>
+  );
+
   return (
     <div className="d-flex flex-column m-3">
       <div className="d-flex display-1">
@@ -148,6 +190,17 @@ const TutorProfilesList = () => {
       <Can do="manage" on="tutors">
         <button className="btn btn-primary m-3 ms-auto" onClick={() => navigate('/newtutor')}>Register New Tutor</button>
       </Can>
+      {tutors.filter((tutor) => { return tutor.data().clearance === 'pending' }).length === 0 ? <></> :
+        <>
+          <hr />
+          <div>
+            <div className="d-flex display-1">
+              Pending Tutors
+            </div>
+            {pendingTable}
+          </div>
+        </>
+      }
     </div>
   )
 }
