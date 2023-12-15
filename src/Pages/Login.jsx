@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 import { auth, db } from "../Services/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth"
-import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Button, Card } from "react-bootstrap";
 
 const treehouseLogo = require('../images/TreeHouse-Tutoring-Logo-02.svg').default;
@@ -22,38 +22,27 @@ const Login = ({ setUserProfile }) => {
         getDoc(doc(db, 'tutors', user.uid))
           .then(userDoc => {
             if (userDoc.exists()) {
-              if (userDoc.clearance === "held" || userDoc.clearance === 'revoked') {
+              if (userDoc.data().clearance === "held" || userDoc.data().clearance === 'revoked') {
                 window.alert('You do not have access to the Treehouse Student Database. Contact an administrator.');
                 signOut(auth);
-                return;
+              } else if (userDoc.data().clearance === 'pending') {
+                window.alert('Your access to the Treehouse Student Database is pending. You will be notified when your access has been granted.');
+                signOut(auth);
+              } else {
+                setUserProfile(userDoc);
+                navigate(`/tutor/${userDoc.id}`);
               }
-
-              setUserProfile(userDoc);
-              navigate(`/tutor/${userDoc.id}`);
             } else {
-              const tutorsRef = collection(db, "tutors");
-
-              const q = query(tutorsRef, where("email", "==", user.email));
-      
-              getDocs(q).then(async (res) => {
-                if (res.docs.length === 0) {
-                  window.alert(`User ${user.displayName}: ${user.email} is not in the database`);
-                  signOut(auth);
-                } else {
-                  let attemptedLoginUser = res.docs[0].data();
-                  let userRef = res.docs[0];
-      
-                  if (!attemptedLoginUser.activated) {
-                    deleteDoc(res.docs[0].ref);
-                    let { apiKey: _, ...rest } = { ...JSON.parse(JSON.stringify(user.toJSON())), ...attemptedLoginUser, activated: true };
-                    attemptedLoginUser = rest
-                    userRef = await setDoc(doc(db, 'tutors', user.uid), attemptedLoginUser)
-                  }
-      
-                  setUserProfile(userRef);
-                  navigate(`/tutor/${userRef.id}`);
-                }
-              })
+              if (!window.confirm('You are not registered in the database. Would you like to request access?')) {
+                signOut(auth);
+              } else {
+                let { apiKey: _, ...rest } = { ...JSON.parse(JSON.stringify(user.toJSON())), activated: false, clearance: 'pending' };
+                setDoc(doc(db, 'tutors', user.uid), rest)
+                  .then(() => {
+                    window.alert('Your request has been sent. You will be notified when your account is activated.');
+                    signOut(auth);
+                  })
+              }
             }
           })
 

@@ -24,7 +24,13 @@ const TutorProfileEdit = () => {
   useEffect(() => {
 
     getDoc(tutorDocRef.current)
-      .then((doc) => {setTutor(doc.data()); setSelectedClearance(doc.data().clearance)})
+      .then((doc) => {
+        setTutor(doc.data());
+        if (doc.data().clearance === 'pending')
+          setSelectedClearance('');
+        else
+          setSelectedClearance(doc.data().clearance)
+      })
       .then(setLoading(false));
 
   }, [params.tutorid])

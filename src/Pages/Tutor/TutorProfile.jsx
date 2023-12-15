@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Can } from "../../Services/can";
-import { doc, getDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import EvalsTable from "../../Components/EvalsTable";
-import { Card, Nav, Tab } from "react-bootstrap";
+import { Button, Card, Nav, Tab } from "react-bootstrap";
 
 const TutorProfile = () => {
   const [tutor, setTutor] = useState({});
@@ -23,6 +23,15 @@ const TutorProfile = () => {
       .then((doc) => setTutor(doc.data()))
 
   }, [params.tutorid])
+
+  function deny(id) {
+    if (!window.confirm(`You are about to DENY access to ${tutor.displayName}. Are you sure you want to do this?`)) {
+      return;
+    }
+
+    deleteDoc(tutorDocRef.current)
+      .then(() => navigate('/tutors'))
+  }
 
   function capitalize(str) {
     try {
@@ -68,7 +77,7 @@ const TutorProfile = () => {
                     <div>{tutor?.email}</div>
                   </div>
                   <div className="d-flex flex-column p-3">
-                    <div className="h3">Clearance</div>
+                    <div className="h3">Role</div>
                     <div>{capitalize(tutor?.clearance)}</div>
                   </div>
                 </div>
@@ -82,11 +91,16 @@ const TutorProfile = () => {
           </Tab.Container>
         </Card>
       </div>
-        <div className="d-flex">
-          <Can I="edit" this={tutorInstance} >
-            <button className="btn btn-info m-3 ms-auto" onClick={() => navigate(`/tutor/edit/${tutorDocRef.current.id}`)}>Make Changes</button>
-          </Can>
-        </div>
+      <div className="d-flex">
+        <Can I="edit" this={tutorInstance} >
+          {tutor.clearance === 'pending' ?
+            <Button className="btn btn-danger m-3" onClick={() => deny(tutorDocRef.current.id)}>Deny Access Request</Button>
+            :
+            <></>
+          }
+          <button className="btn btn-info m-3 ms-auto" onClick={() => navigate(`/tutor/edit/${tutorDocRef.current.id}`)}>Make Changes</button>
+        </Can>
+      </div>
     </div>
   )
 }

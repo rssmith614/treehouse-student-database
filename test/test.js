@@ -27,8 +27,8 @@ before(async () => {
             port: 8080,
         },
     }).then((tenv) => {
-        admin = tenv.authenticatedContext('admin');
-        tutor = tenv.authenticatedContext('tutor');
+        admin = tenv.authenticatedContext('EBZCN1t2wDSXB5DKpLXS9zXGuaZy');
+        tutor = tenv.authenticatedContext('bpUJLhK40wK6HMV6TizkKKEeN66x');
         joe = tenv.unauthenticatedContext();
     })
 })
@@ -52,16 +52,20 @@ describe("Admin", () => {
 
     // admin has full read/write on tutors, except for their own clearance
     it("Can change other tutors' clearance", async () => {
-        await firebaseTest.assertSucceeds(firestore.updateDoc(firestore.doc(db, '/tutors', 'dummy'), {'clearance': 'held'}))
+        await firebaseTest.assertSucceeds(firestore.updateDoc(firestore.doc(db, '/tutors', 'mhCLQIikN1RXgkqlr5BaxqF0K7kC'), {'clearance': 'held'}))
     })
 
     it("Cannot change their own clearance", async () => {
-        await firebaseTest.assertFails(firestore.updateDoc(firestore.doc(db, '/tutors', 'admin'), {'clearance': 'held'}))
+        await firebaseTest.assertFails(firestore.updateDoc(firestore.doc(db, '/tutors', 'EBZCN1t2wDSXB5DKpLXS9zXGuaZy'), {'clearance': 'held'}))
     })
 
     // admin has full read/write on evals
     it("Can read evals", async () => {
         await firebaseTest.assertSucceeds(firestore.getDocs(firestore.collection(db, '/evaluations')));
+    })
+
+    it("Can create evals", async () => {
+        await firebaseTest.assertSucceeds(firestore.setDoc(firestore.doc(db, '/evaluations', 'test1'), {'test': 'created by admin'}));
     })
 
     it("Can edit evals", async () => {
@@ -136,6 +140,10 @@ describe("Tutor", () => {
         await firebaseTest.assertSucceeds(firestore.getDocs(firestore.collection(db, '/evaluations')));
     })
 
+    it("Can create evals", async () => {
+        await firebaseTest.assertSucceeds(firestore.setDoc(firestore.doc(db, '/evaluations', 'test2'), {'test': 'created by tutor', 'owner': 'bpUJLhK40wK6HMV6TizkKKEeN66x'}));
+    })
+
     it("Can read an eval's tasks", async () => {
         await firebaseTest.assertSucceeds(firestore.getDocs(firestore.collection(db, 'evaluations', 'test1', 'tasks')));
     })
@@ -181,7 +189,7 @@ describe("Tutor", () => {
     });
 
     it("Can issue an assessment to a student", async () => {
-        await firebaseTest.assertSucceeds(firestore.setDoc(firestore.doc(db, '/student_assessments', 'test2'), {'issued_by': 'tutor'}))
+        await firebaseTest.assertSucceeds(firestore.setDoc(firestore.doc(db, '/student_assessments', 'test2'), {'issued_by': 'bpUJLhK40wK6HMV6TizkKKEeN66x'}))
     });
 
     it("Can edit student_assessments that they own", async () => {
@@ -192,7 +200,7 @@ describe("Tutor", () => {
         await firebaseTest.assertFails(firestore.setDoc(firestore.doc(db, '/student_assessments', 'test1'), {'test': 'edited by tutor'}))
     });
 
-    it("Can delete assessments that they own", async () => {
+    it("Can delete student_assessments that they own", async () => {
         await firebaseTest.assertSucceeds(firestore.deleteDoc(firestore.doc(db, '/student_assessments', 'test2')))
     });
 })
