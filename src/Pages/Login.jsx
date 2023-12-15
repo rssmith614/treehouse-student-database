@@ -34,30 +34,31 @@ const Login = ({ setUserProfile }) => {
               const tutorsRef = collection(db, "tutors");
 
               const q = query(tutorsRef, where("email", "==", user.email));
-
-              getDocs(q).then((res) => {
+      
+              getDocs(q).then(async (res) => {
                 if (res.docs.length === 0) {
                   window.alert(`User ${user.displayName}: ${user.email} is not in the database`);
                   signOut(auth);
                 } else {
                   let attemptedLoginUser = res.docs[0].data();
-
+                  let userRef = res.docs[0];
+      
                   if (!attemptedLoginUser.activated) {
                     deleteDoc(res.docs[0].ref);
                     let { apiKey: _, ...rest } = { ...JSON.parse(JSON.stringify(user.toJSON())), ...attemptedLoginUser, activated: true };
                     attemptedLoginUser = rest
-                    setDoc(doc(db, 'tutors', user.uid), attemptedLoginUser)
+                    userRef = await setDoc(doc(db, 'tutors', user.uid), attemptedLoginUser)
                   }
-
-                  setUserProfile(attemptedLoginUser);
-                  navigate(`/tutor/${attemptedLoginUser.id}`);
+      
+                  setUserProfile(userRef);
+                  navigate(`/tutor/${userRef.id}`);
                 }
               })
             }
           })
 
       }).catch((error) => {
-        // console.log(error);
+        console.log(error);
       });
   }
 

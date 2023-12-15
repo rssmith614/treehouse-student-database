@@ -1,11 +1,16 @@
 {
   "hosting": {
-    "public": "public",
+    "public": "build",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
+    "redirects": [{
+      "source": "/",
+      "destination": "/login",
+      "type": 301
+    }],
     "rewrites": [
       {
         "source": "**",
@@ -20,7 +25,13 @@
     "ui": {
       "enabled": true
     },
-    "singleProjectMode": true
+    "singleProjectMode": true,
+    "auth": {
+      "port": 9099
+    },
+    "hosting": {
+      "port": 5002
+    }
   },
   "firestore": {
     "rules": "firestore.rules",

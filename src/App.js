@@ -80,6 +80,8 @@ function App() {
               if (userDoc.exists()) {
                 setUserProfile(userDoc);
               }
+            }).catch(err => {
+              console.err(err);
             })
         }
       } else {
@@ -132,7 +134,7 @@ function App() {
             <Route path="/newstudent" element={<NewStudentPage />} />
             <Route path="/students" element={<StudentProfilesList />} />
             <Route path="/students/:studentid" element={<StudentProfile />} />
-            <Route path="student/edit/:studentid" element={<StudentProfileEdit />} />
+            <Route path="students/edit/:studentid" element={<StudentProfileEdit />} />
 
             <Route path="/newtutor" element={<NewTutorPage />} />
             <Route path="/tutors" element={<TutorProfilesList />} />
