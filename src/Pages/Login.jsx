@@ -63,14 +63,14 @@ const Login = ({ setUserProfile }) => {
   }
 
   return (
-    <div className="d-flex flex-column vh-100 justify-content-center p-3">
-      <Card className="d-flex flex-row bg-light-subtle p-3">
+    <div className="d-flex flex-column vh-100 justify-content-center align-items-center p-3">
+      <Card className="d-flex flex-row bg-light-subtle p-3 w-75">
         <img src={treehouseLogo} alt="Treehouse Logo"
           style={{
             filter: "invert(69%) sepia(83%) saturate(739%) hue-rotate(359deg) brightness(104%) contrast(105%)",
-            height: 200
+            height: 250
             }} />
-        <div className="d-flex flex-column justify-content-evenly align-items-center">
+        <div className="d-flex flex-column justify-content-evenly align-items-center text-center">
           <div className="display-1">
             Treehouse Tutoring
           </div>
