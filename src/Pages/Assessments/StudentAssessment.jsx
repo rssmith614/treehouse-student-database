@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Can } from "../../Services/can";
 import { Button, Col, Row, Table } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { db, storage } from "../../Services/firebase";
 import { getDownloadURL, ref } from "firebase/storage";
 
@@ -87,16 +87,17 @@ const StudentAssessment = () => {
     <div className='p-3 d-flex flex-column'>
       <h1 className="display-1">Student Assessment</h1>
       <div className="d-flex flex-fill card p-3 m-3 bg-light-subtle">
-        <a className="h3 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+        <label className="form-label h5">Student</label>
+        <button className="btn btn-link h3 link-underline link-underline-opacity-0 link-underline-opacity-75-hover me-auto"
           data-toggle="tooltip" title={"View " + assessment.student_name + "'s Profile"}
-          style={{ cursor: "pointer" }} onClick={() => navigate(`/students/${assessment.student_id}`)}>{assessment.student_name}</a>
+          style={{ cursor: "pointer" }} onClick={() => navigate(`/students/${assessment.student_id}`)}>{assessment.student_name}</button>
         <div className="row my-3">
           <div className="col">
             <label className="form-label h5">Issuer</label><br />
             <Can I="view" on="Tutor">
-              <a id="tutor" className="h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+              <button id="tutor" className="btn btn-link h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                 data-toggle="tooltip" title={"View " + assessment.issued_by_name + "'s Profile"}
-                style={{ cursor: "pointer" }} onClick={() => navigate(`/tutor/${assessment.issued_by}`)}>{assessment.issued_by_name}</a>
+                style={{ cursor: "pointer" }} onClick={() => navigate(`/tutor/${assessment.issued_by}`)}>{assessment.issued_by_name}</button>
             </Can>
             <Can not I="view" on="Tutor">
               <div id="tutor" className="h6">{assessment.issued_by_name}</div>

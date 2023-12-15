@@ -1,4 +1,4 @@
-import { arrayRemove, arrayUnion, deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 
 import { db } from "../../Services/firebase";
 import { useContext, useEffect, useRef, useState } from "react";
