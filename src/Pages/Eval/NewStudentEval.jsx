@@ -6,7 +6,7 @@ import { auth, db, storage } from "../../Services/firebase";
 import dayjs from "dayjs";
 import { ref, uploadBytes } from "firebase/storage";
 import { ToastContext } from "../../Services/toast";
-import { Button, Dropdown, InputGroup, Row, Table, Form, OverlayTrigger, Popover } from "react-bootstrap";
+import { Button, Dropdown, InputGroup, Table, Form, OverlayTrigger, Popover } from "react-bootstrap";
 
 
 const grades = {
@@ -30,7 +30,7 @@ const NewStudentEval = () => {
 
   const [tasks, setTasks] = useState([{subject: "", standard: "", progression: "5", engagement: "5", comments: ""}]);
 
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
   const addToast = useContext(ToastContext);
 
@@ -59,7 +59,7 @@ const NewStudentEval = () => {
                 setStandards(compiledStandards);
               });
           })
-          .then(setLoading(false));
+          // .then(setLoading(false));
         });
 
     getDocs(collection(db, 'tutors'))
@@ -134,17 +134,17 @@ const NewStudentEval = () => {
     });
   }
 
-  const standardOptions = standards.sort((a,b) => {
-    return (
-      a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
-      a.key.split('.')[2] - b.key.split('.')[2] ||
-      a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
-      a.key.localeCompare(b.key)
-    )}).map((s, i) => {
-      return (
-        <option value={s.id} key={s.id}>{s.key}</option>
-      );
-  });
+  // const standardOptions = standards.sort((a,b) => {
+  //   return (
+  //     a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
+  //     a.key.split('.')[2] - b.key.split('.')[2] ||
+  //     a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
+  //     a.key.localeCompare(b.key)
+  //   )}).map((s, i) => {
+  //     return (
+  //       <option value={s.id} key={s.id}>{s.key}</option>
+  //     );
+  // });
 
   const StandardDropdownToggle = React.forwardRef(({ style, className, onClick, value }, ref) => (
     <Form.Control

@@ -3,11 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "../Services/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth"
 import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { Button, Card } from "react-bootstrap";
 
-const Login = ( { setUserProfile }) => {
-  
+const treehouseLogo = require('../images/TreeHouse-Tutoring-Logo-02.svg').default;
+
+const Login = ({ setUserProfile }) => {
+
   const provider = new GoogleAuthProvider();
-  
+
   const navigate = useNavigate();
 
   const handleSignIn = () => {
@@ -42,7 +45,7 @@ const Login = ( { setUserProfile }) => {
       
                   if (!attemptedLoginUser.activated) {
                     deleteDoc(res.docs[0].ref);
-                    let {apiKey: _, ...rest} = {...JSON.parse(JSON.stringify(user.toJSON())), ...attemptedLoginUser, activated: true};
+                    let { apiKey: _, ...rest } = { ...JSON.parse(JSON.stringify(user.toJSON())), ...attemptedLoginUser, activated: true };
                     attemptedLoginUser = rest
                     userRef = await setDoc(doc(db, 'tutors', user.uid), attemptedLoginUser)
                   }
@@ -60,8 +63,25 @@ const Login = ( { setUserProfile }) => {
   }
 
   return (
-    <div className="position-absolute top-50 start-50">
-      <button className="btn btn-primary" onClick={handleSignIn}>Google Sign-In</button>
+    <div className="d-flex flex-column vh-100 justify-content-center p-3">
+      <Card className="d-flex flex-row bg-light-subtle p-3">
+        <img src={treehouseLogo} alt="Treehouse Logo"
+          style={{
+            filter: "invert(69%) sepia(83%) saturate(739%) hue-rotate(359deg) brightness(104%) contrast(105%)",
+            height: 200
+            }} />
+        <div className="d-flex flex-column justify-content-evenly align-items-center">
+          <div className="display-1">
+            Treehouse Tutoring
+          </div>
+          <div className="h3">
+            Student Database
+          </div>
+          <Button variant="primary" className="" onClick={handleSignIn}>
+            Sign In <i className="bi bi-google" />
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 }

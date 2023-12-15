@@ -1,6 +1,6 @@
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { Button, Card, Col, Container, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
+import { Button, Card, Col, Container, OverlayTrigger, Popover, Row } from "react-bootstrap";
 import { db } from "../Services/firebase";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";

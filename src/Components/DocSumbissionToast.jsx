@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
-import { Toast, ToastBody, ToastContainer, ToastHeader } from "react-bootstrap";
+import { ToastContainer } from "react-bootstrap";
 
 const DocSubmissionToast = ({ toasts }) => {
-  const [show, setShow] = useState(false);
+  // const [show, setShow] = useState(false);
 
   // useEffect(() => {
   //   if (toast.header !== '')
