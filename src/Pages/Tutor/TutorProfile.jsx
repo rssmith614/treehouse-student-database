@@ -6,6 +6,7 @@ import { deleteDoc, doc, getDoc } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import EvalsTable from "../../Components/EvalsTable";
 import { Button, Card, Nav, Tab } from "react-bootstrap";
+import { Tutor } from "../../Services/defineAbility";
 
 const TutorProfile = () => {
   const [tutor, setTutor] = useState({});
@@ -38,15 +39,6 @@ const TutorProfile = () => {
       return str.charAt(0).toUpperCase() + str.slice(1)
     } catch (e) {
       return '';
-    }
-  }
-  class Tutor {
-    constructor(dict) {
-      for (const key in dict) {
-        if (dict.hasOwnProperty(key)) {
-          this[key] = dict[key];
-        }
-      }
     }
   }
 

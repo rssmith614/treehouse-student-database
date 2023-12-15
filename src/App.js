@@ -22,7 +22,7 @@ import TutorProfileEdit from './Pages/Tutor/TutorProfileEdit';
 import Navbar from './Components/Navbar';
 
 import { AbilityContext } from './Services/can';
-import defineAbilityFor from "./Services/defineAbility";
+import { defineAbilityFor } from "./Services/defineAbility";
 
 import { getDoc, doc } from 'firebase/firestore';
 

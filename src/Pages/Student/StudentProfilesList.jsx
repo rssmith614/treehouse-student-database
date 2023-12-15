@@ -45,11 +45,11 @@ const StudentProfilesList = () => {
 
     const tableData = students.filter((student) => {
       return (
-        student.data().student_name.toLowerCase().includes(nameFilter.toLowerCase()) &&
-        student.data().preferred_tutor_name.toLowerCase().includes(tutorFilter.toLowerCase()) &&
-        student.data().student_school.toLowerCase().includes(schoolFilter.toLowerCase()) &&
-        student.data().student_source.toLowerCase().includes(sourceFilter.toLowerCase()) &&
-        student.data().student_grade.toLowerCase().includes(gradeFilter.toLowerCase())
+        student.data().student_name?.toLowerCase().includes(nameFilter.toLowerCase()) &&
+        student.data().preferred_tutor_name?.toLowerCase().includes(tutorFilter.toLowerCase()) &&
+        student.data().student_school?.toLowerCase().includes(schoolFilter.toLowerCase()) &&
+        student.data().student_source?.toLowerCase().includes(sourceFilter.toLowerCase()) &&
+        student.data().student_grade?.toLowerCase().includes(gradeFilter.toLowerCase())
       );
     })
 
