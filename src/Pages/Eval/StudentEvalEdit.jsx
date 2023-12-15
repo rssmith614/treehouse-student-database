@@ -140,17 +140,17 @@ const StudentEvalEdit = () => {
     });
   }
 
-  const standardOptions = standards.sort((a,b) => {
-    return (
-      a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
-      a.key.split('.')[2] - b.key.split('.')[2] ||
-      a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
-      a.key.localeCompare(b.key)
-    )}).map((s, i) => {
-      return (
-        <option value={s.id} key={s.id}>{s.key}</option>
-      );
-  });
+  // const standardOptions = standards.sort((a,b) => {
+  //   return (
+  //     a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
+  //     a.key.split('.')[2] - b.key.split('.')[2] ||
+  //     a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
+  //     a.key.localeCompare(b.key)
+  //   )}).map((s, i) => {
+  //     return (
+  //       <option value={s.id} key={s.id}>{s.key}</option>
+  //     );
+  // });
 
   const StandardDropdownToggle = React.forwardRef(({ style, className, onClick, value }, ref) => (
     <Form.Control

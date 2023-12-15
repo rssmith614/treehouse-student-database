@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "../Services/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth"
 import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
-import { Button, Card, Col, Container, Row } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
 
 const treehouseLogo = require('../images/TreeHouse-Tutoring-Logo-02.svg').default;
 

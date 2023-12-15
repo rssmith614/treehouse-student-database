@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 
 import { db } from "../Services/firebase";
 import { useNavigate } from "react-router-dom";
-import { Dropdown, DropdownButton, InputGroup, Modal, Table, Form } from "react-bootstrap";
+import { Dropdown, InputGroup, Table, Form } from "react-bootstrap";
 
 
 const EvalsTable = ({ filterBy, id }) => {

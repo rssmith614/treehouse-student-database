@@ -12,7 +12,7 @@ const StudentEval = () => {
   const [evaluation, setEvaluation] = useState({});
   const [tasks, setTasks] = useState([]);
 
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
   const [worksheet, setWorksheet] = useState(null);
 
@@ -63,7 +63,8 @@ const StudentEval = () => {
           })
           setTasks(compiledTasks);
         })
-      }).then(() => setLoading(false));
+      })
+      // .then(() => setLoading(false));
 
   }, [params.evalid])
 
@@ -120,16 +121,17 @@ const StudentEval = () => {
     <div className='p-3 d-flex flex-column'>
       <h1 className="display-1">Session Evaluation</h1>
           <div className="d-flex flex-fill card p-3 m-3 bg-light-subtle">
-          <a className="h3 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+          <label className="form-label h5">Student</label>
+          <button className="btn btn-link me-auto h3 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
             data-toggle="tooltip" title={"View " + evaluation.student_name + "'s Profile"}
-            style={{ cursor: "pointer" }} onClick={() => navigate(`/students/${evaluation.student_id}`)}>{evaluation.student_name}</a>
+            style={{ cursor: "pointer" }} onClick={() => navigate(`/students/${evaluation.student_id}`)}>{evaluation.student_name}</button>
           <div className="row my-3">
             <div className="col">
               <label className="form-label h5">Tutor</label><br />
               <Can I="view" on="Tutor">
-                <a id="tutor" className="h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                <button id="tutor" className="btn btn-link h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                   data-toggle="tooltip" title={"View " + evaluation.tutor_name + "'s Profile"}
-                  style={{ cursor: "pointer" }} onClick={() => navigate(`/tutor/${evaluation.tutor_id}`)}>{evaluation.tutor_name}</a>
+                  style={{ cursor: "pointer" }} onClick={() => navigate(`/tutor/${evaluation.tutor_id}`)}>{evaluation.tutor_name}</button>
               </Can>
               <Can not I="view" on="Tutor">
                 <div id="tutor" className="h6">{evaluation.tutor_name}</div>
