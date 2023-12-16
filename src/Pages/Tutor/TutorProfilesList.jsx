@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { db } from "../../Services/firebase";
 
 import { collection, getDocs } from "firebase/firestore";
-import { Can } from "../../Services/can";
 import { useNavigate } from "react-router-dom";
 import { Card, Dropdown, Form, InputGroup } from "react-bootstrap";
 
@@ -187,9 +186,9 @@ const TutorProfilesList = () => {
       <div className="d-flex card pt-3 px-3 m-3 bg-light-subtle">
         {loading ? <div className="spinner-border d-flex align-self-center" /> : listTable}
       </div>
-      <Can do="manage" on="tutors">
+      {/* <Can do="manage" on="tutors">
         <button className="btn btn-primary m-3 ms-auto" onClick={() => navigate('/newtutor')}>Register New Tutor</button>
-      </Can>
+      </Can> */}
       {tutors.filter((tutor) => { return tutor.data().clearance === 'pending' }).length === 0 ? <></> :
         <>
           <hr />
