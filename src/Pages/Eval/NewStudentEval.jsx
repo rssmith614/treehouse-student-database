@@ -26,7 +26,7 @@ const NewStudentEval = () => {
   const [tutors, setTutors] = useState([]);
   const [standards, setStandards] = useState([]);
 
-  const [selectedTutor, setSelectedTutor] = useState("");
+  const [selectedTutor, setSelectedTutor] = useState(auth.currentUser?.uid || "");
 
   const [tasks, setTasks] = useState([{subject: "", standard: "", progression: "5", engagement: "5", comments: ""}]);
 
@@ -45,7 +45,7 @@ const NewStudentEval = () => {
     getDoc(studentRef.current)
       .then((docs) => {
         setStudent(docs.data());
-        setSelectedTutor(docs.data().preferred_tutor);
+        // setSelectedTutor(docs.data().preferred_tutor);
         getDocs(collection(studentRef.current, 'standards'))
           .then(subCollStandards => {
             let compiledStandards = [];
