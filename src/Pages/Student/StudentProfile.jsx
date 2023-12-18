@@ -222,6 +222,7 @@ const StudentProfile = () => {
           {loading ? <div className="spinner-border align-self-center" /> : innerContent}
         </div>
       </div>
+      <Button variant='secondary' className="m-3 align-self-start" onClick={() => navigate(-1)}>Back</Button>
       <Offcanvas show={show} onHide={() => {setShow(false); }} onExited={() => setSelectedStandard(null)} placement="end">
         <Offcanvas.Header>
           <Offcanvas.Title>Standard {selectedStandard ? selectedStandard.key : ''}</Offcanvas.Title>

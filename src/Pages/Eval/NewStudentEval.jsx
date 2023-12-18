@@ -367,7 +367,7 @@ const NewStudentEval = () => {
 
         </div>
         <div className="d-flex">
-          {/* <button type="button" className="btn btn-secondary m-3 me-auto" onClick={() => navigate(`/students/${params.studentid}`)}>Back</button> */}
+          <button type="button" className="btn btn-secondary m-3 me-auto" onClick={() => navigate(-1)}>Back</button>
           <button className="btn btn-primary m-3 ms-auto" id="submit" type="submit">Submit</button>
         </div>
       </form>
