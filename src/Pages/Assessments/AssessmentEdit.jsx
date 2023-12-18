@@ -135,6 +135,7 @@ const AssessmentEdit = () => {
       if (answerKeyText) {
         // console.log(CSVToArray(answerKeyText))
         let newQuestions = await Promise.all(CSVToArray(answerKeyText).slice(1).map(async item => {
+          if (item.length !== 4) throw new Error(`Error: Question ${item[0]} has an incorrect number of columns. The expected format is: Question #, Question, Sample Answer, Standard`);
           if (item[3] === '') return item;
           let res = await getDocs(query(collection(db, 'standards'), where('key', '==', item[3])));
           if (res.docs.length === 0) {

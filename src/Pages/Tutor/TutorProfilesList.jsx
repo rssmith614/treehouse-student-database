@@ -139,7 +139,7 @@ const TutorProfilesList = () => {
           <th style={{ cursor: "pointer" }}>
             <Dropdown drop='up' autoClose='outside'>
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                Student Name {filterIcon('name')}
+                Tutor Name {filterIcon('name')}
               </Dropdown.Toggle>
               <Dropdown.Menu as={ComboTableHeader} value={nameFilter} valueSetter={setNameFilter} />
             </Dropdown>

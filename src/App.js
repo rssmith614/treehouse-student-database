@@ -1,4 +1,4 @@
-import { BrowserRouter as Router } from 'react-router-dom';
+import { Navigate, BrowserRouter as Router } from 'react-router-dom';
 import { Route, Routes } from 'react-router-dom';
 
 // import 'bootstrap/dist/css/bootstrap.min.css';
@@ -121,6 +121,7 @@ function App() {
         <Router>
           <Navbar userProfile={userProfile} />
           <Routes>
+            <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/login" element={<Login userProfile={userProfile} setUserProfile={setUserProfile} />} />
 
             <Route path='/evals' element={<Evals />} />

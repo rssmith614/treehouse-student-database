@@ -5,6 +5,8 @@ import { Can } from "../Services/can";
 import { useEffect, useState } from "react";
 import { Container, Navbar as BsNavbar, Nav, NavDropdown } from "react-bootstrap";
 
+import treehouseLogo from "../images/Treehouse-Logo-New.svg";
+
 
 const Navbar = ({ userProfile }) => {
   const navigate = useNavigate();
@@ -25,7 +27,11 @@ const Navbar = ({ userProfile }) => {
   return (
     <BsNavbar className="bg-body-tertiary sticky-top" expand="lg">
       <Container fluid>
-        <BsNavbar.Brand aria-expanded="false">Welcome, {userName}</BsNavbar.Brand>
+        <BsNavbar.Brand aria-expanded="false"
+          onClick={() => navigate(`/tutor/${userProfile.id}`)} style={{ cursor: 'pointer' }} >
+          <img src={treehouseLogo} alt="Treehouse Logo" className="d-inline-block align-text-top" style={{ height: 24 }} />
+          Welcome, {userName}
+        </BsNavbar.Brand>
         <BsNavbar.Toggle aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation" />
         <BsNavbar.Collapse id="navbarNavAltMarkup">
           <Nav>

@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "../Services/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth"
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { Button, Card } from "react-bootstrap";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 
-const treehouseLogo = require('../images/TreeHouse-Tutoring-Logo-02.svg').default;
+const treehouseLogo = require('../images/Treehouse-Logo-New.svg').default;
 
 const Login = ({ setUserProfile }) => {
 
@@ -53,23 +53,29 @@ const Login = ({ setUserProfile }) => {
 
   return (
     <div className="d-flex flex-column vh-100 justify-content-center align-items-center p-3">
-      <Card className="d-flex flex-row bg-light-subtle p-3 w-75">
-        <img src={treehouseLogo} alt="Treehouse Logo"
-          style={{
-            filter: "invert(69%) sepia(83%) saturate(739%) hue-rotate(359deg) brightness(104%) contrast(105%)",
-            height: 250
-            }} />
-        <div className="d-flex flex-column justify-content-evenly align-items-center text-center">
-          <div className="display-1">
-            Treehouse Tutoring
-          </div>
-          <div className="h3">
-            Student Database
-          </div>
-          <Button variant="primary" className="" onClick={handleSignIn}>
-            Sign In <i className="bi bi-google" />
-          </Button>
-        </div>
+      <Card className="bg-light-subtle p-3 w-75">
+        <Container className="">
+          <Row className="d-flex flex-row justify-content-evenly align-items-center " xs={{ cols: 'auto' }}>
+            <Col className="w-25">
+              <div className="bg-secondary h-100 p-2">
+                <img src={treehouseLogo} alt="Treehouse Logo" className="h-100" />
+              </div>
+            </Col>
+            <Col>
+              <div className="d-flex flex-column justify-content-evenly align-items-center text-center">
+                <div className="display-1">
+                  Treehouse Tutoring
+                </div>
+                <div className="h3">
+                  Student Database
+                </div>
+                <Button variant="primary" className="" onClick={handleSignIn}>
+                  Sign In <i className="bi bi-google" />
+                </Button>
+              </div>
+            </Col>
+          </Row>
+        </Container>
       </Card>
     </div>
   );

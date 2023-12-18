@@ -11,6 +11,8 @@ import { Tutor } from "../../Services/defineAbility";
 const TutorProfile = () => {
   const [tutor, setTutor] = useState({});
 
+  const [tab, setTab] = useState(localStorage.getItem('tutorProfileTab') || 'about');
+
   const navigate = useNavigate();
 
   const params = useParams();
@@ -24,6 +26,10 @@ const TutorProfile = () => {
       .then((doc) => setTutor(doc.data()))
 
   }, [params.tutorid])
+
+  useEffect(() => {
+    localStorage.setItem('tutorProfileTab', tab);
+  }, [tab])
 
   function deny(id) {
     if (!window.confirm(`You are about to DENY access to ${tutor.displayName}. Are you sure you want to do this?`)) {
@@ -51,13 +57,13 @@ const TutorProfile = () => {
       </h1>
       <div className="d-flex flex-row justify-content-center">
         <Card className='d-flex flex-fill bg-light-subtle justify-content-center'>
-          <Tab.Container defaultActiveKey='about'>
+          <Tab.Container activeKey={tab}>
             <Nav variant="underline" className="card-header">
               <Nav.Item>
-                <Nav.Link eventKey='about'>About</Nav.Link>
+                <Nav.Link data-bs-toggle='tab' eventKey='about' onClick={() => setTab('about')}>About</Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey='evals'>Evaluations</Nav.Link>
+                <Nav.Link data-bs-toggle='tab' eventKey='evals' onClick={() => setTab('evals')}>Evaluations</Nav.Link>
               </Nav.Item>
             </Nav>
             <Tab.Content className="card-body">
