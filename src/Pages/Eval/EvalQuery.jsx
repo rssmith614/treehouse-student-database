@@ -359,7 +359,13 @@ const EvalQuery = () => {
           <td>{dayjs(evaluation.date).format('MMMM DD, YYYY')}</td>
           <td>{evaluation.student_name}</td>
           <td>{evaluation.tutor_name}</td>
-          <td>{evaluation.tasks.join(' || ')}</td>
+          <td>{evaluation.tasks.map(t => {
+            return (
+              <>
+                {t}<br />
+              </>
+            )
+          })}</td>
         </tr>
       )
     })
