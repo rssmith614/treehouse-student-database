@@ -90,11 +90,11 @@ const EvalsTable = ({ filterBy, id }) => {
           style={{ cursor: "pointer" }}>
           <td>{dayjs(evaluation.date).format('MMMM DD, YYYY')}</td>
           <td>{filterBy === 'tutor' ? evaluation.student_name : evaluation.tutor_name}</td>
-          <td>{evaluation.tasks.map(t => {
+          <td>{evaluation.tasks.map((t, i) => {
             return (
-              <>
+              <div key={i}>
                 {t}<br />
-              </>
+              </div>
             )
           })}</td>
         </tr>

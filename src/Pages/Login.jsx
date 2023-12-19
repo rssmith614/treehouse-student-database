@@ -15,7 +15,6 @@ const Login = ({ setUserProfile }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(auth.currentUser)
     if (auth.currentUser) {
       navigate(-1);
     }
