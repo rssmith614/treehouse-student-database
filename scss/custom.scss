@@ -1,17 +1,25 @@
+$treehouse-yellow: #ffcc00;
+$treehouse-blue: #253550;
+
 @import "../node_modules/bootstrap/scss/functions";
 
-$primary: #ffcc00;
-$secondary: #253550;
+$primary: $treehouse-yellow;
+$secondary: $treehouse-blue;
 $success: #1ad13e;
 $warning: #da622f;
-$info: #fff;
+$info: #000;
 
 @import "../node_modules/bootstrap/scss/variables";
 
-$body-tertiary-bg:                  tint-color($secondary, 50%);
+$link-color:                        tint-color($secondary, 20%);
+
+$body-bg:                           tint-color($secondary, 95%);
+$body-secondary-bg:                 tint-color($secondary, 80%);
+$body-tertiary-bg:                  tint-color($secondary, 90%);
 
 @import "../node_modules/bootstrap/scss/variables-dark";
 
-$body-tertiary-bg-dark:             $secondary;
+$body-secondary-bg-dark:            shade-color($secondary, 20%);
+$body-tertiary-bg-dark:             shade-color($secondary, 10%);
 
 @import "../node_modules/bootstrap/scss/bootstrap";
