@@ -4,6 +4,7 @@ import { auth, db } from "../Services/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth"
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
+import { useEffect } from "react";
 
 const treehouseLogo = require('../images/Treehouse-Logo-New.svg').default;
 
@@ -13,7 +14,15 @@ const Login = ({ setUserProfile }) => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    console.log(auth.currentUser)
+    if (auth.currentUser) {
+      navigate(-1);
+    }
+  }, [navigate])
+
   const handleSignIn = () => {
+    if (!auth.currentUser) {
     signInWithPopup(auth, provider)
       .then(async (result) => {
         const user = result.user;
@@ -49,6 +58,9 @@ const Login = ({ setUserProfile }) => {
       }).catch((error) => {
         console.log(error);
       });
+    } else {
+      navigate(`/tutor/${auth.currentUser.uid}`);
+    }
   }
 
   return (

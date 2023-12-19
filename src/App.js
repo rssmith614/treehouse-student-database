@@ -85,6 +85,7 @@ function App() {
             })
         }
       } else {
+        setUserProfile(null);
       }
     })
   }, [userProfile])

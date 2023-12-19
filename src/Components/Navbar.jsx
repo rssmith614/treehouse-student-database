@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Container, Navbar as BsNavbar, Nav, NavDropdown } from "react-bootstrap";
 
 import treehouseLogo from "../images/Treehouse-Logo-New.svg";
+import blueTreehouseLogo from "../images/Treehouse-Logo-New-Blue.svg";
 
 
 const Navbar = ({ userProfile }) => {
@@ -17,9 +18,16 @@ const Navbar = ({ userProfile }) => {
   useEffect(() => {
     if (userProfile)
       setUserName(userProfile.data().displayName);
-    else
+    else {
       setUserName('');
+    }
   }, [userProfile])
+
+  useEffect(() => {
+    if (!auth.currentUser) {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   if (pathname === '/login')
     return <></>;
@@ -29,7 +37,11 @@ const Navbar = ({ userProfile }) => {
       <Container fluid>
         <BsNavbar.Brand aria-expanded="false"
           onClick={() => navigate(`/tutor/${userProfile.id}`)} style={{ cursor: 'pointer' }} >
-          <img src={treehouseLogo} alt="Treehouse Logo" className="d-inline-block align-text-top" style={{ height: 24 }} />
+          {document.documentElement.getAttribute('data-bs-theme') === 'dark' ?
+            <img src={treehouseLogo} alt="Treehouse Logo" className="d-inline-block align-text-top" style={{ height: 24 }} />
+            :
+            <img src={blueTreehouseLogo} alt="Treehouse Logo" className="d-inline-block align-text-top" style={{ height: 24 }} />
+          }
           Welcome, {userName}
         </BsNavbar.Brand>
         <BsNavbar.Toggle aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation" />
