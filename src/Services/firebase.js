@@ -2,9 +2,9 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
-// import { connectFirestoreEmulator } from "firebase/firestore";
+import { connectFirestoreEmulator } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-// import { connectAuthEmulator } from "firebase/auth";
+import { connectAuthEmulator } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 // import { getFunctions } from "firebase/functions";
 // import { connectFunctionsEmulator } from "firebase/functions";
@@ -33,10 +33,10 @@ const storage = getStorage(app);
 // const functions = getFunctions(app);
 
 // eslint-disable-next-line no-restricted-globals
-// if (location.hostname === 'localhost') {
-//   connectFirestoreEmulator(db, 'localhost', 8080);
-//   connectAuthEmulator(auth, 'http://localhost:9099');
-//   connectFunctionsEmulator(functions, 'localhost', 5001);
-// }
+if (location.hostname === 'localhost') {
+  connectFirestoreEmulator(db, 'localhost', 8080);
+  connectAuthEmulator(auth, 'http://localhost:9099');
+  // connectFunctionsEmulator(functions, 'localhost', 5001);
+}
 
 export { app, analytics, db, auth, storage };
