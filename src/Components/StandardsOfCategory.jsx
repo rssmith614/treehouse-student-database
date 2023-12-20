@@ -62,6 +62,8 @@ const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
                 return (
                   <Col key={i}>
                     <OverlayTrigger
+                      placement="right"
+                      flip={true}
                       overlay={
                         <Popover className="">
                           <Popover.Header>

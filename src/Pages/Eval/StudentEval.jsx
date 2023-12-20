@@ -77,6 +77,8 @@ const StudentEval = () => {
         </td>
         <td>
           <OverlayTrigger
+            placement="right"
+            flip={true}
             overlay={task.standard.key !== 'None' ?
               <Popover className="">
                 <Popover.Header>

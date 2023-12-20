@@ -29,30 +29,45 @@ const grades = {
   '8': '8th Grade',
 }
 
-const StandardsOfStudent = ({ student, setSelectedStandard }) => {
+const StandardsOfStudent = ({ student, setSelectedStandard, filter, progressFilter }) => {
 
+  const [standards, setStandards] = useState([]);
   const [groupedStandards, setGroupedStandards] = useState({});
 
   useEffect(() => {
     getDocs(collection(student, 'standards'))
-      .then(subCollStandards => {
-        let groups = {};
-        Promise.all(subCollStandards.docs.map(async s => {
-          return getDoc(doc(db, 'standards', s.id))
-            .then(standard => {
-              let group = `${grades[standard.data().grade]} - ${standard.data().sub_category}`;
-              if (groups[group]) {
-                groups[group].push({...s.data(), ...standard.data(), id: standard.id});
-              } else {
-                groups[group] = [{...s.data(), ...standard.data(), id: standard.id}];
-              }
-            })
-        }))
-        .then(() => {
-          setGroupedStandards(groups);
-        });
-      })
+    .then(standards => {
+      setStandards(standards.docs);
+    })
   }, [student])
+
+  useEffect(() => {
+    let groups = {};
+    Promise.all(standards
+      .map(async s => {
+      return getDoc(doc(db, 'standards', s.id))
+        .then(standard => {
+          if (!(
+            standard.data().category?.toLowerCase().includes(filter?.toLowerCase()) ||
+            standard.data().key?.toLowerCase().includes(filter?.toLowerCase()) ||
+            standard.data().sub_category?.toLowerCase().includes(filter?.toLowerCase()) ||
+            standard.data().description?.toLowerCase().includes(filter?.toLowerCase())
+          )) return;
+
+          if (!progressFilter[s.data().status]) return;
+            
+          let group = `${grades[standard.data().grade]} - ${standard.data().sub_category}`;
+          if (groups[group]) {
+            groups[group].push({...s.data(), ...standard.data(), id: standard.id});
+          } else {
+            groups[group] = [{...s.data(), ...standard.data(), id: standard.id}];
+          }
+        })
+    }))
+    .then(() => {
+      setGroupedStandards(groups);
+    });
+  }, [filter, standards, progressFilter])
 
   function color(standard) {
     let res = ''
@@ -65,9 +80,9 @@ const StandardsOfStudent = ({ student, setSelectedStandard }) => {
       case '2':
         return res + 'link-warning';
       case '3':
-        return res + 'link-success';
-      case '4':
         return res + 'link-primary'
+      case '4':
+          return res + 'link-success';
       default:
         return res + 'link-body-emphasis';
     }
@@ -75,6 +90,8 @@ const StandardsOfStudent = ({ student, setSelectedStandard }) => {
 
   return (
     Object.entries(groupedStandards).sort((a,b) => a[0].localeCompare(b[0])).map((group, i) => {
+      if (group[1].length === 0) return null;
+
       return (
         <Card className="p-3 my-3" key={i}>
           <Button variant="link" className="me-auto link-underline link-underline-opacity-0"
@@ -95,6 +112,8 @@ const StandardsOfStudent = ({ student, setSelectedStandard }) => {
                   return (
                     <Col key={i}>
                       <OverlayTrigger
+                      placement="right"
+                      flip={true}
                         overlay={
                           <Popover className="">
                             <Popover.Header>

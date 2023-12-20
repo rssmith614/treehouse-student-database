@@ -124,7 +124,7 @@ const StudentEvalEdit = () => {
       .then(() => {
         tasks.forEach((t) => {
           let {id: _, ...rest} = t;
-          setDoc(doc(db, 'evaluations', evalRef.current.id, 'tasks', t.id), {...rest, standard: t.standard.id});
+          setDoc(doc(db, 'evaluations', evalRef.current.id, 'tasks', t.id), {...rest, standard: t.standard?.id || ''});
         })
       })
       .then(() => addToast({header: 'Changes Saved', message: `Session evaluation for ${newEval.student_name} was successfully updated`}))
@@ -173,7 +173,7 @@ const StudentEvalEdit = () => {
     return (
       <div
         ref={ref}
-        style={style}
+        style={{...style, ...{maxHeight: '50vh', overflowY: 'auto'}}}
         className={className}
         onClick={(e) => {
           e.preventDefault();
@@ -215,6 +215,7 @@ const StudentEvalEdit = () => {
           return (
             <OverlayTrigger
               placement="right"
+              flip={true}
               key={standard.id}
               overlay={
                 <Popover className="">
@@ -258,7 +259,7 @@ const StudentEvalEdit = () => {
   const tasksList = tasks.map((task, idx) => {
     return (
       <tr className="my-3" key={idx}>
-        <td><Button type="button" variant="danger" onClick={() => {setTasks(tasks.filter((t, i) => i !== idx))}}><i className="bi bi-trash-fill" /></Button></td>
+        <td><Button type="button" variant="danger" onClick={() => {setTasks(tasks.filter((t, i) => i !== idx))}} disabled={tasks.length <= 1}><i className="bi bi-trash-fill" /></Button></td>
         <td>
           <input id="subject" className="form-control" type="text"
             value={task.subject} onChange={e => setTasks(tasks.map((t, i) => {
@@ -322,7 +323,7 @@ const StudentEvalEdit = () => {
               <div className="col">
                 <label className="form-label h5">Tutor</label>
                 <select id="tutor" className="form-control"
-                  value={selectedTutor} onChange={(e) => setSelectedTutor(e.target.val)}>
+                  value={selectedTutor} onChange={(e) => setSelectedTutor(e.target.val)} required>
                   <option disabled value="">Select One</option>
                   {tutorOptions()}
                 </select>
