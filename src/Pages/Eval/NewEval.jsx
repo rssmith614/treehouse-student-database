@@ -171,9 +171,9 @@ const NewEval = () => {
   return (
     <div className='p-3 d-flex flex-column'>
       <div className='display-1 d-flex'>
-        Select a Student
+        Record a New Session Evaluation
       </div>
-      <div className="h5">To Record a New Session Evaluation</div>
+      <div className="h5">Select a Student</div>
       <div className='d-flex pt-3 px-3 card bg-light-subtle'>
         {loading ? <div className="spinner-border d-flex align-self-center" /> : listTable}
       </div>
