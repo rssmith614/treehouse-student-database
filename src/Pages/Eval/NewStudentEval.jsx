@@ -209,6 +209,7 @@ const NewStudentEval = () => {
           return (
             <OverlayTrigger
               placement="right"
+              flip={true}
               key={standard.id}
               overlay={
                 <Popover className="">
@@ -252,7 +253,7 @@ const NewStudentEval = () => {
   const tasksList = tasks.map((task, idx) => {
     return (
       <tr className="my-3" key={idx}>
-        <td><Button type="button" variant="danger" onClick={() => {setTasks(tasks.filter((t, i) => i !== idx))}}><i className="bi bi-trash-fill" /></Button></td>
+        <td><Button type="button" variant="danger" onClick={() => {setTasks(tasks.filter((t, i) => i !== idx))}} disabled={tasks.length <= 1}><i className="bi bi-trash-fill" /></Button></td>
         <td>
           <input id="subject" className="form-control" type="text"
             value={task.subject} onChange={e => setTasks(tasks.map((t, i) => {

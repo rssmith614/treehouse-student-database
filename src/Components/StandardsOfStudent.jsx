@@ -112,6 +112,8 @@ const StandardsOfStudent = ({ student, setSelectedStandard, filter, progressFilt
                   return (
                     <Col key={i}>
                       <OverlayTrigger
+                      placement="right"
+                      flip={true}
                         overlay={
                           <Popover className="">
                             <Popover.Header>
