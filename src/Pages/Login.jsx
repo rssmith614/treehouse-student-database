@@ -6,6 +6,8 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { useEffect } from "react";
 
+import history from "history/browser"
+
 const treehouseLogo = require('../images/Treehouse-Logo-New.svg').default;
 
 const Login = ({ setUserProfile }) => {
@@ -15,8 +17,8 @@ const Login = ({ setUserProfile }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (auth.currentUser) {
-      navigate(-1);
+    if (auth.currentUser && history.location.key !== 'default') {
+      history.back();
     }
   })
 

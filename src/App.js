@@ -48,7 +48,7 @@ function App() {
 
   // THEME MANAGEMENT
   const getStoredTheme = () => localStorage.getItem('theme')
-  
+
   const getPreferredTheme = () => {
     const storedTheme = getStoredTheme()
     if (storedTheme) {
@@ -71,24 +71,22 @@ function App() {
   // USER / ABILITY MANAGEMENT
   const [userProfile, setUserProfile] = useState(null);
 
-  useEffect(() => {
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        if (!userProfile) {
-          getDoc(doc(db, 'tutors', user.uid))
-            .then(userDoc => {
-              if (userDoc.exists()) {
-                setUserProfile(userDoc);
-              }
-            }).catch(err => {
-              console.err(err);
-            })
-        }
-      } else {
-        setUserProfile(null);
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      if (!userProfile) {
+        getDoc(doc(db, 'tutors', user.uid))
+          .then(userDoc => {
+            if (userDoc.exists()) {
+              setUserProfile(userDoc);
+            }
+          }).catch(err => {
+            console.error(err);
+          })
       }
-    })
-  }, [userProfile])
+    } else {
+      setUserProfile(null);
+    }
+  })
 
   const [toasts, setToasts] = useState([]);
   const [shownToasts, setShownToasts] = useState([]);
@@ -103,8 +101,8 @@ function App() {
       return (
         <Toast id="liveToast" key={i} role="alert" aria-live="assertive" aria-atomic="true"
           show={shownToasts.includes(t)} delay={5000} autohide
-          onClose={() => {setShownToasts(toasts.filter(toast => toast !== t))}}
-          onExited={() => {setToasts(toasts.filter(toast => toast !== t))}}>
+          onClose={() => { setShownToasts(toasts.filter(toast => toast !== t)) }}
+          onExited={() => { setToasts(toasts.filter(toast => toast !== t)) }}>
           <ToastHeader>
             <strong className="me-auto">{t.header}</strong>
           </ToastHeader>
