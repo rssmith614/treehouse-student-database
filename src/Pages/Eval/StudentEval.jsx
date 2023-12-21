@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 
 import { db, storage } from "../../Services/firebase";
 import { Can } from "../../Services/can";
@@ -26,21 +26,20 @@ const StudentEval = () => {
 
   useEffect(() => {
 
-    getDoc(evalRef.current)
-      .then((res) => {
+    const unsubscribeEval = onSnapshot(evalRef.current,
+      (res) => {
         setEvaluation(res.data());
         if (res.data().worksheet === '' || !res.data().worksheet) return;
         
         worksheetRef.current = ref(storage, res.data().worksheet);
-        // console.log(worksheetRef.current)
         getDownloadURL(worksheetRef.current)
           .then((url) => {
             setWorksheet(url);
           })
       })
 
-    getDocs(collection(evalRef.current, 'tasks'))
-      .then(res => {
+    const unsubscribeTasks = onSnapshot(collection(evalRef.current, 'tasks'),
+      res => {
         let compiledTasks = new Array(res.docs.length);
         Promise.all(res.docs.map(async (t, i) => {
           if (t.data().standard === '')
@@ -65,7 +64,11 @@ const StudentEval = () => {
           setTasks(compiledTasks);
         })
       })
-      // .then(() => setLoading(false));
+
+    return () => {
+      unsubscribeEval();
+      unsubscribeTasks();
+    }
 
   }, [params.evalid])
 

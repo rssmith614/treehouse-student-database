@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, onSnapshot, query, where } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 
 import dayjs from "dayjs";
@@ -32,8 +32,7 @@ const EvalsTable = ({ filterBy, id }) => {
       q = query(collection(db, 'evaluations'), where('student_id', '==', id));
     }
 
-    getDocs(q)
-      .then((res) => {
+    const unsubscribeEvals = onSnapshot(q, (res) => {
         Promise.all(res.docs.map(async evaluation => {
           return Promise.all((await getDocs(collection(evaluation.ref, 'tasks'))).docs.map(async task => {
             if (task.data().standard === '')
@@ -60,8 +59,10 @@ const EvalsTable = ({ filterBy, id }) => {
             })
         }))
           .then(compiledEvals => setEvals(compiledEvals))
+          .then(() => setLoading(false));
       })
-      .then(() => setLoading(false));
+
+    return () => unsubscribeEvals();
 
   }, [filterBy, id])
 

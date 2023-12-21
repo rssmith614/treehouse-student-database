@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { collection, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 
 import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
@@ -41,64 +41,66 @@ const StudentEvalEdit = () => {
 
   useEffect(() => {
 
-    getDoc(evalRef.current)
-      .then((res) => { setEvaluation(res.data()); setSelectedTutor(res.data().tutor_id) })
+    const unsubscribeEval = onSnapshot(evalRef.current,
+      (res) => {
+        setEvaluation(res.data());
+        setSelectedTutor(res.data().tutor_id)
+      })
 
-    getDocs(collection(db, 'tutors'))
-      .then((res) => setTutors(res.docs));
+    const unsubscribeTutors = onSnapshot(collection(db, 'tutors'),
+      (res) => setTutors(res.docs)
+    );
 
-    getDocs(collection(evalRef.current, 'tasks'))
-      .then(res => {
+    const unsubscribeTasks = onSnapshot(collection(evalRef.current, 'tasks'),
+      res => {
         let compiledTasks = new Array(res.docs.length);
         Promise.all(res.docs.map(async (t, i) => {
           if (t.data().standard === '')
-            return compiledTasks[i] = {...t.data(), id: t.id};
+            return compiledTasks[i] = { ...t.data(), id: t.id };
           else
             return getDoc(doc(db, 'standards', t.data().standard))
               .then(s => {
-                compiledTasks[i] = {...t.data(), id: t.id, standard: {...s.data(), id: s.id}};
+                compiledTasks[i] = { ...t.data(), id: t.id, standard: { ...s.data(), id: s.id } };
               })
         }))
-        .then(() => {
-          compiledTasks.sort((a, b) => {
-            let a_standard = a.standard.key || '0.0.0';
-            let b_standard = b.standard.key || '0.0.0';
-            return (
-              a_standard.split('.')[1].localeCompare(b_standard.split('.')[1]) ||
-              a_standard.split('.')[2] - b_standard.split('.')[2] ||
-              a_standard.split('.')[2].localeCompare(b_standard.split('.')[2]) ||
-              a_standard.localeCompare(b_standard)
-            )
+          .then(() => {
+            compiledTasks.sort((a, b) => {
+              let a_standard = a.standard.key || '0.0.0';
+              let b_standard = b.standard.key || '0.0.0';
+              return (
+                a_standard.split('.')[1].localeCompare(b_standard.split('.')[1]) ||
+                a_standard.split('.')[2] - b_standard.split('.')[2] ||
+                a_standard.split('.')[2].localeCompare(b_standard.split('.')[2]) ||
+                a_standard.localeCompare(b_standard)
+              )
+            })
+            setTasks(compiledTasks);
           })
-          setTasks(compiledTasks);
-        })
-      }).then(() => setLoading(false));
+          .then(() => setLoading(false));
+      })
+
+    const unsubscribeStandards = onSnapshot(collection(db, 'standards'),
+      subCollStandards => {
+        let compiledStandards = [];
+        Promise.all(subCollStandards.docs.map(async s => {
+          return getDoc(doc(db, 'standards', s.id))
+            .then(standard => {
+              compiledStandards.push({ ...s.data(), ...standard.data(), id: standard.id });
+            })
+        }))
+          .then(() => {
+            setStandards(compiledStandards);
+          });
+      })
+
+    return () => {
+      unsubscribeEval();
+      unsubscribeTasks();
+      unsubscribeTutors();
+      unsubscribeStandards();
+    }
 
   }, [params.evalid])
-
-  useEffect(() => {
-    if (!evaluation.student_id)
-      return
-
-    getDoc(doc(db, 'students', evaluation.student_id))
-      .then((docs) => {
-        getDocs(collection(doc(db, 'students', evaluation.student_id), 'standards'))
-          .then(subCollStandards => {
-            let compiledStandards = [];
-            Promise.all(subCollStandards.docs.map(async s => {
-              return getDoc(doc(db, 'standards', s.id))
-                .then(standard => {
-                  compiledStandards.push({...s.data(), ...standard.data(), id: standard.id});
-                })
-            }))
-              .then(() => {
-                setStandards(compiledStandards);
-              });
-          })
-          .then(setLoading(false));
-        });
-
-  }, [evaluation])
 
   function sumbitEval(e) {
     e.preventDefault();
@@ -123,11 +125,11 @@ const StudentEvalEdit = () => {
     updateDoc(evalRef.current, newEval)
       .then(() => {
         tasks.forEach((t) => {
-          let {id: _, ...rest} = t;
-          setDoc(doc(db, 'evaluations', evalRef.current.id, 'tasks', t.id), {...rest, standard: t.standard?.id || ''});
+          let { id: _, ...rest } = t;
+          setDoc(doc(db, 'evaluations', evalRef.current.id, 'tasks', t.id), { ...rest, standard: t.standard?.id || '' });
         })
       })
-      .then(() => addToast({header: 'Changes Saved', message: `Session evaluation for ${newEval.student_name} was successfully updated`}))
+      .then(() => addToast({ header: 'Changes Saved', message: `Session evaluation for ${newEval.student_name} was successfully updated` }))
       .then(() => navigate(`/eval/${evalRef.current.id}`));
   }
 
@@ -155,7 +157,7 @@ const StudentEvalEdit = () => {
   const StandardDropdownToggle = React.forwardRef(({ style, className, onClick, value }, ref) => (
     <Form.Control
       ref={ref}
-      style={{...style, cursor: 'pointer'}}
+      style={{ ...style, cursor: 'pointer' }}
       className={className}
       onClick={(e) => {
         e.preventDefault();
@@ -173,7 +175,7 @@ const StudentEvalEdit = () => {
     return (
       <div
         ref={ref}
-        style={{...style, ...{maxHeight: '50vh', overflowY: 'auto'}}}
+        style={{ ...style, ...{ maxHeight: '50vh', overflowY: 'auto' } }}
         className={className}
         onClick={(e) => {
           e.preventDefault();
@@ -204,46 +206,47 @@ const StudentEvalEdit = () => {
             s.description.toLowerCase().includes(search.toLowerCase())
           )
         })
-        .sort((a,b) => {
-          return (
-            a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
-            a.key.split('.')[2] - b.key.split('.')[2] ||
-            a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
-            a.key.localeCompare(b.key)
-        )})
-        .map((standard, i) => {
-          return (
-            <OverlayTrigger
-              placement="right"
-              flip={true}
-              key={standard.id}
-              overlay={
-                <Popover className="">
-                  <Popover.Header>
-                    {standard.key} <br />
-                    {`${grades[standard.grade]} ${standard.category}: ${standard.sub_category}`}
-                  </Popover.Header>
-                  <Popover.Body>
-                    <div className="text-decoration-underline">Description</div>
-                    {standard.description}
-                  </Popover.Body>
-                </Popover>
-              }>
-              <div key={standard.id}>
-                <Form.Check
-                  type={'radio'}
-                  checked={value.id === standard.id}
-                  label={standard.key}
-                  className="mx-3 my-2 w-auto"
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      valueSetter(standard)
-                    }
-                  }} />
-              </div>
-            </OverlayTrigger>
-          )
-        })}
+          .sort((a, b) => {
+            return (
+              a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
+              a.key.split('.')[2] - b.key.split('.')[2] ||
+              a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
+              a.key.localeCompare(b.key)
+            )
+          })
+          .map((standard, i) => {
+            return (
+              <OverlayTrigger
+                placement="right"
+                flip={true}
+                key={standard.id}
+                overlay={
+                  <Popover className="">
+                    <Popover.Header>
+                      {standard.key} <br />
+                      {`${grades[standard.grade]} ${standard.category}: ${standard.sub_category}`}
+                    </Popover.Header>
+                    <Popover.Body>
+                      <div className="text-decoration-underline">Description</div>
+                      {standard.description}
+                    </Popover.Body>
+                  </Popover>
+                }>
+                <div key={standard.id}>
+                  <Form.Check
+                    type={'radio'}
+                    checked={value.id === standard.id}
+                    label={standard.key}
+                    className="mx-3 my-2 w-auto"
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        valueSetter(standard)
+                      }
+                    }} />
+                </div>
+              </OverlayTrigger>
+            )
+          })}
         <div className="d-flex flex-column">
           <div className="px-3 fs-6 fst-italic text-end">
             Can't find what you're looking for?
@@ -259,12 +262,12 @@ const StudentEvalEdit = () => {
   const tasksList = tasks.map((task, idx) => {
     return (
       <tr className="my-3" key={idx}>
-        <td><Button type="button" variant="danger" onClick={() => {setTasks(tasks.filter((t, i) => i !== idx))}} disabled={tasks.length <= 1}><i className="bi bi-trash-fill" /></Button></td>
+        <td><Button type="button" variant="danger" onClick={() => { setTasks(tasks.filter((t, i) => i !== idx)) }} disabled={tasks.length <= 1}><i className="bi bi-trash-fill" /></Button></td>
         <td>
           <input id="subject" className="form-control" type="text"
             value={task.subject} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
-              else return {...t, subject: e.target.value};
+              else return { ...t, subject: e.target.value };
             }))} required />
         </td>
         <td>
@@ -291,21 +294,21 @@ const StudentEvalEdit = () => {
           <input id="progression" className="form-control" type="number" min="1" max="5" step="1"
             value={task.progression} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
-              else return {...t, progression: e.target.value};
+              else return { ...t, progression: e.target.value };
             }))} />
         </td>
         <td>
           <input id="engagement" className="form-control" type="number" min="1" max="5" step="1"
             value={task.engagement} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
-              else return {...t, engagement: e.target.value};
+              else return { ...t, engagement: e.target.value };
             }))} />
         </td>
         <td>
           <textarea id="comments" className="form-control"
             value={task.comments} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
-              else return {...t, comments: e.target.value};
+              else return { ...t, comments: e.target.value };
             }))} />
         </td>
       </tr>
@@ -315,18 +318,18 @@ const StudentEvalEdit = () => {
   return (
     <div className='p-3 d-flex flex-column'>
       <h1 className="display-1">Edit Session Evaluation</h1>
-        <form onSubmit={sumbitEval}>
-          <div className="d-flex flex-fill card p-3 m-3 bg-light-subtle">
-            <div className="h3"
-              data-toggle="tooltip" title="Contact an administrator if this is incorrect">{evaluation.student_name}</div>
-            <div className="row my-3">
-              <div className="col">
-                <label className="form-label h5">Tutor</label>
-                <select id="tutor" className="form-control"
-                  value={selectedTutor} onChange={(e) => setSelectedTutor(e.target.val)} required>
-                  <option disabled value="">Select One</option>
-                  {tutorOptions()}
-                </select>
+      <form onSubmit={sumbitEval}>
+        <div className="d-flex flex-fill card p-3 m-3 bg-light-subtle">
+          <div className="h3"
+            data-toggle="tooltip" title="Contact an administrator if this is incorrect">{evaluation.student_name}</div>
+          <div className="row my-3">
+            <div className="col">
+              <label className="form-label h5">Tutor</label>
+              <select id="tutor" className="form-control"
+                value={selectedTutor} onChange={(e) => setSelectedTutor(e.target.val)} required>
+                <option disabled value="">Select One</option>
+                {tutorOptions()}
+              </select>
             </div>
             <div className="col">
               <label className="form-label h5">Date</label>
@@ -337,26 +340,26 @@ const StudentEvalEdit = () => {
           <div className="h5">Tasks</div>
           <Row className="d-flex px-3">
             {loading ?
-            <div className="spinner-border align-self-center" />
-          :
+              <div className="spinner-border align-self-center" />
+              :
               <div className="d-flex flex-column">
-            <Table striped>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Subject</th>
-                  <th>Standard</th>
-                  <th>Progression</th>
-                  <th>Engagement</th>
-                  <th>Comments</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tasksList}
-              </tbody>
-            </Table>
-            <Button type="button" variant="secondary" className="me-auto" onClick={() => setTasks([...tasks, {subject: "", standard: "", progression: "5", engagement: "5", comments: ""}])}>Add Task</Button>
-            </div>
+                <Table striped>
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Subject</th>
+                      <th>Standard</th>
+                      <th>Progression</th>
+                      <th>Engagement</th>
+                      <th>Comments</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tasksList}
+                  </tbody>
+                </Table>
+                <Button type="button" variant="secondary" className="me-auto" onClick={() => setTasks([...tasks, { subject: "", standard: "", progression: "5", engagement: "5", comments: "" }])}>Add Task</Button>
+              </div>
             }
           </Row>
           <hr />

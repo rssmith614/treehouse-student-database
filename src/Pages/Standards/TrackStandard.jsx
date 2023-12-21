@@ -1,4 +1,4 @@
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { db } from "../../Services/firebase";
@@ -37,10 +37,12 @@ const TrackStandard = () => {
   useEffect(() => {
     studentRef.current = doc(db, "students", params.studentid);
 
-    getDoc(studentRef.current)
-      .then((res) => {
+    const unsubscribe = onSnapshot(studentRef.current,
+      (res) => {
         setStudent(res.data());
       })
+
+    return () => unsubscribe();
 
   }, [params.studentid])
 
@@ -61,18 +63,18 @@ const TrackStandard = () => {
 
     if (selectedStandard instanceof Array) {
       Promise.all(selectedStandard.map((s) => {
-        return setDoc(doc(studentRef.current, 'standards', s.id), {status: status, timestamp: serverTimestamp()})
+        return setDoc(doc(studentRef.current, 'standards', s.id), { status: status, timestamp: serverTimestamp() })
       })).then(() => {
         setShowSubcat(false);
-        addToast({header: 'Standards Added', message: `${selectedStandard.length} standards were successfully added to ${student.student_name}'s profile`})
+        addToast({ header: 'Standards Added', message: `${selectedStandard.length} standards were successfully added to ${student.student_name}'s profile` })
       });
 
     } else {
-      
-      setDoc(doc(studentRef.current, 'standards', selectedStandard.id), {status: status, timestamp: serverTimestamp()})
+
+      setDoc(doc(studentRef.current, 'standards', selectedStandard.id), { status: status, timestamp: serverTimestamp() })
         .then((res) => {
           setShowSingle(false);
-          addToast({header: 'Standard Added', message: `Standard ${selectedStandard.key} was successfully added to ${student.student_name}'s profile`})
+          addToast({ header: 'Standard Added', message: `Standard ${selectedStandard.key} was successfully added to ${student.student_name}'s profile` })
         })
     }
 
@@ -88,13 +90,13 @@ const TrackStandard = () => {
       );
     })
   );
-  
+
   const categoryTabs = (
     categories.map((c, i) => {
       return (
         <Nav.Item key={i}>
           <Nav.Link data-bs-toggle="tab" aria-current="true"
-          eventKey={c} onClick={() => setCategory(c)}>{c}</Nav.Link>
+            eventKey={c} onClick={() => setCategory(c)}>{c}</Nav.Link>
         </Nav.Item>
       )
     })
@@ -110,7 +112,7 @@ const TrackStandard = () => {
       <Offcanvas.Body>
         <p className="fst-italic text-decoration-underline">Description</p>
         <p>{selectedStandard?.description}</p>
-        {selectedStandard?.questions !== undefined ? 
+        {selectedStandard?.questions !== undefined ?
           <>
             <p className="fst-italic text-decoration-underline">Example Question</p>
             <div>Q: {selectedStandard.questions[0].question}</div>
@@ -154,7 +156,7 @@ const TrackStandard = () => {
             <option value='4'>4 - Exceeds Expectations</option>
           </Form.Select>
 
-          <Button className="mt-3" type="submit" id='addStandard'>Add {selectedStandard?.length} standard{selectedStandard?.length > 1 ? 's':''}</Button>
+          <Button className="mt-3" type="submit" id='addStandard'>Add {selectedStandard?.length} standard{selectedStandard?.length > 1 ? 's' : ''}</Button>
         </Form>
       </Offcanvas.Body>
     </>
@@ -184,10 +186,10 @@ const TrackStandard = () => {
       <div className="d-flex p-3">
         <Button variant='secondary' onClick={() => navigate(`/students/${studentRef.current.id}`)}>Done</Button>
       </div>
-      <Offcanvas show={showSingle || showSubcat} onHide={() => {setShowSingle(false); setShowSubcat(false)}} onExited={() => setSelectedStandard(null)} placement='end'>
+      <Offcanvas show={showSingle || showSubcat} onHide={() => { setShowSingle(false); setShowSubcat(false) }} onExited={() => setSelectedStandard(null)} placement='end'>
         {showSingle ?
           addSingle
-        :
+          :
           addSubcat
         }
       </Offcanvas>

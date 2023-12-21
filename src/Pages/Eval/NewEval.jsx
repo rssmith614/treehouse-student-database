@@ -1,9 +1,9 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 
 import { useNavigate } from 'react-router-dom';
 
 import { db } from "../../Services/firebase";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dropdown, Form, InputGroup } from "react-bootstrap";
 
 const NewEval = () => {
@@ -15,18 +15,22 @@ const NewEval = () => {
 
   const [tableSort, setTableSort] = useState('name_asc');
 
-  const studentCollRef = useRef();
-
   const navigate = useNavigate();
 
   useEffect(() => {
-    const queryStudents = async () => {
-      studentCollRef.current = collection(db, "students");
-      await getDocs(studentCollRef.current).then((res) => setStudents(res.docs));
-    }
+    const unsubscribeStudents = onSnapshot(
+      collection(db, 'students'),
+      (snapshot) => {
+        const newStudents = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        }));
 
-    queryStudents()
-      .then(setLoading(false));
+        setStudents(newStudents);
+        setLoading(false);
+      })
+
+    return () => unsubscribeStudents();
   }, [])
 
   function selectStudent(id) {

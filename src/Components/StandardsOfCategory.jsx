@@ -1,4 +1,4 @@
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Container, OverlayTrigger, Popover, Row } from "react-bootstrap";
 import { db } from "../Services/firebase";
@@ -11,13 +11,12 @@ const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
 
   useEffect(() => {
 
-    setLoading(true);
-
-    getDocs(query(
+    const unsubscribeStandards = onSnapshot(
+      query(
         collection(db, 'standards'),
         where('grade', '==', grade),
-        where('category', '==', category))
-      ).then((res) => {
+        where('category', '==', category)
+      ), (res) => {
         let newSubcategories = {};
         res.docs.forEach((standard) => {
           if (newSubcategories[standard.data().sub_category]) {
@@ -27,7 +26,10 @@ const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
           }
         })
         setSubcategories(newSubcategories);
-      }).then(() => setLoading(false));
+        setLoading(false);
+      });
+
+    return () => unsubscribeStandards();
 
   }, [grade, category])
 

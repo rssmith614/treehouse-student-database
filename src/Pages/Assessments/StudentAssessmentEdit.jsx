@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import React, { useContext, useEffect, useState } from 'react';
 import { Button, Card, Form, Table } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -34,8 +34,9 @@ const StudentAssessmentEdit = () => {
 
   useEffect(() => {
 
-    getDocs(collection(db, 'tutors'))
-      .then((snapshot) => {
+    const unsubscribeTutors = onSnapshot(
+      collection(db, 'tutors'),
+      (snapshot) => {
         const newTutors = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data()
@@ -44,11 +45,17 @@ const StudentAssessmentEdit = () => {
         setTutors(newTutors);
       })
 
-    getDoc(doc(db, 'student_assessments', params.assessmentid))
-      .then((doc) => {
+    const unsubscribeAssessments = onSnapshot(
+      doc(db, 'student_assessments', params.assessmentid),
+      (doc) => {
         setAssessment({ ...doc.data(), id: doc.id });
         setSelectedTutor(doc.data().issued_by);
       })
+
+    return () => {
+      unsubscribeTutors();
+      unsubscribeAssessments();
+    }
 
   }, [params.assessmentid])
 
@@ -62,10 +69,10 @@ const StudentAssessmentEdit = () => {
       date: e.target.date.value,
     }, { merge: true })
       .then(() => {
-        addToast({ header: "Student Assessment Updated", message: "The student assessment has been updated successfully"})
+        addToast({ header: "Student Assessment Updated", message: "The student assessment has been updated successfully" })
         navigate(`/assessments/${params.assessmentid}`);
       })
-    
+
   }
 
   function tutorOptions() {
@@ -77,7 +84,7 @@ const StudentAssessmentEdit = () => {
   function assessmentQuestions() {
     if (!assessment?.questions) return;
 
-    let questionsWithScores = Object.entries(assessment.questions).map((q) => ({...q[1], num: q[0], score: q[1].score || 0}));
+    let questionsWithScores = Object.entries(assessment.questions).map((q) => ({ ...q[1], num: q[0], score: q[1].score || 0 }));
 
     let questionList = questionsWithScores.map((q) => (
       <tr key={q.num}>
@@ -86,15 +93,19 @@ const StudentAssessmentEdit = () => {
         <td>{q.sample_answer}</td>
         <td>
           <Form.Control as='textarea' rows={3} value={q.student_answer || ''}
-            onChange={(e) => setAssessment({...assessment, questions: questionsWithScores.reduce((newq, a) => {
-              return {...newq, [a.num]: {...a, student_answer: a.num === q.num ? e.target.value : a.student_answer}}
-            }, {})})}/>
+            onChange={(e) => setAssessment({
+              ...assessment, questions: questionsWithScores.reduce((newq, a) => {
+                return { ...newq, [a.num]: { ...a, student_answer: a.num === q.num ? e.target.value : a.student_answer } }
+              }, {})
+            })} />
         </td>
         <td>
           <Form.Control type='number' value={q.score} min={0} max={5}
-            onChange={(e) => setAssessment({...assessment, questions: questionsWithScores.reduce((newq, a) => {
-              return {...newq, [a.num]: {...a, score: a.num === q.num ? parseInt(e.target.value) : a.score}}
-            }, {})})}/>
+            onChange={(e) => setAssessment({
+              ...assessment, questions: questionsWithScores.reduce((newq, a) => {
+                return { ...newq, [a.num]: { ...a, score: a.num === q.num ? parseInt(e.target.value) : a.score } }
+              }, {})
+            })} />
         </td>
       </tr>
     ));

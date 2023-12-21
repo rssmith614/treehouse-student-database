@@ -1,4 +1,4 @@
-import {  doc, getDoc } from "firebase/firestore";
+import {  doc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { db } from "../../Services/firebase";
@@ -13,11 +13,12 @@ const StudentEvalsList = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const unsubscribe = onSnapshot(doc(db, 'students', params.studentid), (snapshot) => {
+      setStudentName(snapshot.data().student_name);
+    });
 
-    getDoc(doc(db, 'students', params.studentid))
-      .then((res) => setStudentName(res.data().student_name));
-
-  }, [params.studentid])
+    return () => unsubscribe();
+  }, [params.studentid]);
 
   return (
     <div className='p-3 d-flex flex-column'>

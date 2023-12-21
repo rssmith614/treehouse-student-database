@@ -1,4 +1,4 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../../Services/firebase";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
@@ -24,18 +24,19 @@ const AssessmentsList = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getDocs(collection(db, 'assessments'))
-      .then(res => {
-        let assessmentGroups = {};
-        res.docs.forEach(amt => {
-          if (assessmentGroups[amt.data().grade]) {
-            assessmentGroups[amt.data().grade].push({ ...amt.data(), id: amt.id });
-          } else {
-            assessmentGroups[amt.data().grade] = [{ ...amt.data(), id: amt.id }];
-          }
-        })
-        setAssessments(assessmentGroups);
+    const unsubscribeAssessments = onSnapshot(collection(db, 'assessments'), (res) => {
+      let assessmentGroups = {};
+      res.docs.forEach(amt => {
+        if (assessmentGroups[amt.data().grade]) {
+          assessmentGroups[amt.data().grade].push({ ...amt.data(), id: amt.id });
+        } else {
+          assessmentGroups[amt.data().grade] = [{ ...amt.data(), id: amt.id }];
+        }
       })
+      setAssessments(assessmentGroups);
+    });
+
+    return () => unsubscribeAssessments();
 
   }, [])
 
