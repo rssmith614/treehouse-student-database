@@ -85,6 +85,18 @@ const NewStudentEval = () => {
 
   }, [params.studentid])
 
+  useEffect(() => {
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].progression <= 2 || tasks[i].engagement <= 2) {
+        document.getElementById("flagForReview").classList.remove("d-none");
+        return;
+      }
+    }
+
+    document.getElementById("flagForReview").classList.add("d-none");
+
+  }, [tasks])
+
   function addTask() {
     setTasks([...tasks, { subject: "", standard: "", progression: "5", engagement: "5", comments: "" }]);
   }
@@ -111,6 +123,10 @@ const NewStudentEval = () => {
       worksheet_completion: document.getElementById("worksheet_completion").value,
       next_session: document.getElementById("next_session").value,
       owner: auth.currentUser.uid,
+    }
+
+    if (document.getElementById("flagForReview").classList.contains("btn-outline-danger")) {
+      newEval.flagged = true;
     }
 
     if (worksheetUpload) {
@@ -393,9 +409,23 @@ const NewStudentEval = () => {
         </div>
         <div className="d-flex">
           <button type="button" className="btn btn-secondary m-3 me-auto" onClick={() => navigate(-1)}>Back</button>
-          <button className="btn btn-primary m-3 ms-auto" id="submit" type="submit">Submit</button>
+          
+          <button className="btn btn-primary m-3" id="submit" type="submit">Submit</button>
         </div>
       </form>
+      <Button variant="danger" className="mx-3 ms-auto" id="flagForReview"
+        onClick={(e) => {
+          e.preventDefault();
+          if (e.target.classList.contains('btn-danger')) {
+            e.target.classList.remove('btn-danger');
+            e.target.classList.add('btn-outline-danger');
+            e.target.innerHTML = 'Flagged for Admin Review';
+          } else {
+            e.target.classList.remove('btn-outline-danger');
+            e.target.classList.add('btn-danger');
+            e.target.innerHTML = 'Flag for Admin Review?';
+          }
+        }}>Flag for Admin Review?</Button>
     </div>
   );
 };
