@@ -27,7 +27,7 @@ import { defineAbilityFor } from "./Services/defineAbility";
 import { getDoc, doc } from 'firebase/firestore';
 
 import { auth, db } from './Services/firebase';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import StudentEval from './Pages/Eval/StudentEval';
 import StudentEvalEdit from './Pages/Eval/StudentEvalEdit';
 import NewEval from './Pages/Eval/NewEval';
