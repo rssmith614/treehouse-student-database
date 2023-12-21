@@ -5,7 +5,7 @@ import { Can } from "../../Services/can";
 import { deleteDoc, doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import EvalsTable from "../../Components/EvalsTable";
-import { Button, Card, Nav, Tab } from "react-bootstrap";
+import { Button, Card, Col, Nav, Row, Tab } from "react-bootstrap";
 import { Tutor } from "../../Services/defineAbility";
 
 const TutorProfile = () => {
@@ -71,15 +71,38 @@ const TutorProfile = () => {
             <Tab.Content className="card-body">
               <Tab.Pane eventKey='about'>
                 <div className="d-flex p-3">
-                  <img src={tutor?.photoURL} alt="" />
-                  <div className="d-flex flex-column p-3">
-                    <div className="h3">Email</div>
-                    <div>{tutor?.email}</div>
-                  </div>
-                  <div className="d-flex flex-column p-3">
-                    <div className="h3">Role</div>
-                    <div>{capitalize(tutor?.clearance)}</div>
-                  </div>
+                  <Row xs={{ cols: 'auto' }}>
+                    {tutor?.photoURL === '' || !tutor?.photoURL ?
+                      null :
+                      <Col>
+                        <img src={tutor?.photoURL} alt="Tutor" />
+                      </Col>
+                    }
+                    <Col>
+                      <div className="d-flex flex-column p-3">
+                        <div className="h3">Email</div>
+                        <div>{tutor?.email}</div>
+                      </div>
+                    </Col>
+                    <Col>
+                      <div className="d-flex flex-column p-3">
+                        <div className="h3">Role</div>
+                        <div>{capitalize(tutor?.clearance)}</div>
+                      </div>
+                    </Col>
+                    <Col>
+                      <div className="d-flex flex-column p-3">
+                        <div className="h3">Preferred Student Ages</div>
+                        <div>{tutor?.preferredAges || ''}</div>
+                      </div>
+                    </Col>
+                    <Col>
+                      <div className="d-flex flex-column p-3">
+                        <div className="h3">Preferred Subjects</div>
+                        <div>{tutor?.preferredSubjects || ''}</div>
+                      </div>
+                    </Col>
+                  </Row>
                 </div>
               </Tab.Pane>
               <Tab.Pane eventKey='evals'>
