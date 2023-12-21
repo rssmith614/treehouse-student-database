@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { db } from "../../Services/firebase";
 
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { ToastContext } from "../../Services/toast";
 
@@ -15,12 +15,14 @@ const NewProfile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getDocs(collection(db, "tutors"))
-      .then((res) => setTutors(res.docs));
+    const unsubscribe = onSnapshot(collection(db, "tutors"),
+      (res) => setTutors(res.docs));
+
+    return () => unsubscribe();
   })
 
   function addEContact() {
-    setEmergencyContacts([...emergencyContacts, {name:"", relation:"", phone:""}]);
+    setEmergencyContacts([...emergencyContacts, { name: "", relation: "", phone: "" }]);
   }
 
   async function addStudent(e) {
@@ -47,12 +49,12 @@ const NewProfile = () => {
 
     const studentCollRef = collection(db, "students");
     addDoc(studentCollRef, newStudent)
-      .then(() => addToast({header: 'Registration Complete', message: `Student ${newStudent.student_name} has been registered`}))
+      .then(() => addToast({ header: 'Registration Complete', message: `Student ${newStudent.student_name} has been registered` }))
       .then(() => navigate('/students'));
   }
 
   function updateEContacts() {
-    let newList = emergencyContacts.map((e) => {return e});
+    let newList = emergencyContacts.map((e) => { return e });
     newList.forEach((eContact, i) => {
       eContact.name = document.getElementById(`contact${i}name`).value;
       eContact.relation = document.getElementById(`contact${i}rel`).value;
@@ -63,15 +65,15 @@ const NewProfile = () => {
   }
 
   function removeEContact(idx) {
-    if (typeof(idx) === "object") idx.preventDefault();
-    let newList = emergencyContacts.map((e) => {return e});
-  
+    if (typeof (idx) === "object") idx.preventDefault();
+    let newList = emergencyContacts.map((e) => { return e });
+
     newList.forEach((eContact, i) => {
       document.getElementById(`contact${i}name`).value = "";
       document.getElementById(`contact${i}rel`).value = "";
       document.getElementById(`contact${i}phone`).value = "";
     });
-    
+
     newList.splice(idx, 1);
 
     newList.forEach((eContact, i) => {
@@ -89,7 +91,7 @@ const NewProfile = () => {
       let rowid = "contact" + i;
       return (
         <tr key={i}>
-          <td><button id={rowid + 'del'} type="button" className="btn btn-danger" onClick={() => {removeEContact(i)}}><i className="bi bi-trash-fill" /></button></td>
+          <td><button id={rowid + 'del'} type="button" className="btn btn-danger" onClick={() => { removeEContact(i) }}><i className="bi bi-trash-fill" /></button></td>
           <td><input id={rowid + 'name'} className="form-control" onBlur={updateEContacts} /></td>
           <td><input id={rowid + 'rel'} className="form-control" onBlur={updateEContacts} /></td>
           <td><input id={rowid + 'phone'} className="form-control" onBlur={updateEContacts} /></td>
@@ -120,9 +122,9 @@ const NewProfile = () => {
                 <input type="text" className="form-control" id="studentName" required />
               </div>
               <div className="col mb-3">
-              <label htmlFor="studentDOB" className="form-label h5">Student DOB</label>
-              <input type="date" className="form-control" id="studentDOB" required />
-            </div>
+                <label htmlFor="studentDOB" className="form-label h5">Student DOB</label>
+                <input type="date" className="form-control" id="studentDOB" required />
+              </div>
             </div>
             <div className="row">
               <div className="col mb-3">
@@ -156,7 +158,7 @@ const NewProfile = () => {
                 {tutorOptions()}
               </select>
             </div>
-            
+
             <div className="mb-3">
               <label htmlFor="extraInfo" className="form-label h5">Other Info</label>
               <textarea className="form-control" id="extraInfo" />

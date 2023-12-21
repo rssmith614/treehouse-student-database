@@ -1,11 +1,8 @@
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 
 import { db } from "../Services/firebase";
 
 import { useEffect, useState, useRef } from "react";
-
-// to be replaced with DB call
-let tutors = ["Robert Smith", "Marcus Arellano", "Alex Gonzales"]
 
 const StudentEvalForm = (props) => {
   const [student, setStudent] = useState({});
@@ -16,12 +13,12 @@ const StudentEvalForm = (props) => {
   studentRef.current = doc(db, "students", props.studentid);
 
   useEffect(() => {
-    const getStudentData = async () => {
-      await getDoc(studentRef.current).then((docs) => setStudent(docs.data()))
-    }
+    const unsubscribeStudents = onSnapshot(studentRef.current, (res) => {
+      setStudent(res.data());
+      setLoading(false)
+    });
 
-    getStudentData()
-      .then(setLoading(false));
+    return () => unsubscribeStudents();
   }, [props.studentid])
 
   async function sumbitEval() {

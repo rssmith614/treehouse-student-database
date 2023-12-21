@@ -37,32 +37,6 @@ const AssessmentEdit = () => {
   const params = useParams();
 
   useEffect(() => {
-    getDoc(doc(db, 'assessments', params.assessmentid))
-      .then(async res => {
-        setAssessment(res.data());
-        setQuestions(
-          await Promise.all(
-            Object.keys(res.data().questions).map(async (key) => {
-              if (res.data().questions[key].standard !== '') {
-                const standard = await getDoc(doc(db, 'standards', res.data().questions[key].standard));
-                return {
-                  ...res.data().questions[key],
-                  num: key,
-                  standard: standard.data().key,
-                };
-              } else {
-                return { ...res.data().questions[key], num: key };
-              }
-            })
-          )
-        );
-
-        if (res.data().file === '' || !res.data().file) return;
-
-        assessmentFileRef.current = ref(storage, res.data().file);
-        getDownloadURL(assessmentFileRef.current)
-          .then(url => setAssessmentFile(url));
-      })
 
     onSnapshot(doc(db, 'assessments', params.assessmentid), async (res) => {
       setAssessment(res.data());
@@ -82,6 +56,12 @@ const AssessmentEdit = () => {
           })
         )
       );
+
+      if (res.data().file === '' || !res.data().file) return;
+
+        assessmentFileRef.current = ref(storage, res.data().file);
+        getDownloadURL(assessmentFileRef.current)
+          .then(url => setAssessmentFile(url));
     });
 
   }, [params.assessmentid])

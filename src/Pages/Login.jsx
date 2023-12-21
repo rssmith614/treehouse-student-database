@@ -18,7 +18,7 @@ const Login = ({ setUserProfile }) => {
     if (auth.currentUser) {
       navigate(-1);
     }
-  }, [navigate])
+  })
 
   const handleSignIn = () => {
     if (!auth.currentUser) {

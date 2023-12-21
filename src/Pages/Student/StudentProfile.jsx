@@ -1,4 +1,4 @@
-import { deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
+import { deleteDoc, doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 
 import { db } from "../../Services/firebase";
 import React, { useContext, useEffect, useRef, useState } from "react";
@@ -45,12 +45,11 @@ const StudentProfile = () => {
 
   useEffect(() => {
 
-    getDoc(studentRef.current)
-      .then((res) => {
-        setStudent(res.data());
-      }).then(setLoading(false))
-
-    const unsubscribe = onSnapshot(studentRef.current, s => setStudent(s.data()));
+    const unsubscribe = onSnapshot(studentRef.current,
+      s => {
+        setStudent(s.data());
+        setLoading(false);
+      });
 
     return () => unsubscribe();
 

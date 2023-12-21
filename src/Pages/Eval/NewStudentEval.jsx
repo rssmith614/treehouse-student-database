@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 
 import { auth, db, storage } from "../../Services/firebase";
 import dayjs from "dayjs";
@@ -28,7 +28,7 @@ const NewStudentEval = () => {
 
   const [selectedTutor, setSelectedTutor] = useState(auth.currentUser?.uid || "");
 
-  const [tasks, setTasks] = useState([{subject: "", standard: "", progression: "5", engagement: "5", comments: ""}]);
+  const [tasks, setTasks] = useState([{ subject: "", standard: "", progression: "5", engagement: "5", comments: "" }]);
 
   // const [loading, setLoading] = useState(true);
 
@@ -42,33 +42,51 @@ const NewStudentEval = () => {
 
   useEffect(() => {
 
-    getDoc(studentRef.current)
-      .then((docs) => {
-        setStudent(docs.data());
-        // setSelectedTutor(docs.data().preferred_tutor);
-        getDocs(collection(studentRef.current, 'standards'))
-          .then(subCollStandards => {
-            let compiledStandards = [];
-            Promise.all(subCollStandards.docs.map(async s => {
-              return getDoc(doc(db, 'standards', s.id))
-                .then(standard => {
-                  compiledStandards.push({...s.data(), ...standard.data(), id: standard.id});
-                })
-            }))
-              .then(() => {
-                setStandards(compiledStandards);
-              });
-          })
-          // .then(setLoading(false));
-        });
+    const unsubscribeStudents = onSnapshot(
+      doc(db, "students", params.studentid),
+      (doc) => {
+        setStudent({ ...doc.data(), id: doc.id });
+      }
+    );
 
-    getDocs(collection(db, 'tutors'))
-      .then((res) => setTutors(res.docs));
+    const unsubscribeStudentStandards = onSnapshot(
+      collection(doc(db, "students", params.studentid), "standards"),
+      (snapshot) => {
+        let compiledStandards = [];
+        Promise.all(snapshot.docs.map(async s => {
+          return getDoc(doc(db, 'standards', s.id))
+            .then(standard => {
+              compiledStandards.push({ ...s.data(), ...standard.data(), id: standard.id });
+            })
+        }))
+          .then(() => {
+            setStandards(compiledStandards);
+          });
+      }
+    )
+
+    const unsubscribeTutors = onSnapshot(
+      collection(db, "tutors"),
+      (snapshot) => {
+        const newTutors = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setTutors(newTutors);
+      }
+    )
+
+    return () => {
+      unsubscribeStudents();
+      unsubscribeStudentStandards();
+      unsubscribeTutors();
+    }
 
   }, [params.studentid])
 
   function addTask() {
-    setTasks([...tasks, {subject: "", standard: "", progression: "5", engagement: "5", comments: ""}]);
+    setTasks([...tasks, { subject: "", standard: "", progression: "5", engagement: "5", comments: "" }]);
   }
 
   function sumbitEval(e) {
@@ -79,7 +97,7 @@ const NewStudentEval = () => {
     let tutorName;
     tutors.forEach((tutor) => {
       if (tutor.id === document.getElementById("tutor").value)
-        tutorName = tutor.data().displayName;
+        tutorName = tutor.displayName;
     })
 
     const worksheetUpload = document.getElementById("worksheet").files[0];
@@ -101,23 +119,23 @@ const NewStudentEval = () => {
       newEval.worksheet = worksheetRef.fullPath;
 
       uploadBytes(worksheetRef, worksheetUpload)
-        .then(() => 
-            addDoc(collection(db, "evaluations"), newEval)
-          .then((doc) => {
-            tasks.forEach(t => addDoc(collection(doc, 'tasks'), {...t, standard: t.standard?.id || ''}));
-            addToast({header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded`})
-          })
-          .then(() =>
+        .then(() =>
+          addDoc(collection(db, "evaluations"), newEval)
+            .then((doc) => {
+              tasks.forEach(t => addDoc(collection(doc, 'tasks'), { ...t, standard: t.standard?.id || '' }));
+              addToast({ header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded` })
+            })
+            .then(() =>
               navigate(`/students/${params.studentid}`)
-          )
+            )
         )
     } else {
       newEval.worksheet = '';
 
       addDoc(collection(db, "evaluations"), newEval)
         .then((d) => {
-          tasks.forEach(t => addDoc(collection(d, 'tasks'), {...t, standard: t.standard?.id || ''}));
-          addToast({header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded`})
+          tasks.forEach(t => addDoc(collection(d, 'tasks'), { ...t, standard: t.standard?.id || '' }));
+          addToast({ header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded` })
         })
         .then(() =>
           navigate(`/students/${params.studentid}`)
@@ -127,9 +145,8 @@ const NewStudentEval = () => {
 
   function tutorOptions() {
     return tutors.map((tutor) => {
-      let tutorData = tutor.data();
       return (
-        <option value={tutor.id} key={tutor.id}>{tutorData.displayName}</option>
+        <option value={tutor.id} key={tutor.id}>{tutor.displayName}</option>
       );
     });
   }
@@ -149,7 +166,7 @@ const NewStudentEval = () => {
   const StandardDropdownToggle = React.forwardRef(({ style, className, onClick, value }, ref) => (
     <Form.Control
       ref={ref}
-      style={{...style, cursor: 'pointer'}}
+      style={{ ...style, cursor: 'pointer' }}
       className={className}
       onClick={(e) => {
         e.preventDefault();
@@ -198,46 +215,47 @@ const NewStudentEval = () => {
             s.description.toLowerCase().includes(search.toLowerCase())
           )
         })
-        .sort((a,b) => {
-          return (
-            a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
-            a.key.split('.')[2] - b.key.split('.')[2] ||
-            a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
-            a.key.localeCompare(b.key)
-        )})
-        .map((standard, i) => {
-          return (
-            <OverlayTrigger
-              placement="right"
-              flip={true}
-              key={standard.id}
-              overlay={
-                <Popover className="">
-                  <Popover.Header>
-                    {standard.key} <br />
-                    {`${grades[standard.grade]} ${standard.category}: ${standard.sub_category}`}
-                  </Popover.Header>
-                  <Popover.Body>
-                    <div className="text-decoration-underline">Description</div>
-                    {standard.description}
-                  </Popover.Body>
-                </Popover>
-              }>
-              <div key={standard.id}>
-                <Form.Check
-                  type={'radio'}
-                  checked={value.id === standard.id}
-                  label={standard.key}
-                  className="mx-3 my-2 w-auto"
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      valueSetter(standard)
-                    }
-                  }} />
-              </div>
-            </OverlayTrigger>
-          )
-        })}
+          .sort((a, b) => {
+            return (
+              a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
+              a.key.split('.')[2] - b.key.split('.')[2] ||
+              a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
+              a.key.localeCompare(b.key)
+            )
+          })
+          .map((standard, i) => {
+            return (
+              <OverlayTrigger
+                placement="right"
+                flip={true}
+                key={standard.id}
+                overlay={
+                  <Popover className="">
+                    <Popover.Header>
+                      {standard.key} <br />
+                      {`${grades[standard.grade]} ${standard.category}: ${standard.sub_category}`}
+                    </Popover.Header>
+                    <Popover.Body>
+                      <div className="text-decoration-underline">Description</div>
+                      {standard.description}
+                    </Popover.Body>
+                  </Popover>
+                }>
+                <div key={standard.id}>
+                  <Form.Check
+                    type={'radio'}
+                    checked={value.id === standard.id}
+                    label={standard.key}
+                    className="mx-3 my-2 w-auto"
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        valueSetter(standard)
+                      }
+                    }} />
+                </div>
+              </OverlayTrigger>
+            )
+          })}
         <div className="d-flex flex-column">
           <div className="px-3 fs-6 fst-italic text-end">
             Can't find what you're looking for?
@@ -253,12 +271,12 @@ const NewStudentEval = () => {
   const tasksList = tasks.map((task, idx) => {
     return (
       <tr className="my-3" key={idx}>
-        <td><Button type="button" variant="danger" onClick={() => {setTasks(tasks.filter((t, i) => i !== idx))}} disabled={tasks.length <= 1}><i className="bi bi-trash-fill" /></Button></td>
+        <td><Button type="button" variant="danger" onClick={() => { setTasks(tasks.filter((t, i) => i !== idx)) }} disabled={tasks.length <= 1}><i className="bi bi-trash-fill" /></Button></td>
         <td>
           <input id="subject" className="form-control" type="text"
             value={task.subject} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
-              else return {...t, subject: e.target.value};
+              else return { ...t, subject: e.target.value };
             }))} required />
         </td>
         <td>
@@ -271,36 +289,36 @@ const NewStudentEval = () => {
               {standardOptions}
             </select> */}
           <InputGroup>
-              <Dropdown>
-                <Dropdown.Toggle as={StandardDropdownToggle} value={task.standard} />
-                <Dropdown.Menu as={StandardDropdown} value={task.standard}
-                  valueSetter={s => setTasks(tasks.map((t, i) => {
-                    if (i !== idx) return t;
-                    else return {...t, standard: s || ''};
-                  }))} 
-                  style={{ height: 350, overflow: 'scroll' }}/>
-              </Dropdown>
-            </InputGroup>
+            <Dropdown>
+              <Dropdown.Toggle as={StandardDropdownToggle} value={task.standard} />
+              <Dropdown.Menu as={StandardDropdown} value={task.standard}
+                valueSetter={s => setTasks(tasks.map((t, i) => {
+                  if (i !== idx) return t;
+                  else return { ...t, standard: s || '' };
+                }))}
+                style={{ height: 350, overflow: 'scroll' }} />
+            </Dropdown>
+          </InputGroup>
         </td>
         <td>
           <input id="progression" className="form-control" type="number" min="1" max="5" step="1"
             value={task.progression} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
-              else return {...t, progression: e.target.value};
+              else return { ...t, progression: e.target.value };
             }))} />
         </td>
         <td>
           <input id="engagement" className="form-control" type="number" min="1" max="5" step="1"
             value={task.engagement} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
-              else return {...t, engagement: e.target.value};
+              else return { ...t, engagement: e.target.value };
             }))} />
         </td>
         <td>
           <textarea id="comments" className="form-control"
             value={task.comments} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
-              else return {...t, comments: e.target.value};
+              else return { ...t, comments: e.target.value };
             }))} />
         </td>
       </tr>
@@ -312,18 +330,18 @@ const NewStudentEval = () => {
   return (
     <div className='p-3 d-flex flex-column'>
       <h1 className="display-1">New Session Evaluation</h1>
-        <form onSubmit={sumbitEval}>
-          <div className="d-flex flex-fill card p-3 m-3 bg-light-subtle">
-            <div className="h3"
-              data-toggle="tooltip" title="Contact an administrator if this is incorrect">{student.student_name}</div>
-            <div className="row my-3">
-              <div className="col">
-                <label className="form-label h5">Tutor</label>
-                <select id="tutor" className="form-control"
-                  value={selectedTutor} onChange={(e) => setSelectedTutor(e.target.val)}>
-                  <option disabled value="">Select One</option>
-                  {tutorOptions()}
-                </select>
+      <form onSubmit={sumbitEval}>
+        <div className="d-flex flex-fill card p-3 m-3 bg-light-subtle">
+          <div className="h3"
+            data-toggle="tooltip" title="Contact an administrator if this is incorrect">{student.student_name}</div>
+          <div className="row my-3">
+            <div className="col">
+              <label className="form-label h5">Tutor</label>
+              <select id="tutor" className="form-control"
+                value={selectedTutor} onChange={(e) => setSelectedTutor(e.target.val)}>
+                <option disabled value="">Select One</option>
+                {tutorOptions()}
+              </select>
             </div>
             <div className="col">
               <label className="form-label h5">Date</label>

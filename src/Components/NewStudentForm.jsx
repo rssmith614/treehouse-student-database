@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { db } from "../Services/firebase";
 
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 
@@ -15,8 +15,11 @@ const NewStudentForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getDocs(collection(db, "tutors"))
-      .then((res) => setTutors(res.docs));
+    const unsubscribeTutors = onSnapshot(collection(db, "tutors"), (res) => {
+      setTutors(res.docs);
+    });
+
+    return () => unsubscribeTutors();
   })
 
   function addEContact() {

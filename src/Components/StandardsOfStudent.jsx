@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Container, OverlayTrigger, Popover, Row } from "react-bootstrap";
 import { db } from "../Services/firebase";
@@ -35,10 +35,11 @@ const StandardsOfStudent = ({ student, setSelectedStandard, filter, progressFilt
   const [groupedStandards, setGroupedStandards] = useState({});
 
   useEffect(() => {
-    getDocs(collection(student, 'standards'))
-    .then(standards => {
-      setStandards(standards.docs);
-    })
+    const unsubscribeStandards = onSnapshot(collection(student, 'standards'), (res) => {
+      setStandards(res.docs);
+    });
+
+    return () => unsubscribeStandards();
   }, [student])
 
   useEffect(() => {

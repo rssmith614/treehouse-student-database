@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../../Services/firebase";
 
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { Card, Dropdown, Form, InputGroup } from "react-bootstrap";
 
@@ -16,12 +16,18 @@ const TutorProfilesList = () => {
 
   useEffect(() => {
     const tutorCollRef = collection(db, "tutors");
-    const queryTutors = async () => {
-      await getDocs(tutorCollRef).then((res) => setTutors(res.docs));
-    }
+  
+    const unsubscribeTutors = onSnapshot(
+      tutorCollRef,
+      (snapshot) => {
+        setTutors(snapshot.docs);
+        setLoading(false);
+      }
+    )
 
-    queryTutors()
-      .then(setLoading(false));
+    return () => {
+      unsubscribeTutors();
+    }
   }, [])
 
   function selectTutor(tutor) {

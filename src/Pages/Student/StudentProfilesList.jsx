@@ -1,9 +1,9 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 
 import { useNavigate } from 'react-router-dom';
 
 import { db } from "../../Services/firebase";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Can } from "../../Services/can";
 import dayjs from "dayjs";
 import { Dropdown, InputGroup, Table, Form } from "react-bootstrap";
@@ -20,18 +20,21 @@ const StudentProfilesList = () => {
 
   const [tableSort, setTableSort] = useState('name_asc');
 
-  const studentCollRef = useRef();
-
   const navigate = useNavigate();
 
   useEffect(() => {
-    const queryStudents = async () => {
-      studentCollRef.current = collection(db, "students");
-      await getDocs(studentCollRef.current).then((res) => setStudents(res.docs));
+    const unsubscribeStudents = onSnapshot(
+      collection(db, 'students'),
+      (snapshot) => {
+        setStudents(snapshot.docs);
+        setLoading(false);
+      }
+    )
+
+    return () => {
+      unsubscribeStudents();
     }
 
-    queryStudents()
-      .then(setLoading(false));
   }, [])
 
   function selectStudent(id) {

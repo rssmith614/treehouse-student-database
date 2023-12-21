@@ -50,6 +50,23 @@ describe("Admin", () => {
         await firebaseTest.assertSucceeds(firestore.setDoc(firestore.doc(db, '/students', 'test1'), {}))
     })
 
+    // admin has read/write on students/standards
+    it("Can view a student's standards", async () => {
+        await firebaseTest.assertSucceeds(firestore.getDocs(firestore.collection(db, '/students', 'test1', 'standards')))
+    })
+    
+    it("Can edit a student's standards", async () => {
+        await firebaseTest.assertSucceeds(firestore.setDoc(firestore.doc(db, '/students', 'test1', 'standards', 'standard1'), {'key': '1.1.1'}))
+    })
+
+    it("Can delete a student's standards", async () => {
+        await firebaseTest.assertSucceeds(firestore.deleteDoc(firestore.doc(db, '/students', 'test1', 'standards', 'standard1')))
+    })
+
+    it("Can delete students", async () => {
+        await firebaseTest.assertSucceeds(firestore.deleteDoc(firestore.doc(db, '/students', 'test1')))
+    })
+
     // admin has full read/write on tutors, except for their own clearance
     it("Can change other tutors' clearance", async () => {
         await firebaseTest.assertSucceeds(firestore.updateDoc(firestore.doc(db, '/tutors', 'mhCLQIikN1RXgkqlr5BaxqF0K7kC'), {'clearance': 'held'}))
@@ -81,6 +98,10 @@ describe("Admin", () => {
         await firebaseTest.assertSucceeds(firestore.updateDoc(firestore.doc(db, 'evaluations', 'test1', 'tasks', 'task1'), {'test': 'edited by admin'}));
     })
 
+    it("Can delete an eval", async () => {
+        await firebaseTest.assertSucceeds(firestore.deleteDoc(firestore.doc(db, '/evaluations', 'test1')));
+    })
+
     // admin has full read/write on standards
     it("Can view standards", async () => {
         await firebaseTest.assertSucceeds(firestore.getDocs(firestore.collection(db, '/standards')))
@@ -88,15 +109,6 @@ describe("Admin", () => {
 
     it("Can edit standards", async () => {
         await firebaseTest.assertSucceeds(firestore.updateDoc(firestore.doc(db, '/standards', 'standard1'), {'key': '1.1.1'}))
-    })
-
-    // admin has read/write on students/standards
-    it("Can view a student's standards", async () => {
-        await firebaseTest.assertSucceeds(firestore.getDocs(firestore.collection(db, '/students', 'test1', 'standards')))
-    })
-
-    it("Can edit a student's standards", async () => {
-        await firebaseTest.assertSucceeds(firestore.setDoc(firestore.doc(db, '/students', 'test1', 'standards', 'standard1'), {'key': '1.1.1'}))
     })
 
     // admin has full read/write on assessments
@@ -163,6 +175,10 @@ describe("Tutor", () => {
 
     it("Cannot edit standards", async () => {
         await firebaseTest.assertFails(firestore.setDoc(firestore.doc(db, '/standards', 'standard1'), {'key': '1.1.1'}))
+    })
+
+    it("Can delete their own evals", async () => {
+        await firebaseTest.assertSucceeds(firestore.deleteDoc(firestore.doc(db, '/evaluations', 'test2')));
     })
 
     // tutor has read/write on students/standards

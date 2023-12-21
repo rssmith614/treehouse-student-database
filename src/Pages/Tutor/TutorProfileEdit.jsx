@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
 import { Form } from "react-bootstrap";
@@ -23,15 +23,18 @@ const TutorProfileEdit = () => {
 
   useEffect(() => {
 
-    getDoc(tutorDocRef.current)
-      .then((doc) => {
+    const unsubscribeTutor = onSnapshot(tutorDocRef.current,
+      (doc) => {
         setTutor(doc.data());
         if (doc.data().clearance === 'pending')
           setSelectedClearance('');
         else
           setSelectedClearance(doc.data().clearance)
+
+        setLoading(false);
       })
-      .then(setLoading(false));
+
+    return () => unsubscribeTutor();
 
   }, [params.tutorid])
 
@@ -57,7 +60,7 @@ const TutorProfileEdit = () => {
     tutor.clearance = newClearance;
 
     updateDoc(tutorDocRef.current, tutor)
-      .then(() => addToast({header: 'Changes Saved', message: `Tutor ${tutor.displayName}'s profile has been updated`}))
+      .then(() => addToast({ header: 'Changes Saved', message: `Tutor ${tutor.displayName}'s profile has been updated` }))
       .then(() => navigate(`/tutor/${tutorDocRef.current.id}`));
   }
 

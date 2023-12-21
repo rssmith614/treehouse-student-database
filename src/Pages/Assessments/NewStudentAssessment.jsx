@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import { addDoc, collection, doc, onSnapshot } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -37,13 +37,15 @@ const NewStudentAssessment = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getDoc(doc(db, 'students', params.studentid))
-      .then((doc) => {
+    const unsubscribeStudent = onSnapshot(
+      doc(db, 'students', params.studentid),
+      (doc) => {
         setStudent({ ...doc.data(), id: doc.id });
       })
 
-    getDocs(collection(db, 'tutors'))
-      .then((snapshot) => {
+    const unsubscribeTutors = onSnapshot(
+      collection(db, 'tutors'),
+      (snapshot) => {
         const newTutors = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data()
@@ -52,8 +54,9 @@ const NewStudentAssessment = () => {
         setTutors(newTutors);
       })
 
-    getDocs(collection(db, 'assessments'))
-      .then(res => {
+    const unsubscribeAssessments = onSnapshot(
+      collection(db, 'assessments'),
+      res => {
         let assessmentGroups = {};
         res.docs.forEach(amt => {
           if (assessmentGroups[amt.data().grade]) {
@@ -64,6 +67,12 @@ const NewStudentAssessment = () => {
         })
         setAssessments(assessmentGroups);
       })
+
+    return () => {
+      unsubscribeStudent();
+      unsubscribeTutors();
+      unsubscribeAssessments();
+    }
 
   }, [params.studentid])
 

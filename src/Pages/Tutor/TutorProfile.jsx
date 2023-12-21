@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Can } from "../../Services/can";
-import { deleteDoc, doc, getDoc } from "firebase/firestore";
+import { deleteDoc, doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import EvalsTable from "../../Components/EvalsTable";
 import { Button, Card, Nav, Tab } from "react-bootstrap";
@@ -22,8 +22,10 @@ const TutorProfile = () => {
   useEffect(() => {
     tutorDocRef.current = doc(db, 'tutors', params.tutorid);
 
-    getDoc(tutorDocRef.current)
-      .then((doc) => setTutor(doc.data()))
+    const unsubscribeTutor = onSnapshot(tutorDocRef.current,
+      (doc) => setTutor(doc.data()))
+
+    return () => unsubscribeTutor();
 
   }, [params.tutorid])
 

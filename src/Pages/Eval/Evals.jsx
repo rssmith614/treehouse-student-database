@@ -1,9 +1,9 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 
 import { useNavigate } from 'react-router-dom';
 
 import { db } from "../../Services/firebase";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dropdown, InputGroup, Table, Form } from "react-bootstrap";
 
 const Evals = () => {
@@ -15,18 +15,22 @@ const Evals = () => {
 
   const [tableSort, setTableSort] = useState('name_asc');
 
-  const studentCollRef = useRef();
-
   const navigate = useNavigate();
 
   useEffect(() => {
-    const queryStudents = async () => {
-      studentCollRef.current = collection(db, "students");
-      await getDocs(studentCollRef.current).then((res) => setStudents(res.docs));
-    }
+    const unsubscribeStudents = onSnapshot(
+      collection(db, 'students'),
+      (snapshot) => {
+        const newStudents = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        }));
 
-    queryStudents()
-      .then(setLoading(false));
+        setStudents(newStudents);
+        setLoading(false);
+      })
+
+    return () => unsubscribeStudents();
   }, [])
 
   function selectStudent(id) {
@@ -40,23 +44,22 @@ const Evals = () => {
 
     const tableData = students.filter((student) => {
       return (
-        student.data().student_name.toLowerCase().includes(nameFilter.toLowerCase()) &&
-        student.data().preferred_tutor_name.toLowerCase().includes(tutorFilter.toLowerCase())
+        student.student_name.toLowerCase().includes(nameFilter.toLowerCase()) &&
+        student.preferred_tutor_name.toLowerCase().includes(tutorFilter.toLowerCase())
       );
     })
 
     if (tableSort === 'name_asc')
-      tableData.sort((a,b) => { return a.data().student_name.localeCompare(b.data().student_name) });
+      tableData.sort((a,b) => { return a.student_name.localeCompare(b.student_name) });
     else if (tableSort === 'name_desc')
-      tableData.sort((a,b) => { return b.data().student_name.localeCompare(a.data().student_name) });
+      tableData.sort((a,b) => { return b.student_name.localeCompare(a.student_name) });
 
     return tableData.map((student) => {
-      let studentData = student.data();
       return (
         <tr className="p-3" key={student.id} onClick={() => selectStudent(student.id)}
           style={{ cursor: "pointer" }}>
-          <td>{studentData.student_name}</td>
-          <td>{studentData.preferred_tutor_name}</td>
+          <td>{student.student_name}</td>
+          <td>{student.preferred_tutor_name}</td>
         </tr>
       )
     })
