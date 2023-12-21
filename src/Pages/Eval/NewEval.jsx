@@ -44,23 +44,22 @@ const NewEval = () => {
 
     const tableData = students.filter((student) => {
       return (
-        student.data().student_name.toLowerCase().includes(nameFilter.toLowerCase()) &&
-        student.data().preferred_tutor_name.toLowerCase().includes(tutorFilter.toLowerCase())
+        student.student_name.toLowerCase().includes(nameFilter.toLowerCase()) &&
+        student.preferred_tutor_name.toLowerCase().includes(tutorFilter.toLowerCase())
       );
     })
 
     if (tableSort === 'name_asc')
-      tableData.sort((a,b) => { return a.data().student_name.localeCompare(b.data().student_name) });
+      tableData.sort((a,b) => { return a.student_name.localeCompare(b.student_name) });
     else if (tableSort === 'name_desc')
-      tableData.sort((a,b) => { return b.data().student_name.localeCompare(a.data().student_name) });
+      tableData.sort((a,b) => { return b.student_name.localeCompare(a.student_name) });
 
     return tableData.map((student) => {
-      let studentData = student.data();
       return (
         <tr className="p-3" key={student.id} onClick={() => selectStudent(student.id)}
           style={{ cursor: "pointer" }}>
-          <td>{studentData.student_name}</td>
-          <td>{studentData.preferred_tutor_name}</td>
+          <td>{student.student_name}</td>
+          <td>{student.preferred_tutor_name}</td>
         </tr>
       )
     })
