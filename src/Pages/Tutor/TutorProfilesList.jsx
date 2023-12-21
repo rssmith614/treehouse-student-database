@@ -47,8 +47,8 @@ const TutorProfilesList = () => {
     const tableData = tutors.filter((tutor) => {
       return (
         tutor.data().clearance !== 'pending' &&
-        tutor.data().displayName?.toLowerCase().includes(nameFilter.toLowerCase()) &&
-        tutor.data().preferredSubjects?.toLowerCase().includes(subjectFilter.toLowerCase())
+        (tutor.data().displayName || '').toLowerCase().includes(nameFilter.toLowerCase()) &&
+        (tutor.data().preferredSubjects || '').toLowerCase().includes(subjectFilter.toLowerCase())
       )
     })
 
