@@ -4,7 +4,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
-import { Form } from "react-bootstrap";
+import { Col, Form, Row } from "react-bootstrap";
+import { AbilityContext } from "../../Services/can";
+import { Tutor } from "../../Services/defineAbility";
+import { useAbility } from "@casl/react";
 
 
 const TutorProfileEdit = () => {
@@ -16,6 +19,7 @@ const TutorProfileEdit = () => {
   const navigate = useNavigate();
 
   const addToast = useContext(ToastContext);
+  const ability = useAbility(AbilityContext);
 
   const params = useParams();
 
@@ -64,24 +68,45 @@ const TutorProfileEdit = () => {
       .then(() => navigate(`/tutor/${tutorDocRef.current.id}`));
   }
 
+  const tutorInstance = new Tutor(tutor);
+
   const innerContent = (
-    <div className="d-flex">
-      <div className="d-flex flex-column p-3">
-        <div className="h3">Email</div>
-        <input className="form-control m-1" value={tutor.email || ''} disabled
-          data-toggle="tooltip" title="Email cannot be modified"></input>
-      </div>
-      <div className="d-flex flex-column p-3">
-        <div className="h3">Clearance</div>
-        <Form.Select id="tutorclearance" className="m-1" required value={selectedClearance}
-          onChange={(e) => setSelectedClearance(e.target.value)}>
-          <option value="" disabled>Assign Clearance</option>
-          <option value="admin">Admin</option>
-          <option value="tutor">Tutor</option>
-          <option value="held">Held</option>
-          <option value="revoked">Revoked</option>
-        </Form.Select>
-      </div>
+    <div className="d-flex align-items-center">
+      <Row xs={{ cols: 'auto' }}>
+        <Col>
+          <div className="d-flex flex-column p-3">
+            <div className="h3">Email</div>
+            <input className="form-control m-1" value={tutor.email || ''} disabled
+              data-toggle="tooltip" title="Email cannot be modified"></input>
+          </div>
+        </Col>
+        <Col>
+          <div className="d-flex flex-column p-3">
+            <div className="h3">Clearance</div>
+            <Form.Select id="tutorclearance" className="m-1" required value={selectedClearance}
+              onChange={(e) => setSelectedClearance(e.target.value)}
+              disabled={ability.cannot('edit', tutorInstance, 'clearance')} >
+              <option value="" disabled>Assign Clearance</option>
+              <option value="admin">Admin</option>
+              <option value="tutor">Tutor</option>
+              <option value="held">Held</option>
+              <option value="revoked">Revoked</option>
+            </Form.Select>
+          </div>
+        </Col>
+        <Col>
+          <div className="d-flex flex-column p-3">
+            <div className="h3">Preferred Student Ages</div>
+            <Form.Control className="m-1" value={tutor.preferredAges || ''} onChange={(e) => { setTutor({ ...tutor, preferredAges: e.target.value }) }} />
+          </div>
+        </Col>
+        <Col>
+          <div className="d-flex flex-column p-3">
+            <div className="h3">Preferred Subjects</div>
+            <Form.Control className="m-1" value={tutor.preferredSubjects || ''} onChange={(e) => { setTutor({ ...tutor, preferredSubjects: e.target.value }) }} />
+          </div>
+        </Col>
+      </Row>
     </div>
   );
 

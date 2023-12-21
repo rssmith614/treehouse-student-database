@@ -11,6 +11,7 @@ const TutorProfilesList = () => {
 
   const [nameFilter, setNameFilter] = useState('');
   const [tableSort, setTableSort] = useState('name_asc');
+  const [subjectFilter, setSubjectFilter] = useState('');
 
   const navigate = useNavigate();
 
@@ -44,7 +45,11 @@ const TutorProfilesList = () => {
 
   const tutorRows = () => {
     const tableData = tutors.filter((tutor) => {
-      return tutor.data().clearance !== 'pending' && tutor.data().displayName?.toLowerCase().includes(nameFilter.toLowerCase());
+      return (
+        tutor.data().clearance !== 'pending' &&
+        (tutor.data().displayName || '').toLowerCase().includes(nameFilter.toLowerCase()) &&
+        (tutor.data().preferredSubjects || '').toLowerCase().includes(subjectFilter.toLowerCase())
+      )
     })
 
     if (tableSort === 'name_asc')
@@ -60,6 +65,8 @@ const TutorProfilesList = () => {
           <td>{tutorData.displayName || "Not Activated"}</td>
           <td>{tutorData.email}</td>
           <td>{capitalize(tutorData.clearance) || 'None Assigned'}</td>
+          <td>{tutorData.preferredAges || ''}</td>
+          <td>{tutorData.preferredSubjects || ''}</td>
         </tr>
       )
     })
@@ -77,7 +84,6 @@ const TutorProfilesList = () => {
           style={{ cursor: "pointer" }}>
           <td>{tutorData.displayName || "Not Activated"}</td>
           <td>{tutorData.email}</td>
-          <td>{capitalize(tutorData.clearance) || 'None Assigned'}</td>
         </tr>
       )
     })
@@ -138,6 +144,22 @@ const TutorProfilesList = () => {
     </div>
   ))
 
+  const FilterTableHeader = React.forwardRef(({ children, style, className, 'aria-labelledby': labeledBy, value, valueSetter }, ref) => (
+    <div
+      ref={ref}
+      style={style}
+      className={className}
+      aria-labelledby={labeledBy}>
+      <Dropdown.Item>
+        <InputGroup>
+          <Form.Control autoFocus type="text" placeholder="Search" value={value}
+            onChange={(e) => valueSetter(e.target.value)} />
+          <i className="bi bi-x-lg input-group-text" style={{ cursor: "pointer" }} onClick={() => valueSetter('')} />
+        </InputGroup>
+      </Dropdown.Item>
+    </div>
+  ))
+
   const listTable = (
     <table className="table table-striped table-hover">
       <thead>
@@ -151,7 +173,16 @@ const TutorProfilesList = () => {
             </Dropdown>
           </th>
           <th>Email</th>
-          <th>Clearance</th>
+          <th>Role</th>
+          <th>Preferred Students</th>
+          <th style={{ cursor: "pointer" }}>
+            <Dropdown drop='up' autoClose='outside'>
+              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                Preferred Subjects {filterIcon('subjects')}
+              </Dropdown.Toggle>
+              <Dropdown.Menu as={FilterTableHeader} value={subjectFilter} valueSetter={setSubjectFilter} />
+            </Dropdown>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -174,7 +205,6 @@ const TutorProfilesList = () => {
               </Dropdown>
             </th>
             <th>Email</th>
-            <th>Clearance</th>
           </tr>
         </thead>
         <tbody>
