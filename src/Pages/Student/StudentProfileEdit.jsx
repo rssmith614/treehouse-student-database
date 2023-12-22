@@ -59,21 +59,7 @@ const StudentProfileEdit = () => {
 
     let preferredTutorName = tutors.find(tutor => tutor.id === document.getElementById('preferredTutor').value).data().displayName;
 
-    const newStudent = {
-      student_dob: document.getElementById('studentDOB').value,
-      parent_name: document.getElementById('parentName').value,
-      parent_phone: document.getElementById('parentPhone').value,
-      student_grade: document.getElementById('studentGrade').value,
-      student_school: document.getElementById('studentSchool').value,
-      student_source: document.getElementById('studentSource').value,
-      preferred_tutor: document.getElementById('preferredTutor').value,
-      preferred_tutor_name: preferredTutorName,
-      other: document.getElementById('extraInfo').value,
-      medical_conditions: document.getElementById('medicalConditions').value,
-      emergency_contacts: emergencyContacts,
-    }
-
-    updateDoc(studentRef.current, newStudent)
+    updateDoc(studentRef.current, { ...student, preferred_tutor_name: preferredTutorName, emergency_contacts: emergencyContacts })
       .then(() => addToast({ header: 'Changes Saved', message: `Student ${student.student_name}'s profile has been updated` }))
       .then(() => navigate(`/students/${studentRef.current.id}`));
   }
@@ -145,29 +131,35 @@ const StudentProfileEdit = () => {
       <div className="d-flex justify-content-start">
         <div className="d-flex p-3 flex-column flex-fill">
           <div className="d-flex h5">Birthday</div>
-          <input type="date" id="studentDOB" className="form-control" defaultValue={student.student_dob} />
+          <input type="date" id="studentDOB" className="form-control"
+            value={student.student_dob} onChange={(e) => setStudent({ ...student, student_dob: e.target.value })} />
         </div>
         <div className="d-flex p-3 flex-column flex-fill">
           <div className="d-flex h5">Grade</div>
-          <input type="text" id="studentGrade" className="form-control" defaultValue={student.student_grade} />
+          <input type="text" id="studentGrade" className="form-control"
+            value={student.student_grade} onChange={(e) => setStudent({ ...student, student_grade: e.target.value })} />
         </div>
         <div className="d-flex p-3 flex-column flex-fill">
           <div className="d-flex h5">School</div>
-          <input type="text" id="studentSchool" className="form-control" defaultValue={student.student_school} />
+          <input type="text" id="studentSchool" className="form-control"
+            value={student.student_school} onChange={(e) => setStudent({ ...student, student_school: e.target.value })} />
         </div>
         <div className="d-flex p-3 flex-column flex-fill">
           <div className="d-flex h5">Source</div>
-          <input type="text" id="studentSource" className="form-control" defaultValue={student.student_source} />
+          <input type="text" id="studentSource" className="form-control"
+            value={student.student_source} onChange={(e) => setStudent({ ...student, student_source: e.target.value })} />
         </div>
       </div>
       <div className="d-flex justify-content-start">
         <div className="d-flex p-3 flex-column flex-fill">
           <div className="d-flex h5">Parent Name</div>
-          <input type="text" id="parentName" className="form-control" defaultValue={student.parent_name} />
+          <input type="text" id="parentName" className="form-control"
+            value={student.parent_name} onChange={(e) => setStudent({ ...student, parent_name: e.target.value })} />
         </div>
         <div className="d-flex p-3 flex-column flex-fill">
           <div className="d-flex h5">Parent Phone Number</div>
-          <input type="tel" id="parentPhone" className="form-control" defaultValue={student.parent_phone} />
+          <input type="tel" id="parentPhone" className="form-control"
+            value={student.parent_phone} onChange={(e) => setStudent({ ...student, parent_phone: e.target.value })} />
         </div>
       </div>
       <div className="d-flex justify-content-start">
@@ -183,11 +175,13 @@ const StudentProfileEdit = () => {
       <div className="d-flex justify-content-start">
         <div className="d-flex p-3 flex-column flex-fill">
           <div className="d-flex h5">Medical Conditions</div>
-          <textarea className="d-flex form-control" id="medicalConditions" defaultValue={student.medical_conditions} />
+          <textarea className="d-flex form-control" id="medicalConditions"
+            value={student.medical_conditions} onChange={(e) => setStudent({ ...student, medical_conditions: e.target.value })} />
         </div>
         <div className="d-flex p-3 flex-column flex-fill">
           <div className="d-flex h5">Other Info</div>
-          <textarea className="d-flex form-control" id="extraInfo" defaultValue={student.other} />
+          <textarea className="d-flex form-control" id="extraInfo"
+            value={student.other} onChange={(e) => setStudent({ ...student, other: e.target.value })} />
         </div>
       </div>
       <div className="d-flex p-3 h5">Emergency Contacts</div>
