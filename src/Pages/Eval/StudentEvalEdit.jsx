@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 
 import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
@@ -44,7 +44,20 @@ const StudentEvalEdit = () => {
     const unsubscribeEval = onSnapshot(evalRef.current,
       (res) => {
         setEvaluation(res.data());
-        setSelectedTutor(res.data().tutor_id)
+        setSelectedTutor(res.data().tutor_id);
+        getDocs(collection(doc(db, 'students', res.data().student_id), 'standards'))
+          .then(subCollStandards => {
+            let compiledStandards = [];
+            Promise.all(subCollStandards.docs.map(async s => {
+              return getDoc(doc(db, 'standards', s.id))
+                .then(standard => {
+                  compiledStandards.push({ ...s.data(), ...standard.data(), id: standard.id });
+                })
+            }))
+              .then(() => {
+                setStandards(compiledStandards);
+              });
+          })
       })
 
     const unsubscribeTutors = onSnapshot(collection(db, 'tutors'),
@@ -79,25 +92,10 @@ const StudentEvalEdit = () => {
           .then(() => setLoading(false));
       })
 
-    const unsubscribeStandards = onSnapshot(collection(db, 'standards'),
-      subCollStandards => {
-        let compiledStandards = [];
-        Promise.all(subCollStandards.docs.map(async s => {
-          return getDoc(doc(db, 'standards', s.id))
-            .then(standard => {
-              compiledStandards.push({ ...s.data(), ...standard.data(), id: standard.id });
-            })
-        }))
-          .then(() => {
-            setStandards(compiledStandards);
-          });
-      })
-
     return () => {
       unsubscribeEval();
       unsubscribeTasks();
       unsubscribeTutors();
-      unsubscribeStandards();
     }
 
   }, [params.evalid])
@@ -141,18 +139,6 @@ const StudentEvalEdit = () => {
       );
     });
   }
-
-  // const standardOptions = standards.sort((a,b) => {
-  //   return (
-  //     a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
-  //     a.key.split('.')[2] - b.key.split('.')[2] ||
-  //     a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
-  //     a.key.localeCompare(b.key)
-  //   )}).map((s, i) => {
-  //     return (
-  //       <option value={s.id} key={s.id}>{s.key}</option>
-  //     );
-  // });
 
   const StandardDropdownToggle = React.forwardRef(({ style, className, onClick, value }, ref) => (
     <Form.Control
