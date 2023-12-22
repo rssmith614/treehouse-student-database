@@ -184,7 +184,7 @@ const TrackStandard = () => {
         </Card.Body>
       </Card>
       <div className="d-flex p-3">
-        <Button variant='secondary' onClick={() => navigate(`/students/${studentRef.current.id}`)}>Done</Button>
+        <Button variant='secondary' onClick={() => navigate(-1)}>Done</Button>
       </div>
       <Offcanvas show={showSingle || showSubcat} onHide={() => { setShowSingle(false); setShowSubcat(false) }} onExited={() => setSelectedStandard(null)} placement='end'>
         {showSingle ?

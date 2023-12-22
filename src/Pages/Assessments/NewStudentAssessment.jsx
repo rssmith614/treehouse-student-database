@@ -114,7 +114,10 @@ const NewStudentAssessment = () => {
               date: document.getElementById('date').value,
               completed_file: completedAssessmentRef.fullPath
             })
-            .then(() => navigate(`/students/${student.id}`))
+            .then(() => {
+              localStorage.setItem('student_tab', 'assessments');
+              navigate(`/students/${student.id}`);
+            })
         })
     } else {
       addDoc(collection(db, 'student_assessments'),
@@ -126,7 +129,10 @@ const NewStudentAssessment = () => {
           date: document.getElementById('date').value,
           completed_file: ''
         })
-        .then(() => navigate(`/students/${student.id}`))
+        .then(() => {
+          localStorage.setItem('student_tab', 'assessments');
+          navigate(`/students/${student.id}`);
+        })
     }
     
     // console.log(selectedAssessment);

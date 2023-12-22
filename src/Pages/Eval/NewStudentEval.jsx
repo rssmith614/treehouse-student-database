@@ -28,13 +28,28 @@ const NewStudentEval = () => {
 
   const [selectedTutor, setSelectedTutor] = useState(auth.currentUser?.uid || "");
 
-  const [tasks, setTasks] = useState([{ subject: "", standard: "", progression: "5", engagement: "5", comments: "" }]);
 
   // const [loading, setLoading] = useState(true);
 
   const addToast = useContext(ToastContext);
 
   const params = useParams();
+
+  const [evaluation, setEvaluation] = useState(
+    localStorage.getItem(`${params.studentid}_eval`) ?
+      JSON.parse(localStorage.getItem(`${params.studentid}_eval`)) :
+      {
+        date: dayjs().format('YYYY-MM-DD'),
+        worksheet: "",
+        worksheet_completion: "",
+        next_session: "",
+      });
+
+  const [tasks, setTasks] = useState(
+    localStorage.getItem(`${params.studentid}_tasks`) ?
+      JSON.parse(localStorage.getItem(`${params.studentid}_tasks`)) :
+      [{ subject: "", standard: "", progression: "5", engagement: "5", comments: "" }]
+      );
 
   const studentRef = useRef(doc(db, "students", params.studentid));
 
@@ -97,6 +112,14 @@ const NewStudentEval = () => {
 
   }, [tasks])
 
+  useEffect(() => {
+    localStorage.setItem(`${params.studentid}_eval`, JSON.stringify(evaluation));
+  }, [evaluation, params.studentid])
+
+  useEffect(() => {
+    localStorage.setItem(`${params.studentid}_tasks`, JSON.stringify(tasks));
+  }, [tasks, params.studentid])
+
   function addTask() {
     setTasks([...tasks, { subject: "", standard: "", progression: "5", engagement: "5", comments: "" }]);
   }
@@ -114,48 +137,58 @@ const NewStudentEval = () => {
 
     const worksheetUpload = document.getElementById("worksheet").files[0];
 
-    const newEval = {
-      student_id: studentRef.current.id,
-      student_name: student.student_name,
-      tutor_id: document.getElementById("tutor").value,
-      tutor_name: tutorName,
-      date: document.getElementById("date").value,
-      worksheet_completion: document.getElementById("worksheet_completion").value,
-      next_session: document.getElementById("next_session").value,
-      owner: auth.currentUser.uid,
-    }
-
-    if (document.getElementById("flagForReview").classList.contains("btn-outline-danger")) {
-      newEval.flagged = true;
-    }
-
     if (worksheetUpload) {
       const worksheetRef = ref(storage, `worksheets/${worksheetUpload.name}`);
 
-      newEval.worksheet = worksheetRef.fullPath;
-
       uploadBytes(worksheetRef, worksheetUpload)
         .then(() =>
-          addDoc(collection(db, "evaluations"), newEval)
+          addDoc(collection(db, "evaluations"),
+            {
+              ...evaluation,
+              student_id: studentRef.current.id,
+              student_name: student.student_name,
+              tutor_id: selectedTutor,
+              tutor_name: tutorName,
+              owner: auth.currentUser.uid,
+              worksheet: worksheetRef.fullPath,
+              flagged: document.getElementById("flagForReview").classList.contains("btn-outline-danger"),
+            })
             .then((doc) => {
               tasks.forEach(t => addDoc(collection(doc, 'tasks'), { ...t, standard: t.standard?.id || '' }));
-              addToast({ header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded` })
+              addToast({ header: 'Evaluation Submitted', message: `Session evaluation for ${evaluation.student_name} was successfully uploaded` })
             })
-            .then(() =>
+            .then(() => {
+              localStorage.removeItem(`${params.studentid}_eval`);
+              localStorage.removeItem(`${params.studentid}_tasks`);
+            })
+            .then(() => {
+              localStorage.setItem('student_tab', 'evals');
               navigate(`/students/${params.studentid}`)
-            )
+            })
         )
     } else {
-      newEval.worksheet = '';
-
-      addDoc(collection(db, "evaluations"), newEval)
+      addDoc(collection(db, "evaluations"),
+        {
+          ...evaluation,
+          student_id: studentRef.current.id,
+          student_name: student.student_name,
+          tutor_id: selectedTutor,
+          tutor_name: tutorName,
+          owner: auth.currentUser.uid,
+          flagged: document.getElementById("flagForReview").classList.contains("btn-outline-danger"),
+        })
         .then((d) => {
           tasks.forEach(t => addDoc(collection(d, 'tasks'), { ...t, standard: t.standard?.id || '' }));
-          addToast({ header: 'Evaluation Submitted', message: `Session evaluation for ${newEval.student_name} was successfully uploaded` })
+          addToast({ header: 'Evaluation Submitted', message: `Session evaluation for ${evaluation.student_name} was successfully uploaded` })
         })
-        .then(() =>
+        .then(() => {
+          localStorage.removeItem(`${params.studentid}_eval`);
+          localStorage.removeItem(`${params.studentid}_tasks`);
+        })
+        .then(() => {
+          localStorage.setItem('student_tab', 'evals');
           navigate(`/students/${params.studentid}`)
-        )
+        })
     }
   }
 
@@ -345,8 +378,6 @@ const NewStudentEval = () => {
     )
   })
 
-  const todayStr = dayjs().format('YYYY-MM-DD');
-
   return (
     <div className='p-3 d-flex flex-column'>
       <h1 className="display-1">New Session Evaluation</h1>
@@ -365,7 +396,8 @@ const NewStudentEval = () => {
             </div>
             <div className="col">
               <label className="form-label h5">Date</label>
-              <input id="date" className="form-control" type="date" defaultValue={todayStr} />
+              <input id="date" className="form-control" type="date"
+                value={evaluation.date} onChange={(e) => setEvaluation({ ...evaluation, date: e.target.value })} />
             </div>
           </div>
           <hr />
@@ -397,19 +429,21 @@ const NewStudentEval = () => {
             <div className="col">
               <label className="form-label h5">Worksheet Completion</label>
               <input id="worksheet_completion" className="form-control" type="text" placeholder="Finished..."
-                data-toggle="tooltip" title={`If you uploaded a worksheet, how far did the student get?`} />
+                data-toggle="tooltip" title={`If you uploaded a worksheet, how far did the student get?`}
+                value={evaluation.worksheet_completion} onChange={(e) => setEvaluation({ ...evaluation, worksheet_completion: e.target.value })} />
             </div>
             <div className="col">
               <label className="form-label h5">Next Session Plans</label>
               <textarea id="next_session" className="form-control" placeholder="Continue..."
-                data-toggle="tooltip" title={`What you plan to work on next time, or notes for the next tutor`} />
+                data-toggle="tooltip" title={`What you plan to work on next time, or notes for the next tutor`}
+                value={evaluation.next_session} onChange={(e) => setEvaluation({ ...evaluation, next_session: e.target.value })} />
             </div>
           </div>
 
         </div>
         <div className="d-flex">
           <button type="button" className="btn btn-secondary m-3 me-auto" onClick={() => navigate(-1)}>Back</button>
-          
+
           <button className="btn btn-primary m-3" id="submit" type="submit">Submit</button>
         </div>
       </form>

@@ -7,8 +7,28 @@ import { ToastContext } from "../../Services/toast";
 
 
 const NewProfile = () => {
+  const [student, setStudent] = useState(
+    localStorage.getItem('student') ?
+      JSON.parse(localStorage.getItem('student')) :
+      {
+        student_name: "",
+        student_dob: "",
+        parent_name: "",
+        parent_phone: "",
+        student_grade: "",
+        student_school: "",
+        student_source: "",
+        preferred_tutor: "",
+        other: "",
+        medical_conditions: "",
+      });
+
   const [tutors, setTutors] = useState([]);
-  const [emergencyContacts, setEmergencyContacts] = useState([]);
+  const [emergencyContacts, setEmergencyContacts] = useState(
+    localStorage.getItem('eContacts') ?
+      JSON.parse(localStorage.getItem('eContacts')) :
+      []
+  );
 
   const addToast = useContext(ToastContext);
 
@@ -19,7 +39,15 @@ const NewProfile = () => {
       (res) => setTutors(res.docs));
 
     return () => unsubscribe();
-  })
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('student', JSON.stringify(student));
+  }, [student])
+
+  useEffect(() => {
+    localStorage.setItem('eContacts', JSON.stringify(emergencyContacts));
+  }, [emergencyContacts])
 
   function addEContact() {
     setEmergencyContacts([...emergencyContacts, { name: "", relation: "", phone: "" }]);
@@ -30,26 +58,15 @@ const NewProfile = () => {
 
     document.getElementById("submit").innerHTML = "Submit <span class='spinner-border spinner-border-sm' />";
 
-    let preferredTutorName = tutors.find(tutor => tutor.id === document.getElementById('preferredTutor').value).data().displayName;
-
-    const newStudent = {
-      student_name: document.getElementById('studentName').value,
-      student_dob: document.getElementById('studentDOB').value,
-      parent_name: document.getElementById('parentName').value,
-      parent_phone: document.getElementById('parentPhone').value,
-      student_grade: document.getElementById('studentGrade').value,
-      student_school: document.getElementById('studentSchool').value,
-      student_source: document.getElementById('studentSource').value,
-      preferred_tutor: document.getElementById('preferredTutor').value,
-      preferred_tutor_name: preferredTutorName,
-      other: document.getElementById('extraInfo').value,
-      medical_conditions: document.getElementById('medicalConditions').value,
-      emergency_contacts: emergencyContacts,
-    }
+    let preferredTutorName = tutors.find(tutor => tutor.id === student.preferred_tutor)?.data().displayName || '';
 
     const studentCollRef = collection(db, "students");
-    addDoc(studentCollRef, newStudent)
-      .then(() => addToast({ header: 'Registration Complete', message: `Student ${newStudent.student_name} has been registered` }))
+    addDoc(studentCollRef, { ...student, preferred_tutor_name: preferredTutorName, emergency_contacts: emergencyContacts })
+      .then(() => {
+        localStorage.removeItem('student');
+        localStorage.removeItem('eContacts');
+      })
+      .then(() => addToast({ header: 'Registration Complete', message: `Student ${student.student_name} has been registered` }))
       .then(() => navigate('/students'));
   }
 
@@ -119,41 +136,49 @@ const NewProfile = () => {
             <div className="row">
               <div className="col mb-3">
                 <label htmlFor="studentName" className="form-label h5">Student Name</label>
-                <input type="text" className="form-control" id="studentName" required />
+                <input type="text" className="form-control" id="studentName" required
+                  value={student.student_name} onChange={e => setStudent({...student, student_name: e.target.value})} />
               </div>
               <div className="col mb-3">
                 <label htmlFor="studentDOB" className="form-label h5">Student DOB</label>
-                <input type="date" className="form-control" id="studentDOB" required />
+                <input type="date" className="form-control" id="studentDOB" required
+                  value={student.student_dob} onChange={e => setStudent({...student, student_dob: e.target.value})} />
               </div>
             </div>
             <div className="row">
               <div className="col mb-3">
                 <label htmlFor="parentName" className="form-label h5">Parent Name</label>
-                <input type="text" className="form-control" id="parentName" />
+                <input type="text" className="form-control" id="parentName"
+                  value={student.parent_name} onChange={e => setStudent({...student, parent_name: e.target.value})} />
               </div>
               <div className="col mb-3">
                 <label htmlFor="parentPhone" className="form-label h5">Parent Phone Number</label>
-                <input type="tel" className="form-control" id="parentPhone" />
+                <input type="tel" className="form-control" id="parentPhone"
+                  value={student.parent_phone} onChange={e => setStudent({...student, parent_phone: e.target.value})} />
               </div>
             </div>
             <div className="row">
               <div className="col mb-3">
                 <label htmlFor="studentGrade" className="form-label h5">Student Grade</label>
-                <input type="text" className="form-control" id="studentGrade" />
+                <input type="text" className="form-control" id="studentGrade"
+                  value={student.student_grade} onChange={e => setStudent({...student, student_grade: e.target.value})} />
               </div>
               <div className="col mb-3">
                 <label htmlFor="studentSchool" className="form-label h5">Student School</label>
-                <input type="text" className="form-control" id="studentSchool" />
+                <input type="text" className="form-control" id="studentSchool"
+                  value={student.student_school} onChange={e => setStudent({...student, student_school: e.target.value})} />
               </div>
             </div>
             <div className="mb-3">
               <label htmlFor="studentSource" className="form-label h5">Student Source</label>
-              <input type="text" className="form-control" id="studentSource" />
+              <input type="text" className="form-control" id="studentSource"
+                value={student.student_source} onChange={e => setStudent({...student, student_source: e.target.value})} />
             </div>
 
             <div className="mb-3">
               <label htmlFor="preferredTutor" className="form-label h5">Preferred Tutor</label>
-              <select type="text" className="form-control" id="preferredTutor" defaultValue="" required>
+              <select type="text" className="form-control" id="preferredTutor"
+                value={student.preferred_tutor} onChange={e => setStudent({...student, preferred_tutor: e.target.value})}>
                 <option disabled value="">Select One</option>
                 {tutorOptions()}
               </select>
@@ -161,11 +186,13 @@ const NewProfile = () => {
 
             <div className="mb-3">
               <label htmlFor="extraInfo" className="form-label h5">Other Info</label>
-              <textarea className="form-control" id="extraInfo" />
+              <textarea className="form-control" id="extraInfo"
+                value={student.other} onChange={e => setStudent({...student, other: e.target.value})} />
             </div>
             <div className="mb-3">
               <label htmlFor="medicalConditions" className="form-label h5">Medical Conditions</label>
-              <textarea className="form-control" id="medicalConditions" />
+              <textarea className="form-control" id="medicalConditions"
+                value={student.medical_conditions} onChange={e => setStudent({...student, medical_conditions: e.target.value})} />
             </div>
             <div className="mb-3 h5">Emergency Contacts</div>
             <div className="d-flex flex-column mx-3 mb-3" id="emergencyContacts">
