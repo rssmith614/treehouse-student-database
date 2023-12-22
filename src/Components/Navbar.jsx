@@ -61,6 +61,9 @@ const Navbar = ({ userProfile }) => {
               <Can I="query" on="evals">
                 <NavDropdown.Item onClick={() => navigate(`/eval/query`)}>Find Evals</NavDropdown.Item>
               </Can>
+              <Can I="review" on="evals">
+                <NavDropdown.Item onClick={() => navigate(`/evals/review`)}>Review Evals</NavDropdown.Item>
+              </Can>
             </NavDropdown>
 
             <Nav.Link

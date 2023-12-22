@@ -85,6 +85,18 @@ const NewStudentEval = () => {
 
   }, [params.studentid])
 
+  useEffect(() => {
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].progression <= 2 || tasks[i].engagement <= 2) {
+        document.getElementById("flagForReview").classList.remove("d-none");
+        return;
+      }
+    }
+
+    document.getElementById("flagForReview").classList.add("d-none");
+
+  }, [tasks])
+
   function addTask() {
     setTasks([...tasks, { subject: "", standard: "", progression: "5", engagement: "5", comments: "" }]);
   }
@@ -111,6 +123,10 @@ const NewStudentEval = () => {
       worksheet_completion: document.getElementById("worksheet_completion").value,
       next_session: document.getElementById("next_session").value,
       owner: auth.currentUser.uid,
+    }
+
+    if (document.getElementById("flagForReview").classList.contains("btn-outline-danger")) {
+      newEval.flagged = true;
     }
 
     if (worksheetUpload) {
@@ -271,23 +287,25 @@ const NewStudentEval = () => {
   const tasksList = tasks.map((task, idx) => {
     return (
       <tr className="my-3" key={idx}>
-        <td><Button type="button" variant="danger" onClick={() => { setTasks(tasks.filter((t, i) => i !== idx)) }} disabled={tasks.length <= 1}><i className="bi bi-trash-fill" /></Button></td>
-        <td>
-          <input id="subject" className="form-control" type="text"
+        <td className="align-middle text-center"><Button type="button" variant="danger" onClick={() => { setTasks(tasks.filter((t, i) => i !== idx)) }} disabled={tasks.length <= 1}><i className="bi bi-trash-fill" /></Button></td>
+        <td className="align-middle">
+          {/* <input id="subject" className="form-control" type="text"
             value={task.subject} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
               else return { ...t, subject: e.target.value };
-            }))} required />
-        </td>
-        <td>
-          {/* <select id="standard" className="form-control"
-            value={task.standard} onChange={e => setTasks(tasks.map((t, i) => {
+            }))} required /> */}
+          <Form.Select id="subject" className="form-control"
+            value={task.subject} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
-              else return {...t, standard: e.target.value};
-            }))}>
-              <option value=''>None</option>
-              {standardOptions}
-            </select> */}
+              else return { ...t, subject: e.target.value };
+            }))} required>
+            <option disabled value="">Select One</option>
+            <option value="Math">Math</option>
+            <option value="Reading">Reading</option>
+            <option value="Other">Other</option>
+          </Form.Select>
+        </td>
+        <td className="align-middle">
           <InputGroup>
             <Dropdown>
               <Dropdown.Toggle as={StandardDropdownToggle} value={task.standard} />
@@ -296,18 +314,18 @@ const NewStudentEval = () => {
                   if (i !== idx) return t;
                   else return { ...t, standard: s || '' };
                 }))}
-                style={{ height: 350, overflow: 'scroll' }} />
+                style={{ maxHeight: 350, overflow: 'scroll' }} />
             </Dropdown>
           </InputGroup>
         </td>
-        <td>
+        <td className="align-middle">
           <input id="progression" className="form-control" type="number" min="1" max="5" step="1"
             value={task.progression} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
               else return { ...t, progression: e.target.value };
             }))} />
         </td>
-        <td>
+        <td className="align-middle">
           <input id="engagement" className="form-control" type="number" min="1" max="5" step="1"
             value={task.engagement} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
@@ -319,7 +337,9 @@ const NewStudentEval = () => {
             value={task.comments} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
               else return { ...t, comments: e.target.value };
-            }))} />
+            }))}
+            placeholder="Worked on..."
+            data-toggle="tooltip" title={`What you worked on with ${student.student_name} as it relates to this particular task`} />
         </td>
       </tr>
     )
@@ -376,20 +396,36 @@ const NewStudentEval = () => {
             </div>
             <div className="col">
               <label className="form-label h5">Worksheet Completion</label>
-              <input id="worksheet_completion" className="form-control" type="text" />
+              <input id="worksheet_completion" className="form-control" type="text" placeholder="Finished..."
+                data-toggle="tooltip" title={`If you uploaded a worksheet, how far did the student get?`} />
             </div>
             <div className="col">
               <label className="form-label h5">Next Session Plans</label>
-              <textarea id="next_session" className="form-control" />
+              <textarea id="next_session" className="form-control" placeholder="Continue..."
+                data-toggle="tooltip" title={`What you plan to work on next time, or notes for the next tutor`} />
             </div>
           </div>
 
         </div>
         <div className="d-flex">
           <button type="button" className="btn btn-secondary m-3 me-auto" onClick={() => navigate(-1)}>Back</button>
-          <button className="btn btn-primary m-3 ms-auto" id="submit" type="submit">Submit</button>
+          
+          <button className="btn btn-primary m-3" id="submit" type="submit">Submit</button>
         </div>
       </form>
+      <Button variant="danger" className="mx-3 ms-auto" id="flagForReview"
+        onClick={(e) => {
+          e.preventDefault();
+          if (e.target.classList.contains('btn-danger')) {
+            e.target.classList.remove('btn-danger');
+            e.target.classList.add('btn-outline-danger');
+            e.target.innerHTML = 'Flagged for Admin Review';
+          } else {
+            e.target.classList.remove('btn-outline-danger');
+            e.target.classList.add('btn-danger');
+            e.target.innerHTML = 'Flag for Admin Review?';
+          }
+        }}>Flag for Admin Review?</Button>
     </div>
   );
 };

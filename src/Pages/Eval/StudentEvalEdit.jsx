@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 
 import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
@@ -44,7 +44,20 @@ const StudentEvalEdit = () => {
     const unsubscribeEval = onSnapshot(evalRef.current,
       (res) => {
         setEvaluation(res.data());
-        setSelectedTutor(res.data().tutor_id)
+        setSelectedTutor(res.data().tutor_id);
+        getDocs(collection(doc(db, 'students', res.data().student_id), 'standards'))
+          .then(subCollStandards => {
+            let compiledStandards = [];
+            Promise.all(subCollStandards.docs.map(async s => {
+              return getDoc(doc(db, 'standards', s.id))
+                .then(standard => {
+                  compiledStandards.push({ ...s.data(), ...standard.data(), id: standard.id });
+                })
+            }))
+              .then(() => {
+                setStandards(compiledStandards);
+              });
+          })
       })
 
     const unsubscribeTutors = onSnapshot(collection(db, 'tutors'),
@@ -79,28 +92,25 @@ const StudentEvalEdit = () => {
           .then(() => setLoading(false));
       })
 
-    const unsubscribeStandards = onSnapshot(collection(db, 'standards'),
-      subCollStandards => {
-        let compiledStandards = [];
-        Promise.all(subCollStandards.docs.map(async s => {
-          return getDoc(doc(db, 'standards', s.id))
-            .then(standard => {
-              compiledStandards.push({ ...s.data(), ...standard.data(), id: standard.id });
-            })
-        }))
-          .then(() => {
-            setStandards(compiledStandards);
-          });
-      })
-
     return () => {
       unsubscribeEval();
       unsubscribeTasks();
       unsubscribeTutors();
-      unsubscribeStandards();
     }
 
   }, [params.evalid])
+
+  useEffect(() => {
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].progression <= 2 || tasks[i].engagement <= 2) {
+        document.getElementById("flagForReview").classList.remove("d-none");
+        return;
+      }
+    }
+
+    document.getElementById("flagForReview").classList.add("d-none");
+
+  }, [tasks])
 
   function sumbitEval(e) {
     e.preventDefault();
@@ -122,6 +132,10 @@ const StudentEvalEdit = () => {
       owner: evaluation.owner,                  // not mutable
     }
 
+    if (document.getElementById("flagForReview").classList.contains("btn-outline-danger")) {
+      newEval.flagged = true;
+    }
+
     updateDoc(evalRef.current, newEval)
       .then(() => {
         tasks.forEach((t) => {
@@ -141,18 +155,6 @@ const StudentEvalEdit = () => {
       );
     });
   }
-
-  // const standardOptions = standards.sort((a,b) => {
-  //   return (
-  //     a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
-  //     a.key.split('.')[2] - b.key.split('.')[2] ||
-  //     a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
-  //     a.key.localeCompare(b.key)
-  //   )}).map((s, i) => {
-  //     return (
-  //       <option value={s.id} key={s.id}>{s.key}</option>
-  //     );
-  // });
 
   const StandardDropdownToggle = React.forwardRef(({ style, className, onClick, value }, ref) => (
     <Form.Control
@@ -385,6 +387,19 @@ const StudentEvalEdit = () => {
           <button className="btn btn-primary m-3 ms-auto" type="submit">Submit</button>
         </div>
       </form>
+      <Button variant="danger" className="mx-3 ms-auto" id="flagForReview"
+        onClick={(e) => {
+          e.preventDefault();
+          if (e.target.classList.contains('btn-danger')) {
+            e.target.classList.remove('btn-danger');
+            e.target.classList.add('btn-outline-danger');
+            e.target.innerHTML = 'Flagged for Admin Review';
+          } else {
+            e.target.classList.remove('btn-outline-danger');
+            e.target.classList.add('btn-danger');
+            e.target.innerHTML = 'Flag for Admin Review?';
+          }
+        }}>Flag for Admin Review?</Button>
     </div>
   );
 };
