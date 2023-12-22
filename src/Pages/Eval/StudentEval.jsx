@@ -1,12 +1,13 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
-import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { useState, useEffect, useRef, useContext } from "react";
+import { collection, doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 
 import { db, storage } from "../../Services/firebase";
 import { Can } from "../../Services/can";
 import { getDownloadURL, ref } from "firebase/storage";
-import { OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
+import { Button, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
 import { Eval } from "../../Services/defineAbility";
+import { ToastContext } from "../../Services/toast";
 
 const StudentEval = () => {
 
@@ -24,13 +25,15 @@ const StudentEval = () => {
 
   const navigate = useNavigate();
 
+  const addToast = useContext(ToastContext);
+
   useEffect(() => {
 
     const unsubscribeEval = onSnapshot(evalRef.current,
       (res) => {
         setEvaluation(res.data());
         if (res.data().worksheet === '' || !res.data().worksheet) return;
-        
+
         worksheetRef.current = ref(storage, res.data().worksheet);
         getDownloadURL(worksheetRef.current)
           .then((url) => {
@@ -43,26 +46,26 @@ const StudentEval = () => {
         let compiledTasks = new Array(res.docs.length);
         Promise.all(res.docs.map(async (t, i) => {
           if (t.data().standard === '')
-            return compiledTasks[i] = {...res.docs[i].data(), standard: {key: "", description: ""}};
+            return compiledTasks[i] = { ...res.docs[i].data(), standard: { key: "", description: "" } };
           else
             return getDoc(doc(db, 'standards', t.data().standard))
               .then(s => {
-                compiledTasks[i] = {...res.docs[i].data(), standard: s.data()};
+                compiledTasks[i] = { ...res.docs[i].data(), standard: s.data() };
               })
         }))
-        .then(() => {
-          compiledTasks.sort((a, b) => {
-            let a_standard = a.standard.key || '0.0.0';
-            let b_standard = b.standard.key || '0.0.0';
-            return (
-              a_standard.split('.')[1].localeCompare(b_standard.split('.')[1]) ||
-              a_standard.split('.')[2] - b_standard.split('.')[2] ||
-              a_standard.split('.')[2].localeCompare(b_standard.split('.')[2]) ||
-              a_standard.localeCompare(b_standard)
-            )
+          .then(() => {
+            compiledTasks.sort((a, b) => {
+              let a_standard = a.standard.key || '0.0.0';
+              let b_standard = b.standard.key || '0.0.0';
+              return (
+                a_standard.split('.')[1].localeCompare(b_standard.split('.')[1]) ||
+                a_standard.split('.')[2] - b_standard.split('.')[2] ||
+                a_standard.split('.')[2].localeCompare(b_standard.split('.')[2]) ||
+                a_standard.localeCompare(b_standard)
+              )
+            })
+            setTasks(compiledTasks);
           })
-          setTasks(compiledTasks);
-        })
       })
 
     return () => {
@@ -92,7 +95,7 @@ const StudentEval = () => {
                   {task.standard.description}
                 </Popover.Body>
               </Popover>
-              : 
+              :
               <></>
             }>
             <div>{task.standard.key}</div>
@@ -116,22 +119,22 @@ const StudentEval = () => {
   return (
     <div className='p-3 d-flex flex-column'>
       <h1 className="display-1">Session Evaluation</h1>
-          <div className="d-flex flex-fill card p-3 m-3 bg-light-subtle">
-          <label className="form-label h5">Student</label>
-          <button className="btn btn-link me-auto h3 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-            data-toggle="tooltip" title={"View " + evaluation.student_name + "'s Profile"}
-            style={{ cursor: "pointer" }} onClick={() => navigate(`/students/${evaluation.student_id}`)}>{evaluation.student_name}</button>
-          <div className="row my-3">
-            <div className="col">
-              <label className="form-label h5">Tutor</label><br />
-              <Can I="view" on="Tutor">
-                <button id="tutor" className="btn btn-link h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                  data-toggle="tooltip" title={"View " + evaluation.tutor_name + "'s Profile"}
-                  style={{ cursor: "pointer" }} onClick={() => navigate(`/tutor/${evaluation.tutor_id}`)}>{evaluation.tutor_name}</button>
-              </Can>
-              <Can not I="view" on="Tutor">
-                <div id="tutor" className="h6">{evaluation.tutor_name}</div>
-              </Can>
+      <div className="d-flex flex-fill card p-3 m-3 bg-light-subtle">
+        <label className="form-label h5">Student</label>
+        <button className="btn btn-link me-auto h3 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+          data-toggle="tooltip" title={"View " + evaluation.student_name + "'s Profile"}
+          style={{ cursor: "pointer" }} onClick={() => navigate(`/students/${evaluation.student_id}`)}>{evaluation.student_name}</button>
+        <div className="row my-3">
+          <div className="col">
+            <label className="form-label h5">Tutor</label><br />
+            <Can I="view" on="Tutor">
+              <button id="tutor" className="btn btn-link h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                data-toggle="tooltip" title={"View " + evaluation.tutor_name + "'s Profile"}
+                style={{ cursor: "pointer" }} onClick={() => navigate(`/tutor/${evaluation.tutor_id}`)}>{evaluation.tutor_name}</button>
+            </Can>
+            <Can not I="view" on="Tutor">
+              <div id="tutor" className="h6">{evaluation.tutor_name}</div>
+            </Can>
           </div>
           <div className="col">
             <label className="form-label h5">Date</label>
@@ -190,6 +193,22 @@ const StudentEval = () => {
           <button className="btn btn-info m-3 ms-auto" onClick={() => navigate(`/eval/edit/${evalRef.current.id}`)}>Make Changes</button>
         </Can>
       </div>
+      {evaluation.flagged ?
+        <Can I="review" an="eval">
+          <Button variant="success" className="mx-3 ms-auto"
+            onClick={(e) => {
+              e.preventDefault();
+              e.target.setAttribute('disabled', true);
+              e.target.innerHTML = 'Mark as Reviewed <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'
+              setDoc(evalRef.current, { flagged: false }, { merge: true })
+                .then(() => {
+                  addToast({ header: 'Success', message: 'Eval has been marked as reviewed.' });
+                  e.target.removeAttribute('disabled');
+                  e.target.innerHTML = 'Mark as Reviewed';
+                })
+            }}>Mark as Reviewed</Button>
+        </Can>
+        : null}
     </div>
   );
 };
