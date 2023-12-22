@@ -43,6 +43,7 @@ import AssessmentEdit from './Pages/Assessments/AssessmentEdit';
 import NewStudentAssessment from './Pages/Assessments/NewStudentAssessment';
 import StudentAssessment from './Pages/Assessments/StudentAssessment';
 import StudentAssessmentEdit from './Pages/Assessments/StudentAssessmentEdit';
+import EvalsPendingReview from './Pages/Eval/EvalsPendingReview';
 
 function App() {
 
@@ -130,6 +131,7 @@ function App() {
             <Route path='/evals/:studentid' element={<StudentEvalsList />} />
             <Route path='/eval/edit/:evalid' element={<StudentEvalEdit />} />
             <Route path='/eval/query' element={<EvalQuery />} />
+            <Route path="/evals/review" element={<EvalsPendingReview />} />
 
             <Route path="/newstudent" element={<NewStudentPage />} />
             <Route path="/students" element={<StudentProfilesList />} />
