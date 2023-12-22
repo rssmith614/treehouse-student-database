@@ -90,9 +90,6 @@ const EvalsPendingReview = () => {
     }
   }
 
-  if (loading)
-    return <div className="spinner-border align-self-center" />;
-
   const DropdownTableHeaderToggle = React.forwardRef(({ children, onClick }, ref) => (
     <div className="d-flex"
       ref={ref}
@@ -124,43 +121,44 @@ const EvalsPendingReview = () => {
     <div className="d-flex flex-column p-3">
       <div className="display-1">Review Evals</div>
       <Card className="bg-light-subtle p-3">
-        {evals.length === 0 ? <div className="text-center">No Evaluations pending review at this time.</div> :
-          <Table striped hover>
-            <thead>
-              <tr>
-                <th style={{ cursor: "pointer" }}>
-                  <Dropdown autoClose='outside' drop='up'>
-                    <Dropdown.Toggle as={DropdownTableHeaderToggle} id="date">
-                      Date {filterIcon('date')}
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                      <Dropdown.Item onClick={() => setTableSort('date_desc')}>Newer First</Dropdown.Item>
-                      <Dropdown.Item onClick={() => setTableSort('date_asc')}>Older First</Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </th>
-                <th style={{ cursor: "pointer" }}>
-                  <Dropdown autoClose='outside' drop='up'>
-                    <Dropdown.Toggle as={DropdownTableHeaderToggle} id="student">
-                      Student {filterIcon('student')}
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu as={FilterTableHeader} value={studentFilter} valueSetter={setStudentFilter} />
-                  </Dropdown>
-                </th>
-                <th style={{ cursor: "pointer" }}>
-                  <Dropdown autoClose='outside' drop='up'>
-                    <Dropdown.Toggle as={DropdownTableHeaderToggle} id="tutor">
-                      Tutor {filterIcon('tutor')}
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu as={FilterTableHeader} value={tutorFilter} valueSetter={setTutorFilter} />
-                  </Dropdown>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {pendingEvals()}
-            </tbody>
-          </Table>
+        {loading ? <div className="spinner-border align-self-center" /> :
+          evals.length === 0 ? <div className="text-center">No Evaluations pending review at this time.</div> :
+            <Table striped hover>
+              <thead>
+                <tr>
+                  <th style={{ cursor: "pointer" }}>
+                    <Dropdown autoClose='outside' drop='up'>
+                      <Dropdown.Toggle as={DropdownTableHeaderToggle} id="date">
+                        Date {filterIcon('date')}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu>
+                        <Dropdown.Item onClick={() => setTableSort('date_desc')}>Newer First</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setTableSort('date_asc')}>Older First</Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </th>
+                  <th style={{ cursor: "pointer" }}>
+                    <Dropdown autoClose='outside' drop='up'>
+                      <Dropdown.Toggle as={DropdownTableHeaderToggle} id="student">
+                        Student {filterIcon('student')}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu as={FilterTableHeader} value={studentFilter} valueSetter={setStudentFilter} />
+                    </Dropdown>
+                  </th>
+                  <th style={{ cursor: "pointer" }}>
+                    <Dropdown autoClose='outside' drop='up'>
+                      <Dropdown.Toggle as={DropdownTableHeaderToggle} id="tutor">
+                        Tutor {filterIcon('tutor')}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu as={FilterTableHeader} value={tutorFilter} valueSetter={setTutorFilter} />
+                    </Dropdown>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingEvals()}
+              </tbody>
+            </Table>
         }
       </Card>
     </div>
