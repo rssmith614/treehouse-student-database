@@ -100,6 +100,18 @@ const StudentEvalEdit = () => {
 
   }, [params.evalid])
 
+  useEffect(() => {
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].progression <= 2 || tasks[i].engagement <= 2) {
+        document.getElementById("flagForReview").classList.remove("d-none");
+        return;
+      }
+    }
+
+    document.getElementById("flagForReview").classList.add("d-none");
+
+  }, [tasks])
+
   function sumbitEval(e) {
     e.preventDefault();
 
@@ -118,6 +130,10 @@ const StudentEvalEdit = () => {
       worksheet_completion: document.getElementById("worksheet_completion").value,
       next_session: document.getElementById("next_session").value,
       owner: evaluation.owner,                  // not mutable
+    }
+
+    if (document.getElementById("flagForReview").classList.contains("btn-outline-danger")) {
+      newEval.flagged = true;
     }
 
     updateDoc(evalRef.current, newEval)
@@ -371,6 +387,19 @@ const StudentEvalEdit = () => {
           <button className="btn btn-primary m-3 ms-auto" type="submit">Submit</button>
         </div>
       </form>
+      <Button variant="danger" className="mx-3 ms-auto" id="flagForReview"
+        onClick={(e) => {
+          e.preventDefault();
+          if (e.target.classList.contains('btn-danger')) {
+            e.target.classList.remove('btn-danger');
+            e.target.classList.add('btn-outline-danger');
+            e.target.innerHTML = 'Flagged for Admin Review';
+          } else {
+            e.target.classList.remove('btn-outline-danger');
+            e.target.classList.add('btn-danger');
+            e.target.innerHTML = 'Flag for Admin Review?';
+          }
+        }}>Flag for Admin Review?</Button>
     </div>
   );
 };
