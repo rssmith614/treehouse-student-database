@@ -161,9 +161,10 @@ const NewStudentEval = () => {
               localStorage.removeItem(`${params.studentid}_eval`);
               localStorage.removeItem(`${params.studentid}_tasks`);
             })
-            .then(() =>
+            .then(() => {
+              localStorage.setItem('student_tab', 'evals');
               navigate(`/students/${params.studentid}`)
-            )
+            })
         )
     } else {
       addDoc(collection(db, "evaluations"),
@@ -184,9 +185,10 @@ const NewStudentEval = () => {
           localStorage.removeItem(`${params.studentid}_eval`);
           localStorage.removeItem(`${params.studentid}_tasks`);
         })
-        .then(() =>
+        .then(() => {
+          localStorage.setItem('student_tab', 'evals');
           navigate(`/students/${params.studentid}`)
-        )
+        })
     }
   }
 
