@@ -8,13 +8,11 @@ const DocSubmissionToast = ({ toasts }) => {
   //     setShow(true);
   // }, [toast])
 
-  
-  
   return (
-    <ToastContainer className="position-fixed bottom-0 end-0 p-3">
+    <ToastContainer className='position-fixed bottom-0 end-0 p-3'>
       {toasts}
     </ToastContainer>
-  )
-}
+  );
+};
 
 export default DocSubmissionToast;
