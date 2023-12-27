@@ -6,6 +6,8 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { useEffect } from "react";
 
+import { sendEmail } from "../Services/email";
+
 import history from "history/browser"
 
 const treehouseLogo = require('../images/Treehouse-Logo-New.svg').default;
@@ -84,6 +86,9 @@ const Login = ({ setUserProfile }) => {
                 </div>
                 <Button variant="primary" className="" onClick={handleSignIn}>
                   Sign In <i className="bi bi-google" />
+                </Button>
+                <Button variant="secondary" className="" onClick={sendEmail}>
+                  Test
                 </Button>
               </div>
             </Col>
