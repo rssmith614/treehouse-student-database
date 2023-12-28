@@ -113,7 +113,7 @@ const NewStudentAssessment = () => {
     e.preventDefault();
 
     const completedAssessmentFile =
-      document.getElementById("completed-amt-file").files[0];
+      document.getElementById("completed-amt-file")?.files[0];
 
     if (completedAssessmentFile) {
       const completedAssessmentRef = ref(
@@ -263,7 +263,7 @@ const NewStudentAssessment = () => {
                   id='tutor'
                   className='form-control'
                   value={selectedTutor}
-                  onChange={(e) => setSelectedTutor(e.target.val)}
+                  onChange={(e) => setSelectedTutor(e.target.value)}
                 >
                   <option disabled value=''>
                     Select One
