@@ -209,14 +209,13 @@ const StudentEvalEdit = () => {
       });
 
       // delete evaluation
-      await deleteDoc(evalRef.current)
-        .then(() => {
-          navigate(-1);
-          addToast({
-            header: "Evaluation Deleted",
-            message: `Session evaluation for ${evaluation.student_name} has been deleted`,
-          });
+      await deleteDoc(evalRef.current).then(() => {
+        navigate(-1);
+        addToast({
+          header: "Evaluation Deleted",
+          message: `Session evaluation for ${evaluation.student_name} has been deleted`,
         });
+      });
     }
   }
 
@@ -590,7 +589,12 @@ const StudentEvalEdit = () => {
           >
             Back
           </button>
-          <Button variant='danger' className='m-3 ms-auto' type='button' onClick={handleDelete} >
+          <Button
+            variant='danger'
+            className='m-3 ms-auto'
+            type='button'
+            onClick={handleDelete}
+          >
             Delete
           </Button>
           <button className='btn btn-primary m-3' type='submit'>

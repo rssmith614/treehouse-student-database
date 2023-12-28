@@ -100,7 +100,7 @@ const StudentAssessment = () => {
           <div className='col'>
             <label className='form-label h5'>Issuer</label>
             <br />
-            {ability.can("view", "Tutor") && assessment.issued_by !== "" ? 
+            {ability.can("view", "Tutor") && assessment.issued_by !== "" ? (
               <button
                 id='tutor'
                 className='btn btn-link h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
@@ -111,11 +111,11 @@ const StudentAssessment = () => {
               >
                 {assessment.issued_by_name}
               </button>
-            :
+            ) : (
               <div id='tutor' className='h6'>
                 {assessment.issued_by_name}
               </div>
-}
+            )}
           </div>
           <div className='col'>
             <label className='form-label h5'>Date</label>

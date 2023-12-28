@@ -1,7 +1,16 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { collection, deleteDoc, doc, getDocs, onSnapshot, query, updateDoc, where } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  onSnapshot,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
 import { Button, Col, Form, Row } from "react-bootstrap";
@@ -28,7 +37,7 @@ const TutorProfileEdit = () => {
     const unsubscribeTutor = onSnapshot(tutorDocRef.current, (doc) => {
       setTutor(doc.data());
       if (doc.data()?.clearance === "pending") setSelectedClearance("");
-      else setSelectedClearance(doc.data()?.clearance || '');
+      else setSelectedClearance(doc.data()?.clearance || "");
 
       setLoading(false);
     });
@@ -95,37 +104,48 @@ const TutorProfileEdit = () => {
     }
 
     // set null on evaluations: tutor_id
-    await getDocs(query(collection(db, "evaluations"), where("tutor_id", "==", tutorDocRef.current.id)))
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          updateDoc(doc.ref, { tutor_id: "" });
-        });
-      }
-    );
+    await getDocs(
+      query(
+        collection(db, "evaluations"),
+        where("tutor_id", "==", tutorDocRef.current.id),
+      ),
+    ).then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        updateDoc(doc.ref, { tutor_id: "" });
+      });
+    });
     // set null on student_assessments: issued_by
-    await getDocs(query(collection(db, "student_assessments"), where("issued_by", "==", tutorDocRef.current.id)))
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          updateDoc(doc.ref, { issued_by: "" });
-        });
-      }
-    );
+    await getDocs(
+      query(
+        collection(db, "student_assessments"),
+        where("issued_by", "==", tutorDocRef.current.id),
+      ),
+    ).then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        updateDoc(doc.ref, { issued_by: "" });
+      });
+    });
 
     // set null on students: preferred_tutor
-    await getDocs(query(collection(db, "students"), where("preferred_tutor", "==", tutorDocRef.current.id)))
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          updateDoc(doc.ref, { preferred_tutor: "" });
-        });
-      }
-    );
+    await getDocs(
+      query(
+        collection(db, "students"),
+        where("preferred_tutor", "==", tutorDocRef.current.id),
+      ),
+    ).then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        updateDoc(doc.ref, { preferred_tutor: "" });
+      });
+    });
 
     // delete tutor
-    await deleteDoc(tutorDocRef.current)
-      .then(() => {
-        navigate("/tutors");
-        addToast({header: "Tutor Deleted", message: `Profile has been deleted, and associated data has been updated`})
+    await deleteDoc(tutorDocRef.current).then(() => {
+      navigate("/tutors");
+      addToast({
+        header: "Tutor Deleted",
+        message: `Profile has been deleted, and associated data has been updated`,
       });
+    });
   }
 
   const tutorInstance = new Tutor(tutor);
@@ -215,7 +235,12 @@ const TutorProfileEdit = () => {
           >
             Back
           </button>
-          <Button variant='danger' className='m-3 ms-auto' type='button' onClick={handleDelete} >
+          <Button
+            variant='danger'
+            className='m-3 ms-auto'
+            type='button'
+            onClick={handleDelete}
+          >
             Delete
           </Button>
           <button type='sumbit' className='btn btn-primary m-3'>

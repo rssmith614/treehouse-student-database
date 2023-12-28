@@ -1,4 +1,10 @@
-import { collection, deleteDoc, doc, onSnapshot, setDoc } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  setDoc,
+} from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Card, Form, Table } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
@@ -89,7 +95,10 @@ const StudentAssessmentEdit = () => {
       return;
     }
 
-    if (assessment.completed_file !== "" && assessment.completed_file !== undefined) {
+    if (
+      assessment.completed_file !== "" &&
+      assessment.completed_file !== undefined
+    ) {
       await deleteObject(ref(storage, assessment.completed_file));
     }
 
@@ -245,10 +254,15 @@ const StudentAssessmentEdit = () => {
               </div>
             )}
             <div className='d-flex justify-content-end'>
-              <Button variant="danger" type="button" className="m-3" onClick={handleDelete}>
+              <Button
+                variant='danger'
+                type='button'
+                className='m-3'
+                onClick={handleDelete}
+              >
                 Delete
               </Button>
-              <Button variant='primary' type='submit' className="m-3">
+              <Button variant='primary' type='submit' className='m-3'>
                 Submit
               </Button>
             </div>

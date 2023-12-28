@@ -152,8 +152,8 @@ const StudentEval = () => {
           <div className='col'>
             <label className='form-label h5'>Tutor</label>
             <br />
-            {ability.can("view", "Tutor") && evaluation.tutor_id !== "" ? 
-            <button
+            {ability.can("view", "Tutor") && evaluation.tutor_id !== "" ? (
+              <button
                 id='tutor'
                 className='btn btn-link h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
                 data-toggle='tooltip'
@@ -163,11 +163,11 @@ const StudentEval = () => {
               >
                 {evaluation.tutor_name}
               </button>
-              :
+            ) : (
               <div id='tutor' className='h6'>
                 {evaluation.tutor_name}
               </div>
-}
+            )}
           </div>
           <div className='col'>
             <label className='form-label h5'>Date</label>
