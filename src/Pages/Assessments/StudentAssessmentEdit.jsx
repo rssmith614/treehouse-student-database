@@ -1,9 +1,10 @@
-import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, onSnapshot, setDoc } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Card, Form, Table } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { db } from "../../Services/firebase";
+import { db, storage } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
+import { deleteObject, ref } from "firebase/storage";
 
 const grades = {
   K: "Kindergarten",
@@ -48,7 +49,7 @@ const StudentAssessmentEdit = () => {
       doc(db, "student_assessments", params.assessmentid),
       (doc) => {
         setAssessment({ ...doc.data(), id: doc.id });
-        setSelectedTutor(doc.data().issued_by);
+        setSelectedTutor(doc.data()?.issued_by || "");
       },
     );
 
@@ -77,6 +78,27 @@ const StudentAssessmentEdit = () => {
       });
       navigate(`/assessments/${params.assessmentid}`);
     });
+  }
+
+  async function handleDelete() {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete the assessment for ${assessment.student_name}?`,
+      )
+    ) {
+      return;
+    }
+
+    if (assessment.completed_file !== "" && assessment.completed_file !== undefined) {
+      await deleteObject(ref(storage, assessment.completed_file));
+    }
+
+    await deleteDoc(doc(db, "student_assessments", params.assessmentid));
+    addToast({
+      header: "Student Assessment Deleted",
+      message: "The student assessment has been deleted successfully",
+    });
+    navigate(-1);
   }
 
   function tutorOptions() {
@@ -223,7 +245,10 @@ const StudentAssessmentEdit = () => {
               </div>
             )}
             <div className='d-flex justify-content-end'>
-              <Button variant='primary' type='submit'>
+              <Button variant="danger" type="button" className="m-3" onClick={handleDelete}>
+                Delete
+              </Button>
+              <Button variant='primary' type='submit' className="m-3">
                 Submit
               </Button>
             </div>

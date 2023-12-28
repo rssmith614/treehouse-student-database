@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -10,7 +11,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
-import { db } from "../../Services/firebase";
+import { db, storage } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
 import {
   Button,
@@ -22,6 +23,7 @@ import {
   Row,
   Table,
 } from "react-bootstrap";
+import { deleteObject, ref } from "firebase/storage";
 
 const grades = {
   K: "Kindergarten",
@@ -57,7 +59,7 @@ const StudentEvalEdit = () => {
   useEffect(() => {
     const unsubscribeEval = onSnapshot(evalRef.current, (res) => {
       setEvaluation(res.data());
-      setSelectedTutor(res.data().tutor_id);
+      setSelectedTutor(res.data()?.tutor_id || "");
       getDocs(
         collection(doc(db, "students", res.data().student_id), "standards"),
       ).then((subCollStandards) => {
@@ -187,6 +189,35 @@ const StudentEvalEdit = () => {
         }),
       )
       .then(() => navigate(`/eval/${evalRef.current.id}`));
+  }
+
+  async function handleDelete() {
+    if (
+      window.confirm(
+        `You are about to DELETE this evaluation for ${evaluation.student_name}. Are you sure you want to do this?`,
+      )
+    ) {
+      if (evaluation.worksheet !== "" && evaluation.worksheet !== undefined) {
+        await deleteObject(ref(storage, evaluation.worksheet));
+      }
+
+      // cascade delete tasks
+      await getDocs(collection(evalRef.current, "tasks")).then((res) => {
+        res.docs.forEach((task) => {
+          deleteDoc(task.ref);
+        });
+      });
+
+      // delete evaluation
+      await deleteDoc(evalRef.current)
+        .then(() => {
+          navigate(-1);
+          addToast({
+            header: "Evaluation Deleted",
+            message: `Session evaluation for ${evaluation.student_name} has been deleted`,
+          });
+        });
+    }
   }
 
   function tutorOptions() {
@@ -559,7 +590,10 @@ const StudentEvalEdit = () => {
           >
             Back
           </button>
-          <button className='btn btn-primary m-3 ms-auto' type='submit'>
+          <Button variant='danger' className='m-3 ms-auto' type='button' onClick={handleDelete} >
+            Delete
+          </Button>
+          <button className='btn btn-primary m-3' type='submit'>
             Submit
           </button>
         </div>

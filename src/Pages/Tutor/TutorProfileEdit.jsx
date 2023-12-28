@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, onSnapshot, query, updateDoc, where } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
-import { Col, Form, Row } from "react-bootstrap";
+import { Button, Col, Form, Row } from "react-bootstrap";
 import { AbilityContext } from "../../Services/can";
 import { Tutor } from "../../Services/defineAbility";
 import { useAbility } from "@casl/react";
@@ -27,8 +27,8 @@ const TutorProfileEdit = () => {
   useEffect(() => {
     const unsubscribeTutor = onSnapshot(tutorDocRef.current, (doc) => {
       setTutor(doc.data());
-      if (doc.data().clearance === "pending") setSelectedClearance("");
-      else setSelectedClearance(doc.data().clearance);
+      if (doc.data()?.clearance === "pending") setSelectedClearance("");
+      else setSelectedClearance(doc.data()?.clearance || '');
 
       setLoading(false);
     });
@@ -85,6 +85,49 @@ const TutorProfileEdit = () => {
       .then(() => navigate(`/tutor/${tutorDocRef.current.id}`));
   }
 
+  async function handleDelete() {
+    if (
+      !window.confirm(
+        `You are about to DELETE ${tutor.displayName}'s profile. Are you sure you want to do this?`,
+      )
+    ) {
+      return;
+    }
+
+    // set null on evaluations: tutor_id
+    await getDocs(query(collection(db, "evaluations"), where("tutor_id", "==", tutorDocRef.current.id)))
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          updateDoc(doc.ref, { tutor_id: "" });
+        });
+      }
+    );
+    // set null on student_assessments: issued_by
+    await getDocs(query(collection(db, "student_assessments"), where("issued_by", "==", tutorDocRef.current.id)))
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          updateDoc(doc.ref, { issued_by: "" });
+        });
+      }
+    );
+
+    // set null on students: preferred_tutor
+    await getDocs(query(collection(db, "students"), where("preferred_tutor", "==", tutorDocRef.current.id)))
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          updateDoc(doc.ref, { preferred_tutor: "" });
+        });
+      }
+    );
+
+    // delete tutor
+    await deleteDoc(tutorDocRef.current)
+      .then(() => {
+        navigate("/tutors");
+        addToast({header: "Tutor Deleted", message: `Profile has been deleted, and associated data has been updated`})
+      });
+  }
+
   const tutorInstance = new Tutor(tutor);
 
   const innerContent = (
@@ -95,7 +138,7 @@ const TutorProfileEdit = () => {
             <div className='h3'>Email</div>
             <input
               className='form-control m-1'
-              value={tutor.email || ""}
+              value={tutor?.email || ""}
               disabled
               data-toggle='tooltip'
               title='Email cannot be modified'
@@ -128,7 +171,7 @@ const TutorProfileEdit = () => {
             <div className='h3'>Preferred Student Ages</div>
             <Form.Control
               className='m-1'
-              value={tutor.preferredAges || ""}
+              value={tutor?.preferredAges || ""}
               onChange={(e) => {
                 setTutor({ ...tutor, preferredAges: e.target.value });
               }}
@@ -140,7 +183,7 @@ const TutorProfileEdit = () => {
             <div className='h3'>Preferred Subjects</div>
             <Form.Control
               className='m-1'
-              value={tutor.preferredSubjects || ""}
+              value={tutor?.preferredSubjects || ""}
               onChange={(e) => {
                 setTutor({ ...tutor, preferredSubjects: e.target.value });
               }}
@@ -153,7 +196,7 @@ const TutorProfileEdit = () => {
 
   return (
     <div className='p-3 d-flex flex-column'>
-      <h1 className='d-flex display-1'>Tutor Profile - {tutor.displayName}</h1>
+      <h1 className='d-flex display-1'>Tutor Profile - {tutor?.displayName}</h1>
       <form onSubmit={handleSubmit}>
         <div className='d-flex flex-row justify-content-center'>
           <div className='d-flex flex-fill m-3 p-3 card bg-light-subtle justify-content-center'>
@@ -172,7 +215,10 @@ const TutorProfileEdit = () => {
           >
             Back
           </button>
-          <button type='sumbit' className='btn btn-primary m-3 ms-auto'>
+          <Button variant='danger' className='m-3 ms-auto' type='button' onClick={handleDelete} >
+            Delete
+          </Button>
+          <button type='sumbit' className='btn btn-primary m-3'>
             Submit
           </button>
         </div>
