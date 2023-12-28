@@ -14,7 +14,7 @@ import {
 import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
 import { Button, Col, Form, Row } from "react-bootstrap";
-import { AbilityContext } from "../../Services/can";
+import { AbilityContext, Can } from "../../Services/can";
 import { Tutor } from "../../Services/defineAbility";
 import { useAbility } from "@casl/react";
 
@@ -235,17 +235,21 @@ const TutorProfileEdit = () => {
           >
             Back
           </button>
-          <Button
-            variant='danger'
-            className='m-3 ms-auto'
-            type='button'
-            onClick={handleDelete}
-          >
-            Delete
-          </Button>
-          <button type='sumbit' className='btn btn-primary m-3'>
-            Submit
-          </button>
+          <div className='ms-auto'>
+            <Can I='delete' this={tutorInstance}>
+              <Button
+                variant='danger'
+                className='m-3'
+                type='button'
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
+            </Can>
+            <button type='sumbit' className='btn btn-primary m-3'>
+              Submit
+            </button>
+          </div>
         </div>
       </form>
     </div>
