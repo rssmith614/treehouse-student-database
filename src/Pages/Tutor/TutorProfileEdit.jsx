@@ -231,7 +231,7 @@ const TutorProfileEdit = () => {
           <button
             type='button'
             className='btn btn-secondary m-3'
-            onClick={() => navigate(`/tutor/${tutorDocRef.current.id}`)}
+            onClick={() => navigate(-1)}
           >
             Back
           </button>
