@@ -6,7 +6,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { useEffect } from "react";
 
-import { sendEmail } from "../Services/email";
+import { sendAuthRequestEmail } from "../Services/email";
 
 import history from "history/browser"
 
@@ -51,6 +51,9 @@ const Login = ({ setUserProfile }) => {
                 let { apiKey: _, ...rest } = { ...JSON.parse(JSON.stringify(user.toJSON())), activated: false, clearance: 'pending' };
                 setDoc(doc(db, 'tutors', user.uid), rest)
                   .then(() => {
+                    sendAuthRequestEmail(user.displayName, user.email);
+                  })
+                  .then(() => {
                     window.alert('Your request has been sent. You will be notified when your account is activated.');
                     signOut(auth);
                   })
@@ -86,9 +89,6 @@ const Login = ({ setUserProfile }) => {
                 </div>
                 <Button variant="primary" className="" onClick={handleSignIn}>
                   Sign In <i className="bi bi-google" />
-                </Button>
-                <Button variant="secondary" className="" onClick={sendEmail}>
-                  Test
                 </Button>
               </div>
             </Col>

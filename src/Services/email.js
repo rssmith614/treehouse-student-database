@@ -1,17 +1,25 @@
-import { Resend } from 'resend';
+import { init, send } from "@emailjs/browser";
+import { getDocs, query, collection, where } from "firebase/firestore";
+import { db } from "./firebase";
 
-const resend = new Resend('re_MBU3zVQb_7RvcDJjVrbV22vWsojF5GD7j');
+init('EEoUW9pUcXKWuGEY1');
 
-export const sendEmail = () => {
-    console.log('Sending email');
-    resend.emails.send({
-        'from': 'rssmith614@gmail.com',
-        'to': 'rssmith614@gmail.com',
-        'subject': 'Hello World',
-        'html': '<h1>Hello World</h1>'
-    }).then((response) => {
-        console.log(response);
-    }).catch((error) => {
-        console.log(error);
-    });
+function sendAuthRequestEmail(userName, userEmail) {
+    let adminEmails = [];
+    getDocs(query(collection(db, 'tutors'), where('clearance', '==', 'admin')))
+        .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                adminEmails.push(doc.data().email);
+            });
+        })
+        .then(() => {
+            console.log(adminEmails)
+            send('service_tb1cwud', 'template_new_access', {
+                send_to: adminEmails.join(';'),
+                user_name: userName,
+                user_email: userEmail,
+            });
+        })
 }
+
+export { sendAuthRequestEmail };
