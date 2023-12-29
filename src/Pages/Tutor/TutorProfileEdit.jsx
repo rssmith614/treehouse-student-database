@@ -8,6 +8,7 @@ import { Col, Form, Row } from "react-bootstrap";
 import { AbilityContext } from "../../Services/can";
 import { Tutor } from "../../Services/defineAbility";
 import { useAbility } from "@casl/react";
+import { sendAuthApprovedEmail } from "../../Services/email";
 
 
 const TutorProfileEdit = () => {
@@ -59,6 +60,8 @@ const TutorProfileEdit = () => {
       if (!window.confirm(`You are about to GRANT admin priveleges to ${tutor.displayName}. They will have full read, write, and edit permissions on all data. Are you sure you want to do this?`)) {
         return;
       }
+    } else if (tutor.clearance === "pending" && newClearance !== tutor.clearance) {
+      sendAuthApprovedEmail(tutor.displayName, tutor.email);
     }
 
     tutor.clearance = newClearance;

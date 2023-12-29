@@ -22,4 +22,22 @@ function sendAuthRequestEmail(userName, userEmail) {
         })
 }
 
-export { sendAuthRequestEmail };
+function sendAuthApprovedEmail(userName, userEmail) {
+    let adminEmails = [];
+    getDocs(query(collection(db, 'tutors'), where('clearance', '==', 'admin')))
+        .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                adminEmails.push(doc.data().email);
+            });
+        })
+        .then(() => {
+            console.log(adminEmails)
+            send('service_tb1cwud', 'template_access_granted', {
+                user_email: userEmail,
+                user_name: userName,
+                admins: adminEmails.join(';'),
+            })
+        })
+}
+
+export { sendAuthRequestEmail, sendAuthApprovedEmail };
