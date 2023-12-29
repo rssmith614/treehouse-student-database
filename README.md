@@ -12,10 +12,12 @@ This app is currently hosted on Firebase at [https://student-database-2aa8d.web.
 
 ## Installation
 
-After cloning, run the following commands:
+To run the development environment locally, run the following commands after cloning the repository:
 
-```
-npm ci && npm run build
+```bash
+npm ci
+npm run emulate
+npm start
 ```
 
 ## Authors / Contributors
