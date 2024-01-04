@@ -6,6 +6,8 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { useEffect } from "react";
 
+import { sendAuthRequestEmail } from "../Services/email";
+
 import history from "history/browser"
 
 const treehouseLogo = require('../images/Treehouse-Logo-New.svg').default;
@@ -61,6 +63,8 @@ const Login = ({ setUserProfile }) => {
                   clearance: "pending",
                 };
                 setDoc(doc(db, "tutors", user.uid), rest).then(() => {
+                  sendAuthRequestEmail(user.displayName, user.email);
+                }).then(() => {
                   window.alert(
                     "Your request has been sent. You will be notified when your account is activated.",
                   );

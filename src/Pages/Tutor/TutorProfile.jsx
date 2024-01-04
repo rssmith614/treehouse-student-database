@@ -130,7 +130,7 @@ const TutorProfile = () => {
       </div>
       <div className='d-flex'>
         <Can I='edit' this={tutorInstance}>
-          {tutor.clearance === "pending" ? (
+          {tutor?.clearance === "pending" ? (
             <Button
               className='btn btn-danger m-3'
               onClick={() => deny(tutorDocRef.current.id)}
