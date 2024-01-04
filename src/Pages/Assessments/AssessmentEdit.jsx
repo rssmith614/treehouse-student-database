@@ -14,7 +14,7 @@ import { db, storage } from "../../Services/firebase";
 import { Button, Card, Offcanvas, Table } from "react-bootstrap";
 import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 import { ToastContext } from "../../Services/toast";
-import CSVToArray from "../../Services/csv";
+import { CSVToArray } from "../../Services/csv";
 
 const grades = {
   K: "Kindergarten",
