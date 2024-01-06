@@ -383,22 +383,25 @@ const StudentProfilesList = () => {
           listTable
         )}
       </div>
-      <Can I="export" on="students">
-        <Button
-          className='btn btn-primary m-3 ms-auto'
-          onClick={csvExport}
-        >
-          Export Students as CSV
-        </Button>
-      </Can>
-      <Can do='add' on='students'>
-        <button
-          className='btn btn-primary m-3 ms-auto'
-          onClick={() => navigate(`/newstudent`)}
-        >
-          Add New Student
-        </button>
-      </Can>
+      <div className="d-flex">
+        <Can I="export" on="students">
+          <Button
+            className='m-3 me-auto'
+            variant="secondary"
+            onClick={csvExport}
+          >
+            Export Student Data as CSV
+          </Button>
+        </Can>
+        <Can do='add' on='students'>
+          <button
+            className='btn btn-primary m-3 ms-auto'
+            onClick={() => navigate(`/newstudent`)}
+          >
+            Add New Student
+          </button>
+        </Can>
+      </div>
     </div>
   );
 };
