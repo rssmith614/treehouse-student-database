@@ -33,6 +33,12 @@
     },
     "hosting": {
       "port": 5002
+    },
+    "functions": {
+      "port": 5001
+    },
+    "storage": {
+      "port": 9199
     }
   },
   "firestore": {
@@ -53,5 +59,8 @@
         "npm --prefix \"$RESOURCE_DIR\" run lint"
       ]
     }
-  ]
+  ],
+  "storage": {
+    "rules": "storage.rules"
+  }
 }

@@ -6,9 +6,9 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { useEffect } from "react";
 
-import history from "history/browser"
+import history from "history/browser";
 
-const treehouseLogo = require('../images/Treehouse-Logo-New.svg').default;
+const treehouseLogo = require("../images/Treehouse-Logo-New.svg").default;
 
 const Login = ({ setUserProfile }) => {
   const provider = new GoogleAuthProvider();

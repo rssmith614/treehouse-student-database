@@ -1,11 +1,12 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Can } from "../../Services/can";
+import { AbilityContext, Can } from "../../Services/can";
 import { Button, Col, Row, Table } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db, storage } from "../../Services/firebase";
 import { getDownloadURL, ref } from "firebase/storage";
 import { Assessment } from "../../Services/defineAbility";
+import { useAbility } from "@casl/react";
 
 const grades = {
   K: "Kindergarten",
@@ -26,6 +27,7 @@ const StudentAssessment = () => {
   const [completedFileURL, setCompletedFileURL] = useState("");
 
   const params = useParams();
+  const ability = useAbility(AbilityContext);
 
   const navigate = useNavigate();
 
@@ -98,7 +100,7 @@ const StudentAssessment = () => {
           <div className='col'>
             <label className='form-label h5'>Issuer</label>
             <br />
-            <Can I='view' on='Tutor'>
+            {ability.can("view", "Tutor") && assessment.issued_by !== "" ? (
               <button
                 id='tutor'
                 className='btn btn-link h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
@@ -109,12 +111,11 @@ const StudentAssessment = () => {
               >
                 {assessment.issued_by_name}
               </button>
-            </Can>
-            <Can not I='view' on='Tutor'>
+            ) : (
               <div id='tutor' className='h6'>
                 {assessment.issued_by_name}
               </div>
-            </Can>
+            )}
           </div>
           <div className='col'>
             <label className='form-label h5'>Date</label>

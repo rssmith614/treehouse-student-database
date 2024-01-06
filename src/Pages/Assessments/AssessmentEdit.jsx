@@ -66,7 +66,7 @@ const AssessmentEdit = () => {
         ),
       );
 
-      if (res.data().file === "" || !res.data().file) return;
+      if (res.data().file === "" || res.data().file === undefined) return;
 
       assessmentFileRef.current = ref(storage, res.data().file);
       getDownloadURL(assessmentFileRef.current).then((url) =>

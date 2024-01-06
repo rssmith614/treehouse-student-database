@@ -13,6 +13,7 @@ function defineAbilityFor(user) {
   if (tutorClearance === 'admin') {
     can('manage', 'all');
     cannot('edit', Tutor, ['clearance'], { uid: user.id }).because("Admin cannot change their own clearance");
+    cannot('delete', Tutor, { uid: user.id }).because("Admin cannot delete themselves");
   }
 
   else if (tutorClearance === "tutor") {

@@ -534,7 +534,7 @@ const NewStudentEval = () => {
                 id='tutor'
                 className='form-control'
                 value={selectedTutor}
-                onChange={(e) => setSelectedTutor(e.target.val)}
+                onChange={(e) => setSelectedTutor(e.target.value)}
               >
                 <option disabled value=''>
                   Select One

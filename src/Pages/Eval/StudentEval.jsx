@@ -9,11 +9,12 @@ import {
 } from "firebase/firestore";
 
 import { db, storage } from "../../Services/firebase";
-import { Can } from "../../Services/can";
+import { AbilityContext, Can } from "../../Services/can";
 import { getDownloadURL, ref } from "firebase/storage";
 import { Button, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
 import { Eval } from "../../Services/defineAbility";
 import { ToastContext } from "../../Services/toast";
+import { useAbility } from "@casl/react";
 
 const StudentEval = () => {
   const [evaluation, setEvaluation] = useState({});
@@ -31,6 +32,7 @@ const StudentEval = () => {
   const navigate = useNavigate();
 
   const addToast = useContext(ToastContext);
+  const ability = useAbility(AbilityContext);
 
   useEffect(() => {
     const unsubscribeEval = onSnapshot(evalRef.current, (res) => {
@@ -150,7 +152,7 @@ const StudentEval = () => {
           <div className='col'>
             <label className='form-label h5'>Tutor</label>
             <br />
-            <Can I='view' on='Tutor'>
+            {ability.can("view", "Tutor") && evaluation.tutor_id !== "" ? (
               <button
                 id='tutor'
                 className='btn btn-link h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
@@ -161,12 +163,11 @@ const StudentEval = () => {
               >
                 {evaluation.tutor_name}
               </button>
-            </Can>
-            <Can not I='view' on='Tutor'>
+            ) : (
               <div id='tutor' className='h6'>
                 {evaluation.tutor_name}
               </div>
-            </Can>
+            )}
           </div>
           <div className='col'>
             <label className='form-label h5'>Date</label>
