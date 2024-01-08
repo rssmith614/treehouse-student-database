@@ -45,11 +45,14 @@ const StandardsOfStudent = ({
   const [standards, setStandards] = useState([]);
   const [groupedStandards, setGroupedStandards] = useState({});
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const unsubscribeStandards = onSnapshot(
       collection(student, "standards"),
       (res) => {
         setStandards(res.docs);
+        setLoading(false);
       },
     );
 
@@ -125,6 +128,8 @@ const StandardsOfStudent = ({
     }
   }
 
+  if (loading) return <div className='d-flex justify-content-center' />;
+
   return Object.entries(groupedStandards)
     .sort((a, b) => a[0].localeCompare(b[0]))
     .map((group, i) => {
@@ -180,7 +185,7 @@ const StandardsOfStudent = ({
                                   {dayjs
                                     .duration(
                                       dayjs().diff(
-                                        dayjs.unix(standard.timestamp.seconds),
+                                        dayjs.unix(standard.timestamp?.seconds),
                                       ),
                                     )
                                     .humanize()}{" "}

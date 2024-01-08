@@ -58,9 +58,12 @@ const StudentEvalEdit = () => {
 
   useEffect(() => {
     const unsubscribeEval = onSnapshot(evalRef.current, (res) => {
-      if (!res.exists()) return;
-      setEvaluation(res.data());
-      setSelectedTutor(res.data()?.tutor_id || "");
+      if (localStorage.getItem(`${params.evalid}`)) {
+        setEvaluation(JSON.parse(localStorage.getItem(`${params.evalid}`)));
+      } else {
+        setEvaluation(res.data());
+      }
+      setSelectedTutor(res.data().tutor_id);
       getDocs(
         collection(doc(db, "students", res.data().student_id), "standards"),
       ).then((subCollStandards) => {
@@ -88,42 +91,46 @@ const StudentEvalEdit = () => {
     const unsubscribeTasks = onSnapshot(
       collection(evalRef.current, "tasks"),
       (res) => {
-        if (res.docs.length === 0) return;
-        let compiledTasks = new Array(res.docs.length);
-        Promise.all(
-          res.docs.map(async (t, i) => {
-            if (t.data().standard === "")
-              return (compiledTasks[i] = { ...t.data(), id: t.id });
-            else
-              return getDoc(doc(db, "standards", t.data().standard)).then(
-                (s) => {
-                  compiledTasks[i] = {
-                    ...t.data(),
-                    id: t.id,
-                    standard: { ...s.data(), id: s.id },
-                  };
-                },
-              );
-          }),
-        )
-          .then(() => {
-            compiledTasks.sort((a, b) => {
-              let a_standard = a.standard.key || "0.0.0";
-              let b_standard = b.standard.key || "0.0.0";
-              return (
-                a_standard
-                  .split(".")[1]
-                  .localeCompare(b_standard.split(".")[1]) ||
-                a_standard.split(".")[2] - b_standard.split(".")[2] ||
-                a_standard
-                  .split(".")[2]
-                  .localeCompare(b_standard.split(".")[2]) ||
-                a_standard.localeCompare(b_standard)
-              );
-            });
-            setTasks(compiledTasks);
-          })
-          .then(() => setLoading(false));
+        if (localStorage.getItem(`${params.evalid}_tasks`)) {
+          setTasks(JSON.parse(localStorage.getItem(`${params.evalid}_tasks`)));
+          setLoading(false);
+        } else {
+          let compiledTasks = new Array(res.docs.length);
+          Promise.all(
+            res.docs.map(async (t, i) => {
+              if (t.data().standard === "")
+                return (compiledTasks[i] = { ...t.data(), id: t.id });
+              else
+                return getDoc(doc(db, "standards", t.data().standard)).then(
+                  (s) => {
+                    compiledTasks[i] = {
+                      ...t.data(),
+                      id: t.id,
+                      standard: { ...s.data(), id: s.id },
+                    };
+                  },
+                );
+            }),
+          )
+            .then(() => {
+              compiledTasks.sort((a, b) => {
+                let a_standard = a.standard.key || "0.0.0";
+                let b_standard = b.standard.key || "0.0.0";
+                return (
+                  a_standard
+                    .split(".")[1]
+                    .localeCompare(b_standard.split(".")[1]) ||
+                  a_standard.split(".")[2] - b_standard.split(".")[2] ||
+                  a_standard
+                    .split(".")[2]
+                    .localeCompare(b_standard.split(".")[2]) ||
+                  a_standard.localeCompare(b_standard)
+                );
+              });
+              setTasks(compiledTasks);
+            })
+            .then(() => setLoading(false));
+        }
       },
     );
 
@@ -145,8 +152,18 @@ const StudentEvalEdit = () => {
     document.getElementById("flagForReview").classList.add("d-none");
   }, [tasks]);
 
+  useEffect(() => {
+    if (evaluation.length !== 0 && tasks.length !== 0) {
+      localStorage.setItem(`${params.evalid}`, JSON.stringify(evaluation));
+      localStorage.setItem(`${params.evalid}_tasks`, JSON.stringify(tasks));
+    }
+  }, [evaluation, tasks, params.evalid]);
+
   function sumbitEval(e) {
     e.preventDefault();
+
+    localStorage.removeItem(`${params.evalid}`);
+    localStorage.removeItem(`${params.evalid}_tasks`);
 
     let tutorName;
     tutors.forEach((tutor) => {
@@ -371,10 +388,9 @@ const StudentEvalEdit = () => {
           </Button>
         </td>
         <td>
-          <input
+          <Form.Select
             id='subject'
             className='form-control'
-            type='text'
             value={task.subject}
             onChange={(e) =>
               setTasks(
@@ -385,7 +401,14 @@ const StudentEvalEdit = () => {
               )
             }
             required
-          />
+          >
+            <option disabled value=''>
+              Select One
+            </option>
+            <option value='Math'>Math</option>
+            <option value='Reading'>Reading</option>
+            <option value='Other'>Other</option>
+          </Form.Select>
         </td>
         <td>
           {/* <select id="standard" className="form-control"
@@ -587,7 +610,11 @@ const StudentEvalEdit = () => {
           <button
             type='button'
             className='btn btn-secondary m-3 me-auto'
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              localStorage.removeItem(`${params.evalid}`);
+              localStorage.removeItem(`${params.evalid}_tasks`);
+              navigate(-1);
+            }}
           >
             Back
           </button>

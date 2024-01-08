@@ -208,7 +208,7 @@ const NewStudentEval = () => {
           })
           .then(() => {
             localStorage.setItem("student_tab", "evals");
-            navigate(`/students/${params.studentid}`);
+            navigate(-1);
           }),
       );
     } else {
@@ -241,7 +241,7 @@ const NewStudentEval = () => {
         })
         .then(() => {
           localStorage.setItem("student_tab", "evals");
-          navigate(`/students/${params.studentid}`);
+          navigate(-1);
         });
     }
   }
@@ -509,6 +509,7 @@ const NewStudentEval = () => {
             placeholder='Worked on...'
             data-toggle='tooltip'
             title={`What you worked on with ${student.student_name} as it relates to this particular task`}
+            required
           />
         </td>
       </tr>
@@ -518,122 +519,126 @@ const NewStudentEval = () => {
   return (
     <div className='p-3 d-flex flex-column'>
       <h1 className='display-1'>New Session Evaluation</h1>
-      <form onSubmit={sumbitEval}>
-        <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
-          <div
-            className='h3'
-            data-toggle='tooltip'
-            title='Contact an administrator if this is incorrect'
-          >
-            {student.student_name}
-          </div>
-          <div className='row my-3'>
-            <div className='col'>
-              <label className='form-label h5'>Tutor</label>
-              <select
-                id='tutor'
-                className='form-control'
-                value={selectedTutor}
-                onChange={(e) => setSelectedTutor(e.target.value)}
-              >
-                <option disabled value=''>
-                  Select One
-                </option>
-                {tutorOptions()}
-              </select>
-            </div>
-            <div className='col'>
-              <label className='form-label h5'>Date</label>
-              <input
-                id='date'
-                className='form-control'
-                type='date'
-                value={evaluation.date}
-                onChange={(e) =>
-                  setEvaluation({ ...evaluation, date: e.target.value })
-                }
-              />
-            </div>
-          </div>
-          <hr />
-          <div className='d-flex flex-column'>
-            <div className='h5'>Tasks</div>
-            <Table striped>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Subject</th>
-                  <th>Standard</th>
-                  <th>Progression</th>
-                  <th>Engagement</th>
-                  <th>Comments</th>
-                </tr>
-              </thead>
-              <tbody>{tasksList}</tbody>
-            </Table>
-            <Button
-              type='button'
-              variant='secondary'
-              className='me-auto'
-              onClick={addTask}
+      {/* <form onSubmit={sumbitEval}> */}
+      <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
+        <div
+          className='h3'
+          data-toggle='tooltip'
+          title='Contact an administrator if this is incorrect'
+        >
+          {student.student_name}
+        </div>
+        <div className='row my-3'>
+          <div className='col'>
+            <label className='form-label h5'>Tutor</label>
+            <select
+              id='tutor'
+              className='form-control'
+              value={selectedTutor}
+              onChange={(e) => setSelectedTutor(e.target.value)}
             >
-              Add Task
-            </Button>
+              <option disabled value=''>
+                Select One
+              </option>
+              {tutorOptions()}
+            </select>
           </div>
-          <hr />
-          <div className='row my-3'>
-            <div className='col'>
-              <label className='form-label h5'>Worksheet</label>
-              <input id='worksheet' className='form-control' type='file' />
-            </div>
-            <div className='col'>
-              <label className='form-label h5'>Worksheet Completion</label>
-              <input
-                id='worksheet_completion'
-                className='form-control'
-                type='text'
-                placeholder='Finished...'
-                data-toggle='tooltip'
-                title={`If you uploaded a worksheet, how far did the student get?`}
-                value={evaluation.worksheet_completion}
-                onChange={(e) =>
-                  setEvaluation({
-                    ...evaluation,
-                    worksheet_completion: e.target.value,
-                  })
-                }
-              />
-            </div>
-            <div className='col'>
-              <label className='form-label h5'>Next Session Plans</label>
-              <textarea
-                id='next_session'
-                className='form-control'
-                placeholder='Continue...'
-                data-toggle='tooltip'
-                title={`What you plan to work on next time, or notes for the next tutor`}
-                value={evaluation.next_session}
-                onChange={(e) =>
-                  setEvaluation({ ...evaluation, next_session: e.target.value })
-                }
-              />
-            </div>
+          <div className='col'>
+            <label className='form-label h5'>Date</label>
+            <input
+              id='date'
+              className='form-control'
+              type='date'
+              value={evaluation.date}
+              onChange={(e) =>
+                setEvaluation({ ...evaluation, date: e.target.value })
+              }
+            />
           </div>
         </div>
-        <div className='d-flex'>
-          <button
+        <hr />
+        <div className='d-flex flex-column'>
+          <div className='h5'>Tasks</div>
+          <Table striped>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Subject</th>
+                <th>Standard</th>
+                <th>Progression</th>
+                <th>Engagement</th>
+                <th>Comments</th>
+              </tr>
+            </thead>
+            <tbody>{tasksList}</tbody>
+          </Table>
+          <Button
             type='button'
-            className='btn btn-secondary m-3 me-auto'
-            onClick={() => navigate(-1)}
+            variant='secondary'
+            className='me-auto'
+            onClick={addTask}
           >
-            Back
-          </button>
-
-          <button className='btn btn-primary m-3' id='submit' type='submit'>
-            Submit
-          </button>
+            Add Task
+          </Button>
         </div>
-      </form>
+        <hr />
+        <div className='row my-3'>
+          <div className='col'>
+            <label className='form-label h5'>Worksheet</label>
+            <input id='worksheet' className='form-control' type='file' />
+          </div>
+          <div className='col'>
+            <label className='form-label h5'>Worksheet Completion</label>
+            <input
+              id='worksheet_completion'
+              className='form-control'
+              type='text'
+              placeholder='Finished...'
+              data-toggle='tooltip'
+              title={`If you uploaded a worksheet, how far did the student get?`}
+              value={evaluation.worksheet_completion}
+              onChange={(e) =>
+                setEvaluation({
+                  ...evaluation,
+                  worksheet_completion: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div className='col'>
+            <label className='form-label h5'>Next Session Plans</label>
+            <textarea
+              id='next_session'
+              className='form-control'
+              placeholder='Continue...'
+              data-toggle='tooltip'
+              title={`What you plan to work on next time, or notes for the next tutor`}
+              value={evaluation.next_session}
+              onChange={(e) =>
+                setEvaluation({ ...evaluation, next_session: e.target.value })
+              }
+            />
+          </div>
+        </div>
+      </div>
+      <div className='d-flex'>
+        <button
+          type='button'
+          className='btn btn-secondary m-3 me-auto'
+          onClick={() => navigate(-1)}
+        >
+          Back
+        </button>
+
+        <button
+          className='btn btn-primary m-3'
+          id='submit'
+          onClick={sumbitEval}
+        >
+          Submit
+        </button>
+      </div>
+      {/* </form> */}
       <Button
         variant='danger'
         className='mx-3 ms-auto'

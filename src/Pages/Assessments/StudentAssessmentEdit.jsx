@@ -187,41 +187,41 @@ const StudentAssessmentEdit = () => {
       <div className='display-1'>Edit Student Assessment</div>
       <Card className='bg-light-subtle m-3'>
         <Card.Body>
-          <Form onSubmit={handleSubmit}>
-            <div className='h3'>{assessment.student_name}</div>
-            <div className='row my-3'>
-              <div className='col'>
-                <label className='form-label h5'>Issuer</label>
-                <Form.Select
-                  id='tutor'
-                  className='form-control'
-                  value={selectedTutor}
-                  onChange={(e) => setSelectedTutor(e.target.val)}
-                >
-                  <option disabled value=''>
-                    Select One
-                  </option>
-                  {tutorOptions()}
-                </Form.Select>
-              </div>
-              <div className='col'>
-                <label className='form-label h5'>Date</label>
-                <input
-                  id='date'
-                  className='form-control'
-                  type='date'
-                  defaultValue={assessment.date}
-                />
-              </div>
+          {/* <Form onSubmit={handleSubmit}> */}
+          <div className='h3'>{assessment.student_name}</div>
+          <div className='row my-3'>
+            <div className='col'>
+              <label className='form-label h5'>Issuer</label>
+              <Form.Select
+                id='tutor'
+                className='form-control'
+                value={selectedTutor}
+                onChange={(e) => setSelectedTutor(e.target.val)}
+              >
+                <option disabled value=''>
+                  Select One
+                </option>
+                {tutorOptions()}
+              </Form.Select>
             </div>
-            <hr />
-            <div className='h5'>
-              Assessment - {grades[assessment.grade]} {assessment.category}
+            <div className='col'>
+              <label className='form-label h5'>Date</label>
+              <input
+                id='date'
+                className='form-control'
+                type='date'
+                defaultValue={assessment.date}
+              />
             </div>
-            <hr />
-            {assessment.questions ? (
-              <>
-                {/* {selectedAssessment?.file !== '' && selectedAssessment?.file !== undefined ?
+          </div>
+          <hr />
+          <div className='h5'>
+            Assessment - {grades[assessment.grade]} {assessment.category}
+          </div>
+          <hr />
+          {assessment.questions ? (
+            <>
+              {/* {selectedAssessment?.file !== '' && selectedAssessment?.file !== undefined ?
                   <Row>
                     <Col className='d-flex flex-column justify-content-center'>
                       <Button href={fileURL} className='' target='_blank' rel='noreferrer'>Download Blank Assessment</Button>
@@ -234,39 +234,39 @@ const StudentAssessmentEdit = () => {
                   :
                   <div className='h6 text-center'>No file for the selected assessment</div>
                 } */}
-                <div className='h3'>Questions</div>
-                <Table striped>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Question</th>
-                      <th>Sample Answer</th>
-                      <th>Student's Answer</th>
-                      <th>Score</th>
-                    </tr>
-                  </thead>
-                  <tbody>{assessmentQuestions()}</tbody>
-                </Table>
-              </>
-            ) : (
-              <div className='h6 text-center'>
-                No Questions found for the selected Assessment
-              </div>
-            )}
-            <div className='d-flex justify-content-end'>
-              <Button
-                variant='danger'
-                type='button'
-                className='m-3'
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-              <Button variant='primary' type='submit' className='m-3'>
-                Submit
-              </Button>
+              <div className='h3'>Questions</div>
+              <Table striped>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Question</th>
+                    <th>Sample Answer</th>
+                    <th>Student's Answer</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody>{assessmentQuestions()}</tbody>
+              </Table>
+            </>
+          ) : (
+            <div className='h6 text-center'>
+              No Questions found for the selected Assessment
             </div>
-          </Form>
+          )}
+          <div className='d-flex justify-content-end'>
+            <Button
+              variant='danger'
+              type='button'
+              className='m-3'
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+            <Button variant='primary' onClick={handleSubmit}>
+              Submit
+            </Button>
+          </div>
+          {/* </Form> */}
         </Card.Body>
       </Card>
     </div>

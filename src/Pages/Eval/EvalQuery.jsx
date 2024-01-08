@@ -532,7 +532,7 @@ const EvalQuery = () => {
     <div className='d-flex flex-column p-3'>
       <div className='display-1'>Eval Querying Tool</div>
       <div className='h5'>Define filters, then press "Query"</div>
-      <Form onSubmit={queryEvals}>
+      {/* <Form onSubmit={queryEvals}> */}
         <Card className='p-3 bg-light-subtle'>
           <Row>
             <div className='h4'>Evaluation</div>
@@ -700,16 +700,16 @@ const EvalQuery = () => {
         </Card>
         <div className='d-flex justify-content-center'>
           {loading ? (
-            <Button className='m-3 w-25' type='submit' id='queryButton'>
+            <Button className='m-3 w-25' id='queryButton' disabled>
               Query <span className='spinner-border spinner-border-sm' />
             </Button>
           ) : (
-            <Button className='m-3 w-25' type='submit' id='queryButton'>
+            <Button className='m-3 w-25' onClick={queryEvals} id='queryButton'>
               Query
             </Button>
           )}
         </div>
-      </Form>
+      {/* </Form> */}
       {loading ? (
         <></>
       ) : (
