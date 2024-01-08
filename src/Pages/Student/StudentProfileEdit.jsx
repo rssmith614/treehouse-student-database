@@ -13,6 +13,9 @@ import { db } from "../../Services/firebase";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContext } from "../../Services/toast";
+import dayjs from "dayjs";
+
+const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 
 const StudentProfileEdit = () => {
   const [student, setStudent] = useState({});
@@ -118,14 +121,70 @@ const StudentProfileEdit = () => {
   async function updateStudent(e) {
     e.preventDefault();
 
+    if (dayjs().isBefore(dayjs(student.student_dob))) {
+      console.log(dayjs(), dayjs(student.student_dob));
+      addToast({
+        header: "Invalid Date",
+        message: "Student birthday must be in the past",
+      });
+      return;
+    }
+
+    if (
+      student.parent_phone !== "" &&
+      phoneRegex.test(student.parent_phone) === false
+    ) {
+      addToast({
+        header: "Invalid Phone Number",
+        message: "Parent phone number must be a valid phone number",
+      });
+      return;
+    }
+
+    try {
+      emergencyContacts.forEach((eContact, i) => {
+        console.log(eContact);
+        if (eContact.name === "") {
+          addToast({
+            header: "Missing Emergency Contact",
+            message: `Emergency contact ${i + 1} is missing a name`,
+          });
+          throw new Error();
+        }
+        if (eContact.phone === "") {
+          addToast({
+            header: "Missing Emergency Contact",
+            message: `Emergency contact ${i + 1} is missing a phone number`,
+          });
+          throw new Error();
+        } else if (phoneRegex.test(eContact.phone) === false) {
+          addToast({
+            header: "Invalid Phone Number",
+            message: `Emergency contact ${
+              i + 1
+            } must have a valid phone number`,
+          });
+          throw new Error();
+        }
+      });
+    } catch (e) {
+      return;
+    }
+
+    document.getElementById("saveChanges").disabled = true;
+
     document.getElementById("saveChanges").innerHTML =
       "Save Changes <span class='spinner-border spinner-border-sm' />";
 
-    let preferredTutorName = tutors
-      .find(
-        (tutor) => tutor.id === document.getElementById("preferredTutor").value,
-      )
-      .data().displayName;
+    let preferredTutorName = "";
+    if (student.preferred_tutor !== "") {
+      preferredTutorName = tutors
+        .find(
+          (tutor) =>
+            tutor.id === document.getElementById("preferredTutor").value,
+        )
+        .data().displayName;
+    }
 
     updateDoc(studentRef.current, {
       ...student,
@@ -138,7 +197,7 @@ const StudentProfileEdit = () => {
           message: `Student ${student.student_name}'s profile has been updated`,
         }),
       )
-      .then(() => navigate(`/students/${studentRef.current.id}`));
+      .then(() => navigate(-1));
   }
 
   function tutorOptions() {
@@ -208,6 +267,7 @@ const StudentProfileEdit = () => {
               onClick={() => {
                 removeEContact(i);
               }}
+              disabled={emergencyContacts.length === 1}
             >
               <i className='bi bi-trash-fill' />
             </button>
