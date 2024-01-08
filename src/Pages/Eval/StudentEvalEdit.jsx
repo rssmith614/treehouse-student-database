@@ -58,6 +58,7 @@ const StudentEvalEdit = () => {
 
   useEffect(() => {
     const unsubscribeEval = onSnapshot(evalRef.current, (res) => {
+      if (!res.exists()) return;
       setEvaluation(res.data());
       setSelectedTutor(res.data()?.tutor_id || "");
       getDocs(
@@ -87,6 +88,7 @@ const StudentEvalEdit = () => {
     const unsubscribeTasks = onSnapshot(
       collection(evalRef.current, "tasks"),
       (res) => {
+        if (res.docs.length === 0) return;
         let compiledTasks = new Array(res.docs.length);
         Promise.all(
           res.docs.map(async (t, i) => {
@@ -153,15 +155,15 @@ const StudentEvalEdit = () => {
     });
 
     const newEval = {
-      student_id: evaluation.student_id, // not mutable
-      student_name: evaluation.student_name, // not mutable
+      student_id: evaluation?.student_id, // not mutable
+      student_name: evaluation?.student_name, // not mutable
       tutor_id: document.getElementById("tutor").value,
       tutor_name: tutorName,
       date: document.getElementById("date").value,
       worksheet_completion: document.getElementById("worksheet_completion")
         .value,
       next_session: document.getElementById("next_session").value,
-      owner: evaluation.owner, // not mutable
+      owner: evaluation?.owner, // not mutable
     };
 
     if (
@@ -194,11 +196,11 @@ const StudentEvalEdit = () => {
   async function handleDelete() {
     if (
       window.confirm(
-        `You are about to DELETE this evaluation for ${evaluation.student_name}. Are you sure you want to do this?`,
+        `You are about to DELETE this evaluation for ${evaluation?.student_name}. Are you sure you want to do this?`,
       )
     ) {
-      if (evaluation.worksheet !== "" && evaluation.worksheet !== undefined) {
-        await deleteObject(ref(storage, evaluation.worksheet));
+      if (evaluation?.worksheet !== "" && evaluation?.worksheet !== undefined) {
+        await deleteObject(ref(storage, evaluation?.worksheet));
       }
 
       // cascade delete tasks
@@ -210,10 +212,10 @@ const StudentEvalEdit = () => {
 
       // delete evaluation
       await deleteDoc(evalRef.current).then(() => {
-        navigate(-1);
+        navigate(-2);
         addToast({
           header: "Evaluation Deleted",
-          message: `Session evaluation for ${evaluation.student_name} has been deleted`,
+          message: `Session evaluation for ${evaluation?.student_name} has been deleted`,
         });
       });
     }
@@ -482,7 +484,7 @@ const StudentEvalEdit = () => {
             data-toggle='tooltip'
             title='Contact an administrator if this is incorrect'
           >
-            {evaluation.student_name}
+            {evaluation?.student_name}
           </div>
           <div className='row my-3'>
             <div className='col'>
@@ -506,7 +508,7 @@ const StudentEvalEdit = () => {
                 id='date'
                 className='form-control'
                 type='date'
-                defaultValue={evaluation.date}
+                defaultValue={evaluation?.date}
               />
             </div>
           </div>
@@ -568,7 +570,7 @@ const StudentEvalEdit = () => {
                 id='worksheet_completion'
                 className='form-control'
                 type='text'
-                defaultValue={evaluation.worksheet_completion}
+                defaultValue={evaluation?.worksheet_completion}
               />
             </div>
             <div className='col'>
@@ -576,7 +578,7 @@ const StudentEvalEdit = () => {
               <textarea
                 id='next_session'
                 className='form-control'
-                defaultValue={evaluation.next_session}
+                defaultValue={evaluation?.next_session}
               />
             </div>
           </div>

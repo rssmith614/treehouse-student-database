@@ -107,7 +107,7 @@ const StudentAssessmentEdit = () => {
       header: "Student Assessment Deleted",
       message: "The student assessment has been deleted successfully",
     });
-    navigate(-1);
+    navigate(-2);
   }
 
   function tutorOptions() {
