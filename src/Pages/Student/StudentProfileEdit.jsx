@@ -4,6 +4,9 @@ import {
   deleteDoc,
   collection,
   onSnapshot,
+  getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 
 import { db } from "../../Services/firebase";
@@ -32,9 +35,9 @@ const StudentProfileEdit = () => {
 
   useEffect(() => {
     const unsubscribeStudents = onSnapshot(studentRef.current, (docs) => {
-      setStudent(docs.data());
-      setEmergencyContacts(docs.data().emergency_contacts);
-      setSelectedTutor(docs.data().preferred_tutor);
+      setStudent(docs.data() || {});
+      setEmergencyContacts(docs.data()?.emergency_contacts || []);
+      setSelectedTutor(docs.data()?.preferred_tutor || "");
       setLoading(false);
     });
 
@@ -51,13 +54,65 @@ const StudentProfileEdit = () => {
   async function studentRemoval() {
     if (
       !window.confirm(
-        "Are you sure you want to PERMANENTLY REMOVE the record for this student?",
+        "Are you sure you want to PERMANENTLY REMOVE the record for this student? This will also delete all evaluations and assessments associated with this student.",
       )
     ) {
       return;
     }
 
-    await deleteDoc(studentRef.current).then(() => navigate("/students"));
+    // cascade delete evaluations and tasks
+    await getDocs(
+      query(
+        collection(db, "evaluations"),
+        where("student_id", "==", studentRef.current.id),
+      ),
+    ).then((res) => {
+      addToast({
+        header: "Evaluations Deleted",
+        message: `${res.size} evaluations have been deleted`,
+      });
+      res.docs.forEach((doc) => {
+        getDocs(collection(doc.ref, "tasks")).then((tasks) => {
+          tasks.forEach((t) => {
+            deleteDoc(t.ref);
+          });
+        });
+        deleteDoc(doc.ref);
+      });
+    });
+    // cascade delete assessments
+    await getDocs(
+      query(
+        collection(db, "student_assessments"),
+        where("student_id", "==", studentRef.current.id),
+      ),
+    ).then((res) => {
+      addToast({
+        header: "Assessments Deleted",
+        message: `${res.size} assessments have been deleted`,
+      });
+      res.forEach((doc) => {
+        deleteDoc(doc.ref);
+      });
+    });
+    // cascade delete standards
+    await getDocs(collection(studentRef.current, "standards")).then((res) => {
+      addToast({
+        header: "Standards Deleted",
+        message: `${res.size} standards have been deleted`,
+      });
+      res.forEach((doc) => {
+        deleteDoc(doc.ref);
+      });
+    });
+    // delete student
+    await deleteDoc(studentRef.current).then(() => {
+      navigate("/students");
+      addToast({
+        header: "Student Deleted",
+        message: `${student.student_name}'s profile has been deleted along with associated documents`,
+      });
+    });
   }
 
   async function updateStudent(e) {

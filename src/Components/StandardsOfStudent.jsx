@@ -171,7 +171,7 @@ const StandardsOfStudent = ({
                               </div>
                               {statuses[standard.status]}
                               {dayjs().diff(
-                                dayjs.unix(standard.timestamp.seconds),
+                                dayjs.unix(standard.timestamp?.seconds || 0),
                                 "month",
                               ) > 0 ? (
                                 <>
