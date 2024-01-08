@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -10,7 +11,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
-import { db } from "../../Services/firebase";
+import { db, storage } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
 import {
   Button,
@@ -22,6 +23,7 @@ import {
   Row,
   Table,
 } from "react-bootstrap";
+import { deleteObject, ref } from "firebase/storage";
 
 const grades = {
   K: "Kindergarten",
@@ -93,41 +95,41 @@ const StudentEvalEdit = () => {
           setTasks(JSON.parse(localStorage.getItem(`${params.evalid}_tasks`)));
           setLoading(false);
         } else {
-        let compiledTasks = new Array(res.docs.length);
-        Promise.all(
-          res.docs.map(async (t, i) => {
-            if (t.data().standard === "")
-              return (compiledTasks[i] = { ...t.data(), id: t.id });
-            else
-              return getDoc(doc(db, "standards", t.data().standard)).then(
-                (s) => {
-                  compiledTasks[i] = {
-                    ...t.data(),
-                    id: t.id,
-                    standard: { ...s.data(), id: s.id },
-                  };
-                },
-              );
-          }),
-        )
-          .then(() => {
-            compiledTasks.sort((a, b) => {
-              let a_standard = a.standard.key || "0.0.0";
-              let b_standard = b.standard.key || "0.0.0";
-              return (
-                a_standard
-                  .split(".")[1]
-                  .localeCompare(b_standard.split(".")[1]) ||
-                a_standard.split(".")[2] - b_standard.split(".")[2] ||
-                a_standard
-                  .split(".")[2]
-                  .localeCompare(b_standard.split(".")[2]) ||
-                a_standard.localeCompare(b_standard)
-              );
-            });
-            setTasks(compiledTasks);
-          })
-          .then(() => setLoading(false));
+          let compiledTasks = new Array(res.docs.length);
+          Promise.all(
+            res.docs.map(async (t, i) => {
+              if (t.data().standard === "")
+                return (compiledTasks[i] = { ...t.data(), id: t.id });
+              else
+                return getDoc(doc(db, "standards", t.data().standard)).then(
+                  (s) => {
+                    compiledTasks[i] = {
+                      ...t.data(),
+                      id: t.id,
+                      standard: { ...s.data(), id: s.id },
+                    };
+                  },
+                );
+            }),
+          )
+            .then(() => {
+              compiledTasks.sort((a, b) => {
+                let a_standard = a.standard.key || "0.0.0";
+                let b_standard = b.standard.key || "0.0.0";
+                return (
+                  a_standard
+                    .split(".")[1]
+                    .localeCompare(b_standard.split(".")[1]) ||
+                  a_standard.split(".")[2] - b_standard.split(".")[2] ||
+                  a_standard
+                    .split(".")[2]
+                    .localeCompare(b_standard.split(".")[2]) ||
+                  a_standard.localeCompare(b_standard)
+                );
+              });
+              setTasks(compiledTasks);
+            })
+            .then(() => setLoading(false));
         }
       },
     );
@@ -155,7 +157,7 @@ const StudentEvalEdit = () => {
       localStorage.setItem(`${params.evalid}`, JSON.stringify(evaluation));
       localStorage.setItem(`${params.evalid}_tasks`, JSON.stringify(tasks));
     }
-  }, [evaluation, tasks, params.evalid])
+  }, [evaluation, tasks, params.evalid]);
 
   function sumbitEval(e) {
     e.preventDefault();
@@ -170,15 +172,15 @@ const StudentEvalEdit = () => {
     });
 
     const newEval = {
-      student_id: evaluation.student_id, // not mutable
-      student_name: evaluation.student_name, // not mutable
+      student_id: evaluation?.student_id, // not mutable
+      student_name: evaluation?.student_name, // not mutable
       tutor_id: document.getElementById("tutor").value,
       tutor_name: tutorName,
       date: document.getElementById("date").value,
       worksheet_completion: document.getElementById("worksheet_completion")
         .value,
       next_session: document.getElementById("next_session").value,
-      owner: evaluation.owner, // not mutable
+      owner: evaluation?.owner, // not mutable
     };
 
     if (
@@ -206,6 +208,34 @@ const StudentEvalEdit = () => {
         }),
       )
       .then(() => navigate(`/eval/${evalRef.current.id}`));
+  }
+
+  async function handleDelete() {
+    if (
+      window.confirm(
+        `You are about to DELETE this evaluation for ${evaluation?.student_name}. Are you sure you want to do this?`,
+      )
+    ) {
+      if (evaluation?.worksheet !== "" && evaluation?.worksheet !== undefined) {
+        await deleteObject(ref(storage, evaluation?.worksheet));
+      }
+
+      // cascade delete tasks
+      await getDocs(collection(evalRef.current, "tasks")).then((res) => {
+        res.docs.forEach((task) => {
+          deleteDoc(task.ref);
+        });
+      });
+
+      // delete evaluation
+      await deleteDoc(evalRef.current).then(() => {
+        navigate(-2);
+        addToast({
+          header: "Evaluation Deleted",
+          message: `Session evaluation for ${evaluation?.student_name} has been deleted`,
+        });
+      });
+    }
   }
 
   function tutorOptions() {
@@ -358,7 +388,7 @@ const StudentEvalEdit = () => {
           </Button>
         </td>
         <td>
-        <Form.Select
+          <Form.Select
             id='subject'
             className='form-control'
             value={task.subject}
@@ -477,7 +507,7 @@ const StudentEvalEdit = () => {
             data-toggle='tooltip'
             title='Contact an administrator if this is incorrect'
           >
-            {evaluation.student_name}
+            {evaluation?.student_name}
           </div>
           <div className='row my-3'>
             <div className='col'>
@@ -501,7 +531,7 @@ const StudentEvalEdit = () => {
                 id='date'
                 className='form-control'
                 type='date'
-                defaultValue={evaluation.date}
+                defaultValue={evaluation?.date}
               />
             </div>
           </div>
@@ -563,7 +593,7 @@ const StudentEvalEdit = () => {
                 id='worksheet_completion'
                 className='form-control'
                 type='text'
-                defaultValue={evaluation.worksheet_completion}
+                defaultValue={evaluation?.worksheet_completion}
               />
             </div>
             <div className='col'>
@@ -571,7 +601,7 @@ const StudentEvalEdit = () => {
               <textarea
                 id='next_session'
                 className='form-control'
-                defaultValue={evaluation.next_session}
+                defaultValue={evaluation?.next_session}
               />
             </div>
           </div>
@@ -583,12 +613,20 @@ const StudentEvalEdit = () => {
             onClick={() => {
               localStorage.removeItem(`${params.evalid}`);
               localStorage.removeItem(`${params.evalid}_tasks`);
-              navigate(-1)
+              navigate(-1);
             }}
           >
             Back
           </button>
-          <button className='btn btn-primary m-3 ms-auto' type='submit'>
+          <Button
+            variant='danger'
+            className='m-3 ms-auto'
+            type='button'
+            onClick={handleDelete}
+          >
+            Delete
+          </Button>
+          <button className='btn btn-primary m-3' type='submit'>
             Submit
           </button>
         </div>

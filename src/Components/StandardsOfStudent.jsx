@@ -128,9 +128,7 @@ const StandardsOfStudent = ({
     }
   }
 
-  if (loading) return (
-    <div className='d-flex justify-content-center' />
-  );
+  if (loading) return <div className='d-flex justify-content-center' />;
 
   return Object.entries(groupedStandards)
     .sort((a, b) => a[0].localeCompare(b[0]))
@@ -178,7 +176,7 @@ const StandardsOfStudent = ({
                               </div>
                               {statuses[standard.status]}
                               {dayjs().diff(
-                                dayjs.unix(standard.timestamp?.seconds),
+                                dayjs.unix(standard.timestamp?.seconds || 0),
                                 "month",
                               ) > 0 ? (
                                 <>

@@ -1,9 +1,16 @@
-import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  setDoc,
+} from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Card, Form, Table } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { db } from "../../Services/firebase";
+import { db, storage } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
+import { deleteObject, ref } from "firebase/storage";
 
 const grades = {
   K: "Kindergarten",
@@ -48,7 +55,7 @@ const StudentAssessmentEdit = () => {
       doc(db, "student_assessments", params.assessmentid),
       (doc) => {
         setAssessment({ ...doc.data(), id: doc.id });
-        setSelectedTutor(doc.data().issued_by);
+        setSelectedTutor(doc.data()?.issued_by || "");
       },
     );
 
@@ -77,6 +84,30 @@ const StudentAssessmentEdit = () => {
       });
       navigate(`/assessments/${params.assessmentid}`);
     });
+  }
+
+  async function handleDelete() {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete the assessment for ${assessment.student_name}?`,
+      )
+    ) {
+      return;
+    }
+
+    if (
+      assessment.completed_file !== "" &&
+      assessment.completed_file !== undefined
+    ) {
+      await deleteObject(ref(storage, assessment.completed_file));
+    }
+
+    await deleteDoc(doc(db, "student_assessments", params.assessmentid));
+    addToast({
+      header: "Student Assessment Deleted",
+      message: "The student assessment has been deleted successfully",
+    });
+    navigate(-2);
   }
 
   function tutorOptions() {
@@ -157,40 +188,40 @@ const StudentAssessmentEdit = () => {
       <Card className='bg-light-subtle m-3'>
         <Card.Body>
           {/* <Form onSubmit={handleSubmit}> */}
-            <div className='h3'>{assessment.student_name}</div>
-            <div className='row my-3'>
-              <div className='col'>
-                <label className='form-label h5'>Issuer</label>
-                <Form.Select
-                  id='tutor'
-                  className='form-control'
-                  value={selectedTutor}
-                  onChange={(e) => setSelectedTutor(e.target.val)}
-                >
-                  <option disabled value=''>
-                    Select One
-                  </option>
-                  {tutorOptions()}
-                </Form.Select>
-              </div>
-              <div className='col'>
-                <label className='form-label h5'>Date</label>
-                <input
-                  id='date'
-                  className='form-control'
-                  type='date'
-                  defaultValue={assessment.date}
-                />
-              </div>
+          <div className='h3'>{assessment.student_name}</div>
+          <div className='row my-3'>
+            <div className='col'>
+              <label className='form-label h5'>Issuer</label>
+              <Form.Select
+                id='tutor'
+                className='form-control'
+                value={selectedTutor}
+                onChange={(e) => setSelectedTutor(e.target.val)}
+              >
+                <option disabled value=''>
+                  Select One
+                </option>
+                {tutorOptions()}
+              </Form.Select>
             </div>
-            <hr />
-            <div className='h5'>
-              Assessment - {grades[assessment.grade]} {assessment.category}
+            <div className='col'>
+              <label className='form-label h5'>Date</label>
+              <input
+                id='date'
+                className='form-control'
+                type='date'
+                defaultValue={assessment.date}
+              />
             </div>
-            <hr />
-            {assessment.questions ? (
-              <>
-                {/* {selectedAssessment?.file !== '' && selectedAssessment?.file !== undefined ?
+          </div>
+          <hr />
+          <div className='h5'>
+            Assessment - {grades[assessment.grade]} {assessment.category}
+          </div>
+          <hr />
+          {assessment.questions ? (
+            <>
+              {/* {selectedAssessment?.file !== '' && selectedAssessment?.file !== undefined ?
                   <Row>
                     <Col className='d-flex flex-column justify-content-center'>
                       <Button href={fileURL} className='' target='_blank' rel='noreferrer'>Download Blank Assessment</Button>
@@ -203,30 +234,38 @@ const StudentAssessmentEdit = () => {
                   :
                   <div className='h6 text-center'>No file for the selected assessment</div>
                 } */}
-                <div className='h3'>Questions</div>
-                <Table striped>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Question</th>
-                      <th>Sample Answer</th>
-                      <th>Student's Answer</th>
-                      <th>Score</th>
-                    </tr>
-                  </thead>
-                  <tbody>{assessmentQuestions()}</tbody>
-                </Table>
-              </>
-            ) : (
-              <div className='h6 text-center'>
-                No Questions found for the selected Assessment
-              </div>
-            )}
-            <div className='d-flex justify-content-end'>
-              <Button variant='primary' onClick={handleSubmit}>
-                Submit
-              </Button>
+              <div className='h3'>Questions</div>
+              <Table striped>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Question</th>
+                    <th>Sample Answer</th>
+                    <th>Student's Answer</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody>{assessmentQuestions()}</tbody>
+              </Table>
+            </>
+          ) : (
+            <div className='h6 text-center'>
+              No Questions found for the selected Assessment
             </div>
+          )}
+          <div className='d-flex justify-content-end'>
+            <Button
+              variant='danger'
+              type='button'
+              className='m-3'
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+            <Button variant='primary' onClick={handleSubmit}>
+              Submit
+            </Button>
+          </div>
           {/* </Form> */}
         </Card.Body>
       </Card>
