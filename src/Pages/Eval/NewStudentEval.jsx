@@ -208,7 +208,7 @@ const NewStudentEval = () => {
           })
           .then(() => {
             localStorage.setItem("student_tab", "evals");
-            navigate(`/students/${params.studentid}`);
+            navigate(-1);
           }),
       );
     } else {
@@ -241,7 +241,7 @@ const NewStudentEval = () => {
         })
         .then(() => {
           localStorage.setItem("student_tab", "evals");
-          navigate(`/students/${params.studentid}`);
+          navigate(-1);
         });
     }
   }
@@ -509,6 +509,7 @@ const NewStudentEval = () => {
             placeholder='Worked on...'
             data-toggle='tooltip'
             title={`What you worked on with ${student.student_name} as it relates to this particular task`}
+            required
           />
         </td>
       </tr>
@@ -518,7 +519,7 @@ const NewStudentEval = () => {
   return (
     <div className='p-3 d-flex flex-column'>
       <h1 className='display-1'>New Session Evaluation</h1>
-      <form onSubmit={sumbitEval}>
+      {/* <form onSubmit={sumbitEval}> */}
         <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
           <div
             className='h3'
@@ -629,11 +630,11 @@ const NewStudentEval = () => {
             Back
           </button>
 
-          <button className='btn btn-primary m-3' id='submit' type='submit'>
+          <button className='btn btn-primary m-3' id='submit' onClick={sumbitEval}>
             Submit
           </button>
         </div>
-      </form>
+      {/* </form> */}
       <Button
         variant='danger'
         className='mx-3 ms-auto'

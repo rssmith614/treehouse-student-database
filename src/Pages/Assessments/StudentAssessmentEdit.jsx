@@ -156,7 +156,7 @@ const StudentAssessmentEdit = () => {
       <div className='display-1'>Edit Student Assessment</div>
       <Card className='bg-light-subtle m-3'>
         <Card.Body>
-          <Form onSubmit={handleSubmit}>
+          {/* <Form onSubmit={handleSubmit}> */}
             <div className='h3'>{assessment.student_name}</div>
             <div className='row my-3'>
               <div className='col'>
@@ -223,11 +223,11 @@ const StudentAssessmentEdit = () => {
               </div>
             )}
             <div className='d-flex justify-content-end'>
-              <Button variant='primary' type='submit'>
+              <Button variant='primary' onClick={handleSubmit}>
                 Submit
               </Button>
             </div>
-          </Form>
+          {/* </Form> */}
         </Card.Body>
       </Card>
     </div>

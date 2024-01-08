@@ -132,7 +132,7 @@ const NewStudentAssessment = () => {
           completed_file: completedAssessmentRef.fullPath,
         }).then(() => {
           localStorage.setItem("student_tab", "assessments");
-          navigate(`/students/${student.id}`);
+          navigate(-1);
         });
       });
     } else {
@@ -146,7 +146,7 @@ const NewStudentAssessment = () => {
         completed_file: "",
       }).then(() => {
         localStorage.setItem("student_tab", "assessments");
-        navigate(`/students/${student.id}`);
+        navigate(-1);
       });
     }
 
@@ -254,7 +254,7 @@ const NewStudentAssessment = () => {
       <div className='display-1'>New Student Assessment</div>
       <Card className='bg-light-subtle m-3'>
         <Card.Body>
-          <Form onSubmit={handleSubmit}>
+          {/* <Form onSubmit={handleSubmit}> */}
             <div className='h3'>{student.student_name}</div>
             <div className='row my-3'>
               <div className='col'>
@@ -361,11 +361,11 @@ const NewStudentAssessment = () => {
               </div>
             )}
             <div className='d-flex justify-content-end'>
-              <Button variant='primary' type='submit'>
+              <Button variant='primary' onClick={handleSubmit}>
                 Submit
               </Button>
             </div>
-          </Form>
+          {/* </Form> */}
         </Card.Body>
       </Card>
     </div>

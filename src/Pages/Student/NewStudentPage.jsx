@@ -83,7 +83,7 @@ const NewProfile = () => {
           message: `Student ${student.student_name} has been registered`,
         }),
       )
-      .then(() => navigate("/students"));
+      .then(() => navigate(-1));
   }
 
   function updateEContacts() {
@@ -180,7 +180,7 @@ const NewProfile = () => {
     <div className='p-3 d-flex flex-column'>
       <div className='d-flex display-1'>New Student</div>
       <div className='d-flex flex-column'>
-        <form onSubmit={addStudent}>
+        {/* <form onSubmit={addStudent}> */}
           <div className='d-flex p-3 m-3 card bg-light-subtle'>
             <div className='row'>
               <div className='col mb-3'>
@@ -369,14 +369,14 @@ const NewProfile = () => {
               Back
             </button>
             <button
-              type='submit'
+              onClick={addStudent}
               className='btn btn-primary m-3 ms-auto'
               id='submit'
             >
               Submit
             </button>
           </div>
-        </form>
+        {/* </form> */}
       </div>
     </div>
   );
