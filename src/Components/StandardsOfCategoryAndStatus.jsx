@@ -9,6 +9,7 @@ import {
   OverlayTrigger,
   Popover,
   Row,
+  Spinner,
 } from "react-bootstrap";
 import {
   collection,
@@ -18,7 +19,6 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../Services/firebase";
-import StandardsOfCategory from "./StandardsOfCategory";
 
 const grades = [
   "Kindergarten",
@@ -34,7 +34,6 @@ const grades = [
 const categories = ["Math", "Reading"];
 
 const StandardsOfCategoryAndStatus = ({ student }) => {
-  const [standards, setStandards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [subcategories, setSubcategories] = useState({});
   const [selectedStandard, setSelectedStandard] = useState(null);
@@ -283,7 +282,13 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
             {categoryTabs}
           </Nav>
         </Card.Header>
-        <Card.Body>{listedStandards}</Card.Body>
+        <Card.Body className='d-flex flex-column'>
+          {loading ? (
+            <Spinner className='align-self-center' />
+          ) : (
+            listedStandards
+          )}
+        </Card.Body>
       </Card>
       <Offcanvas show={show} onHide={() => setShow(false)} placement='end'>
         <Offcanvas.Header closeButton>
