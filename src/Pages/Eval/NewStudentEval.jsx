@@ -163,6 +163,43 @@ const NewStudentEval = () => {
   function sumbitEval(e) {
     e.preventDefault();
 
+    if (!selectedTutor) {
+      addToast({
+        header: "No Tutor Selected",
+        message: "Please select a tutor before submitting",
+      });
+      return;
+    }
+
+    try {
+      tasks.forEach((t) => {
+        if (t.subject === "") {
+          addToast({
+            header: "Missing Subject",
+            message: "Please select a subject for all tasks",
+          });
+          throw new Error();
+        }
+        if (t.comments === "") {
+          addToast({
+            header: "Missing Comments",
+            message: "Please enter comments for all tasks",
+          });
+          throw new Error();
+        }
+      });
+    } catch (e) {
+      return;
+    }
+
+    if (evaluation.next_session === "") {
+      addToast({
+        header: "Missing Next Session Plans",
+        message: "Please enter plans for the next session",
+      });
+      return;
+    }
+
     document.getElementById("submit").innerHTML =
       "Submit <span class='spinner-border spinner-border-sm' />";
 
