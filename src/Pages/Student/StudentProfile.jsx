@@ -30,6 +30,7 @@ import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
 import AssessmentsOfStudent from "../../Components/AssessmentsOfStudent";
+import StandardsOfCategoryAndStatus from "../../Components/StandardsOfCategoryAndStatus";
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
@@ -342,7 +343,7 @@ const StudentProfile = () => {
           </div>
         </Tab.Pane>
         <Tab.Pane eventKey='standards'>
-          <Row>
+          {/* <Row>
             <Col>
               <Form.Label className='m-1'>Filter by Standard</Form.Label>
               <InputGroup>
@@ -373,13 +374,14 @@ const StudentProfile = () => {
                 </Dropdown>
               </InputGroup>
             </Col>
-          </Row>
-          <StandardsOfStudent
+          </Row> */}
+          {/* <StandardsOfStudent
             student={studentRef.current}
             setSelectedStandard={setSelectedStandard}
             filter={standardFilter}
             progressFilter={standardProgressFilter}
-          />
+          /> */}
+          <StandardsOfCategoryAndStatus student={studentRef.current} />
           <div className='d-flex justify-content-end'>
             <button
               className='btn btn-primary m-3'
