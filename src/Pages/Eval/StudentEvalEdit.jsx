@@ -62,6 +62,7 @@ const StudentEvalEdit = () => {
 
   useEffect(() => {
     const unsubscribeEval = onSnapshot(evalRef.current, (res) => {
+      if (!res.exists()) return;
       if (localStorage.getItem(`${params.evalid}`)) {
         setEvaluation(JSON.parse(localStorage.getItem(`${params.evalid}`)));
       } else {

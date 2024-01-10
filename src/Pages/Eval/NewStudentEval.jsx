@@ -5,7 +5,12 @@ import {
   collection,
   doc,
   getDoc,
+  getDocs,
+  limit,
   onSnapshot,
+  orderBy,
+  query,
+  where,
 } from "firebase/firestore";
 
 import { auth, db, storage } from "../../Services/firebase";
@@ -67,7 +72,7 @@ const NewStudentEval = () => {
           {
             subject: "",
             standard: "",
-            progression: "5",
+            progression: "4",
             engagement: "5",
             comments: "",
           },
@@ -86,25 +91,56 @@ const NewStudentEval = () => {
       },
     );
 
-    const unsubscribeStudentStandards = onSnapshot(
-      collection(doc(db, "students", params.studentid), "standards"),
-      (snapshot) => {
-        let compiledStandards = [];
-        Promise.all(
-          snapshot.docs.map(async (s) => {
-            return getDoc(doc(db, "standards", s.id)).then((standard) => {
-              compiledStandards.push({
-                ...s.data(),
-                ...standard.data(),
-                id: standard.id,
-              });
-            });
-          }),
-        ).then(() => {
-          setStandards(compiledStandards);
-        });
-      },
+    const evalsQuery = query(
+      collection(db, "evaluations"),
+      where("student_id", "==", params.studentid),
+      orderBy("date", "desc"),
+      limit(5),
     );
+
+    const unsubscribeEvals = onSnapshot(evalsQuery, (evalsSnapshot) => {
+      const fetchTasksPromises = evalsSnapshot.docs.map((evaluation) => {
+        return getDocs(collection(evaluation.ref, "tasks")).then(
+          (tasksSnapshot) => {
+            const tasks = tasksSnapshot.docs.map((doc) => {
+              return {
+                ...doc.data(),
+                id: doc.id,
+              };
+            });
+
+            const fetchStandardsPromises = tasks.map((task) => {
+              if (task.standard === "") return Promise.resolve(null);
+              return getDoc(doc(db, "standards", task.standard)).then(
+                (standard) => {
+                  return {
+                    ...standard.data(),
+                    id: standard.id,
+                  };
+                },
+              );
+            });
+
+            return Promise.all(fetchStandardsPromises);
+          },
+        );
+      });
+
+      Promise.all(fetchTasksPromises).then((standardsArray) => {
+        const flattenedStandards = standardsArray
+          .flat()
+          .filter((s) => s !== null);
+        const uniqueStandards = flattenedStandards.reduce((acc, standard) => {
+          const existingStandard = acc.find((s) => s.key === standard.key);
+          if (!existingStandard) {
+            acc.push(standard);
+          }
+          return acc;
+        }, []);
+        console.log(uniqueStandards);
+        setStandards(uniqueStandards);
+      });
+    });
 
     const unsubscribeTutors = onSnapshot(
       collection(db, "tutors"),
@@ -120,7 +156,7 @@ const NewStudentEval = () => {
 
     return () => {
       unsubscribeStudents();
-      unsubscribeStudentStandards();
+      unsubscribeEvals();
       unsubscribeTutors();
     };
   }, [params.studentid]);
@@ -153,7 +189,7 @@ const NewStudentEval = () => {
       {
         subject: "",
         standard: "",
-        progression: "5",
+        progression: "4",
         engagement: "5",
         comments: "",
       },
@@ -395,7 +431,7 @@ const NewStudentEval = () => {
                 >
                   <div key={standard.id}>
                     <Form.Check
-                      type={"radio"}
+                      // type={"radio"}
                       checked={value.id === standard.id}
                       label={standard.key}
                       className='mx-3 my-2 w-auto'
@@ -498,9 +534,10 @@ const NewStudentEval = () => {
             className='form-control'
             type='number'
             min='1'
-            max='5'
+            max='4'
             step='1'
-            value={task.progression}
+            value={task.standard === "" ? "" : task.progression}
+            disabled={task.standard === ""}
             onChange={(e) =>
               setTasks(
                 tasks.map((t, i) => {
