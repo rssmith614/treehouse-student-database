@@ -10,6 +10,10 @@ import {
   onSnapshot,
   setDoc,
   updateDoc,
+  query,
+  where,
+  orderBy,
+  limit,
 } from "firebase/firestore";
 
 import history from "history/browser";
@@ -57,6 +61,7 @@ const StudentEvalEdit = () => {
   const params = useParams();
 
   const evalRef = useRef(doc(db, "evaluations", params.evalid));
+  const studentRef = useRef();
 
   const navigate = useNavigate();
 
@@ -69,24 +74,25 @@ const StudentEvalEdit = () => {
         setEvaluation(res.data());
       }
       setSelectedTutor(res.data().tutor_id);
-      getDocs(
-        collection(doc(db, "students", res.data().student_id), "standards"),
-      ).then((subCollStandards) => {
-        let compiledStandards = [];
-        Promise.all(
-          subCollStandards.docs.map(async (s) => {
-            return getDoc(doc(db, "standards", s.id)).then((standard) => {
-              compiledStandards.push({
-                ...s.data(),
-                ...standard.data(),
-                id: standard.id,
-              });
-            });
-          }),
-        ).then(() => {
-          setStandards(compiledStandards);
-        });
-      });
+      studentRef.current = res.data().student_id;
+      // getDocs(
+      //   collection(doc(db, "students", res.data().student_id), "standards"),
+      // ).then((subCollStandards) => {
+      //   let compiledStandards = [];
+      //   Promise.all(
+      //     subCollStandards.docs.map(async (s) => {
+      //       return getDoc(doc(db, "standards", s.id)).then((standard) => {
+      //         compiledStandards.push({
+      //           ...s.data(),
+      //           ...standard.data(),
+      //           id: standard.id,
+      //         });
+      //       });
+      //     }),
+      //   ).then(() => {
+      //     setStandards(compiledStandards);
+      //   });
+      // });
     });
 
     const unsubscribeTutors = onSnapshot(collection(db, "tutors"), (res) =>
@@ -145,6 +151,64 @@ const StudentEvalEdit = () => {
       unsubscribeTutors();
     };
   }, [params.evalid]);
+
+  useEffect(() => {
+    if (studentRef.current === undefined) return;
+    const evalsQuery = query(
+      collection(db, "evaluations"),
+      where("student_id", "==", studentRef.current),
+      orderBy("date", "desc"),
+      limit(5),
+    );
+
+    const unsubscribeEvals = onSnapshot(evalsQuery, (evalsSnapshot) => {
+      const fetchTasksPromises = evalsSnapshot.docs.map((evaluation) => {
+        return getDocs(collection(evaluation.ref, "tasks")).then(
+          (tasksSnapshot) => {
+            const tasks = tasksSnapshot.docs.map((doc) => {
+              return {
+                ...doc.data(),
+                id: doc.id,
+              };
+            });
+
+            const fetchStandardsPromises = tasks.map((task) => {
+              if (task.standard === "") return Promise.resolve(null);
+              return getDoc(doc(db, "standards", task.standard)).then(
+                (standard) => {
+                  return {
+                    ...standard.data(),
+                    id: standard.id,
+                  };
+                },
+              );
+            });
+
+            return Promise.all(fetchStandardsPromises);
+          },
+        );
+      });
+
+      Promise.all(fetchTasksPromises).then((standardsArray) => {
+        const flattenedStandards = standardsArray
+          .flat()
+          .filter((s) => s !== null);
+        const uniqueStandards = flattenedStandards.reduce((acc, standard) => {
+          const existingStandard = acc.find((s) => s.key === standard.key);
+          if (!existingStandard) {
+            acc.push(standard);
+          }
+          return acc;
+        }, []);
+        console.log(uniqueStandards);
+        setStandards(uniqueStandards);
+      });
+    });
+
+    return () => {
+      unsubscribeEvals();
+    };
+  }, [studentRef.current]);
 
   useEffect(() => {
     for (let i = 0; i < tasks.length; i++) {
@@ -433,7 +497,7 @@ const StudentEvalEdit = () => {
   const tasksList = tasks.map((task, idx) => {
     return (
       <tr className='my-3' key={idx}>
-        <td>
+        <td className='align-middle'>
           <Button
             type='button'
             variant='danger'
@@ -446,7 +510,7 @@ const StudentEvalEdit = () => {
             <i className='bi bi-trash-fill' />
           </Button>
         </td>
-        <td>
+        <td className='align-middle'>
           <Form.Select
             id='subject'
             className='form-control'
@@ -469,7 +533,7 @@ const StudentEvalEdit = () => {
             <option value='Other'>Other</option>
           </Form.Select>
         </td>
-        <td>
+        <td className='align-middle'>
           {/* <select id="standard" className="form-control"
             value={task.standard} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
@@ -499,7 +563,7 @@ const StudentEvalEdit = () => {
             </Dropdown>
           </InputGroup>
         </td>
-        <td>
+        <td className='align-middle'>
           <input
             id='progression'
             className='form-control'
@@ -518,7 +582,7 @@ const StudentEvalEdit = () => {
             }
           />
         </td>
-        <td>
+        <td className='align-middle'>
           <input
             id='engagement'
             className='form-control'
@@ -537,7 +601,7 @@ const StudentEvalEdit = () => {
             }
           />
         </td>
-        <td>
+        <td className='align-middle'>
           <textarea
             id='comments'
             className='form-control'
@@ -599,7 +663,7 @@ const StudentEvalEdit = () => {
         </div>
         <hr />
         <div className='h5'>Tasks</div>
-        <Row className='d-flex px-3'>
+        <Row className='d-flex flex-column'>
           {loading ? (
             <div className='spinner-border align-self-center' />
           ) : (
