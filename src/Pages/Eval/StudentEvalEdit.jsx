@@ -65,20 +65,22 @@ const StudentEvalEdit = () => {
   const params = useParams();
 
   const evalRef = useRef(doc(db, "evaluations", params.evalid));
-  const studentRef = useRef();
+  const [student, setStudent] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribeEval = onSnapshot(evalRef.current, (res) => {
       if (!res.exists()) return;
-      if (localStorage.getItem(`${params.evalid}`)) {
-        setEvaluation(JSON.parse(localStorage.getItem(`${params.evalid}`)));
+      if (localStorage.getItem(`${evalRef.current.id}`)) {
+        setEvaluation(
+          JSON.parse(localStorage.getItem(`${evalRef.current.id}`)),
+        );
       } else {
         setEvaluation(res.data());
       }
       setSelectedTutor(res.data().tutor_id);
-      studentRef.current = res.data().student_id;
+      setStudent(res.data().student_id);
     });
 
     const unsubscribeTutors = onSnapshot(collection(db, "tutors"), (res) =>
@@ -88,8 +90,10 @@ const StudentEvalEdit = () => {
     const unsubscribeTasks = onSnapshot(
       collection(evalRef.current, "tasks"),
       (res) => {
-        if (localStorage.getItem(`${params.evalid}_tasks`)) {
-          setTasks(JSON.parse(localStorage.getItem(`${params.evalid}_tasks`)));
+        if (localStorage.getItem(`${evalRef.current.id}_tasks`)) {
+          setTasks(
+            JSON.parse(localStorage.getItem(`${evalRef.current.id}_tasks`)),
+          );
           setLoading(false);
         } else {
           let compiledTasks = new Array(res.docs.length);
@@ -136,13 +140,13 @@ const StudentEvalEdit = () => {
       unsubscribeTasks();
       unsubscribeTutors();
     };
-  }, [params.evalid]);
+  }, []);
 
   useEffect(() => {
-    if (studentRef.current === undefined) return;
+    if (student === "") return;
     const evalsQuery = query(
       collection(db, "evaluations"),
-      where("student_id", "==", studentRef.current),
+      where("student_id", "==", student),
       orderBy("date", "desc"),
       limit(5),
     );
@@ -194,11 +198,14 @@ const StudentEvalEdit = () => {
     return () => {
       unsubscribeEvals();
     };
-  }, []);
+  }, [student]);
 
   useEffect(() => {
     for (let i = 0; i < tasks.length; i++) {
-      if (tasks[i].progression <= 2 || tasks[i].engagement <= 2) {
+      if (
+        (tasks[i].progression && tasks[i].progression <= 2) ||
+        tasks[i].engagement <= 2
+      ) {
         document.getElementById("flagForReview").classList.remove("d-none");
         return;
       }
