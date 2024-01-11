@@ -194,7 +194,7 @@ const StudentEvalEdit = () => {
     return () => {
       unsubscribeEvals();
     };
-  }, [studentRef.current]);
+  }, []);
 
   useEffect(() => {
     for (let i = 0; i < tasks.length; i++) {
