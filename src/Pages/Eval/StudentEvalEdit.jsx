@@ -25,12 +25,14 @@ import {
   Dropdown,
   Form,
   InputGroup,
+  Offcanvas,
   OverlayTrigger,
   Popover,
   Row,
   Table,
 } from "react-bootstrap";
 import { deleteObject, ref } from "firebase/storage";
+import TrackStandard from "../Standards/TrackStandard";
 
 const grades = {
   K: "Kindergarten",
@@ -56,6 +58,8 @@ const StudentEvalEdit = () => {
 
   const [loading, setLoading] = useState(true);
 
+  const [showNewStandardPane, setShowNewStandardPane] = useState(false);
+
   const addToast = useContext(ToastContext);
 
   const params = useParams();
@@ -75,24 +79,6 @@ const StudentEvalEdit = () => {
       }
       setSelectedTutor(res.data().tutor_id);
       studentRef.current = res.data().student_id;
-      // getDocs(
-      //   collection(doc(db, "students", res.data().student_id), "standards"),
-      // ).then((subCollStandards) => {
-      //   let compiledStandards = [];
-      //   Promise.all(
-      //     subCollStandards.docs.map(async (s) => {
-      //       return getDoc(doc(db, "standards", s.id)).then((standard) => {
-      //         compiledStandards.push({
-      //           ...s.data(),
-      //           ...standard.data(),
-      //           id: standard.id,
-      //         });
-      //       });
-      //     }),
-      //   ).then(() => {
-      //     setStandards(compiledStandards);
-      //   });
-      // });
     });
 
     const unsubscribeTutors = onSnapshot(collection(db, "tutors"), (res) =>
@@ -274,18 +260,6 @@ const StudentEvalEdit = () => {
     let tutorName =
       tutors.find((t) => t.id === selectedTutor)?.data().displayName || "";
 
-    // const newEval = {
-    //   student_id: evaluation?.student_id, // not mutable
-    //   student_name: evaluation?.student_name, // not mutable
-    //   tutor_id: document.getElementById("tutor").value,
-    //   tutor_name: tutorName,
-    //   date: document.getElementById("date").value,
-    //   worksheet_completion: document.getElementById("worksheet_completion")
-    //     .value,
-    //   next_session: document.getElementById("next_session").value,
-    //   owner: evaluation?.owner, // not mutable
-    // };
-
     setEvaluation({
       ...evaluation,
       tutor_id: selectedTutor,
@@ -295,9 +269,9 @@ const StudentEvalEdit = () => {
     if (
       document
         .getElementById("flagForReview")
-        .classList.contains("btn-outline-danger")
+        .classList.contains("btn-outline-danger") &&
+      !document.getElementById("flagForReview").classList.contains("d-none")
     ) {
-      // newEval.flagged = true;
       setEvaluation({ ...evaluation, flagged: true });
     }
 
@@ -309,11 +283,13 @@ const StudentEvalEdit = () => {
             addDoc(collection(evalRef.current, "tasks"), {
               ...rest,
               standard: t.standard?.id || "",
+              progression: t.standard === "" ? "" : t.progression,
             });
           } else {
             setDoc(doc(db, "evaluations", evalRef.current.id, "tasks", t.id), {
               ...rest,
               standard: t.standard?.id || "",
+              progression: t.standard === "" ? "" : t.progression,
             });
           }
         });
@@ -482,11 +458,9 @@ const StudentEvalEdit = () => {
             <Button
               className='align-self-end'
               variant='link'
-              onClick={() =>
-                navigate(`/standard/new/${evaluation?.student_id}`)
-              }
+              onClick={() => setShowNewStandardPane(true)}
             >
-              Track new standards
+              Find another Standard
             </Button>
           </div>
         </div>
@@ -564,14 +538,9 @@ const StudentEvalEdit = () => {
           </InputGroup>
         </td>
         <td className='align-middle'>
-          <input
-            id='progression'
-            className='form-control'
-            type='number'
-            min='1'
-            max='5'
-            step='1'
-            value={task.progression}
+          <Form.Select
+            value={task.standard === "" ? "" : task.progression}
+            disabled={task.standard === ""}
             onChange={(e) =>
               setTasks(
                 tasks.map((t, i) => {
@@ -580,7 +549,13 @@ const StudentEvalEdit = () => {
                 }),
               )
             }
-          />
+          >
+            <option disabled value=''></option>
+            <option value='1'>1 - Far Below Expectations</option>
+            <option value='2'>2 - Below Expectations</option>
+            <option value='3'>3 - Meets Expectations</option>
+            <option value='4'>4 - Exceeds Expectations</option>
+          </Form.Select>
         </td>
         <td className='align-middle'>
           <input
@@ -621,171 +596,185 @@ const StudentEvalEdit = () => {
   });
 
   return (
-    <div className='p-3 d-flex flex-column'>
-      <h1 className='display-1'>Edit Session Evaluation</h1>
-      {/* <form onSubmit={sumbitEval}> */}
-      <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
-        <div
-          className='h3'
-          data-toggle='tooltip'
-          title='Contact an administrator if this is incorrect'
-        >
-          {evaluation?.student_name}
-        </div>
-        <div className='row my-3'>
-          <div className='col'>
-            <label className='form-label h5'>Tutor</label>
-            <select
-              id='tutor'
-              className='form-control'
-              value={selectedTutor}
-              onChange={(e) => setSelectedTutor(e.target.value)}
-              required
-            >
-              <option disabled value=''>
-                Select One
-              </option>
-              {tutorOptions()}
-            </select>
+    <>
+      <div className='p-3 d-flex flex-column'>
+        <h1 className='display-1'>Edit Session Evaluation</h1>
+        {/* <form onSubmit={sumbitEval}> */}
+        <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
+          <div
+            className='h3'
+            data-toggle='tooltip'
+            title='Contact an administrator if this is incorrect'
+          >
+            {evaluation?.student_name}
           </div>
-          <div className='col'>
-            <label className='form-label h5'>Date</label>
-            <input
-              id='date'
-              className='form-control'
-              type='date'
-              value={evaluation?.date}
-              onChange={(e) =>
-                setEvaluation({ ...evaluation, date: e.target.value })
-              }
-            />
-          </div>
-        </div>
-        <hr />
-        <div className='h5'>Tasks</div>
-        <Row className='d-flex flex-column'>
-          {loading ? (
-            <div className='spinner-border align-self-center' />
-          ) : (
-            <div className='d-flex flex-column'>
-              <Table striped>
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>Subject</th>
-                    <th>Standard</th>
-                    <th>Progression</th>
-                    <th>Engagement</th>
-                    <th>Comments</th>
-                  </tr>
-                </thead>
-                <tbody>{tasksList}</tbody>
-              </Table>
-              <Button
-                type='button'
-                variant='secondary'
-                className='me-auto'
-                onClick={() =>
-                  setTasks([
-                    ...tasks,
-                    {
-                      subject: "",
-                      standard: "",
-                      progression: "5",
-                      engagement: "5",
-                      comments: "",
-                    },
-                  ])
-                }
+          <div className='row my-3'>
+            <div className='col'>
+              <label className='form-label h5'>Tutor</label>
+              <select
+                id='tutor'
+                className='form-control'
+                value={selectedTutor}
+                onChange={(e) => setSelectedTutor(e.target.value)}
+                required
               >
-                Add Task
-              </Button>
+                <option disabled value=''>
+                  Select One
+                </option>
+                {tutorOptions()}
+              </select>
             </div>
-          )}
-        </Row>
-        <hr />
-        <div className='row my-3'>
-          <div className='col'>
-            <label className='form-label h5'>Worksheet</label>
-            {/* <input id="worksheet" className="form-control" type="file" /> */}
-            <div>
-              What to put here? Link to existing file? Ability to overwrite?
-              ...?
+            <div className='col'>
+              <label className='form-label h5'>Date</label>
+              <input
+                id='date'
+                className='form-control'
+                type='date'
+                value={evaluation?.date}
+                onChange={(e) =>
+                  setEvaluation({ ...evaluation, date: e.target.value })
+                }
+              />
             </div>
           </div>
-          <div className='col'>
-            <label className='form-label h5'>Worksheet Completion</label>
-            <input
-              id='worksheet_completion'
-              className='form-control'
-              type='text'
-              value={evaluation?.worksheet_completion}
-              onChange={(e) =>
-                setEvaluation({
-                  ...evaluation,
-                  worksheet_completion: e.target.value,
-                })
-              }
-            />
-          </div>
-          <div className='col'>
-            <label className='form-label h5'>Next Session Plans</label>
-            <textarea
-              id='next_session'
-              className='form-control'
-              value={evaluation?.next_session}
-              onChange={(e) =>
-                setEvaluation({ ...evaluation, next_session: e.target.value })
-              }
-            />
+          <hr />
+          <div className='h5'>Tasks</div>
+          <Row className='d-flex flex-column'>
+            {loading ? (
+              <div className='spinner-border align-self-center' />
+            ) : (
+              <div className='d-flex flex-column'>
+                <Table striped>
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Subject</th>
+                      <th>Standard</th>
+                      <th>Progression</th>
+                      <th>Engagement</th>
+                      <th>Comments</th>
+                    </tr>
+                  </thead>
+                  <tbody>{tasksList}</tbody>
+                </Table>
+                <Button
+                  type='button'
+                  variant='secondary'
+                  className='me-auto'
+                  onClick={() =>
+                    setTasks([
+                      ...tasks,
+                      {
+                        subject: "",
+                        standard: "",
+                        progression: "",
+                        engagement: "5",
+                        comments: "",
+                      },
+                    ])
+                  }
+                >
+                  Add Task
+                </Button>
+              </div>
+            )}
+          </Row>
+          <hr />
+          <div className='row my-3'>
+            <div className='col'>
+              <label className='form-label h5'>Worksheet</label>
+              {/* <input id="worksheet" className="form-control" type="file" /> */}
+              <div>
+                What to put here? Link to existing file? Ability to overwrite?
+                ...?
+              </div>
+            </div>
+            <div className='col'>
+              <label className='form-label h5'>Worksheet Completion</label>
+              <input
+                id='worksheet_completion'
+                className='form-control'
+                type='text'
+                value={evaluation?.worksheet_completion}
+                onChange={(e) =>
+                  setEvaluation({
+                    ...evaluation,
+                    worksheet_completion: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className='col'>
+              <label className='form-label h5'>Next Session Plans</label>
+              <textarea
+                id='next_session'
+                className='form-control'
+                value={evaluation?.next_session}
+                onChange={(e) =>
+                  setEvaluation({ ...evaluation, next_session: e.target.value })
+                }
+              />
+            </div>
           </div>
         </div>
-      </div>
-      <div className='d-flex'>
-        <button
-          type='button'
-          className='btn btn-secondary m-3 me-auto'
-          onClick={() => {
-            localStorage.removeItem(`${params.evalid}`);
-            localStorage.removeItem(`${params.evalid}_tasks`);
-            history.back();
-          }}
-        >
-          Back
-        </button>
+        <div className='d-flex'>
+          <button
+            type='button'
+            className='btn btn-secondary m-3 me-auto'
+            onClick={() => {
+              localStorage.removeItem(`${params.evalid}`);
+              localStorage.removeItem(`${params.evalid}_tasks`);
+              history.back();
+            }}
+          >
+            Back
+          </button>
+          <Button
+            variant='danger'
+            className='m-3 ms-auto'
+            type='button'
+            onClick={handleDelete}
+          >
+            Delete
+          </Button>
+          <button className='btn btn-primary m-3' onClick={sumbitEval}>
+            Submit
+          </button>
+        </div>
+        {/* </form> */}
         <Button
           variant='danger'
-          className='m-3 ms-auto'
-          type='button'
-          onClick={handleDelete}
+          className='mx-3 ms-auto'
+          id='flagForReview'
+          onClick={(e) => {
+            e.preventDefault();
+            if (e.target.classList.contains("btn-danger")) {
+              e.target.classList.remove("btn-danger");
+              e.target.classList.add("btn-outline-danger");
+              e.target.innerHTML = "Flagged for Admin Review";
+            } else {
+              e.target.classList.remove("btn-outline-danger");
+              e.target.classList.add("btn-danger");
+              e.target.innerHTML = "Flag for Admin Review?";
+            }
+          }}
         >
-          Delete
+          Flag for Admin Review?
         </Button>
-        <button className='btn btn-primary m-3' onClick={sumbitEval}>
-          Submit
-        </button>
       </div>
-      {/* </form> */}
-      <Button
-        variant='danger'
-        className='mx-3 ms-auto'
-        id='flagForReview'
-        onClick={(e) => {
-          e.preventDefault();
-          if (e.target.classList.contains("btn-danger")) {
-            e.target.classList.remove("btn-danger");
-            e.target.classList.add("btn-outline-danger");
-            e.target.innerHTML = "Flagged for Admin Review";
-          } else {
-            e.target.classList.remove("btn-outline-danger");
-            e.target.classList.add("btn-danger");
-            e.target.innerHTML = "Flag for Admin Review?";
-          }
-        }}
+      <Offcanvas
+        show={showNewStandardPane}
+        onHide={() => setShowNewStandardPane(false)}
+        placement='end'
+        style={{ width: "75%" }}
       >
-        Flag for Admin Review?
-      </Button>
-    </div>
+        <TrackStandard
+          standards={standards}
+          setStandards={setStandards}
+          close={() => setShowNewStandardPane(false)}
+        />
+      </Offcanvas>
+    </>
   );
 };
 

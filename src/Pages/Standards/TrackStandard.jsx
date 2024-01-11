@@ -19,7 +19,7 @@ const grades = [
 ];
 const categories = ["Math", "Reading"];
 
-const TrackStandard = () => {
+const TrackStandard = ({ standards, setStandards, close }) => {
   const [student, setStudent] = useState({});
   const [selectedStandard, setSelectedStandard] = useState(null);
 
@@ -44,15 +44,15 @@ const TrackStandard = () => {
     localStorage.setItem("category", category);
   }, [grade, category]);
 
-  useEffect(() => {
-    studentRef.current = doc(db, "students", params.studentid);
+  // useEffect(() => {
+  //   studentRef.current = doc(db, "students", params.studentid);
 
-    const unsubscribe = onSnapshot(studentRef.current, (res) => {
-      setStudent(res.data());
-    });
+  //   const unsubscribe = onSnapshot(studentRef.current, (res) => {
+  //     setStudent(res.data());
+  //   });
 
-    return () => unsubscribe();
-  }, [params.studentid]);
+  //   return () => unsubscribe();
+  // }, [params.studentid]);
 
   useEffect(() => {
     if (selectedStandard) {
@@ -64,37 +64,45 @@ const TrackStandard = () => {
   function addStandard(e) {
     e.preventDefault();
 
-    document.getElementById("addStandard").innerHTML =
-      "Add <span class='spinner-border spinner-border-sm' />";
-    let status = document.getElementById("status").value;
+    // document.getElementById("addStandard").innerHTML =
+    //   "Add <span class='spinner-border spinner-border-sm' />";
+    // let status = document.getElementById("status").value;
 
-    if (selectedStandard instanceof Array) {
-      Promise.all(
-        selectedStandard.map((s) => {
-          return setDoc(doc(studentRef.current, "standards", s.id), {
-            status: status,
-            timestamp: serverTimestamp(),
-          });
-        }),
-      ).then(() => {
-        setShowSubcat(false);
-        addToast({
-          header: "Standards Added",
-          message: `${selectedStandard.length} standards were successfully added to ${student.student_name}'s profile`,
-        });
-      });
-    } else {
-      setDoc(doc(studentRef.current, "standards", selectedStandard.id), {
-        status: status,
-        timestamp: serverTimestamp(),
-      }).then((res) => {
-        setShowSingle(false);
-        addToast({
-          header: "Standard Added",
-          message: `Standard ${selectedStandard.key} was successfully added to ${student.student_name}'s profile`,
-        });
-      });
-    }
+    // if (selectedStandard instanceof Array) {
+    //   Promise.all(
+    //     selectedStandard.map((s) => {
+    //       return setDoc(doc(studentRef.current, "standards", s.id), {
+    //         status: status,
+    //         timestamp: serverTimestamp(),
+    //       });
+    //     }),
+    //   ).then(() => {
+    //     setShowSubcat(false);
+    //     addToast({
+    //       header: "Standards Added",
+    //       message: `${selectedStandard.length} standards were successfully added to ${student.student_name}'s profile`,
+    //     });
+    //   });
+    // } else {
+    //   setDoc(doc(studentRef.current, "standards", selectedStandard.id), {
+    //     status: status,
+    //     timestamp: serverTimestamp(),
+    //   }).then((res) => {
+    //     setShowSingle(false);
+    //     addToast({
+    //       header: "Standard Added",
+    //       message: `Standard ${selectedStandard.key} was successfully added to ${student.student_name}'s profile`,
+    //     });
+    //   });
+    // }
+
+    setStandards([...standards, selectedStandard]);
+    setShowSingle(false);
+    close();
+    addToast({
+      header: "Standard Added",
+      message: `Standard ${selectedStandard.key} is ready to be added to the task`,
+    });
   }
 
   const gradeTabs = grades.map((g, i) => {
@@ -150,7 +158,7 @@ const TrackStandard = () => {
           <></>
         )}
         <hr />
-        <Form onSubmit={addStandard}>
+        {/* <Form onSubmit={addStandard}>
           <Form.Label>Current Progression</Form.Label>
           <Form.Select id='status'>
             <option>None</option>
@@ -158,12 +166,12 @@ const TrackStandard = () => {
             <option value='2'>2 - Below Expectations</option>
             <option value='3'>3 - Meets Expectations</option>
             <option value='4'>4 - Exceeds Expectations</option>
-          </Form.Select>
+          </Form.Select> */}
 
-          <Button className='mt-3' type='submit' id='addStandard'>
-            Add
-          </Button>
-        </Form>
+        <Button className='mt-3' id='addStandard' onClick={addStandard}>
+          Add
+        </Button>
+        {/* </Form> */}
       </Offcanvas.Body>
     </>
   );
@@ -203,10 +211,8 @@ const TrackStandard = () => {
 
   return (
     <div className='d-flex flex-column p-3'>
-      <div className='display-1'>Track New Standards</div>
-      <div className='h5'>
-        Select a Standard to Track with {student.student_name}
-      </div>
+      <div className='display-1'>Add Standard to Evaluation Task</div>
+      <div className='h5'>Select a Standard to Add to a Task</div>
       <Card className='bg-light-subtle'>
         <Card.Header>
           <Nav variant='underline' activeKey={grade}>
@@ -228,7 +234,7 @@ const TrackStandard = () => {
         </Card.Body>
       </Card>
       <div className='d-flex p-3'>
-        <Button variant='secondary' onClick={() => navigate(-1)}>
+        <Button variant='secondary' onClick={close}>
           Done
         </Button>
       </div>

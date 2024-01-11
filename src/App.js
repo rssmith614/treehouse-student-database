@@ -144,7 +144,7 @@ function App() {
             <Route path="/tutor/edit/:tutorid" element={<TutorProfileEdit />} />
 
             <Route path="/standards" element={<StandardsList />} />
-            <Route path="/standard/new/:studentid" element={<TrackStandard />} />
+            {/* <Route path="/standard/new/:studentid" element={<TrackStandard />} /> */}
 
             <Route path='/assessments' element={<AssessmentsList />} />
             <Route path='/assessments/edit/:assessmentid' element={<AssessmentEdit />} />

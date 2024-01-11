@@ -16,6 +16,14 @@ import { Eval } from "../../Services/defineAbility";
 import { ToastContext } from "../../Services/toast";
 import { useAbility } from "@casl/react";
 
+const progressions = {
+  1: "1 - Far Below Expectations",
+  2: "2 - Below Expectations",
+  3: "3 - Meets Expectations",
+  4: "4 - Exceeds Expectations",
+  "": "N/A",
+};
+
 const StudentEval = () => {
   const [evaluation, setEvaluation] = useState({});
   const [tasks, setTasks] = useState([]);
@@ -51,7 +59,7 @@ const StudentEval = () => {
         let compiledTasks = new Array(res.docs.length);
         Promise.all(
           res.docs.map(async (t, i) => {
-            if (t.data().standard === "")
+            if (t.data().standard === "None" || t.data().standard === "")
               return (compiledTasks[i] = {
                 ...res.docs[i].data(),
                 standard: { key: "", description: "" },
@@ -99,28 +107,34 @@ const StudentEval = () => {
           <div id='subject'>{task.subject}</div>
         </td>
         <td>
-          <OverlayTrigger
-            placement='right'
-            flip={true}
-            overlay={
-              task.standard.key !== "None" ? (
-                <Popover className=''>
-                  <Popover.Header>{task.standard.key}</Popover.Header>
-                  <Popover.Body>
-                    <div className='text-decoration-underline'>Description</div>
-                    {task.standard.description}
-                  </Popover.Body>
-                </Popover>
-              ) : (
-                <></>
-              )
-            }
-          >
-            <div>{task.standard.key}</div>
-          </OverlayTrigger>
+          {task.standard.key === "" ? (
+            <>None</>
+          ) : (
+            <OverlayTrigger
+              placement='right'
+              flip={true}
+              overlay={
+                task.standard.key !== "" ? (
+                  <Popover className=''>
+                    <Popover.Header>{task.standard.key}</Popover.Header>
+                    <Popover.Body>
+                      <div className='text-decoration-underline'>
+                        Description
+                      </div>
+                      {task.standard.description}
+                    </Popover.Body>
+                  </Popover>
+                ) : (
+                  <></>
+                )
+              }
+            >
+              <div>{task.standard.key}</div>
+            </OverlayTrigger>
+          )}
         </td>
         <td>
-          <div id='progression'>{task.progression}</div>
+          <div id='progression'>{progressions[task.progression]}</div>
         </td>
         <td>
           <div id='engagement'>{task.engagement}</div>
