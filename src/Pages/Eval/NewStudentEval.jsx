@@ -146,7 +146,7 @@ const NewStudentEval = () => {
           }
           return acc;
         }, []);
-        console.log(uniqueStandards);
+        // console.log(uniqueStandards);
         setStandards(uniqueStandards);
       });
     });
@@ -602,9 +602,6 @@ const NewStudentEval = () => {
                 }),
               )
             }
-            placeholder='Worked on...'
-            data-toggle='tooltip'
-            title={`What you worked on with ${student.student_name} as it relates to this particular task`}
             required
           />
         </td>
@@ -664,7 +661,28 @@ const NewStudentEval = () => {
                   <th>Standard</th>
                   <th>Progression</th>
                   <th>Engagement</th>
-                  <th>Comments</th>
+                  <th className='d-flex'>
+                    Comments
+                    <OverlayTrigger
+                      placement='top'
+                      overlay={
+                        <Popover>
+                          <Popover.Header>Comments</Popover.Header>
+                          <Popover.Body>
+                            What you worked on with the student as it relates to
+                            this particular task
+                            <hr />
+                            <div className='text-decoration-underline'>
+                              Example
+                            </div>
+                            "Worked on long division with 3 digit numbers"
+                          </Popover.Body>
+                        </Popover>
+                      }
+                    >
+                      <i className='bi bi-info-square ms-auto'></i>
+                    </OverlayTrigger>
+                  </th>
                 </tr>
               </thead>
               <tbody>{tasksList}</tbody>
@@ -690,9 +708,6 @@ const NewStudentEval = () => {
                 id='worksheet_completion'
                 className='form-control'
                 type='text'
-                placeholder='Finished...'
-                data-toggle='tooltip'
-                title={`If you uploaded a worksheet, how far did the student get?`}
                 value={evaluation.worksheet_completion}
                 onChange={(e) =>
                   setEvaluation({
@@ -703,13 +718,26 @@ const NewStudentEval = () => {
               />
             </div>
             <div className='col'>
-              <label className='form-label h5'>Next Session Plans</label>
+              <div className='d-flex'>
+                <label className='form-label h5'>Next Session Plans</label>
+                <OverlayTrigger
+                  placement='top'
+                  overlay={
+                    <Popover>
+                      <Popover.Header>Next Session Plans</Popover.Header>
+                      <Popover.Body>
+                        What you plan to work on next time, or notes for the
+                        next tutor
+                      </Popover.Body>
+                    </Popover>
+                  }
+                >
+                  <i className='bi bi-info-square ms-auto'></i>
+                </OverlayTrigger>
+              </div>
               <textarea
                 id='next_session'
                 className='form-control'
-                placeholder='Continue...'
-                data-toggle='tooltip'
-                title={`What you plan to work on next time, or notes for the next tutor`}
                 value={evaluation.next_session}
                 onChange={(e) =>
                   setEvaluation({ ...evaluation, next_session: e.target.value })
