@@ -12,24 +12,14 @@ import { useParams, useNavigate } from "react-router-dom";
 
 import { Can } from "../../Services/can";
 import EvalsTable from "../../Components/EvalsTable";
-import {
-  Button,
-  Col,
-  Dropdown,
-  Form,
-  InputGroup,
-  Nav,
-  Offcanvas,
-  Row,
-  Tab,
-} from "react-bootstrap";
-import StandardsOfStudent from "../../Components/StandardsOfStudent";
+import { Button, Form, Nav, Offcanvas, Tab } from "react-bootstrap";
 import { ToastContext } from "../../Services/toast";
 
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
 import AssessmentsOfStudent from "../../Components/AssessmentsOfStudent";
+import StandardsOfCategoryAndStatus from "../../Components/StandardsOfCategoryAndStatus";
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
@@ -38,14 +28,6 @@ const StudentProfile = () => {
   const [loading, setLoading] = useState(true);
 
   const [selectedStandard, setSelectedStandard] = useState(null);
-  const [standardFilter, setStandardFilter] = useState("");
-  const [standardProgressFilter, setStandardProgressFilter] = useState({
-    None: true,
-    1: true,
-    2: true,
-    3: true,
-    4: true,
-  });
 
   const [tab, setTab] = useState(
     localStorage.getItem("student_tab") || "about",
@@ -131,88 +113,6 @@ const StudentProfile = () => {
       },
     );
   }
-
-  function progressFilterLabel() {
-    let res = "";
-    if (standardProgressFilter["None"]) res += "Not Tracked, ";
-    if (standardProgressFilter["1"]) res += "1, ";
-    if (standardProgressFilter["2"]) res += "2, ";
-    if (standardProgressFilter["3"]) res += "3, ";
-    if (standardProgressFilter["4"]) res += "4, ";
-
-    if (res.length === 0) return "No Progression Selected";
-    return res.slice(0, -2);
-  }
-
-  const StandardProgressFilterDropdownToggle = React.forwardRef(
-    ({ onClick, className }, ref) => (
-      <Form.Control
-        ref={ref}
-        className={className}
-        style={{ cursor: "pointer" }}
-        onClick={(e) => {
-          e.preventDefault();
-          onClick(e);
-        }}
-        value={progressFilterLabel()}
-        readOnly
-      ></Form.Control>
-    ),
-  );
-
-  const StandardProgressFilterDropdown = React.forwardRef(
-    ({ style, className, value, valueSetter }, ref) => (
-      <div
-        ref={ref}
-        style={style}
-        className={className}
-        onClick={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <Form.Check
-          className='mx-3 my-2 w-auto'
-          type='checkbox'
-          id='0'
-          label='Not Tracked'
-          checked={value["None"]}
-          onChange={(e) => valueSetter({ ...value, None: e.target.checked })}
-        />
-        <Form.Check
-          className='mx-3 my-2 w-auto'
-          type='checkbox'
-          id='1'
-          label='1 - Far Below Expectations'
-          checked={value["1"]}
-          onChange={(e) => valueSetter({ ...value, 1: e.target.checked })}
-        />
-        <Form.Check
-          className='mx-3 my-2 w-auto'
-          type='checkbox'
-          id='2'
-          label='2 - Below Expectations'
-          checked={value["2"]}
-          onChange={(e) => valueSetter({ ...value, 2: e.target.checked })}
-        />
-        <Form.Check
-          className='mx-3 my-2 w-auto'
-          type='checkbox'
-          id='3'
-          label='3 - Meets Expectations'
-          checked={value["3"]}
-          onChange={(e) => valueSetter({ ...value, 3: e.target.checked })}
-        />
-        <Form.Check
-          className='mx-3 my-2 w-auto'
-          type='checkbox'
-          id='4'
-          label='4 - Exceeds Expectations'
-          checked={value["4"]}
-          onChange={(e) => valueSetter({ ...value, 4: e.target.checked })}
-        />
-      </div>
-    ),
-  );
 
   const innerContent = (
     <Tab.Container defaultActiveKey={tab}>
@@ -342,44 +242,7 @@ const StudentProfile = () => {
           </div>
         </Tab.Pane>
         <Tab.Pane eventKey='standards'>
-          <Row>
-            <Col>
-              <Form.Label className='m-1'>Filter by Standard</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type='text'
-                  className='w-50'
-                  placeholder='Search Grade, Standard, or Description'
-                  value={standardFilter}
-                  onChange={(e) => setStandardFilter(e.target.value)}
-                />
-                <i
-                  className='bi bi-x-lg input-group-text'
-                  style={{ cursor: "pointer" }}
-                  onClick={() => setStandardFilter("")}
-                />
-              </InputGroup>
-            </Col>
-            <Col>
-              <Form.Label className='m-1'>Filter by Progression</Form.Label>
-              <InputGroup>
-                <Dropdown className='w-50 m-1'>
-                  <Dropdown.Toggle as={StandardProgressFilterDropdownToggle} />
-                  <Dropdown.Menu
-                    as={StandardProgressFilterDropdown}
-                    value={standardProgressFilter}
-                    valueSetter={setStandardProgressFilter}
-                  />
-                </Dropdown>
-              </InputGroup>
-            </Col>
-          </Row>
-          <StandardsOfStudent
-            student={studentRef.current}
-            setSelectedStandard={setSelectedStandard}
-            filter={standardFilter}
-            progressFilter={standardProgressFilter}
-          />
+          <StandardsOfCategoryAndStatus student={studentRef.current} />
           <div className='d-flex justify-content-end'>
             <button
               className='btn btn-primary m-3'

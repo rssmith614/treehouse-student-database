@@ -10,6 +10,10 @@ import {
   onSnapshot,
   setDoc,
   updateDoc,
+  query,
+  where,
+  orderBy,
+  limit,
 } from "firebase/firestore";
 
 import history from "history/browser";
@@ -21,12 +25,14 @@ import {
   Dropdown,
   Form,
   InputGroup,
+  Offcanvas,
   OverlayTrigger,
   Popover,
   Row,
   Table,
 } from "react-bootstrap";
 import { deleteObject, ref } from "firebase/storage";
+import TrackStandard from "../Standards/TrackStandard";
 
 const grades = {
   K: "Kindergarten",
@@ -52,40 +58,29 @@ const StudentEvalEdit = () => {
 
   const [loading, setLoading] = useState(true);
 
+  const [showNewStandardPane, setShowNewStandardPane] = useState(false);
+
   const addToast = useContext(ToastContext);
 
   const params = useParams();
 
   const evalRef = useRef(doc(db, "evaluations", params.evalid));
+  const [student, setStudent] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribeEval = onSnapshot(evalRef.current, (res) => {
-      if (localStorage.getItem(`${params.evalid}`)) {
-        setEvaluation(JSON.parse(localStorage.getItem(`${params.evalid}`)));
+      if (!res.exists()) return;
+      if (localStorage.getItem(`${evalRef.current.id}`)) {
+        setEvaluation(
+          JSON.parse(localStorage.getItem(`${evalRef.current.id}`)),
+        );
       } else {
         setEvaluation(res.data());
       }
       setSelectedTutor(res.data().tutor_id);
-      getDocs(
-        collection(doc(db, "students", res.data().student_id), "standards"),
-      ).then((subCollStandards) => {
-        let compiledStandards = [];
-        Promise.all(
-          subCollStandards.docs.map(async (s) => {
-            return getDoc(doc(db, "standards", s.id)).then((standard) => {
-              compiledStandards.push({
-                ...s.data(),
-                ...standard.data(),
-                id: standard.id,
-              });
-            });
-          }),
-        ).then(() => {
-          setStandards(compiledStandards);
-        });
-      });
+      setStudent(res.data().student_id);
     });
 
     const unsubscribeTutors = onSnapshot(collection(db, "tutors"), (res) =>
@@ -95,31 +90,41 @@ const StudentEvalEdit = () => {
     const unsubscribeTasks = onSnapshot(
       collection(evalRef.current, "tasks"),
       (res) => {
-        if (localStorage.getItem(`${params.evalid}_tasks`)) {
-          setTasks(JSON.parse(localStorage.getItem(`${params.evalid}_tasks`)));
+        if (localStorage.getItem(`${evalRef.current.id}_tasks`)) {
+          setTasks(
+            JSON.parse(localStorage.getItem(`${evalRef.current.id}_tasks`)),
+          );
           setLoading(false);
         } else {
           let compiledTasks = new Array(res.docs.length);
           Promise.all(
             res.docs.map(async (t, i) => {
-              if (t.data().standard === "")
-                return (compiledTasks[i] = { ...t.data(), id: t.id });
-              else
-                return getDoc(doc(db, "standards", t.data().standard)).then(
-                  (s) => {
-                    compiledTasks[i] = {
-                      ...t.data(),
-                      id: t.id,
-                      standard: { ...s.data(), id: s.id },
-                    };
-                  },
-                );
+              if (t.data().standards?.length === 0) {
+                compiledTasks[i] = { ...t.data(), id: t.id };
+              } else {
+                const standardPromises =
+                  t
+                    .data()
+                    .standards?.map((standardId) =>
+                      getDoc(doc(db, "standards", standardId)),
+                    ) || [];
+                const standardsData = await Promise.all(standardPromises);
+                const standards = standardsData.map((s) => ({
+                  ...s.data(),
+                  id: s.id,
+                }));
+                compiledTasks[i] = {
+                  ...t.data(),
+                  id: t.id,
+                  standards: standards,
+                };
+              }
             }),
           )
             .then(() => {
               compiledTasks.sort((a, b) => {
-                let a_standard = a.standard.key || "0.0.0";
-                let b_standard = b.standard.key || "0.0.0";
+                let a_standard = a.standards[0]?.key || "0.0.0";
+                let b_standard = b.standards[0]?.key || "0.0.0";
                 return (
                   a_standard
                     .split(".")[1]
@@ -143,11 +148,77 @@ const StudentEvalEdit = () => {
       unsubscribeTasks();
       unsubscribeTutors();
     };
-  }, [params.evalid]);
+  }, []);
+
+  useEffect(() => {
+    if (student === "") return;
+    const evalsQuery = query(
+      collection(db, "evaluations"),
+      where("student_id", "==", student),
+      orderBy("date", "desc"),
+      limit(5),
+    );
+
+    const unsubscribeEvals = onSnapshot(evalsQuery, (evalsSnapshot) => {
+      const fetchTasksPromises = evalsSnapshot.docs.map((evaluation) => {
+        return getDocs(collection(evaluation.ref, "tasks")).then(
+          (tasksSnapshot) => {
+            const tasks = tasksSnapshot.docs.map((doc) => {
+              return {
+                ...doc.data(),
+                id: doc.id,
+              };
+            });
+
+            const fetchStandardsPromises = tasks.map((task) => {
+              const standardsPromises =
+                task.standards?.map((standardId) => {
+                  if (standardId === "") return Promise.resolve(null);
+                  return getDoc(doc(db, "standards", standardId)).then(
+                    (standard) => {
+                      return {
+                        ...standard.data(),
+                        id: standard.id,
+                      };
+                    },
+                  );
+                }) || [];
+              return Promise.all(standardsPromises);
+            });
+
+            return Promise.all(fetchStandardsPromises);
+          },
+        );
+      });
+
+      Promise.all(fetchTasksPromises).then((standardsArray) => {
+        const flattenedStandards = standardsArray
+          .flat()
+          .flat()
+          .filter((s) => s !== null);
+        const uniqueStandards = flattenedStandards.reduce((acc, standard) => {
+          const existingStandard = acc.find((s) => s.key === standard.key);
+          if (!existingStandard) {
+            acc.push(standard);
+          }
+          return acc;
+        }, []);
+        console.log(uniqueStandards);
+        setStandards(uniqueStandards);
+      });
+    });
+
+    return () => {
+      unsubscribeEvals();
+    };
+  }, [student]);
 
   useEffect(() => {
     for (let i = 0; i < tasks.length; i++) {
-      if (tasks[i].progression <= 2 || tasks[i].engagement <= 2) {
+      if (
+        (tasks[i].progression && tasks[i].progression <= 2) ||
+        tasks[i].engagement <= 2
+      ) {
         document.getElementById("flagForReview").classList.remove("d-none");
         return;
       }
@@ -209,18 +280,6 @@ const StudentEvalEdit = () => {
     let tutorName =
       tutors.find((t) => t.id === selectedTutor)?.data().displayName || "";
 
-    // const newEval = {
-    //   student_id: evaluation?.student_id, // not mutable
-    //   student_name: evaluation?.student_name, // not mutable
-    //   tutor_id: document.getElementById("tutor").value,
-    //   tutor_name: tutorName,
-    //   date: document.getElementById("date").value,
-    //   worksheet_completion: document.getElementById("worksheet_completion")
-    //     .value,
-    //   next_session: document.getElementById("next_session").value,
-    //   owner: evaluation?.owner, // not mutable
-    // };
-
     setEvaluation({
       ...evaluation,
       tutor_id: selectedTutor,
@@ -230,25 +289,27 @@ const StudentEvalEdit = () => {
     if (
       document
         .getElementById("flagForReview")
-        .classList.contains("btn-outline-danger")
+        .classList.contains("btn-outline-danger") &&
+      !document.getElementById("flagForReview").classList.contains("d-none")
     ) {
-      // newEval.flagged = true;
       setEvaluation({ ...evaluation, flagged: true });
     }
 
     updateDoc(evalRef.current, evaluation)
       .then(() => {
         tasks.forEach((t) => {
-          let { id: _, ...rest } = t;
+          let { id: _, standard: __, ...rest } = t;
           if (t.id === undefined) {
             addDoc(collection(evalRef.current, "tasks"), {
               ...rest,
-              standard: t.standard?.id || "",
+              standards: t.standards.map((s) => s.id),
+              progression: t.standards.length === 0 ? "" : t.progression,
             });
           } else {
             setDoc(doc(db, "evaluations", evalRef.current.id, "tasks", t.id), {
               ...rest,
-              standard: t.standard?.id || "",
+              standards: t.standards.map((s) => s.id),
+              progression: t.standards.length === 0 ? "" : t.progression,
             });
           }
         });
@@ -264,7 +325,7 @@ const StudentEvalEdit = () => {
           message: `Session evaluation for ${evaluation?.student_name} was successfully updated`,
         }),
       )
-      .then(() => navigate(`/eval/${evalRef.current.id}`));
+      .then(() => navigate(-1));
   }
 
   async function handleDelete() {
@@ -306,6 +367,12 @@ const StudentEvalEdit = () => {
     });
   }
 
+  function standardsLabel(standards) {
+    if (standards.length === 0) return "None";
+    else if (standards.length === 1) return standards[0].key;
+    else return `${standards[0].key} +${standards.length - 1} more`;
+  }
+
   const StandardDropdownToggle = React.forwardRef(
     ({ style, className, onClick, value }, ref) => (
       <Form.Control
@@ -317,7 +384,7 @@ const StudentEvalEdit = () => {
           onClick(e);
         }}
         // onChange={(e) => console.log(e)}
-        value={value?.key || "None"}
+        value={standardsLabel(value)}
         readOnly
       ></Form.Control>
     ),
@@ -345,12 +412,12 @@ const StudentEvalEdit = () => {
           <Form.Check
             key={0}
             type={"radio"}
-            checked={!value}
+            checked={value.length === 0}
             label={"None"}
             className='mx-3 my-2 w-auto'
             onChange={(e) => {
               if (e.target.checked) {
-                valueSetter(null);
+                valueSetter([]);
               }
             }}
           />
@@ -396,13 +463,21 @@ const StudentEvalEdit = () => {
                 >
                   <div key={standard.id}>
                     <Form.Check
-                      type={"radio"}
-                      checked={value.id === standard.id}
+                      // type={"radio"}
+                      checked={
+                        value === undefined
+                          ? false
+                          : value.some((s) => s.key === standard.key)
+                      }
                       label={standard.key}
                       className='mx-3 my-2 w-auto'
                       onChange={(e) => {
                         if (e.target.checked) {
-                          valueSetter(standard);
+                          valueSetter([...value, standard]);
+                        } else {
+                          valueSetter(
+                            value.filter((s) => s.id !== standard.id),
+                          );
                         }
                       }}
                     />
@@ -417,11 +492,9 @@ const StudentEvalEdit = () => {
             <Button
               className='align-self-end'
               variant='link'
-              onClick={() =>
-                navigate(`/standard/new/${evaluation?.student_id}`)
-              }
+              onClick={() => setShowNewStandardPane(true)}
             >
-              Track new standards
+              Find another Standard
             </Button>
           </div>
         </div>
@@ -432,7 +505,7 @@ const StudentEvalEdit = () => {
   const tasksList = tasks.map((task, idx) => {
     return (
       <tr className='my-3' key={idx}>
-        <td>
+        <td className='align-middle'>
           <Button
             type='button'
             variant='danger'
@@ -445,7 +518,7 @@ const StudentEvalEdit = () => {
             <i className='bi bi-trash-fill' />
           </Button>
         </td>
-        <td>
+        <td className='align-middle'>
           <Form.Select
             id='subject'
             className='form-control'
@@ -468,7 +541,7 @@ const StudentEvalEdit = () => {
             <option value='Other'>Other</option>
           </Form.Select>
         </td>
-        <td>
+        <td className='align-middle'>
           {/* <select id="standard" className="form-control"
             value={task.standard} onChange={e => setTasks(tasks.map((t, i) => {
               if (i !== idx) return t;
@@ -481,16 +554,16 @@ const StudentEvalEdit = () => {
             <Dropdown>
               <Dropdown.Toggle
                 as={StandardDropdownToggle}
-                value={task.standard}
+                value={task.standards}
               />
               <Dropdown.Menu
                 as={StandardDropdown}
-                value={task.standard}
+                value={task.standards}
                 valueSetter={(s) =>
                   setTasks(
                     tasks.map((t, i) => {
                       if (i !== idx) return t;
-                      else return { ...t, standard: s || "" };
+                      else return { ...t, standards: s || [] };
                     }),
                   )
                 }
@@ -498,15 +571,10 @@ const StudentEvalEdit = () => {
             </Dropdown>
           </InputGroup>
         </td>
-        <td>
-          <input
-            id='progression'
-            className='form-control'
-            type='number'
-            min='1'
-            max='5'
-            step='1'
-            value={task.progression}
+        <td className='align-middle'>
+          <Form.Select
+            value={task.standards.length === 0 ? "" : task.progression}
+            disabled={task.standards.length === 0}
             onChange={(e) =>
               setTasks(
                 tasks.map((t, i) => {
@@ -515,9 +583,15 @@ const StudentEvalEdit = () => {
                 }),
               )
             }
-          />
+          >
+            <option disabled value=''></option>
+            <option value='1'>1 - Far Below Expectations</option>
+            <option value='2'>2 - Below Expectations</option>
+            <option value='3'>3 - Meets Expectations</option>
+            <option value='4'>4 - Exceeds Expectations</option>
+          </Form.Select>
         </td>
-        <td>
+        <td className='align-middle'>
           <input
             id='engagement'
             className='form-control'
@@ -536,7 +610,7 @@ const StudentEvalEdit = () => {
             }
           />
         </td>
-        <td>
+        <td className='align-middle'>
           <textarea
             id='comments'
             className='form-control'
@@ -556,171 +630,185 @@ const StudentEvalEdit = () => {
   });
 
   return (
-    <div className='p-3 d-flex flex-column'>
-      <h1 className='display-1'>Edit Session Evaluation</h1>
-      {/* <form onSubmit={sumbitEval}> */}
-      <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
-        <div
-          className='h3'
-          data-toggle='tooltip'
-          title='Contact an administrator if this is incorrect'
-        >
-          {evaluation?.student_name}
-        </div>
-        <div className='row my-3'>
-          <div className='col'>
-            <label className='form-label h5'>Tutor</label>
-            <select
-              id='tutor'
-              className='form-control'
-              value={selectedTutor}
-              onChange={(e) => setSelectedTutor(e.target.value)}
-              required
-            >
-              <option disabled value=''>
-                Select One
-              </option>
-              {tutorOptions()}
-            </select>
+    <>
+      <div className='p-3 d-flex flex-column'>
+        <h1 className='display-1'>Edit Session Evaluation</h1>
+        {/* <form onSubmit={sumbitEval}> */}
+        <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
+          <div
+            className='h3'
+            data-toggle='tooltip'
+            title='Contact an administrator if this is incorrect'
+          >
+            {evaluation?.student_name}
           </div>
-          <div className='col'>
-            <label className='form-label h5'>Date</label>
-            <input
-              id='date'
-              className='form-control'
-              type='date'
-              value={evaluation?.date}
-              onChange={(e) =>
-                setEvaluation({ ...evaluation, date: e.target.value })
-              }
-            />
-          </div>
-        </div>
-        <hr />
-        <div className='h5'>Tasks</div>
-        <Row className='d-flex px-3'>
-          {loading ? (
-            <div className='spinner-border align-self-center' />
-          ) : (
-            <div className='d-flex flex-column'>
-              <Table striped>
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>Subject</th>
-                    <th>Standard</th>
-                    <th>Progression</th>
-                    <th>Engagement</th>
-                    <th>Comments</th>
-                  </tr>
-                </thead>
-                <tbody>{tasksList}</tbody>
-              </Table>
-              <Button
-                type='button'
-                variant='secondary'
-                className='me-auto'
-                onClick={() =>
-                  setTasks([
-                    ...tasks,
-                    {
-                      subject: "",
-                      standard: "",
-                      progression: "5",
-                      engagement: "5",
-                      comments: "",
-                    },
-                  ])
-                }
+          <div className='row my-3'>
+            <div className='col'>
+              <label className='form-label h5'>Tutor</label>
+              <select
+                id='tutor'
+                className='form-control'
+                value={selectedTutor}
+                onChange={(e) => setSelectedTutor(e.target.value)}
+                required
               >
-                Add Task
-              </Button>
+                <option disabled value=''>
+                  Select One
+                </option>
+                {tutorOptions()}
+              </select>
             </div>
-          )}
-        </Row>
-        <hr />
-        <div className='row my-3'>
-          <div className='col'>
-            <label className='form-label h5'>Worksheet</label>
-            {/* <input id="worksheet" className="form-control" type="file" /> */}
-            <div>
-              What to put here? Link to existing file? Ability to overwrite?
-              ...?
+            <div className='col'>
+              <label className='form-label h5'>Date</label>
+              <input
+                id='date'
+                className='form-control'
+                type='date'
+                value={evaluation?.date}
+                onChange={(e) =>
+                  setEvaluation({ ...evaluation, date: e.target.value })
+                }
+              />
             </div>
           </div>
-          <div className='col'>
-            <label className='form-label h5'>Worksheet Completion</label>
-            <input
-              id='worksheet_completion'
-              className='form-control'
-              type='text'
-              value={evaluation?.worksheet_completion}
-              onChange={(e) =>
-                setEvaluation({
-                  ...evaluation,
-                  worksheet_completion: e.target.value,
-                })
-              }
-            />
-          </div>
-          <div className='col'>
-            <label className='form-label h5'>Next Session Plans</label>
-            <textarea
-              id='next_session'
-              className='form-control'
-              value={evaluation?.next_session}
-              onChange={(e) =>
-                setEvaluation({ ...evaluation, next_session: e.target.value })
-              }
-            />
+          <hr />
+          <div className='h5'>Tasks</div>
+          <Row className='d-flex flex-column'>
+            {loading ? (
+              <div className='spinner-border align-self-center' />
+            ) : (
+              <div className='d-flex flex-column'>
+                <Table striped>
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Subject</th>
+                      <th>Standard</th>
+                      <th>Progression</th>
+                      <th>Engagement</th>
+                      <th>Comments</th>
+                    </tr>
+                  </thead>
+                  <tbody>{tasksList}</tbody>
+                </Table>
+                <Button
+                  type='button'
+                  variant='secondary'
+                  className='me-auto'
+                  onClick={() =>
+                    setTasks([
+                      ...tasks,
+                      {
+                        subject: "",
+                        standards: [],
+                        progression: "",
+                        engagement: "5",
+                        comments: "",
+                      },
+                    ])
+                  }
+                >
+                  Add Task
+                </Button>
+              </div>
+            )}
+          </Row>
+          <hr />
+          <div className='row my-3'>
+            <div className='col'>
+              <label className='form-label h5'>Worksheet</label>
+              {/* <input id="worksheet" className="form-control" type="file" /> */}
+              <div>
+                What to put here? Link to existing file? Ability to overwrite?
+                ...?
+              </div>
+            </div>
+            <div className='col'>
+              <label className='form-label h5'>Worksheet Completion</label>
+              <input
+                id='worksheet_completion'
+                className='form-control'
+                type='text'
+                value={evaluation?.worksheet_completion}
+                onChange={(e) =>
+                  setEvaluation({
+                    ...evaluation,
+                    worksheet_completion: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className='col'>
+              <label className='form-label h5'>Next Session Plans</label>
+              <textarea
+                id='next_session'
+                className='form-control'
+                value={evaluation?.next_session}
+                onChange={(e) =>
+                  setEvaluation({ ...evaluation, next_session: e.target.value })
+                }
+              />
+            </div>
           </div>
         </div>
-      </div>
-      <div className='d-flex'>
-        <button
-          type='button'
-          className='btn btn-secondary m-3 me-auto'
-          onClick={() => {
-            localStorage.removeItem(`${params.evalid}`);
-            localStorage.removeItem(`${params.evalid}_tasks`);
-            history.back();
-          }}
-        >
-          Back
-        </button>
+        <div className='d-flex'>
+          <button
+            type='button'
+            className='btn btn-secondary m-3 me-auto'
+            onClick={() => {
+              localStorage.removeItem(`${params.evalid}`);
+              localStorage.removeItem(`${params.evalid}_tasks`);
+              history.back();
+            }}
+          >
+            Back
+          </button>
+          <Button
+            variant='danger'
+            className='m-3 ms-auto'
+            type='button'
+            onClick={handleDelete}
+          >
+            Delete
+          </Button>
+          <button className='btn btn-primary m-3' onClick={sumbitEval}>
+            Submit
+          </button>
+        </div>
+        {/* </form> */}
         <Button
           variant='danger'
-          className='m-3 ms-auto'
-          type='button'
-          onClick={handleDelete}
+          className='mx-3 ms-auto'
+          id='flagForReview'
+          onClick={(e) => {
+            e.preventDefault();
+            if (e.target.classList.contains("btn-danger")) {
+              e.target.classList.remove("btn-danger");
+              e.target.classList.add("btn-outline-danger");
+              e.target.innerHTML = "Flagged for Admin Review";
+            } else {
+              e.target.classList.remove("btn-outline-danger");
+              e.target.classList.add("btn-danger");
+              e.target.innerHTML = "Flag for Admin Review?";
+            }
+          }}
         >
-          Delete
+          Flag for Admin Review?
         </Button>
-        <button className='btn btn-primary m-3' onClick={sumbitEval}>
-          Submit
-        </button>
       </div>
-      {/* </form> */}
-      <Button
-        variant='danger'
-        className='mx-3 ms-auto'
-        id='flagForReview'
-        onClick={(e) => {
-          e.preventDefault();
-          if (e.target.classList.contains("btn-danger")) {
-            e.target.classList.remove("btn-danger");
-            e.target.classList.add("btn-outline-danger");
-            e.target.innerHTML = "Flagged for Admin Review";
-          } else {
-            e.target.classList.remove("btn-outline-danger");
-            e.target.classList.add("btn-danger");
-            e.target.innerHTML = "Flag for Admin Review?";
-          }
-        }}
+      <Offcanvas
+        show={showNewStandardPane}
+        onHide={() => setShowNewStandardPane(false)}
+        placement='end'
+        style={{ width: "75%" }}
       >
-        Flag for Admin Review?
-      </Button>
-    </div>
+        <TrackStandard
+          standards={standards}
+          setStandards={setStandards}
+          close={() => setShowNewStandardPane(false)}
+        />
+      </Offcanvas>
+    </>
   );
 };
 
