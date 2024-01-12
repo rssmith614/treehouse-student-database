@@ -128,7 +128,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
             averageProgression[standard] = average.toFixed(2);
           });
 
-          console.log(averageProgression);
+          // console.log(averageProgression);
           setStandardAverages(averageProgression);
         });
       },
