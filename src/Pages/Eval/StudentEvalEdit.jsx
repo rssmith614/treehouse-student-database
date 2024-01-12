@@ -99,24 +99,32 @@ const StudentEvalEdit = () => {
           let compiledTasks = new Array(res.docs.length);
           Promise.all(
             res.docs.map(async (t, i) => {
-              if (t.data().standard === "")
-                return (compiledTasks[i] = { ...t.data(), id: t.id });
-              else
-                return getDoc(doc(db, "standards", t.data().standard)).then(
-                  (s) => {
-                    compiledTasks[i] = {
-                      ...t.data(),
-                      id: t.id,
-                      standard: { ...s.data(), id: s.id },
-                    };
-                  },
-                );
+              if (t.data().standards?.length === 0) {
+                compiledTasks[i] = { ...t.data(), id: t.id };
+              } else {
+                const standardPromises =
+                  t
+                    .data()
+                    .standards?.map((standardId) =>
+                      getDoc(doc(db, "standards", standardId)),
+                    ) || [];
+                const standardsData = await Promise.all(standardPromises);
+                const standards = standardsData.map((s) => ({
+                  ...s.data(),
+                  id: s.id,
+                }));
+                compiledTasks[i] = {
+                  ...t.data(),
+                  id: t.id,
+                  standards: standards,
+                };
+              }
             }),
           )
             .then(() => {
               compiledTasks.sort((a, b) => {
-                let a_standard = a.standard.key || "0.0.0";
-                let b_standard = b.standard.key || "0.0.0";
+                let a_standard = a.standards[0]?.key || "0.0.0";
+                let b_standard = b.standards[0]?.key || "0.0.0";
                 return (
                   a_standard
                     .split(".")[1]
@@ -163,15 +171,19 @@ const StudentEvalEdit = () => {
             });
 
             const fetchStandardsPromises = tasks.map((task) => {
-              if (task.standard === "") return Promise.resolve(null);
-              return getDoc(doc(db, "standards", task.standard)).then(
-                (standard) => {
-                  return {
-                    ...standard.data(),
-                    id: standard.id,
-                  };
-                },
-              );
+              const standardsPromises =
+                task.standards?.map((standardId) => {
+                  if (standardId === "") return Promise.resolve(null);
+                  return getDoc(doc(db, "standards", standardId)).then(
+                    (standard) => {
+                      return {
+                        ...standard.data(),
+                        id: standard.id,
+                      };
+                    },
+                  );
+                }) || [];
+              return Promise.all(standardsPromises);
             });
 
             return Promise.all(fetchStandardsPromises);
@@ -181,6 +193,7 @@ const StudentEvalEdit = () => {
 
       Promise.all(fetchTasksPromises).then((standardsArray) => {
         const flattenedStandards = standardsArray
+          .flat()
           .flat()
           .filter((s) => s !== null);
         const uniqueStandards = flattenedStandards.reduce((acc, standard) => {
@@ -285,18 +298,18 @@ const StudentEvalEdit = () => {
     updateDoc(evalRef.current, evaluation)
       .then(() => {
         tasks.forEach((t) => {
-          let { id: _, ...rest } = t;
+          let { id: _, standard: __, ...rest } = t;
           if (t.id === undefined) {
             addDoc(collection(evalRef.current, "tasks"), {
               ...rest,
-              standard: t.standard?.id || "",
-              progression: t.standard === "" ? "" : t.progression,
+              standards: t.standards.map((s) => s.id),
+              progression: t.standards.length === 0 ? "" : t.progression,
             });
           } else {
             setDoc(doc(db, "evaluations", evalRef.current.id, "tasks", t.id), {
               ...rest,
-              standard: t.standard?.id || "",
-              progression: t.standard === "" ? "" : t.progression,
+              standards: t.standards.map((s) => s.id),
+              progression: t.standards.length === 0 ? "" : t.progression,
             });
           }
         });
@@ -312,7 +325,7 @@ const StudentEvalEdit = () => {
           message: `Session evaluation for ${evaluation?.student_name} was successfully updated`,
         }),
       )
-      .then(() => navigate(`/eval/${evalRef.current.id}`));
+      .then(() => navigate(-1));
   }
 
   async function handleDelete() {
@@ -354,6 +367,12 @@ const StudentEvalEdit = () => {
     });
   }
 
+  function standardsLabel(standards) {
+    if (standards.length === 0) return "None";
+    else if (standards.length === 1) return standards[0].key;
+    else return `${standards[0].key} +${standards.length - 1} more`;
+  }
+
   const StandardDropdownToggle = React.forwardRef(
     ({ style, className, onClick, value }, ref) => (
       <Form.Control
@@ -365,7 +384,7 @@ const StudentEvalEdit = () => {
           onClick(e);
         }}
         // onChange={(e) => console.log(e)}
-        value={value?.key || "None"}
+        value={standardsLabel(value)}
         readOnly
       ></Form.Control>
     ),
@@ -393,12 +412,12 @@ const StudentEvalEdit = () => {
           <Form.Check
             key={0}
             type={"radio"}
-            checked={!value}
+            checked={value.length === 0}
             label={"None"}
             className='mx-3 my-2 w-auto'
             onChange={(e) => {
               if (e.target.checked) {
-                valueSetter(null);
+                valueSetter([]);
               }
             }}
           />
@@ -444,13 +463,21 @@ const StudentEvalEdit = () => {
                 >
                   <div key={standard.id}>
                     <Form.Check
-                      type={"radio"}
-                      checked={value.id === standard.id}
+                      // type={"radio"}
+                      checked={
+                        value === undefined
+                          ? false
+                          : value.some((s) => s.key === standard.key)
+                      }
                       label={standard.key}
                       className='mx-3 my-2 w-auto'
                       onChange={(e) => {
                         if (e.target.checked) {
-                          valueSetter(standard);
+                          valueSetter([...value, standard]);
+                        } else {
+                          valueSetter(
+                            value.filter((s) => s.id !== standard.id),
+                          );
                         }
                       }}
                     />
@@ -527,16 +554,16 @@ const StudentEvalEdit = () => {
             <Dropdown>
               <Dropdown.Toggle
                 as={StandardDropdownToggle}
-                value={task.standard}
+                value={task.standards}
               />
               <Dropdown.Menu
                 as={StandardDropdown}
-                value={task.standard}
+                value={task.standards}
                 valueSetter={(s) =>
                   setTasks(
                     tasks.map((t, i) => {
                       if (i !== idx) return t;
-                      else return { ...t, standard: s || "" };
+                      else return { ...t, standards: s || [] };
                     }),
                   )
                 }
@@ -546,8 +573,8 @@ const StudentEvalEdit = () => {
         </td>
         <td className='align-middle'>
           <Form.Select
-            value={task.standard === "" ? "" : task.progression}
-            disabled={task.standard === ""}
+            value={task.standards.length === 0 ? "" : task.progression}
+            disabled={task.standards.length === 0}
             onChange={(e) =>
               setTasks(
                 tasks.map((t, i) => {
@@ -673,7 +700,7 @@ const StudentEvalEdit = () => {
                       ...tasks,
                       {
                         subject: "",
-                        standard: "",
+                        standards: [],
                         progression: "",
                         engagement: "5",
                         comments: "",

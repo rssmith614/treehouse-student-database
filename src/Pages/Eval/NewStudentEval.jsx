@@ -75,7 +75,7 @@ const NewStudentEval = () => {
       : [
           {
             subject: "",
-            standard: "",
+            standards: [],
             progression: "4",
             engagement: "5",
             comments: "",
@@ -114,15 +114,19 @@ const NewStudentEval = () => {
             });
 
             const fetchStandardsPromises = tasks.map((task) => {
-              if (task.standard === "") return Promise.resolve(null);
-              return getDoc(doc(db, "standards", task.standard)).then(
-                (standard) => {
-                  return {
-                    ...standard.data(),
-                    id: standard.id,
-                  };
-                },
-              );
+              const standardsPromises =
+                task.standards?.map((standardId) => {
+                  if (standardId === "") return Promise.resolve(null);
+                  return getDoc(doc(db, "standards", standardId)).then(
+                    (standard) => {
+                      return {
+                        ...standard.data(),
+                        id: standard.id,
+                      };
+                    },
+                  );
+                }) || [];
+              return Promise.all(standardsPromises);
             });
 
             return Promise.all(fetchStandardsPromises);
@@ -132,6 +136,7 @@ const NewStudentEval = () => {
 
       Promise.all(fetchTasksPromises).then((standardsArray) => {
         const flattenedStandards = standardsArray
+          .flat()
           .flat()
           .filter((s) => s !== null);
         const uniqueStandards = flattenedStandards.reduce((acc, standard) => {
@@ -192,7 +197,7 @@ const NewStudentEval = () => {
       ...tasks,
       {
         subject: "",
-        standard: "",
+        standards: [],
         progression: "4",
         engagement: "5",
         comments: "",
@@ -275,7 +280,7 @@ const NewStudentEval = () => {
             tasks.forEach((t) =>
               addDoc(collection(doc, "tasks"), {
                 ...t,
-                standard: t.standard?.id || "",
+                standards: t.standards.map((s) => s?.id || ""),
               }),
             );
             addToast({
@@ -308,7 +313,7 @@ const NewStudentEval = () => {
           tasks.forEach((t) =>
             addDoc(collection(d, "tasks"), {
               ...t,
-              standard: t.standard?.id || "",
+              standards: t.standards.map((s) => s?.id || ""),
             }),
           );
           addToast({
@@ -360,7 +365,7 @@ const NewStudentEval = () => {
           onClick(e);
         }}
         // onChange={(e) => console.log(e)}
-        value={value?.key || "None"}
+        value={value}
         readOnly
       ></Form.Control>
     ),
@@ -388,7 +393,7 @@ const NewStudentEval = () => {
           <Form.Check
             key={0}
             type={"radio"}
-            checked={!value}
+            checked={value.length === 0}
             label={"None"}
             className='mx-3 my-2 w-auto'
             onChange={(e) => {
@@ -440,12 +445,20 @@ const NewStudentEval = () => {
                   <div key={standard.id}>
                     <Form.Check
                       // type={"radio"}
-                      checked={value.id === standard.id}
+                      checked={
+                        value === undefined
+                          ? false
+                          : value.some((s) => s.key === standard.key)
+                      }
                       label={standard.key}
                       className='mx-3 my-2 w-auto'
                       onChange={(e) => {
                         if (e.target.checked) {
-                          valueSetter(standard);
+                          valueSetter([...value, standard]);
+                        } else {
+                          valueSetter(
+                            value.filter((s) => s.id !== standard.id),
+                          );
                         }
                       }}
                     />
@@ -469,6 +482,12 @@ const NewStudentEval = () => {
       );
     },
   );
+
+  function standardsLabel(standards) {
+    if (standards.length === 0) return "None";
+    else if (standards.length === 1) return standards[0].key;
+    else return `${standards[0].key} +${standards.length - 1} more`;
+  }
 
   const tasksList = tasks.map((task, idx) => {
     return (
@@ -513,16 +532,16 @@ const NewStudentEval = () => {
             <Dropdown>
               <Dropdown.Toggle
                 as={StandardDropdownToggle}
-                value={task.standard}
+                value={standardsLabel(task.standards)}
               />
               <Dropdown.Menu
                 as={StandardDropdown}
-                value={task.standard}
+                value={task.standards}
                 valueSetter={(s) =>
                   setTasks(
                     tasks.map((t, i) => {
                       if (i !== idx) return t;
-                      else return { ...t, standard: s || "" };
+                      else return { ...t, standards: s || [] };
                     }),
                   )
                 }
@@ -533,8 +552,8 @@ const NewStudentEval = () => {
         </td>
         <td className='align-middle'>
           <Form.Select
-            value={task.standard === "" ? "" : task.progression}
-            disabled={task.standard === ""}
+            value={task.standards?.length === 0 ? "" : task.progression}
+            disabled={task.standards?.length === 0}
             onChange={(e) =>
               setTasks(
                 tasks.map((t, i) => {
@@ -703,7 +722,11 @@ const NewStudentEval = () => {
           <button
             type='button'
             className='btn btn-secondary m-3 me-auto'
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              localStorage.removeItem(`${params.studentid}_eval`);
+              localStorage.removeItem(`${params.studentid}_tasks`);
+              navigate(-1);
+            }}
           >
             Back
           </button>
