@@ -73,6 +73,9 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
       },
     );
 
+    localStorage.setItem("grade", grade);
+    localStorage.setItem("category", category);
+
     return () => {
       unsubscribeStandards();
     };
@@ -101,11 +104,14 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
           return getDocs(evaluationRef).then((tasksSnapshot) => {
             tasksSnapshot.forEach((taskDoc) => {
               const task = taskDoc.data();
-              const { standard, progression } = task;
-              if (!standardProgression[standard]) {
-                standardProgression[standard] = [];
-              }
-              standardProgression[standard].push(progression);
+              const { standards, progression } = task;
+              if (!standards) return;
+              standards.forEach((standard) => {
+                if (!standardProgression[standard]) {
+                  standardProgression[standard] = [];
+                }
+                standardProgression[standard].push(progression);
+              });
             });
           });
         });
