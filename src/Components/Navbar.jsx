@@ -10,8 +10,8 @@ import {
   NavDropdown,
 } from "react-bootstrap";
 
-import treehouseLogo from "../images/Treehouse-Logo-New.svg";
-import blueTreehouseLogo from "../images/Treehouse-Logo-New-Blue.svg";
+// import treehouseLogo from "../images/Treehouse-Logo-New.svg";
+// import blueTreehouseLogo from "../images/Treehouse-Logo-New-Blue.svg";
 
 const Navbar = ({ userProfile }) => {
   const navigate = useNavigate();
