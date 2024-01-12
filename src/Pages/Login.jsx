@@ -87,7 +87,7 @@ const Login = ({ setUserProfile }) => {
             xs={{ cols: "auto" }}
           >
             <Col className='w-25'>
-              <div className='bg-secondary h-100 p-2'>
+              <div className='h-100 p-2'>
                 <img
                   src={treehouseLogo}
                   alt='Treehouse Logo'

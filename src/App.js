@@ -43,7 +43,8 @@ import NewStudentAssessment from './Pages/Assessments/NewStudentAssessment';
 import StudentAssessment from './Pages/Assessments/StudentAssessment';
 import StudentAssessmentEdit from './Pages/Assessments/StudentAssessmentEdit';
 import EvalsPendingReview from './Pages/Eval/EvalsPendingReview';
-
+import Footer from './Components/Footer';
+ 
 function App() {
 
   // THEME MANAGEMENT
@@ -66,7 +67,7 @@ function App() {
     }
   }
 
-  setTheme(getPreferredTheme());
+  setTheme('dark');
 
   // USER / ABILITY MANAGEMENT
   const [userProfile, setUserProfile] = useState(null);
@@ -151,6 +152,7 @@ function App() {
             <Route path='/assessments/:assessmentid' element={<StudentAssessment />} />
             <Route path='/assessments/student/edit/:assessmentid' element={<StudentAssessmentEdit />} />
           </Routes>
+          <Footer />
         </Router>
         <DocSubmissionToast toasts={toastElements} />
       </ToastContext.Provider>

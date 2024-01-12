@@ -160,51 +160,65 @@ const StudentProfile = () => {
         <Tab.Pane eventKey='about'>
           <div className='d-flex justify-content-start'>
             <div className='d-flex p-3 flex-column flex-fill'>
-              <div className='d-flex h5'>Birthday</div>
+              <div className='d-flex h5 text-decoration-underline'>
+                Birthday
+              </div>
               <div className='d-flex'>{student.student_dob}</div>
             </div>
             <div className='d-flex p-3 flex-column flex-fill'>
-              <div className='d-flex h5'>Grade</div>
+              <div className='d-flex h5 text-decoration-underline'>Grade</div>
               <div className='d-flex'>{student.student_grade}</div>
             </div>
             <div className='d-flex p-3 flex-column flex-fill'>
-              <div className='d-flex h5'>School</div>
+              <div className='d-flex h5 text-decoration-underline'>School</div>
               <div className='d-flex'>{student.student_school}</div>
             </div>
             <div className='d-flex p-3 flex-column flex-fill'>
-              <div className='d-flex h5'>Source</div>
+              <div className='d-flex h5 text-decoration-underline'>Source</div>
               <div className='d-flex'>{student.student_source}</div>
             </div>
           </div>
           <div className='d-flex justify-content-start'>
             <div className='d-flex p-3 flex-column flex-fill'>
-              <div className='d-flex h5'>Parent Name</div>
+              <div className='d-flex h5 text-decoration-underline'>
+                Parent Name
+              </div>
               <div className='d-flex'>{student.parent_name}</div>
             </div>
             <div className='d-flex p-3 flex-column flex-fill'>
-              <div className='d-flex h5'>Parent Phone Number</div>
+              <div className='d-flex h5 text-decoration-underline'>
+                Parent Phone Number
+              </div>
               <div className='d-flex'>{student.parent_phone}</div>
             </div>
           </div>
           <div className='d-flex justify-content-start'>
             <div className='d-flex p-3 flex-column flex-fill'>
-              <div className='d-flex h5'>Preferred Tutor</div>
+              <div className='d-flex h5 text-decoration-underline'>
+                Preferred Tutor
+              </div>
               <div className='d-flex'>{student.preferred_tutor_name}</div>
             </div>
           </div>
           <div className='d-flex justify-content-start'>
             <div className='d-flex p-3 flex-column flex-fill'>
-              <div className='d-flex h5'>Medical Conditions</div>
+              <div className='d-flex h5 text-decoration-underline'>
+                Medical Conditions
+              </div>
               <div className='d-flex'>{student.medical_conditions}</div>
             </div>
             <div className='d-flex p-3 flex-column flex-fill'>
-              <div className='d-flex h5'>Other Info</div>
+              <div className='d-flex h5 text-decoration-underline'>
+                Other Info
+              </div>
               <div className='d-flex'>{student.other}</div>
             </div>
           </div>
           <div className='d-flex justify-content-start table-responsive flex-column flex-fill'>
-            <div className='d-flex p-3 h5'>Emergency Contacts</div>
-            <div className='d-flex px-5'>
+            <div className='d-flex p-3 h5 text-decoration-underline'>
+              Emergency Contacts
+            </div>
+            <div className='d-flex px-3'>
               <table className='table table-striped'>
                 <thead>
                   <tr>
@@ -243,14 +257,14 @@ const StudentProfile = () => {
         </Tab.Pane>
         <Tab.Pane eventKey='standards'>
           <StandardsOfCategoryAndStatus student={studentRef.current} />
-          <div className='d-flex justify-content-end'>
+          {/* <div className='d-flex justify-content-end'>
             <button
               className='btn btn-primary m-3'
               onClick={() => navigate(`/standard/new/${studentRef.current.id}`)}
             >
               Track New Standards
             </button>
-          </div>
+          </div> */}
         </Tab.Pane>
         <Tab.Pane eventKey='assessments'>
           <AssessmentsOfStudent
