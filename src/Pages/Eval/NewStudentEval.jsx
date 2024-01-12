@@ -208,42 +208,52 @@ const NewStudentEval = () => {
   function sumbitEval(e) {
     e.preventDefault();
 
+    const elements = document.getElementsByClassName("is-invalid");
+    if (elements.length > 0) {
+      Array.from(elements).forEach((el) => {
+        el.classList.remove("is-invalid");
+      });
+    }
+    let clean = true;
+
     if (!selectedTutor) {
+      document.getElementById("tutor").classList.add("is-invalid");
       addToast({
         header: "No Tutor Selected",
         message: "Please select a tutor before submitting",
       });
-      return;
+      clean = false;
     }
 
-    try {
-      tasks.forEach((t) => {
-        if (t.subject === "") {
-          addToast({
-            header: "Missing Subject",
-            message: "Please select a subject for all tasks",
-          });
-          throw new Error();
-        }
-        if (t.comments === "") {
-          addToast({
-            header: "Missing Comments",
-            message: "Please enter comments for all tasks",
-          });
-          throw new Error();
-        }
-      });
-    } catch (e) {
-      return;
-    }
+    tasks.forEach((t, i) => {
+      if (t.subject === "") {
+        document.getElementById(`${i}_subject`).classList.add(`is-invalid`);
+        addToast({
+          header: "Missing Subject",
+          message: "Please select a subject for all tasks",
+        });
+        clean = false;
+      }
+      if (t.comments === "") {
+        document.getElementById(`${i}_comments`).classList.add(`is-invalid`);
+        addToast({
+          header: "Missing Comments",
+          message: "Please enter comments for all tasks",
+        });
+        clean = false;
+      }
+    });
 
     if (evaluation.next_session === "") {
+      document.getElementById("next_session").classList.add("is-invalid");
       addToast({
         header: "Missing Next Session Plans",
         message: "Please enter plans for the next session",
       });
-      return;
+      clean = false;
     }
+
+    if (!clean) return;
 
     document.getElementById("submit").innerHTML =
       "Submit <span class='spinner-border spinner-border-sm' />";
@@ -506,7 +516,7 @@ const NewStudentEval = () => {
         </td>
         <td className='align-middle'>
           <Form.Select
-            id='subject'
+            id={`${idx}_subject`}
             className='form-control'
             value={task.subject}
             onChange={(e) =>
@@ -591,7 +601,7 @@ const NewStudentEval = () => {
         </td>
         <td>
           <textarea
-            id='comments'
+            id={`${idx}_comments`}
             className='form-control'
             value={task.comments}
             onChange={(e) =>
