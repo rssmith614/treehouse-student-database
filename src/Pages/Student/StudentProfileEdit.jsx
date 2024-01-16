@@ -122,7 +122,7 @@ const StudentProfileEdit = () => {
     e.preventDefault();
 
     if (dayjs().isBefore(dayjs(student.student_dob))) {
-      console.log(dayjs(), dayjs(student.student_dob));
+      // console.log(dayjs(), dayjs(student.student_dob));
       addToast({
         header: "Invalid Date",
         message: "Student birthday must be in the past",
@@ -143,7 +143,7 @@ const StudentProfileEdit = () => {
 
     try {
       emergencyContacts.forEach((eContact, i) => {
-        console.log(eContact);
+        // console.log(eContact);
         if (eContact.name === "") {
           addToast({
             header: "Missing Emergency Contact",
