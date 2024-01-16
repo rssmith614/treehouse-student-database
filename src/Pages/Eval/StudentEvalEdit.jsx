@@ -31,7 +31,12 @@ import {
   Row,
   Table,
 } from "react-bootstrap";
-import { deleteObject, ref } from "firebase/storage";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
 import TrackStandard from "../Standards/TrackStandard";
 
 const grades = {
@@ -293,6 +298,38 @@ const StudentEvalEdit = () => {
       !document.getElementById("flagForReview").classList.contains("d-none")
     ) {
       setEvaluation({ ...evaluation, flagged: true });
+    }
+
+    const worksheetUpload = document.getElementById("worksheet").files[0];
+
+    if (worksheetUpload) {
+      if (evaluation?.worksheet !== "" && evaluation?.worksheet !== undefined) {
+        deleteObject(ref(storage, evaluation?.worksheet));
+      }
+
+      const worksheetRef = ref(storage, `worksheets/${worksheetUpload.name}`);
+
+      const uploadTask = uploadBytesResumable(worksheetRef, worksheetUpload);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          // const progress =
+          //   (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          // console.log(`Upload is ${progress}% done`);
+        },
+        (error) => {
+          console.log(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setEvaluation({
+              ...evaluation,
+              worksheet: downloadURL,
+            });
+          });
+        },
+      );
     }
 
     updateDoc(evalRef.current, evaluation)
