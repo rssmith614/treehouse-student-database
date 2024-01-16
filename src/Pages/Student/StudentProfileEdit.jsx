@@ -131,7 +131,7 @@ const StudentProfileEdit = () => {
 
     if (dayjs().isBefore(dayjs(student.student_dob))) {
       document.getElementById("studentDOB").classList.add("is-invalid");
-      console.log(dayjs(), dayjs(student.student_dob));
+      // console.log(dayjs(), dayjs(student.student_dob));
       addToast({
         header: "Invalid Date",
         message: "Student birthday must be in the past",
