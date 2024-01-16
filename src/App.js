@@ -43,20 +43,21 @@ import NewStudentAssessment from './Pages/Assessments/NewStudentAssessment';
 import StudentAssessment from './Pages/Assessments/StudentAssessment';
 import StudentAssessmentEdit from './Pages/Assessments/StudentAssessmentEdit';
 import EvalsPendingReview from './Pages/Eval/EvalsPendingReview';
-
+import Footer from './Components/Footer';
+ 
 function App() {
 
   // THEME MANAGEMENT
-  const getStoredTheme = () => localStorage.getItem('theme')
+  // const getStoredTheme = () => localStorage.getItem('theme')
 
-  const getPreferredTheme = () => {
-    const storedTheme = getStoredTheme()
-    if (storedTheme) {
-      return storedTheme
-    }
+  // const getPreferredTheme = () => {
+  //   const storedTheme = getStoredTheme()
+  //   if (storedTheme) {
+  //     return storedTheme
+  //   }
 
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  }
+  //   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  // }
 
   const setTheme = theme => {
     if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -66,7 +67,7 @@ function App() {
     }
   }
 
-  setTheme(getPreferredTheme());
+  setTheme('dark');
 
   // USER / ABILITY MANAGEMENT
   const [userProfile, setUserProfile] = useState(null);
@@ -92,8 +93,8 @@ function App() {
   const [shownToasts, setShownToasts] = useState([]);
 
   function addToast(newToast) {
-    setToasts([...toasts, newToast]);
-    setShownToasts([...shownToasts, newToast]);
+    setToasts(prevToasts => [newToast, ...prevToasts]);
+    setShownToasts(prevShownToasts => [...prevShownToasts, newToast]);
   }
 
   const toastElements = (
@@ -101,8 +102,8 @@ function App() {
       return (
         <Toast id="liveToast" key={i} role="alert" aria-live="assertive" aria-atomic="true"
           show={shownToasts.includes(t)} delay={5000} autohide
-          onClose={() => { setShownToasts(toasts.filter(toast => toast !== t)) }}
-          onExited={() => { setToasts(toasts.filter(toast => toast !== t)) }}>
+          onClose={() => { setShownToasts(prevToasts => prevToasts.filter(toast => toast !== t)) }}
+          onExited={() => { setToasts(prevToasts => prevToasts.filter(toast => toast !== t)) }}>
           <ToastHeader>
             <strong className="me-auto">{t.header}</strong>
           </ToastHeader>
@@ -151,6 +152,7 @@ function App() {
             <Route path='/assessments/:assessmentid' element={<StudentAssessment />} />
             <Route path='/assessments/student/edit/:assessmentid' element={<StudentAssessmentEdit />} />
           </Routes>
+          <Footer />
         </Router>
         <DocSubmissionToast toasts={toastElements} />
       </ToastContext.Provider>

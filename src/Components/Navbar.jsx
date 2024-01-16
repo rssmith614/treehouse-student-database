@@ -10,8 +10,8 @@ import {
   NavDropdown,
 } from "react-bootstrap";
 
-import treehouseLogo from "../images/Treehouse-Logo-New.svg";
-import blueTreehouseLogo from "../images/Treehouse-Logo-New-Blue.svg";
+// import treehouseLogo from "../images/Treehouse-Logo-New.svg";
+// import blueTreehouseLogo from "../images/Treehouse-Logo-New-Blue.svg";
 
 const Navbar = ({ userProfile }) => {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const Navbar = ({ userProfile }) => {
           onClick={() => navigate(`/tutor/${userProfile.id}`)}
           style={{ cursor: "pointer" }}
         >
-          {document.documentElement.getAttribute("data-bs-theme") === "dark" ? (
+          {/* {document.documentElement.getAttribute("data-bs-theme") === "dark" ? (
             <img
               src={treehouseLogo}
               alt='Treehouse Logo'
@@ -56,7 +56,7 @@ const Navbar = ({ userProfile }) => {
               className='d-inline-block align-text-top'
               style={{ height: 24 }}
             />
-          )}
+          )} */}
           Welcome, {userName}
         </BsNavbar.Brand>
         <BsNavbar.Toggle

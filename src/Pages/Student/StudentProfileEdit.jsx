@@ -121,55 +121,63 @@ const StudentProfileEdit = () => {
   async function updateStudent(e) {
     e.preventDefault();
 
+    const elements = document.getElementsByClassName("is-invalid");
+    if (elements.length > 0) {
+      Array.from(elements).forEach((el) => {
+        el.classList.remove("is-invalid");
+      });
+    }
+    let clean = true;
+
     if (dayjs().isBefore(dayjs(student.student_dob))) {
+      document.getElementById("studentDOB").classList.add("is-invalid");
       // console.log(dayjs(), dayjs(student.student_dob));
       addToast({
         header: "Invalid Date",
         message: "Student birthday must be in the past",
       });
-      return;
+      clean = false;
     }
 
     if (
       student.parent_phone !== "" &&
       phoneRegex.test(student.parent_phone) === false
     ) {
+      document.getElementById("parentPhone").classList.add("is-invalid");
       addToast({
         header: "Invalid Phone Number",
         message: "Parent phone number must be a valid phone number",
       });
-      return;
+      clean = false;
     }
 
-    try {
-      emergencyContacts.forEach((eContact, i) => {
-        // console.log(eContact);
-        if (eContact.name === "") {
-          addToast({
-            header: "Missing Emergency Contact",
-            message: `Emergency contact ${i + 1} is missing a name`,
-          });
-          throw new Error();
-        }
-        if (eContact.phone === "") {
-          addToast({
-            header: "Missing Emergency Contact",
-            message: `Emergency contact ${i + 1} is missing a phone number`,
-          });
-          throw new Error();
-        } else if (phoneRegex.test(eContact.phone) === false) {
-          addToast({
-            header: "Invalid Phone Number",
-            message: `Emergency contact ${
-              i + 1
-            } must have a valid phone number`,
-          });
-          throw new Error();
-        }
-      });
-    } catch (e) {
-      return;
-    }
+    emergencyContacts.forEach((eContact, i) => {
+      if (eContact.name === "") {
+        document.getElementById(`contact${i}name`).classList.add("is-invalid");
+        addToast({
+          header: "Missing Emergency Contact",
+          message: `Emergency contact ${i + 1} is missing a name`,
+        });
+        clean = false;
+      }
+      if (eContact.phone === "") {
+        document.getElementById(`contact${i}phone`).classList.add("is-invalid");
+        addToast({
+          header: "Missing Emergency Contact",
+          message: `Emergency contact ${i + 1} is missing a phone number`,
+        });
+        clean = false;
+      } else if (phoneRegex.test(eContact.phone) === false) {
+        document.getElementById(`contact${i}phone`).classList.add("is-invalid");
+        addToast({
+          header: "Invalid Phone Number",
+          message: `Emergency contact ${i + 1} must have a valid phone number`,
+        });
+        clean = false;
+      }
+    });
+
+    if (!clean) return;
 
     document.getElementById("saveChanges").disabled = true;
 
@@ -419,7 +427,7 @@ const StudentProfileEdit = () => {
         </div>
       </div>
       <div className='d-flex p-3 h5'>Emergency Contacts</div>
-      <div className='d-flex flex-column px-5'>
+      <div className='d-flex flex-column px-3'>
         <table className='table table-striped'>
           <thead>
             <tr>

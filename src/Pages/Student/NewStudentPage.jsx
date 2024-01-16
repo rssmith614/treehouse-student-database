@@ -69,58 +69,68 @@ const NewProfile = () => {
   async function addStudent(e) {
     e.preventDefault();
 
+    const elements = document.getElementsByClassName("is-invalid");
+    if (elements.length > 0) {
+      Array.from(elements).forEach((el) => {
+        el.classList.remove("is-invalid");
+      });
+    }
+    let clean = true;
+
     if (student.student_name === "") {
+      document.getElementById("studentName").classList.add("is-invalid");
       addToast({
         header: "Invalid Student Name",
         message: "Student Name cannot be empty",
       });
-      return;
+      clean = false;
     }
 
     if (student.student_dob === "") {
+      document.getElementById("studentDOB").classList.add("is-invalid");
       addToast({
         header: "Invalid Date of Birth",
         message: "Date of Birth cannot be empty",
       });
-      return;
+      clean = false;
     }
 
     if (dayjs().isBefore(dayjs(student.student_dob))) {
+      document.getElementById("studentDOB").classList.add("is-invalid");
       addToast({
         header: "Invalid Date of Birth",
         message: "Date of Birth cannot be in the future",
       });
-      return;
+      clean = false;
     }
 
-    try {
-      emergencyContacts.forEach((eContact, i) => {
-        if (eContact.name === "") {
-          addToast({
-            header: "Invalid Emergency Contact Name",
-            message: `Emergency Contact ${i + 1} Name cannot be empty`,
-          });
-          throw new Error();
-        }
-        if (eContact.phone === "") {
-          addToast({
-            header: "Invalid Emergency Contact Phone Number",
-            message: `Emergency Contact ${i + 1} Phone Number cannot be empty`,
-          });
-          throw new Error();
-        } else if (phoneRegex.test(eContact.phone) === false) {
-          addToast({
-            header: "Invalid Phone Number",
-            message: `Emergency contact ${
-              i + 1
-            } must have a valid phone number`,
-          });
-          throw new Error();
-        }
-      });
-    } catch (e) {
-      return;
-    }
+    emergencyContacts.forEach((eContact, i) => {
+      if (eContact.name === "") {
+        document.getElementById(`contact${i}name`).classList.add("is-invalid");
+        addToast({
+          header: "Invalid Emergency Contact Name",
+          message: `Emergency Contact ${i + 1} Name cannot be empty`,
+        });
+        clean = false;
+      }
+      if (eContact.phone === "") {
+        document.getElementById(`contact${i}phone`).classList.add("is-invalid");
+        addToast({
+          header: "Invalid Emergency Contact Phone Number",
+          message: `Emergency Contact ${i + 1} Phone Number cannot be empty`,
+        });
+        clean = false;
+      } else if (phoneRegex.test(eContact.phone) === false) {
+        document.getElementById(`contact${i}phone`).classList.add("is-invalid");
+        addToast({
+          header: "Invalid Phone Number",
+          message: `Emergency contact ${i + 1} must have a valid phone number`,
+        });
+        clean = false;
+      }
+    });
+
+    if (!clean) return;
 
     document.getElementById("submit").innerHTML =
       "Submit <span class='spinner-border spinner-border-sm' />";

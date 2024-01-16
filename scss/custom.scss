@@ -4,22 +4,27 @@ $treehouse-blue: #253550;
 @import "../node_modules/bootstrap/scss/functions";
 
 $primary: $treehouse-yellow;
-$secondary: $treehouse-blue;
+$secondary: tint-color($treehouse-blue, 20%);
 $success: #1ad13e;
 $warning: #da622f;
 $info: #000;
 
 @import "../node_modules/bootstrap/scss/variables";
 
-$link-color:                        tint-color($secondary, 20%);
 
-$body-bg:                           tint-color($secondary, 95%);
-$body-secondary-bg:                 tint-color($secondary, 80%);
-$body-tertiary-bg:                  tint-color($secondary, 90%);
+// $link-color:                        tint-color($secondary, 20%);
+
+// $body-bg:                           tint-color($secondary, 95%);
+// $body-secondary-bg:                 tint-color($secondary, 80%);
+// $body-tertiary-bg:                  tint-color($secondary, 90%);
 
 @import "../node_modules/bootstrap/scss/variables-dark";
 
-$body-secondary-bg-dark:            shade-color($secondary, 20%);
-$body-tertiary-bg-dark:             shade-color($secondary, 10%);
+// $body-bg:                           $treehouse-blue;
+$body-bg-dark:                      shade-color($treehouse-blue, 30%);
+$light-bg-subtle-dark:              $treehouse-blue;
+$body-secondary-bg-dark:            shade-color($treehouse-blue, 20%);
+$body-tertiary-bg-dark:             shade-color($treehouse-blue, 10%);
+
 
 @import "../node_modules/bootstrap/scss/bootstrap";
