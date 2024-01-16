@@ -146,7 +146,7 @@ const NewStudentEval = () => {
           }
           return acc;
         }, []);
-        console.log(uniqueStandards);
+        // console.log(uniqueStandards);
         setStandards(uniqueStandards);
       });
     });

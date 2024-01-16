@@ -93,8 +93,8 @@ function App() {
   const [shownToasts, setShownToasts] = useState([]);
 
   function addToast(newToast) {
-    setToasts([...toasts, newToast]);
-    setShownToasts([...shownToasts, newToast]);
+    setToasts(prevToasts => [newToast, ...prevToasts]);
+    setShownToasts(prevShownToasts => [...prevShownToasts, newToast]);
   }
 
   const toastElements = (
@@ -102,8 +102,8 @@ function App() {
       return (
         <Toast id="liveToast" key={i} role="alert" aria-live="assertive" aria-atomic="true"
           show={shownToasts.includes(t)} delay={5000} autohide
-          onClose={() => { setShownToasts(toasts.filter(toast => toast !== t)) }}
-          onExited={() => { setToasts(toasts.filter(toast => toast !== t)) }}>
+          onClose={() => { setShownToasts(prevToasts => prevToasts.filter(toast => toast !== t)) }}
+          onExited={() => { setToasts(prevToasts => prevToasts.filter(toast => toast !== t)) }}>
           <ToastHeader>
             <strong className="me-auto">{t.header}</strong>
           </ToastHeader>
