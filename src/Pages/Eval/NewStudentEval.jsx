@@ -77,7 +77,7 @@ const NewStudentEval = () => {
             subject: "",
             standards: [],
             progression: "4",
-            engagement: "5",
+            engagement: "4",
             comments: "",
           },
         ],
@@ -199,7 +199,7 @@ const NewStudentEval = () => {
         subject: "",
         standards: [],
         progression: "4",
-        engagement: "5",
+        engagement: "4",
         comments: "",
       },
     ]);
@@ -576,7 +576,7 @@ const NewStudentEval = () => {
             className='form-control'
             type='number'
             min='1'
-            max='5'
+            max='4'
             step='1'
             value={task.engagement}
             onChange={(e) =>
@@ -659,29 +659,67 @@ const NewStudentEval = () => {
                   <th></th>
                   <th>Subject</th>
                   <th>Standard</th>
-                  <th>Progression</th>
-                  <th>Engagement</th>
-                  <th className='d-flex'>
-                    Comments
-                    <OverlayTrigger
-                      placement='top'
-                      overlay={
-                        <Popover>
-                          <Popover.Header>Comments</Popover.Header>
-                          <Popover.Body>
-                            What you worked on with the student as it relates to
-                            this particular task
-                            <hr />
-                            <div className='text-decoration-underline'>
-                              Example
-                            </div>
-                            "Worked on long division with 3 digit numbers"
-                          </Popover.Body>
-                        </Popover>
-                      }
-                    >
-                      <i className='bi bi-info-square ms-auto'></i>
-                    </OverlayTrigger>
+                  <th>
+                    <div className='d-flex'>
+                      Progression
+                      <OverlayTrigger
+                        placement='top'
+                        overlay={
+                          <Popover>
+                            <Popover.Header>Progression</Popover.Header>
+                            <Popover.Body>
+                              Rate the student's mastery of the standard
+                            </Popover.Body>
+                          </Popover>
+                        }
+                      >
+                        <i className='bi bi-info-square ms-auto'></i>
+                      </OverlayTrigger>
+                    </div>
+                  </th>
+                  <th>
+                    <div className='d-flex'>
+                      Engagement
+                      <OverlayTrigger
+                        placement='top'
+                        overlay={
+                          <Popover>
+                            <Popover.Header>Engagement</Popover.Header>
+                            <Popover.Body>
+                              How well did the student work with the tutor?
+                            </Popover.Body>
+                          </Popover>
+                        }
+                      >
+                        <i className='bi bi-info-square ms-auto ps-2'></i>
+                      </OverlayTrigger>
+                    </div>
+                  </th>
+                  <th>
+                    <div className='d-flex'>
+                      Comments
+                      <OverlayTrigger
+                        placement='top'
+                        overlay={
+                          <Popover>
+                            <Popover.Header>Comments</Popover.Header>
+                            <Popover.Body>
+                              What did the student work on? What did they do
+                              well? What did they struggle with?
+                              <hr />
+                              <div className='text-decoration-underline'>
+                                Example
+                              </div>
+                              "Worked on adding fractions with unlike
+                              denominators. Struggled with finding the least
+                              common denominator."
+                            </Popover.Body>
+                          </Popover>
+                        }
+                      >
+                        <i className='bi bi-info-square ms-auto'></i>
+                      </OverlayTrigger>
+                    </div>
                   </th>
                 </tr>
               </thead>
@@ -726,8 +764,12 @@ const NewStudentEval = () => {
                     <Popover>
                       <Popover.Header>Next Session Plans</Popover.Header>
                       <Popover.Body>
-                        What you plan to work on next time, or notes for the
-                        next tutor
+                        List any standards or concepts that you would like the
+                        student to work on during their next session
+                        <hr />
+                        <div className='text-decoration-underline'>Example</div>
+                        "Continue working on 1.G.2 and move on to 1.G.3, working
+                        on subdividing shapes"
                       </Popover.Body>
                     </Popover>
                   }
