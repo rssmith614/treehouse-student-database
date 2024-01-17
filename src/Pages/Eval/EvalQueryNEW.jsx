@@ -1,11 +1,9 @@
 import {
   collection,
-  getDoc,
   getDocs,
   onSnapshot,
   query,
   where,
-  doc,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import {
@@ -19,14 +17,6 @@ import {
 } from "react-bootstrap";
 import { db } from "../../Services/firebase";
 import { useNavigate } from "react-router-dom";
-
-const progressions = {
-  1: "1 - Far Below Expectations",
-  2: "2 - Below Expectations",
-  3: "3 - Meets Expectations",
-  4: "4 - Exceeds Expectations",
-  "": "N/A",
-};
 
 const EvalQuery = () => {
   const [evalConditions, setEvalConditions] = useState(
