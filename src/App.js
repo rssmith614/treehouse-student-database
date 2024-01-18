@@ -34,7 +34,7 @@ import NewEval from './Pages/Eval/NewEval';
 import Evals from './Pages/Eval/Evals';
 import DocSubmissionToast from './Components/DocSumbissionToast';
 import { ToastContext } from './Services/toast';
-import EvalQuery from './Pages/Eval/EvalQuery';
+import EvalQuery from './Pages/Eval/EvalQueryNEW';
 import StandardsList from './Pages/Standards/StandardsList';
 import { Toast, ToastBody, ToastHeader } from 'react-bootstrap';
 import AssessmentsList from './Pages/Assessments/AssessmentsList';
