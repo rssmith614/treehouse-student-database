@@ -177,6 +177,26 @@ const EvalQuery = () => {
     });
   }
 
+  function exportCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    csvContent += "Date,Student,Tutor\n";
+
+    evals.forEach((evaluation) => {
+      csvContent += `"${dayjs(evaluation.date).format("MMMM DD, YYYY")}","${
+        evaluation.student_name
+      }","${evaluation.tutor_name}"\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "query-results.csv");
+    document.body.appendChild(link); // Required for FF
+
+    link.click();
+  }
+
   function dateConditionLabel(condition) {
     switch (condition) {
       case "==":
@@ -1027,15 +1047,20 @@ const EvalQuery = () => {
               <tbody>{tableData()}</tbody>
             </Table>
           </Row>
-          <Button
-            variant='secondary'
-            onClick={() => {
-              setEvals([]);
-              localStorage.removeItem("evalQueryResults");
-            }}
-          >
-            Clear
-          </Button>
+          <div className='d-flex'>
+            <Button
+              variant='secondary'
+              onClick={() => {
+                setEvals([]);
+                localStorage.removeItem("evalQueryResults");
+              }}
+            >
+              Clear
+            </Button>
+            <Button variant='primary' className='ms-auto' onClick={exportCSV}>
+              Export Query Results
+            </Button>
+          </div>
         </Card.Body>
       </Card>
     </div>
