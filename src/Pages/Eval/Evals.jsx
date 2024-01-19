@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { db } from "../../Services/firebase";
 import React, { useEffect, useState } from "react";
-import { Dropdown, InputGroup, Table, Form } from "react-bootstrap";
+import { Dropdown, InputGroup, Table, Form, Button } from "react-bootstrap";
 
 const Evals = () => {
   const [students, setStudents] = useState(null);
@@ -192,7 +192,7 @@ const Evals = () => {
         className={className}
         aria-labelledby={labeledBy}
       >
-        <Dropdown.Item>
+        {/* <Dropdown.Item>
           <InputGroup>
             <Form.Control
               autoFocus
@@ -207,7 +207,7 @@ const Evals = () => {
               onClick={() => valueSetter("")}
             />
           </InputGroup>
-        </Dropdown.Item>
+        </Dropdown.Item> */}
         <Dropdown.Item onClick={() => setTableSort("name_asc")}>
           A - Z
         </Dropdown.Item>
@@ -257,6 +257,23 @@ const Evals = () => {
       <div className='display-1 d-flex'>View All Session Evaluations</div>
       <div className='h5'>Select a Student</div>
       <div className='d-flex pt-3 px-3 card bg-light-subtle'>
+        <InputGroup className='w-25 mb-3'>
+          <Form.Control
+            type='text'
+            placeholder='Search Student'
+            className='me-auto align-self-end w-25'
+            value={nameFilter}
+            onChange={(e) => {
+              setNameFilter(e.target.value);
+            }}
+          />
+          <Button
+            variant='secondary'
+            className='bi bi-x-lg input-group-text'
+            style={{ cursor: "pointer" }}
+            onClick={() => setNameFilter("")}
+          />
+        </InputGroup>
         {loading ? (
           <div className='spinner-border d-flex align-self-center' />
         ) : (
