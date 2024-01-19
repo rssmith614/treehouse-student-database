@@ -4,6 +4,7 @@ import { db } from "../../Services/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { Card, Dropdown, Form, InputGroup } from "react-bootstrap";
+import Avatar from "boring-avatars";
 
 const TutorProfilesList = () => {
   const [tutors, setTutors] = useState([]);
@@ -71,11 +72,26 @@ const TutorProfilesList = () => {
           onClick={() => selectTutor(tutor.id)}
           style={{ cursor: "pointer" }}
         >
-          <td>{tutorData.displayName || "Not Activated"}</td>
-          <td>{tutorData.email}</td>
-          <td>{capitalize(tutorData.clearance) || "None Assigned"}</td>
-          <td>{tutorData.preferredAges || ""}</td>
-          <td>{tutorData.preferredSubjects || ""}</td>
+          <td>
+            <Card className='bg-dark p-1' style={{ maxWidth: 60 }}>
+              <Avatar
+                size={50}
+                name={tutorData.displayName}
+                square={true}
+                variant='beam'
+                colors={["#ffcc00", "#253550", "#FFFFFF", "#858786", "#000"]}
+              />
+            </Card>
+          </td>
+          <td className='align-middle'>
+            {tutorData.displayName || "Not Activated"}
+          </td>
+          <td className='align-middle'>{tutorData.email}</td>
+          <td className='align-middle'>
+            {capitalize(tutorData.clearance) || "None Assigned"}
+          </td>
+          <td className='align-middle'>{tutorData.preferredAges || ""}</td>
+          <td className='align-middle'>{tutorData.preferredSubjects || ""}</td>
         </tr>
       );
     });
@@ -243,6 +259,7 @@ const TutorProfilesList = () => {
     <table className='table table-striped table-hover'>
       <thead>
         <tr>
+          <td></td>
           <th style={{ cursor: "pointer" }}>
             <Dropdown drop='up' autoClose='outside'>
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>

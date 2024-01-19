@@ -7,6 +7,7 @@ import { db } from "../../Services/firebase";
 import EvalsTable from "../../Components/EvalsTable";
 import { Button, Card, Col, Nav, Row, Tab } from "react-bootstrap";
 import { Tutor } from "../../Services/defineAbility";
+import Avatar from "boring-avatars";
 
 const TutorProfile = () => {
   const [tutor, setTutor] = useState({});
@@ -87,11 +88,21 @@ const TutorProfile = () => {
               <Tab.Pane eventKey='about'>
                 <div className='d-flex p-3'>
                   <Row xs={{ cols: "auto" }}>
-                    {tutor?.photoURL === "" || !tutor?.photoURL ? null : (
-                      <Col>
-                        <img src={tutor?.photoURL} alt='Tutor' />
-                      </Col>
-                    )}
+                    <Card className='bg-dark p-1'>
+                      <Avatar
+                        size={100}
+                        name={tutor.displayName}
+                        square={true}
+                        variant='beam'
+                        colors={[
+                          "#ffcc00",
+                          "#253550",
+                          "#FFFFFF",
+                          "#858786",
+                          "#000",
+                        ]}
+                      />
+                    </Card>
                     <Col>
                       <div className='d-flex flex-column p-3'>
                         <div className='h3'>Email</div>
