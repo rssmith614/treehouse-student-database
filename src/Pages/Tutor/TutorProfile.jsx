@@ -88,19 +88,21 @@ const TutorProfile = () => {
               <Tab.Pane eventKey='about'>
                 <div className='d-flex p-3'>
                   <Row xs={{ cols: "auto" }}>
-                    <Avatar
-                      size={100}
-                      name={tutor.displayName}
-                      square={true}
-                      variant='bauhaus'
-                      colors={[
-                        "#ffcc00",
-                        "#253550",
-                        "#FFFFFF",
-                        "#858786",
-                        "#000",
-                      ]}
-                    />
+                    <Card className='bg-dark p-1'>
+                      <Avatar
+                        size={100}
+                        name={tutor.displayName}
+                        square={true}
+                        variant='beam'
+                        colors={[
+                          "#ffcc00",
+                          "#253550",
+                          "#FFFFFF",
+                          "#858786",
+                          "#000",
+                        ]}
+                      />
+                    </Card>
                     <Col>
                       <div className='d-flex flex-column p-3'>
                         <div className='h3'>Email</div>

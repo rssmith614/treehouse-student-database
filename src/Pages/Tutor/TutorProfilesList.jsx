@@ -73,19 +73,25 @@ const TutorProfilesList = () => {
           style={{ cursor: "pointer" }}
         >
           <td>
-            <Avatar
-              size={100}
-              name={tutorData.displayName}
-              square={true}
-              variant='bauhaus'
-              colors={["#ffcc00", "#253550", "#FFFFFF", "#858786", "#000"]}
-            />
+            <Card className='bg-dark p-1' style={{ maxWidth: 60 }}>
+              <Avatar
+                size={50}
+                name={tutorData.displayName}
+                square={true}
+                variant='beam'
+                colors={["#ffcc00", "#253550", "#FFFFFF", "#858786", "#000"]}
+              />
+            </Card>
           </td>
-          <td>{tutorData.displayName || "Not Activated"}</td>
-          <td>{tutorData.email}</td>
-          <td>{capitalize(tutorData.clearance) || "None Assigned"}</td>
-          <td>{tutorData.preferredAges || ""}</td>
-          <td>{tutorData.preferredSubjects || ""}</td>
+          <td className='align-middle'>
+            {tutorData.displayName || "Not Activated"}
+          </td>
+          <td className='align-middle'>{tutorData.email}</td>
+          <td className='align-middle'>
+            {capitalize(tutorData.clearance) || "None Assigned"}
+          </td>
+          <td className='align-middle'>{tutorData.preferredAges || ""}</td>
+          <td className='align-middle'>{tutorData.preferredSubjects || ""}</td>
         </tr>
       );
     });
