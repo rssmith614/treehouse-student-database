@@ -42,14 +42,26 @@ const StudentProfilesList = () => {
   }
 
   function csvExport() {
-    let csvString = ArrayToCSV(students.map((student) => {
-      let {preferred_tutor, ..._} = student.data();
-      return {..._,
-        emergency_contacts: student.data().emergency_contacts.map((contact) => {
-          return contact["relation"] + ": " + contact["name"] + " " + contact["phone"];
-        }).join("; "),
-      }
-    }));
+    let csvString = ArrayToCSV(
+      students.map((student) => {
+        let { preferred_tutor, ..._ } = student.data();
+        return {
+          ..._,
+          emergency_contacts: student
+            .data()
+            .emergency_contacts.map((contact) => {
+              return (
+                contact["relation"] +
+                ": " +
+                contact["name"] +
+                " " +
+                contact["phone"]
+              );
+            })
+            .join("; "),
+        };
+      }),
+    );
     let csvBlob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
     let csvUrl = URL.createObjectURL(csvBlob);
     let downloadLink = document.createElement("a");
@@ -262,7 +274,7 @@ const StudentProfilesList = () => {
         className={className}
         aria-labelledby={labeledBy}
       >
-        <Dropdown.Item>
+        {/* <Dropdown.Item>
           <InputGroup>
             <Form.Control
               autoFocus
@@ -277,7 +289,7 @@ const StudentProfilesList = () => {
               onClick={() => valueSetter("")}
             />
           </InputGroup>
-        </Dropdown.Item>
+        </Dropdown.Item> */}
         <Dropdown.Item onClick={() => setTableSort("name_asc")}>
           A - Z
         </Dropdown.Item>
@@ -297,11 +309,7 @@ const StudentProfilesList = () => {
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Student Name {filterIcon("name")}
               </Dropdown.Toggle>
-              <Dropdown.Menu
-                as={ComboTableHeader}
-                value={nameFilter}
-                valueSetter={setNameFilter}
-              />
+              <Dropdown.Menu as={ComboTableHeader} />
             </Dropdown>
           </th>
           <th style={{ cursor: "pointer" }}>
@@ -375,19 +383,35 @@ const StudentProfilesList = () => {
 
   return (
     <div className='p-3 d-flex flex-column'>
-      <div className='display-1 d-flex'>Students</div>
-      <div className='d-flex pt-3 px-3 m-3 card bg-light-subtle'>
+      <div className='display-1 d-flex flex-row'>Students</div>
+      <div className='d-flex pt-3 px-3 card bg-light-subtle'>
+        <InputGroup className='w-25 mb-3'>
+          <Form.Control
+            type='text'
+            placeholder='Search Student'
+            value={nameFilter}
+            onChange={(e) => {
+              setNameFilter(e.target.value);
+            }}
+          />
+          <Button
+            variant='secondary'
+            className='bi bi-x-lg input-group-text'
+            style={{ cursor: "pointer" }}
+            onClick={() => setNameFilter("")}
+          />
+        </InputGroup>
         {loading ? (
           <div className='spinner-border d-flex align-self-center' />
         ) : (
           listTable
         )}
       </div>
-      <div className="d-flex">
-        <Can I="export" on="students">
+      <div className='d-flex'>
+        <Can I='export' on='students'>
           <Button
-            className='m-3 me-auto'
-            variant="secondary"
+            className='my-3 me-auto'
+            variant='secondary'
             onClick={csvExport}
           >
             Export Student Data as CSV
@@ -395,7 +419,7 @@ const StudentProfilesList = () => {
         </Can>
         <Can do='add' on='students'>
           <button
-            className='btn btn-primary m-3 ms-auto'
+            className='btn btn-primary my-3 ms-auto'
             onClick={() => navigate(`/newstudent`)}
           >
             Add New Student

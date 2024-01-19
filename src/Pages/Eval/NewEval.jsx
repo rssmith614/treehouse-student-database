@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { db } from "../../Services/firebase";
 import React, { useEffect, useState } from "react";
-import { Dropdown, Form, InputGroup } from "react-bootstrap";
+import { Button, Dropdown, Form, InputGroup } from "react-bootstrap";
 
 const NewEval = () => {
   const [students, setStudents] = useState(null);
@@ -87,14 +87,14 @@ const NewEval = () => {
           if (tableSort === "name_asc")
             return (
               <>
-                <i className='bi bi-sort-alpha-up' />
+                <i className='ms-auto bi bi-sort-alpha-up' />
                 <i className='bi bi-funnel-fill' />
               </>
             );
           else if (tableSort === "name_desc")
             return (
               <>
-                <i className='bi bi-sort-alpha-down-alt' />
+                <i className='ms-auto bi bi-sort-alpha-down-alt' />
                 <i className='bi bi-funnel-fill' />
               </>
             );
@@ -192,7 +192,7 @@ const NewEval = () => {
         className={className}
         aria-labelledby={labeledBy}
       >
-        <Dropdown.Item>
+        {/* <Dropdown.Item>
           <InputGroup>
             <Form.Control
               autoFocus
@@ -207,7 +207,7 @@ const NewEval = () => {
               onClick={() => valueSetter("")}
             />
           </InputGroup>
-        </Dropdown.Item>
+        </Dropdown.Item> */}
         <Dropdown.Item onClick={() => setTableSort("name_asc")}>
           A - Z
         </Dropdown.Item>
@@ -257,6 +257,22 @@ const NewEval = () => {
       <div className='display-1 d-flex'>Record a New Session Evaluation</div>
       <div className='h5'>Select a Student</div>
       <div className='d-flex pt-3 px-3 card bg-light-subtle'>
+        <InputGroup className='w-25 mb-3'>
+          <Form.Control
+            type='text'
+            placeholder='Search Student'
+            value={nameFilter}
+            onChange={(e) => {
+              setNameFilter(e.target.value);
+            }}
+          />
+          <Button
+            variant='secondary'
+            className='bi bi-x-lg input-group-text'
+            style={{ cursor: "pointer" }}
+            onClick={() => setNameFilter("")}
+          />
+        </InputGroup>
         {loading ? (
           <div className='spinner-border d-flex align-self-center' />
         ) : (
