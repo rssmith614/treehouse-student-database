@@ -234,6 +234,21 @@ const NewStudentEval = () => {
         });
         clean = false;
       }
+      t.standards.forEach((s) => {
+        if (t.subject !== s.category && t.subject !== "Other") {
+          document.getElementById(`${i}_subject`).classList.add(`is-invalid`);
+          addToast({
+            header: "Subject and Standard Mismatch",
+            message: (
+              <>
+                Subject and standard mismatch for task {i + 1} ({s.key} is a{" "}
+                {s.category} standard)
+              </>
+            ),
+          });
+          clean = false;
+        }
+      });
       if (t.comments === "") {
         document.getElementById(`${i}_comments`).classList.add(`is-invalid`);
         addToast({
