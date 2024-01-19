@@ -1,8 +1,11 @@
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
   onSnapshot,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
@@ -160,7 +163,10 @@ const EvalQuery = () => {
         let evalData = { ...evaluation.data(), id: evaluation.id };
         let tasksSnapshot = await getDocs(collection(evaluation.ref, "tasks"));
         let tasksCount = tasksSnapshot.size;
-        return { ...evalData, tasksCount };
+        let tasks = tasksSnapshot.docs.map((task) => {
+          return { ...task.data(), id: task.id };
+        });
+        return { ...evalData, ...tasks, tasksCount };
       });
       Promise.all(tempEvals).then((evaluations) => {
         addToast({
@@ -177,15 +183,60 @@ const EvalQuery = () => {
     });
   }
 
-  function exportCSV() {
+  async function exportCSV() {
     let csvContent = "data:text/csv;charset=utf-8,";
 
-    csvContent += "Date,Student,Tutor\n";
+    csvContent +=
+      "Date,Student,Tutor,Subject,Standards,Progression,Engagement,Comments\n";
 
-    evals.forEach((evaluation) => {
-      csvContent += `"${dayjs(evaluation.date).format("MMMM DD, YYYY")}","${
-        evaluation.student_name
-      }","${evaluation.tutor_name}"\n`;
+    let exportData = Promise.all(
+      evals.map(async (evaluation) => {
+        return Promise.all(
+          (
+            await getDocs(collection(db, "evaluations", evaluation.id, "tasks"))
+          ).docs.map(async (task) => {
+            if (task.data().standards) {
+              return {
+                ...task.data(),
+                standards: await Promise.all(
+                  task.data().standards.map(async (standard) => {
+                    return (
+                      (await getDoc(doc(db, "standards", standard))).data()
+                        .key || ""
+                    );
+                  }),
+                ).then((standards) => {
+                  return standards.join(" + ");
+                }),
+              };
+            } else {
+              return { ...task.data(), standards: "" };
+            }
+          }),
+        ).then((tasks) => {
+          return {
+            ...evaluation,
+            tasks: tasks.map((task) => {
+              return {
+                date: evaluation.date,
+                student: evaluation.student_name,
+                tutor: evaluation.tutor_name,
+                subject: task.subject,
+                standards: task.standards,
+                progression: task.progression,
+                engagement: task.engagement,
+                comments: task.comments,
+              };
+            }),
+          };
+        });
+      }),
+    );
+
+    (await exportData).forEach((evaluation) => {
+      evaluation.tasks.forEach((task) => {
+        csvContent += `${task.date},${task.student},${task.tutor},${task.subject},${task.standards},${task.progression},${task.engagement},${task.comments}\n`;
+      });
     });
 
     const encodedUri = encodeURI(csvContent);
