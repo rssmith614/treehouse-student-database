@@ -2,7 +2,7 @@
 // This will parse a delimited string into an array of
 // arrays. The default delimiter is the comma, but this
 // can be overriden in the second argument.
-export default function CSVToArray(strData, strDelimiter) {
+export function CSVToArray(strData, strDelimiter) {
     // Check to see if the delimiter is defined. If not,
     // then default to comma.
     strDelimiter = (strDelimiter || ",");
@@ -83,4 +83,17 @@ export default function CSVToArray(strData, strDelimiter) {
 
     // Return the parsed data.
     return (arrData);
+}
+
+// Assumes array of objects
+export function ArrayToCSV(arrData, strDelimiter) {
+    var delimiter = strDelimiter || ',';
+    var keys = Object.keys(arrData[0]);
+    var csv = arrData.map(function (row) {
+        return keys.map(function (k) {
+            return row[k];
+        }).join(delimiter);
+    });
+    csv.unshift(keys.join(delimiter));
+    return csv.join('\r\n');
 }

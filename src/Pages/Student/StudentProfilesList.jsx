@@ -6,7 +6,8 @@ import { db } from "../../Services/firebase";
 import React, { useEffect, useState } from "react";
 import { Can } from "../../Services/can";
 import dayjs from "dayjs";
-import { Dropdown, InputGroup, Table, Form } from "react-bootstrap";
+import { Dropdown, InputGroup, Table, Form, Button } from "react-bootstrap";
+import { ArrayToCSV } from "../../Services/csv";
 
 const StudentProfilesList = () => {
   const [students, setStudents] = useState(null);
@@ -38,6 +39,23 @@ const StudentProfilesList = () => {
 
   function selectStudent(id) {
     navigate(`/students/${id}`);
+  }
+
+  function csvExport() {
+    let csvString = ArrayToCSV(students.map((student) => {
+      let {preferred_tutor, ..._} = student.data();
+      return {..._,
+        emergency_contacts: student.data().emergency_contacts.map((contact) => {
+          return contact["relation"] + ": " + contact["name"] + " " + contact["phone"];
+        }).join("; "),
+      }
+    }));
+    let csvBlob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    let csvUrl = URL.createObjectURL(csvBlob);
+    let downloadLink = document.createElement("a");
+    downloadLink.href = csvUrl;
+    downloadLink.setAttribute("download", "students.csv");
+    downloadLink.click();
   }
 
   function studentList() {
@@ -365,14 +383,25 @@ const StudentProfilesList = () => {
           listTable
         )}
       </div>
-      <Can do='add' on='students'>
-        <button
-          className='btn btn-primary m-3 ms-auto'
-          onClick={() => navigate(`/newstudent`)}
-        >
-          Add New Student
-        </button>
-      </Can>
+      <div className="d-flex">
+        <Can I="export" on="students">
+          <Button
+            className='m-3 me-auto'
+            variant="secondary"
+            onClick={csvExport}
+          >
+            Export Student Data as CSV
+          </Button>
+        </Can>
+        <Can do='add' on='students'>
+          <button
+            className='btn btn-primary m-3 ms-auto'
+            onClick={() => navigate(`/newstudent`)}
+          >
+            Add New Student
+          </button>
+        </Can>
+      </div>
     </div>
   );
 };
