@@ -261,7 +261,6 @@ const NewEval = () => {
           <Form.Control
             type='text'
             placeholder='Search Student'
-            className='me-auto align-self-end w-25'
             value={nameFilter}
             onChange={(e) => {
               setNameFilter(e.target.value);
