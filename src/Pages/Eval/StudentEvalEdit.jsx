@@ -35,6 +35,7 @@ import {
   deleteObject,
   getDownloadURL,
   ref,
+  uploadBytes,
   uploadBytesResumable,
 } from "firebase/storage";
 import TrackStandard from "../Standards/TrackStandard";
@@ -239,7 +240,7 @@ const StudentEvalEdit = () => {
     }
   }, [evaluation, tasks, params.evalid]);
 
-  function sumbitEval(e) {
+  async function sumbitEval(e) {
     e.preventDefault();
 
     const elements = document.getElementsByClassName("is-invalid");
@@ -310,11 +311,15 @@ const StudentEvalEdit = () => {
     let tutorName =
       tutors.find((t) => t.id === selectedTutor)?.data().displayName || "";
 
-    setEvaluation({
-      ...evaluation,
-      tutor_id: selectedTutor,
-      tutor_name: tutorName,
-    });
+    let evalUpload = evaluation;
+
+    evalUpload.tutor_id = selectedTutor;
+    evalUpload.tutor_name = tutorName;
+    // setEvaluation({
+    //   ...evaluation,
+    //   tutor_id: selectedTutor,
+    //   tutor_name: tutorName,
+    // });
 
     if (
       document
@@ -322,7 +327,8 @@ const StudentEvalEdit = () => {
         .classList.contains("btn-outline-danger") &&
       !document.getElementById("flagForReview").classList.contains("d-none")
     ) {
-      setEvaluation({ ...evaluation, flagged: true });
+      // setEvaluation({ ...evaluation, flagged: true });
+      evalUpload.flagged = true;
     }
 
     const worksheetUpload = document.getElementById("worksheet").files[0];
@@ -334,33 +340,19 @@ const StudentEvalEdit = () => {
 
       const worksheetRef = ref(storage, `worksheets/${worksheetUpload.name}`);
 
-      const uploadTask = uploadBytesResumable(worksheetRef, worksheetUpload);
-
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          // const progress =
-          //   (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          // console.log(`Upload is ${progress}% done`);
-        },
-        (error) => {
-          console.log(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setEvaluation({
-              ...evaluation,
-              worksheet: downloadURL,
-            });
-          });
-        },
-      );
+      await uploadBytes(worksheetRef, worksheetUpload).then(() => {
+        // setEvaluation({ ...evaluation, worksheet: worksheetRef.fullPath });
+        evalUpload.worksheet = worksheetRef.fullPath;
+      });
+    } else {
+      evalUpload.worksheet = evaluation?.worksheet;
     }
 
-    updateDoc(evalRef.current, evaluation)
+    updateDoc(evalRef.current, evalUpload)
       .then(() => {
         tasks.forEach((t) => {
           let { id: _, standard: __, ...rest } = t;
+          console.log(t.standards);
           if (t.id === undefined) {
             addDoc(collection(evalRef.current, "tasks"), {
               ...rest,

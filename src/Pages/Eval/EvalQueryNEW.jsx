@@ -17,11 +17,12 @@ import {
   Row,
   Table,
 } from "react-bootstrap";
-import { db } from "../../Services/firebase";
+import { db, storage } from "../../Services/firebase";
 import { useNavigate } from "react-router-dom";
 
 import { ToastContext } from "../../Services/toast";
 import dayjs from "dayjs";
+import { getDownloadURL, ref } from "firebase/storage";
 
 const EvalQuery = () => {
   const [evalConditions, setEvalConditions] = useState(
@@ -189,6 +190,13 @@ const EvalQuery = () => {
 
     let exportData = Promise.all(
       evals.map(async (evaluation) => {
+        let worksheetDownloadUrl = "";
+        if (evaluation.worksheet !== "") {
+          worksheetDownloadUrl = await getDownloadURL(
+            ref(storage, evaluation.worksheet),
+          );
+        }
+
         return Promise.all(
           (
             await getDocs(collection(db, "evaluations", evaluation.id, "tasks"))
@@ -219,7 +227,7 @@ const EvalQuery = () => {
                 date: evaluation.date,
                 student: evaluation.student_name,
                 tutor: evaluation.tutor_name,
-                worksheet: `"${evaluation.worksheet}"`,
+                worksheet: `"${worksheetDownloadUrl}"`,
                 worksheet_completion: `"${evaluation.worksheet_completion}"`,
                 next_session: `"${evaluation.next_session}"`,
                 subject: task.subject,
@@ -243,7 +251,10 @@ const EvalQuery = () => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "query-results.csv");
+    link.setAttribute(
+      "download",
+      `eval-task-export-${dayjs().format("YYYY-MM-DD-HH-mm-ss")}.csv`,
+    );
     document.body.appendChild(link); // Required for FF
 
     link.click();
