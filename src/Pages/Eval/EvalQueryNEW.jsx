@@ -185,8 +185,7 @@ const EvalQuery = () => {
   async function exportCSV() {
     let csvContent = "data:text/csv;charset=utf-8,";
 
-    csvContent +=
-      "Date,Student,Tutor,Subject,Standards,Progression,Engagement,Comments\n";
+    csvContent += `Date,Student,Tutor,Worksheet Link, Worksheet Completion, Next Session Plans,Subject,Standards,Progression,Engagement,Comments\n`;
 
     let exportData = Promise.all(
       evals.map(async (evaluation) => {
@@ -205,7 +204,7 @@ const EvalQuery = () => {
                     );
                   }),
                 ).then((standards) => {
-                  return standards.join(" + ");
+                  return `"${standards.join(", ")}"`;
                 }),
               };
             } else {
@@ -220,11 +219,14 @@ const EvalQuery = () => {
                 date: evaluation.date,
                 student: evaluation.student_name,
                 tutor: evaluation.tutor_name,
+                worksheet: `"${evaluation.worksheet}"`,
+                worksheet_completion: `"${evaluation.worksheet_completion}"`,
+                next_session: `"${evaluation.next_session}"`,
                 subject: task.subject,
                 standards: task.standards,
                 progression: task.progression,
                 engagement: task.engagement,
-                comments: task.comments,
+                comments: `"${task.comments}"`,
               };
             }),
           };
