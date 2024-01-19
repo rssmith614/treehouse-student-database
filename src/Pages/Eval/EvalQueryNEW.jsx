@@ -17,11 +17,12 @@ import {
   Row,
   Table,
 } from "react-bootstrap";
-import { db } from "../../Services/firebase";
+import { db, storage } from "../../Services/firebase";
 import { useNavigate } from "react-router-dom";
 
 import { ToastContext } from "../../Services/toast";
 import dayjs from "dayjs";
+import { getDownloadURL, ref } from "firebase/storage";
 
 const EvalQuery = () => {
   const [evalConditions, setEvalConditions] = useState(
@@ -185,11 +186,17 @@ const EvalQuery = () => {
   async function exportCSV() {
     let csvContent = "data:text/csv;charset=utf-8,";
 
-    csvContent +=
-      "Date,Student,Tutor,Subject,Standards,Progression,Engagement,Comments\n";
+    csvContent += `Date,Student,Tutor,Worksheet Link,Worksheet Completion, Next Session Plans,Subject,Standards,Progression,Engagement,Comments\n`;
 
     let exportData = Promise.all(
       evals.map(async (evaluation) => {
+        let worksheetDownloadUrl = "";
+        if (evaluation.worksheet !== "") {
+          worksheetDownloadUrl = await getDownloadURL(
+            ref(storage, evaluation.worksheet),
+          );
+        }
+
         return Promise.all(
           (
             await getDocs(collection(db, "evaluations", evaluation.id, "tasks"))
@@ -205,7 +212,7 @@ const EvalQuery = () => {
                     );
                   }),
                 ).then((standards) => {
-                  return standards.join(" + ");
+                  return `"${standards.join(", ")}"`;
                 }),
               };
             } else {
@@ -220,11 +227,14 @@ const EvalQuery = () => {
                 date: evaluation.date,
                 student: evaluation.student_name,
                 tutor: evaluation.tutor_name,
+                worksheet: `"${worksheetDownloadUrl}"`,
+                worksheet_completion: `"${evaluation.worksheet_completion}"`,
+                next_session: `"${evaluation.next_session}"`,
                 subject: task.subject,
                 standards: task.standards,
                 progression: task.progression,
                 engagement: task.engagement,
-                comments: task.comments,
+                comments: `"${task.comments}"`,
               };
             }),
           };
@@ -234,14 +244,17 @@ const EvalQuery = () => {
 
     (await exportData).forEach((evaluation) => {
       evaluation.tasks.forEach((task) => {
-        csvContent += `${task.date},${task.student},${task.tutor},${task.subject},${task.standards},${task.progression},${task.engagement},${task.comments}\n`;
+        csvContent += `${task.date},${task.student},${task.tutor},${task.worksheet},${task.worksheet_completion},${task.next_session},${task.subject},${task.standards},${task.progression},${task.engagement},${task.comments}\n`;
       });
     });
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "query-results.csv");
+    link.setAttribute(
+      "download",
+      `eval-task-export-${dayjs().format("YYYY-MM-DD-HH-mm-ss")}.csv`,
+    );
     document.body.appendChild(link); // Required for FF
 
     link.click();

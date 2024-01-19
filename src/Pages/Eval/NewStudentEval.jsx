@@ -306,6 +306,7 @@ const NewStudentEval = () => {
               addDoc(collection(doc, "tasks"), {
                 ...t,
                 standards: t.standards.map((s) => s?.id || ""),
+                progression: t.standards.length === 0 ? "" : t.progression,
               }),
             );
             addToast({
