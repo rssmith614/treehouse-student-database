@@ -31,13 +31,7 @@ import {
   Row,
   Table,
 } from "react-bootstrap";
-import {
-  deleteObject,
-  getDownloadURL,
-  ref,
-  uploadBytes,
-  uploadBytesResumable,
-} from "firebase/storage";
+import { deleteObject, ref, uploadBytes } from "firebase/storage";
 import TrackStandard from "../Standards/TrackStandard";
 
 const grades = {
