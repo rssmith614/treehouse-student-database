@@ -1,5 +1,7 @@
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
   onSnapshot,
   query,
@@ -160,7 +162,10 @@ const EvalQuery = () => {
         let evalData = { ...evaluation.data(), id: evaluation.id };
         let tasksSnapshot = await getDocs(collection(evaluation.ref, "tasks"));
         let tasksCount = tasksSnapshot.size;
-        return { ...evalData, tasksCount };
+        let tasks = tasksSnapshot.docs.map((task) => {
+          return { ...task.data(), id: task.id };
+        });
+        return { ...evalData, ...tasks, tasksCount };
       });
       Promise.all(tempEvals).then((evaluations) => {
         addToast({
@@ -175,6 +180,71 @@ const EvalQuery = () => {
         localStorage.setItem("evalQueryResults", JSON.stringify(evaluations));
       });
     });
+  }
+
+  async function exportCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    csvContent +=
+      "Date,Student,Tutor,Subject,Standards,Progression,Engagement,Comments\n";
+
+    let exportData = Promise.all(
+      evals.map(async (evaluation) => {
+        return Promise.all(
+          (
+            await getDocs(collection(db, "evaluations", evaluation.id, "tasks"))
+          ).docs.map(async (task) => {
+            if (task.data().standards) {
+              return {
+                ...task.data(),
+                standards: await Promise.all(
+                  task.data().standards.map(async (standard) => {
+                    return (
+                      (await getDoc(doc(db, "standards", standard))).data()
+                        .key || ""
+                    );
+                  }),
+                ).then((standards) => {
+                  return standards.join(" + ");
+                }),
+              };
+            } else {
+              return { ...task.data(), standards: "" };
+            }
+          }),
+        ).then((tasks) => {
+          return {
+            ...evaluation,
+            tasks: tasks.map((task) => {
+              return {
+                date: evaluation.date,
+                student: evaluation.student_name,
+                tutor: evaluation.tutor_name,
+                subject: task.subject,
+                standards: task.standards,
+                progression: task.progression,
+                engagement: task.engagement,
+                comments: task.comments,
+              };
+            }),
+          };
+        });
+      }),
+    );
+
+    (await exportData).forEach((evaluation) => {
+      evaluation.tasks.forEach((task) => {
+        csvContent += `${task.date},${task.student},${task.tutor},${task.subject},${task.standards},${task.progression},${task.engagement},${task.comments}\n`;
+      });
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "query-results.csv");
+    document.body.appendChild(link); // Required for FF
+
+    link.click();
   }
 
   function dateConditionLabel(condition) {
@@ -1027,15 +1097,20 @@ const EvalQuery = () => {
               <tbody>{tableData()}</tbody>
             </Table>
           </Row>
-          <Button
-            variant='secondary'
-            onClick={() => {
-              setEvals([]);
-              localStorage.removeItem("evalQueryResults");
-            }}
-          >
-            Clear
-          </Button>
+          <div className='d-flex'>
+            <Button
+              variant='secondary'
+              onClick={() => {
+                setEvals([]);
+                localStorage.removeItem("evalQueryResults");
+              }}
+            >
+              Clear
+            </Button>
+            <Button variant='primary' className='ms-auto' onClick={exportCSV}>
+              Export Query Results
+            </Button>
+          </div>
         </Card.Body>
       </Card>
     </div>
