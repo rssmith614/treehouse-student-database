@@ -6,7 +6,8 @@ import { db } from "../../Services/firebase";
 import React, { useEffect, useState } from "react";
 import { Can } from "../../Services/can";
 import dayjs from "dayjs";
-import { Dropdown, InputGroup, Table, Form } from "react-bootstrap";
+import { Dropdown, InputGroup, Table, Form, Button } from "react-bootstrap";
+import { ArrayToCSV } from "../../Services/csv";
 
 const StudentProfilesList = () => {
   const [students, setStudents] = useState(null);
@@ -38,6 +39,35 @@ const StudentProfilesList = () => {
 
   function selectStudent(id) {
     navigate(`/students/${id}`);
+  }
+
+  function csvExport() {
+    let csvString = ArrayToCSV(
+      students.map((student) => {
+        let { preferred_tutor, ..._ } = student.data();
+        return {
+          ..._,
+          emergency_contacts: student
+            .data()
+            .emergency_contacts.map((contact) => {
+              return (
+                contact["relation"] +
+                ": " +
+                contact["name"] +
+                " " +
+                contact["phone"]
+              );
+            })
+            .join("; "),
+        };
+      }),
+    );
+    let csvBlob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    let csvUrl = URL.createObjectURL(csvBlob);
+    let downloadLink = document.createElement("a");
+    downloadLink.href = csvUrl;
+    downloadLink.setAttribute("download", "students.csv");
+    downloadLink.click();
   }
 
   function studentList() {
@@ -244,7 +274,7 @@ const StudentProfilesList = () => {
         className={className}
         aria-labelledby={labeledBy}
       >
-        <Dropdown.Item>
+        {/* <Dropdown.Item>
           <InputGroup>
             <Form.Control
               autoFocus
@@ -259,7 +289,7 @@ const StudentProfilesList = () => {
               onClick={() => valueSetter("")}
             />
           </InputGroup>
-        </Dropdown.Item>
+        </Dropdown.Item> */}
         <Dropdown.Item onClick={() => setTableSort("name_asc")}>
           A - Z
         </Dropdown.Item>
@@ -279,11 +309,7 @@ const StudentProfilesList = () => {
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Student Name {filterIcon("name")}
               </Dropdown.Toggle>
-              <Dropdown.Menu
-                as={ComboTableHeader}
-                value={nameFilter}
-                valueSetter={setNameFilter}
-              />
+              <Dropdown.Menu as={ComboTableHeader} />
             </Dropdown>
           </th>
           <th style={{ cursor: "pointer" }}>
@@ -357,22 +383,49 @@ const StudentProfilesList = () => {
 
   return (
     <div className='p-3 d-flex flex-column'>
-      <div className='display-1 d-flex'>Students</div>
-      <div className='d-flex pt-3 px-3 m-3 card bg-light-subtle'>
+      <div className='display-1 d-flex flex-row'>Students</div>
+      <div className='d-flex pt-3 px-3 card bg-light-subtle'>
+        <InputGroup className='w-25 mb-3'>
+          <Form.Control
+            type='text'
+            placeholder='Search Student'
+            value={nameFilter}
+            onChange={(e) => {
+              setNameFilter(e.target.value);
+            }}
+          />
+          <Button
+            variant='secondary'
+            className='bi bi-x-lg input-group-text'
+            style={{ cursor: "pointer" }}
+            onClick={() => setNameFilter("")}
+          />
+        </InputGroup>
         {loading ? (
           <div className='spinner-border d-flex align-self-center' />
         ) : (
           listTable
         )}
       </div>
-      <Can do='add' on='students'>
-        <button
-          className='btn btn-primary m-3 ms-auto'
-          onClick={() => navigate(`/newstudent`)}
-        >
-          Add New Student
-        </button>
-      </Can>
+      <div className='d-flex'>
+        <Can I='export' on='students'>
+          <Button
+            className='my-3 me-auto'
+            variant='secondary'
+            onClick={csvExport}
+          >
+            Export Student Data as CSV
+          </Button>
+        </Can>
+        <Can do='add' on='students'>
+          <button
+            className='btn btn-primary my-3 ms-auto'
+            onClick={() => navigate(`/newstudent`)}
+          >
+            Add New Student
+          </button>
+        </Can>
+      </div>
     </div>
   );
 };
