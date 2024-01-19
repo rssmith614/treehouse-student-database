@@ -5,7 +5,6 @@ import {
   getDocs,
   onSnapshot,
   query,
-  updateDoc,
   where,
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
