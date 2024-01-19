@@ -8,9 +8,9 @@ import { useEffect } from "react";
 
 import { sendAuthRequestEmail } from "../Services/email";
 
-import history from "history/browser"
+import history from "history/browser";
 
-const treehouseLogo = require('../images/Treehouse-Logo-New.svg').default;
+const treehouseLogo = require("../images/Treehouse-Logo-New.svg").default;
 
 const Login = ({ setUserProfile }) => {
   const provider = new GoogleAuthProvider();
@@ -62,14 +62,16 @@ const Login = ({ setUserProfile }) => {
                   activated: false,
                   clearance: "pending",
                 };
-                setDoc(doc(db, "tutors", user.uid), rest).then(() => {
-                  sendAuthRequestEmail(user.displayName, user.email);
-                }).then(() => {
-                  window.alert(
-                    "Your request has been sent. You will be notified when your account is activated.",
-                  );
-                  signOut(auth);
-                });
+                setDoc(doc(db, "tutors", user.uid), rest)
+                  .then(() => {
+                    sendAuthRequestEmail(user.displayName, user.email);
+                  })
+                  .then(() => {
+                    window.alert(
+                      "Your request has been sent. You will be notified when your account is activated.",
+                    );
+                    signOut(auth);
+                  });
               }
             }
           });
@@ -91,7 +93,7 @@ const Login = ({ setUserProfile }) => {
             xs={{ cols: "auto" }}
           >
             <Col className='w-25'>
-              <div className='bg-secondary h-100 p-2'>
+              <div className='h-100 p-2'>
                 <img
                   src={treehouseLogo}
                   alt='Treehouse Logo'

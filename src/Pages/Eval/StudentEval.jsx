@@ -9,11 +9,20 @@ import {
 } from "firebase/firestore";
 
 import { db, storage } from "../../Services/firebase";
-import { Can } from "../../Services/can";
+import { AbilityContext, Can } from "../../Services/can";
 import { getDownloadURL, ref } from "firebase/storage";
 import { Button, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
 import { Eval } from "../../Services/defineAbility";
 import { ToastContext } from "../../Services/toast";
+import { useAbility } from "@casl/react";
+
+const progressions = {
+  1: "1 - Far Below Expectations",
+  2: "2 - Below Expectations",
+  3: "3 - Meets Expectations",
+  4: "4 - Exceeds Expectations",
+  "": "N/A",
+};
 
 const StudentEval = () => {
   const [evaluation, setEvaluation] = useState({});
@@ -31,6 +40,7 @@ const StudentEval = () => {
   const navigate = useNavigate();
 
   const addToast = useContext(ToastContext);
+  const ability = useAbility(AbilityContext);
 
   useEffect(() => {
     const unsubscribeEval = onSnapshot(evalRef.current, (res) => {
@@ -49,25 +59,31 @@ const StudentEval = () => {
         let compiledTasks = new Array(res.docs.length);
         Promise.all(
           res.docs.map(async (t, i) => {
-            if (t.data().standard === "")
-              return (compiledTasks[i] = {
-                ...res.docs[i].data(),
-                standard: { key: "", description: "" },
-              });
-            else
-              return getDoc(doc(db, "standards", t.data().standard)).then(
-                (s) => {
-                  compiledTasks[i] = {
-                    ...res.docs[i].data(),
-                    standard: s.data(),
-                  };
-                },
-              );
+            if (t.data().standards?.length === 0) {
+              compiledTasks[i] = { ...t.data(), id: t.id };
+            } else {
+              const standardPromises =
+                t
+                  .data()
+                  .standards?.map((standardId) =>
+                    getDoc(doc(db, "standards", standardId)),
+                  ) || [];
+              const standardsData = await Promise.all(standardPromises);
+              const standards = standardsData.map((s) => ({
+                ...s.data(),
+                id: s.id,
+              }));
+              compiledTasks[i] = {
+                ...t.data(),
+                id: t.id,
+                standards: standards,
+              };
+            }
           }),
         ).then(() => {
           compiledTasks.sort((a, b) => {
-            let a_standard = a.standard.key || "0.0.0";
-            let b_standard = b.standard.key || "0.0.0";
+            let a_standard = a.standards[0]?.key || "0.0.0";
+            let b_standard = b.standards[0]?.key || "0.0.0";
             return (
               a_standard
                 .split(".")[1]
@@ -90,6 +106,12 @@ const StudentEval = () => {
     };
   }, [params.evalid]);
 
+  function standardsLabel(standards) {
+    if (standards.length === 0) return "None";
+    else if (standards.length === 1) return standards[0].key;
+    else return `${standards[0].key} +${standards.length - 1} more`;
+  }
+
   const tasksList = tasks.map((task, idx) => {
     return (
       <tr className='my-3' key={idx}>
@@ -97,28 +119,50 @@ const StudentEval = () => {
           <div id='subject'>{task.subject}</div>
         </td>
         <td>
-          <OverlayTrigger
-            placement='right'
-            flip={true}
-            overlay={
-              task.standard.key !== "None" ? (
-                <Popover className=''>
-                  <Popover.Header>{task.standard.key}</Popover.Header>
-                  <Popover.Body>
-                    <div className='text-decoration-underline'>Description</div>
-                    {task.standard.description}
-                  </Popover.Body>
-                </Popover>
-              ) : (
-                <></>
-              )
-            }
-          >
-            <div>{task.standard.key}</div>
-          </OverlayTrigger>
+          {task.standards.length === 0 ? (
+            <>None</>
+          ) : (
+            <OverlayTrigger
+              placement='right'
+              flip={true}
+              overlay={
+                task.standards.length !== 0 ? (
+                  task.standards.length === 1 ? (
+                    <Popover className=''>
+                      <Popover.Header>{task.standards[0].key}</Popover.Header>
+                      <Popover.Body>
+                        <div className='text-decoration-underline'>
+                          Description
+                        </div>
+                        {task.standards[0].description}
+                      </Popover.Body>
+                    </Popover>
+                  ) : (
+                    <Popover className='' key={idx}>
+                      {task.standards.map((standard, idx) => (
+                        <>
+                          <Popover.Header>{standard.key}</Popover.Header>
+                          <Popover.Body>
+                            <div className='text-decoration-underline'>
+                              Description
+                            </div>
+                            {standard.description}
+                          </Popover.Body>
+                        </>
+                      ))}
+                    </Popover>
+                  )
+                ) : (
+                  <></>
+                )
+              }
+            >
+              <div>{standardsLabel(task.standards)}</div>
+            </OverlayTrigger>
+          )}
         </td>
         <td>
-          <div id='progression'>{task.progression}</div>
+          <div id='progression'>{progressions[task.progression]}</div>
         </td>
         <td>
           <div id='engagement'>{task.engagement}</div>
@@ -150,7 +194,7 @@ const StudentEval = () => {
           <div className='col'>
             <label className='form-label h5'>Tutor</label>
             <br />
-            <Can I='view' on='Tutor'>
+            {ability.can("view", "Tutor") && evaluation.tutor_id !== "" ? (
               <button
                 id='tutor'
                 className='btn btn-link h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
@@ -161,12 +205,11 @@ const StudentEval = () => {
               >
                 {evaluation.tutor_name}
               </button>
-            </Can>
-            <Can not I='view' on='Tutor'>
+            ) : (
               <div id='tutor' className='h6'>
                 {evaluation.tutor_name}
               </div>
-            </Can>
+            )}
           </div>
           <div className='col'>
             <label className='form-label h5'>Date</label>

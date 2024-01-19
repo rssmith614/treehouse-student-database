@@ -532,184 +532,184 @@ const EvalQuery = () => {
     <div className='d-flex flex-column p-3'>
       <div className='display-1'>Eval Querying Tool</div>
       <div className='h5'>Define filters, then press "Query"</div>
-      <Form onSubmit={queryEvals}>
-        <Card className='p-3 bg-light-subtle'>
-          <Row>
-            <div className='h4'>Evaluation</div>
-          </Row>
-          <Row>
-            <Col>
-              <Form.Label className='h5'>Date</Form.Label>
-              <InputGroup>
-                <Dropdown>
-                  <Dropdown.Toggle variant='secondary'>
-                    {dateMatchingLabel()}
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => setDateMatching("on")}>
-                      On
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setDateMatching("before")}>
-                      On or Before
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setDateMatching("after")}>
-                      On or After
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setDateMatching("between")}>
-                      Between
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
+      {/* <Form onSubmit={queryEvals}> */}
+      <Card className='p-3 bg-light-subtle'>
+        <Row>
+          <div className='h4'>Evaluation</div>
+        </Row>
+        <Row>
+          <Col>
+            <Form.Label className='h5'>Date</Form.Label>
+            <InputGroup>
+              <Dropdown>
+                <Dropdown.Toggle variant='secondary'>
+                  {dateMatchingLabel()}
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={() => setDateMatching("on")}>
+                    On
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setDateMatching("before")}>
+                    On or Before
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setDateMatching("after")}>
+                    On or After
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setDateMatching("between")}>
+                    Between
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
 
-                {dateMatching === "between" ? (
-                  <>
-                    <Form.Control type='date' id='eval_date' required />
-                    <Form.Control type='date' id='eval_date_end' required />
-                  </>
-                ) : (
-                  <Form.Control type='date' id='eval_date' />
-                )}
-              </InputGroup>
-            </Col>
-            <Col>
-              <Form.Label className='h5'>Subject</Form.Label>
-              <InputGroup>
-                <Button
-                  as={MatchingType}
-                  onClick={() =>
-                    subjectMatching === "like"
-                      ? setSubjectMatching("exact")
-                      : setSubjectMatching("like")
-                  }
-                >
-                  {subjectMatching === "like" ? "Contains" : "Exactly"}
-                </Button>
-                <Form.Control type='text' id='subject' />
-              </InputGroup>
-            </Col>
-          </Row>
-          <hr />
-          <Row>
-            <div className='h4'>Student</div>
-          </Row>
-          <Row>
-            <Col>
-              <Form.Label className='h5'>Name</Form.Label>
-              <InputGroup>
-                <Button
-                  as={MatchingType}
-                  onClick={() =>
-                    studentNameMatching === "like"
-                      ? setStudentNameMatching("exact")
-                      : setStudentNameMatching("like")
-                  }
-                >
-                  {studentNameMatching === "like" ? "Contains" : "Exactly"}
-                </Button>
-                <Form.Control type='text' id='student_name' />
-              </InputGroup>
-            </Col>
-            <Col>
-              <Form.Label className='h5'>Preferred Tutor</Form.Label>
-              <InputGroup>
-                <Dropdown>
-                  <Dropdown.Toggle
-                    as={TutorDropdownToggle}
-                    value={preferredTutorList}
-                  />
-                  <Dropdown.Menu
-                    as={TutorDropdown}
-                    value={preferredTutorList}
-                    valueSetter={setPreferredTutorList}
-                  />
-                </Dropdown>
-              </InputGroup>
-            </Col>
-          </Row>
-          <br />
-          <Row>
-            <Col>
-              <Form.Label className='h5'>School</Form.Label>
-              <InputGroup>
-                <Button
-                  as={MatchingType}
-                  onClick={() =>
-                    schoolMatching === "like"
-                      ? setSchoolMatching("exact")
-                      : setSchoolMatching("like")
-                  }
-                >
-                  {schoolMatching === "like" ? "Contains" : "Exactly"}
-                </Button>
-                <Form.Control type='text' id='student_school' />
-              </InputGroup>
-            </Col>
-            <Col>
-              <Form.Label className='h5'>Source</Form.Label>
-              <InputGroup>
-                <Button
-                  as={MatchingType}
-                  onClick={() =>
-                    sourceMatching === "like"
-                      ? setSourceMatching("exact")
-                      : setSourceMatching("like")
-                  }
-                >
-                  {sourceMatching === "like" ? "Contains" : "Exactly"}
-                </Button>
-                <Form.Control type='text' id='student_source' />
-              </InputGroup>
-            </Col>
-            <Col>
-              <Form.Label className='h5'>Grade</Form.Label>
-              <InputGroup>
-                <Button
-                  as={MatchingType}
-                  onClick={() =>
-                    gradeMatching === "like"
-                      ? setGradeMatching("exact")
-                      : setGradeMatching("like")
-                  }
-                >
-                  {gradeMatching === "like" ? "Contains" : "Exactly"}
-                </Button>
-                <Form.Control type='text' id='student_grade' />
-              </InputGroup>
-            </Col>
-          </Row>
-          <hr />
-          <Row>
-            <div className='h4'>Tutor</div>
-          </Row>
-          <Row>
-            <Col>
-              <Form.Label className='h5'>Name</Form.Label>
-              <InputGroup>
-                <Dropdown>
-                  <Dropdown.Toggle as={TutorDropdownToggle} value={tutorList} />
-                  <Dropdown.Menu
-                    as={TutorDropdown}
-                    value={tutorList}
-                    valueSetter={setTutorList}
-                  />
-                </Dropdown>
-              </InputGroup>
-            </Col>
-            <Col></Col>
-          </Row>
-        </Card>
-        <div className='d-flex justify-content-center'>
-          {loading ? (
-            <Button className='m-3 w-25' type='submit' id='queryButton'>
-              Query <span className='spinner-border spinner-border-sm' />
-            </Button>
-          ) : (
-            <Button className='m-3 w-25' type='submit' id='queryButton'>
-              Query
-            </Button>
-          )}
-        </div>
-      </Form>
+              {dateMatching === "between" ? (
+                <>
+                  <Form.Control type='date' id='eval_date' required />
+                  <Form.Control type='date' id='eval_date_end' required />
+                </>
+              ) : (
+                <Form.Control type='date' id='eval_date' />
+              )}
+            </InputGroup>
+          </Col>
+          <Col>
+            <Form.Label className='h5'>Subject</Form.Label>
+            <InputGroup>
+              <Button
+                as={MatchingType}
+                onClick={() =>
+                  subjectMatching === "like"
+                    ? setSubjectMatching("exact")
+                    : setSubjectMatching("like")
+                }
+              >
+                {subjectMatching === "like" ? "Contains" : "Exactly"}
+              </Button>
+              <Form.Control type='text' id='subject' />
+            </InputGroup>
+          </Col>
+        </Row>
+        <hr />
+        <Row>
+          <div className='h4'>Student</div>
+        </Row>
+        <Row>
+          <Col>
+            <Form.Label className='h5'>Name</Form.Label>
+            <InputGroup>
+              <Button
+                as={MatchingType}
+                onClick={() =>
+                  studentNameMatching === "like"
+                    ? setStudentNameMatching("exact")
+                    : setStudentNameMatching("like")
+                }
+              >
+                {studentNameMatching === "like" ? "Contains" : "Exactly"}
+              </Button>
+              <Form.Control type='text' id='student_name' />
+            </InputGroup>
+          </Col>
+          <Col>
+            <Form.Label className='h5'>Preferred Tutor</Form.Label>
+            <InputGroup>
+              <Dropdown>
+                <Dropdown.Toggle
+                  as={TutorDropdownToggle}
+                  value={preferredTutorList}
+                />
+                <Dropdown.Menu
+                  as={TutorDropdown}
+                  value={preferredTutorList}
+                  valueSetter={setPreferredTutorList}
+                />
+              </Dropdown>
+            </InputGroup>
+          </Col>
+        </Row>
+        <br />
+        <Row>
+          <Col>
+            <Form.Label className='h5'>School</Form.Label>
+            <InputGroup>
+              <Button
+                as={MatchingType}
+                onClick={() =>
+                  schoolMatching === "like"
+                    ? setSchoolMatching("exact")
+                    : setSchoolMatching("like")
+                }
+              >
+                {schoolMatching === "like" ? "Contains" : "Exactly"}
+              </Button>
+              <Form.Control type='text' id='student_school' />
+            </InputGroup>
+          </Col>
+          <Col>
+            <Form.Label className='h5'>Source</Form.Label>
+            <InputGroup>
+              <Button
+                as={MatchingType}
+                onClick={() =>
+                  sourceMatching === "like"
+                    ? setSourceMatching("exact")
+                    : setSourceMatching("like")
+                }
+              >
+                {sourceMatching === "like" ? "Contains" : "Exactly"}
+              </Button>
+              <Form.Control type='text' id='student_source' />
+            </InputGroup>
+          </Col>
+          <Col>
+            <Form.Label className='h5'>Grade</Form.Label>
+            <InputGroup>
+              <Button
+                as={MatchingType}
+                onClick={() =>
+                  gradeMatching === "like"
+                    ? setGradeMatching("exact")
+                    : setGradeMatching("like")
+                }
+              >
+                {gradeMatching === "like" ? "Contains" : "Exactly"}
+              </Button>
+              <Form.Control type='text' id='student_grade' />
+            </InputGroup>
+          </Col>
+        </Row>
+        <hr />
+        <Row>
+          <div className='h4'>Tutor</div>
+        </Row>
+        <Row>
+          <Col>
+            <Form.Label className='h5'>Name</Form.Label>
+            <InputGroup>
+              <Dropdown>
+                <Dropdown.Toggle as={TutorDropdownToggle} value={tutorList} />
+                <Dropdown.Menu
+                  as={TutorDropdown}
+                  value={tutorList}
+                  valueSetter={setTutorList}
+                />
+              </Dropdown>
+            </InputGroup>
+          </Col>
+          <Col></Col>
+        </Row>
+      </Card>
+      <div className='d-flex justify-content-center'>
+        {loading ? (
+          <Button className='m-3 w-25' id='queryButton' disabled>
+            Query <span className='spinner-border spinner-border-sm' />
+          </Button>
+        ) : (
+          <Button className='m-3 w-25' onClick={queryEvals} id='queryButton'>
+            Query
+          </Button>
+        )}
+      </div>
+      {/* </Form> */}
       {loading ? (
         <></>
       ) : (

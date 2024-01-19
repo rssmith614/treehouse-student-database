@@ -5,6 +5,7 @@ import {
   getDocs,
   onSnapshot,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
@@ -45,13 +46,34 @@ const EvalsTable = ({ filterBy, id }) => {
           return Promise.all(
             (await getDocs(collection(evaluation.ref, "tasks"))).docs.map(
               async (task) => {
-                if (task.data().standard === "") return task.data().subject;
-                else {
-                  return `${task.data().subject}: ${
-                    (
-                      await getDoc(doc(db, "standards", task.data().standard))
-                    ).data().key
-                  }`;
+                if (task.data().standard) {
+                  if (task.data().standard === "") {
+                    await updateDoc(task.ref, {
+                      standards: [],
+                      standard: null,
+                    });
+                    return task.data().subject;
+                  } else {
+                    await updateDoc(task.ref, {
+                      standards: [],
+                      standard: null,
+                    });
+                    return `${task.data().subject}: ${
+                      (
+                        await getDoc(doc(db, "standards", task.data().standard))
+                      ).data().key
+                    }`;
+                  }
+                } else if (task.data().standards) {
+                  if (task.data().standards.length === 0) {
+                    return task.data().subject;
+                  } else {
+                    return `${task.data().subject}: ${
+                      (await standardsLabel(task.data().standards)) || ""
+                    }`;
+                  }
+                } else {
+                  return task.data().subject;
                 }
               },
             ),
@@ -83,6 +105,16 @@ const EvalsTable = ({ filterBy, id }) => {
 
     return () => unsubscribeEvals();
   }, [filterBy, id]);
+
+  async function standardsLabel(standards) {
+    if (standards.length === 0) return "None";
+    else if (standards.length === 1)
+      return (await getDoc(doc(db, "standards", standards[0]))).data().key;
+    else
+      return `${
+        (await getDoc(doc(db, "standards", standards[0]))).data().key
+      } +${standards.length - 1} more`;
+  }
 
   function evalList() {
     const tableData = evals.filter((evaluation) => {

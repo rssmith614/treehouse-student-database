@@ -27,7 +27,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "emulate": "firebase emulators:start --import=./test/firestore_exports/firestore_export --export-on-exit"
+    "emulate": "firebase emulators:start --import=./test/firestore_exports/firestore_export --export-on-exit",
+    "prepare": "husky install"
   },
   "eslintConfig": {
     "extends": [
@@ -48,6 +49,11 @@
     ]
   },
   "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
     "prettier": "^3.1.1"
+  },
+  "lint-staged": {
+    "*.jsx": "prettier --write"
   }
 }

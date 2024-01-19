@@ -4,12 +4,18 @@ import {
   deleteDoc,
   collection,
   onSnapshot,
+  getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 
 import { db } from "../../Services/firebase";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContext } from "../../Services/toast";
+import dayjs from "dayjs";
+
+const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 
 const StudentProfileEdit = () => {
   const [student, setStudent] = useState({});
@@ -32,9 +38,9 @@ const StudentProfileEdit = () => {
 
   useEffect(() => {
     const unsubscribeStudents = onSnapshot(studentRef.current, (docs) => {
-      setStudent(docs.data());
-      setEmergencyContacts(docs.data().emergency_contacts);
-      setSelectedTutor(docs.data().preferred_tutor);
+      setStudent(docs.data() || {});
+      setEmergencyContacts(docs.data()?.emergency_contacts || []);
+      setSelectedTutor(docs.data()?.preferred_tutor || "");
       setLoading(false);
     });
 
@@ -51,26 +57,142 @@ const StudentProfileEdit = () => {
   async function studentRemoval() {
     if (
       !window.confirm(
-        "Are you sure you want to PERMANENTLY REMOVE the record for this student?",
+        "Are you sure you want to PERMANENTLY REMOVE the record for this student? This will also delete all evaluations and assessments associated with this student.",
       )
     ) {
       return;
     }
 
-    await deleteDoc(studentRef.current).then(() => navigate("/students"));
+    // cascade delete evaluations and tasks
+    await getDocs(
+      query(
+        collection(db, "evaluations"),
+        where("student_id", "==", studentRef.current.id),
+      ),
+    ).then((res) => {
+      addToast({
+        header: "Evaluations Deleted",
+        message: `${res.size} evaluations have been deleted`,
+      });
+      res.docs.forEach((doc) => {
+        getDocs(collection(doc.ref, "tasks")).then((tasks) => {
+          tasks.forEach((t) => {
+            deleteDoc(t.ref);
+          });
+        });
+        deleteDoc(doc.ref);
+      });
+    });
+    // cascade delete assessments
+    await getDocs(
+      query(
+        collection(db, "student_assessments"),
+        where("student_id", "==", studentRef.current.id),
+      ),
+    ).then((res) => {
+      addToast({
+        header: "Assessments Deleted",
+        message: `${res.size} assessments have been deleted`,
+      });
+      res.forEach((doc) => {
+        deleteDoc(doc.ref);
+      });
+    });
+    // cascade delete standards
+    await getDocs(collection(studentRef.current, "standards")).then((res) => {
+      addToast({
+        header: "Standards Deleted",
+        message: `${res.size} standards have been deleted`,
+      });
+      res.forEach((doc) => {
+        deleteDoc(doc.ref);
+      });
+    });
+    // delete student
+    await deleteDoc(studentRef.current).then(() => {
+      navigate("/students");
+      addToast({
+        header: "Student Deleted",
+        message: `${student.student_name}'s profile has been deleted along with associated documents`,
+      });
+    });
   }
 
   async function updateStudent(e) {
     e.preventDefault();
 
+    const elements = document.getElementsByClassName("is-invalid");
+    if (elements.length > 0) {
+      Array.from(elements).forEach((el) => {
+        el.classList.remove("is-invalid");
+      });
+    }
+    let clean = true;
+
+    if (dayjs().isBefore(dayjs(student.student_dob))) {
+      document.getElementById("studentDOB").classList.add("is-invalid");
+      // console.log(dayjs(), dayjs(student.student_dob));
+      addToast({
+        header: "Invalid Date",
+        message: "Student birthday must be in the past",
+      });
+      clean = false;
+    }
+
+    if (
+      student.parent_phone !== "" &&
+      phoneRegex.test(student.parent_phone) === false
+    ) {
+      document.getElementById("parentPhone").classList.add("is-invalid");
+      addToast({
+        header: "Invalid Phone Number",
+        message: "Parent phone number must be a valid phone number",
+      });
+      clean = false;
+    }
+
+    emergencyContacts.forEach((eContact, i) => {
+      if (eContact.name === "") {
+        document.getElementById(`contact${i}name`).classList.add("is-invalid");
+        addToast({
+          header: "Missing Emergency Contact",
+          message: `Emergency contact ${i + 1} is missing a name`,
+        });
+        clean = false;
+      }
+      if (eContact.phone === "") {
+        document.getElementById(`contact${i}phone`).classList.add("is-invalid");
+        addToast({
+          header: "Missing Emergency Contact",
+          message: `Emergency contact ${i + 1} is missing a phone number`,
+        });
+        clean = false;
+      } else if (phoneRegex.test(eContact.phone) === false) {
+        document.getElementById(`contact${i}phone`).classList.add("is-invalid");
+        addToast({
+          header: "Invalid Phone Number",
+          message: `Emergency contact ${i + 1} must have a valid phone number`,
+        });
+        clean = false;
+      }
+    });
+
+    if (!clean) return;
+
+    document.getElementById("saveChanges").disabled = true;
+
     document.getElementById("saveChanges").innerHTML =
       "Save Changes <span class='spinner-border spinner-border-sm' />";
 
-    let preferredTutorName = tutors
-      .find(
-        (tutor) => tutor.id === document.getElementById("preferredTutor").value,
-      )
-      .data().displayName;
+    let preferredTutorName = "";
+    if (student.preferred_tutor !== "") {
+      preferredTutorName = tutors
+        .find(
+          (tutor) =>
+            tutor.id === document.getElementById("preferredTutor").value,
+        )
+        .data().displayName;
+    }
 
     updateDoc(studentRef.current, {
       ...student,
@@ -83,7 +205,7 @@ const StudentProfileEdit = () => {
           message: `Student ${student.student_name}'s profile has been updated`,
         }),
       )
-      .then(() => navigate(`/students/${studentRef.current.id}`));
+      .then(() => navigate(-1));
   }
 
   function tutorOptions() {
@@ -153,6 +275,7 @@ const StudentProfileEdit = () => {
               onClick={() => {
                 removeEContact(i);
               }}
+              disabled={emergencyContacts.length === 1}
             >
               <i className='bi bi-trash-fill' />
             </button>
@@ -304,7 +427,7 @@ const StudentProfileEdit = () => {
         </div>
       </div>
       <div className='d-flex p-3 h5'>Emergency Contacts</div>
-      <div className='d-flex flex-column px-5'>
+      <div className='d-flex flex-column px-3'>
         <table className='table table-striped'>
           <thead>
             <tr>
