@@ -244,7 +244,7 @@ const StudentProfilesList = () => {
         className={className}
         aria-labelledby={labeledBy}
       >
-        <Dropdown.Item>
+        {/* <Dropdown.Item>
           <InputGroup>
             <Form.Control
               autoFocus
@@ -259,7 +259,7 @@ const StudentProfilesList = () => {
               onClick={() => valueSetter("")}
             />
           </InputGroup>
-        </Dropdown.Item>
+        </Dropdown.Item> */}
         <Dropdown.Item onClick={() => setTableSort("name_asc")}>
           A - Z
         </Dropdown.Item>
@@ -279,11 +279,7 @@ const StudentProfilesList = () => {
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Student Name {filterIcon("name")}
               </Dropdown.Toggle>
-              <Dropdown.Menu
-                as={ComboTableHeader}
-                value={nameFilter}
-                valueSetter={setNameFilter}
-              />
+              <Dropdown.Menu as={ComboTableHeader} />
             </Dropdown>
           </th>
           <th style={{ cursor: "pointer" }}>
@@ -357,8 +353,19 @@ const StudentProfilesList = () => {
 
   return (
     <div className='p-3 d-flex flex-column'>
-      <div className='display-1 d-flex'>Students</div>
-      <div className='d-flex pt-3 px-3 m-3 card bg-light-subtle'>
+      <div className='display-1 d-flex flex-column'>
+        Students
+        <Form.Control
+          type='text'
+          placeholder='Search Student'
+          className='me-auto align-self-bottom w-25 mb-3'
+          value={nameFilter}
+          onChange={(e) => {
+            setNameFilter(e.target.value);
+          }}
+        />
+      </div>
+      <div className='d-flex pt-3 px-3 card bg-light-subtle'>
         {loading ? (
           <div className='spinner-border d-flex align-self-center' />
         ) : (
