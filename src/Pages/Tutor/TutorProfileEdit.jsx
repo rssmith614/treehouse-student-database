@@ -17,6 +17,7 @@ import { Button, Col, Form, Row } from "react-bootstrap";
 import { AbilityContext, Can } from "../../Services/can";
 import { Tutor } from "../../Services/defineAbility";
 import { useAbility } from "@casl/react";
+import { sendAuthApprovedEmail } from "../../Services/email";
 
 const TutorProfileEdit = () => {
   const [tutor, setTutor] = useState({});
@@ -80,6 +81,11 @@ const TutorProfileEdit = () => {
       ) {
         return;
       }
+    } else if (
+      tutor.clearance === "pending" &&
+      newClearance !== tutor.clearance
+    ) {
+      sendAuthApprovedEmail(tutor.displayName, tutor.email);
     }
 
     tutor.clearance = newClearance;
