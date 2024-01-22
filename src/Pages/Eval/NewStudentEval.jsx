@@ -26,6 +26,10 @@ import {
   OverlayTrigger,
   Popover,
   Offcanvas,
+  Card,
+  Container,
+  Row,
+  Col,
 } from "react-bootstrap";
 import TrackStandard from "../Standards/TrackStandard";
 
@@ -76,7 +80,6 @@ const NewStudentEval = () => {
           {
             subject: "",
             standards: [],
-            progression: "4",
             engagement: "4",
             comments: "",
           },
@@ -198,7 +201,6 @@ const NewStudentEval = () => {
       {
         subject: "",
         standards: [],
-        progression: "4",
         engagement: "4",
         comments: "",
       },
@@ -218,53 +220,51 @@ const NewStudentEval = () => {
 
     if (!selectedTutor) {
       document.getElementById("tutor").classList.add("is-invalid");
-      addToast({
-        header: "No Tutor Selected",
-        message: "Please select a tutor before submitting",
-      });
+      // addToast({
+      //   header: "No Tutor Selected",
+      //   message: "Please select a tutor before submitting",
+      // });
+      clean = false;
+    }
+
+    if (evaluation.date === "") {
+      document.getElementById("date").classList.add("is-invalid");
+      // addToast({
+      //   header: "Missing Date",
+      //   message: "Please enter a date before submitting",
+      // });
       clean = false;
     }
 
     tasks.forEach((t, i) => {
-      if (t.subject === "") {
-        document.getElementById(`${i}_subject`).classList.add(`is-invalid`);
-        addToast({
-          header: "Missing Subject",
-          message: "Please select a subject for all tasks",
-        });
+      if (t.comments === "") {
+        document.getElementById(`${i}_comments`).classList.add(`is-invalid`);
+        // addToast({
+        //   header: "Missing Summary",
+        //   message: "Please enter a summary for all tasks",
+        // });
         clean = false;
       }
-      t.standards.forEach((s) => {
-        if (t.subject !== s.category && t.subject !== "Other") {
-          document.getElementById(`${i}_subject`).classList.add(`is-invalid`);
-          addToast({
-            header: "Subject and Standard Mismatch",
-            message: (
-              <>
-                Subject and standard mismatch for task {i + 1} ({s.key} is a{" "}
-                {s.category} standard)
-              </>
-            ),
-          });
+      t.standards.forEach((s, standard_i) => {
+        if (s.key === "") {
+          document
+            .getElementById(`${i}_${standard_i}_standard`)
+            .classList.add(`is-invalid`);
+          // addToast({
+          //   header: "Missing Standard",
+          //   message: "Please select a standard",
+          // });
           clean = false;
         }
       });
-      if (t.comments === "") {
-        document.getElementById(`${i}_comments`).classList.add(`is-invalid`);
-        addToast({
-          header: "Missing Comments",
-          message: "Please enter comments for all tasks",
-        });
-        clean = false;
-      }
     });
 
     if (evaluation.next_session === "") {
       document.getElementById("next_session").classList.add("is-invalid");
-      addToast({
-        header: "Missing Next Session Plans",
-        message: "Please enter plans for the next session",
-      });
+      // addToast({
+      //   header: "Missing Next Session Plans",
+      //   message: "Please enter plans for the next session",
+      // });
       clean = false;
     }
 
@@ -305,8 +305,9 @@ const NewStudentEval = () => {
             tasks.forEach((t) =>
               addDoc(collection(doc, "tasks"), {
                 ...t,
-                standards: t.standards.map((s) => s?.id || ""),
-                progression: t.standards.length === 0 ? "" : t.progression,
+                standards: t.standards.map((s) => {
+                  return { id: s.id, progression: s.progression };
+                }),
               }),
             );
             addToast({
@@ -336,12 +337,15 @@ const NewStudentEval = () => {
           .classList.contains("btn-outline-danger"),
       })
         .then((d) => {
-          tasks.forEach((t) =>
+          tasks.forEach((t) => {
+            console.log(t);
             addDoc(collection(d, "tasks"), {
               ...t,
-              standards: t.standards.map((s) => s?.id || ""),
-            }),
-          );
+              standards: t.standards.map((s) => {
+                return { id: s.id, progression: s.progression };
+              }),
+            });
+          });
           addToast({
             header: "Evaluation Submitted",
             message: `Session evaluation for ${evaluation.student_name} was successfully uploaded`,
@@ -368,32 +372,22 @@ const NewStudentEval = () => {
     });
   }
 
-  // const standardOptions = standards.sort((a,b) => {
-  //   return (
-  //     a.key.split('.')[1].localeCompare(b.key.split('.')[1]) ||
-  //     a.key.split('.')[2] - b.key.split('.')[2] ||
-  //     a.key.split('.')[2].localeCompare(b.key.split('.')[2]) ||
-  //     a.key.localeCompare(b.key)
-  //   )}).map((s, i) => {
-  //     return (
-  //       <option value={s.id} key={s.id}>{s.key}</option>
-  //     );
-  // });
-
   const StandardDropdownToggle = React.forwardRef(
-    ({ style, className, onClick, value }, ref) => (
-      <Form.Control
-        ref={ref}
-        style={{ ...style, cursor: "pointer" }}
-        className={className}
-        onClick={(e) => {
-          e.preventDefault();
-          onClick(e);
-        }}
-        // onChange={(e) => console.log(e)}
-        value={value}
-        readOnly
-      ></Form.Control>
+    ({ style, className, onClick, value, id_ }, ref) => (
+      <>
+        <Form.Control
+          id={id_}
+          ref={ref}
+          style={{ ...style, cursor: "pointer" }}
+          className={className}
+          onClick={(e) => {
+            e.preventDefault();
+            onClick(e);
+          }}
+          value={value}
+        ></Form.Control>
+        <div className='invalid-feedback'>Please select a standard</div>
+      </>
     ),
   );
 
@@ -415,18 +409,6 @@ const NewStudentEval = () => {
             placeholder='Search'
             onChange={(e) => setSearch(e.target.value)}
             value={search}
-          />
-          <Form.Check
-            key={0}
-            type={"radio"}
-            checked={value.length === 0}
-            label={"None"}
-            className='mx-3 my-2 w-auto'
-            onChange={(e) => {
-              if (e.target.checked) {
-                valueSetter(null);
-              }
-            }}
           />
           {standards
             .filter((s) => {
@@ -470,22 +452,14 @@ const NewStudentEval = () => {
                 >
                   <div key={standard.id}>
                     <Form.Check
-                      // type={"radio"}
+                      type={"radio"}
                       checked={
-                        value === undefined
-                          ? false
-                          : value.some((s) => s.key === standard.key)
+                        value === undefined ? false : value.id === standard.id
                       }
                       label={standard.key}
                       className='mx-3 my-2 w-auto'
                       onChange={(e) => {
-                        if (e.target.checked) {
-                          valueSetter([...value, standard]);
-                        } else {
-                          valueSetter(
-                            value.filter((s) => s.id !== standard.id),
-                          );
-                        }
+                        valueSetter(standard);
                       }}
                     />
                   </div>
@@ -509,129 +483,261 @@ const NewStudentEval = () => {
     },
   );
 
-  function standardsLabel(standards) {
-    if (standards.length === 0) return "None";
-    else if (standards.length === 1) return standards[0].key;
-    else return `${standards[0].key} +${standards.length - 1} more`;
-  }
-
-  const tasksList = tasks.map((task, idx) => {
+  const tasksList = tasks.map((task, task_idx) => {
     return (
-      <tr className='my-3' key={idx}>
-        <td className='align-middle text-center'>
-          <Button
-            type='button'
-            variant='danger'
-            onClick={() => {
-              setTasks(tasks.filter((t, i) => i !== idx));
-            }}
-            disabled={tasks.length <= 1}
-          >
-            <i className='bi bi-trash-fill' />
-          </Button>
-        </td>
-        <td className='align-middle'>
-          <Form.Select
-            id={`${idx}_subject`}
-            className='form-control'
-            value={task.subject}
-            onChange={(e) =>
-              setTasks(
-                tasks.map((t, i) => {
-                  if (i !== idx) return t;
-                  else return { ...t, subject: e.target.value };
-                }),
-              )
-            }
-            required
-          >
-            <option disabled value=''>
-              Select One
-            </option>
-            <option value='Math'>Math</option>
-            <option value='Reading'>Reading</option>
-            <option value='Other'>Other</option>
-          </Form.Select>
-        </td>
-        <td className='align-middle'>
-          <InputGroup>
-            <Dropdown>
-              <Dropdown.Toggle
-                as={StandardDropdownToggle}
-                value={standardsLabel(task.standards)}
-              />
-              <Dropdown.Menu
-                as={StandardDropdown}
-                value={task.standards}
-                valueSetter={(s) =>
-                  setTasks(
-                    tasks.map((t, i) => {
-                      if (i !== idx) return t;
-                      else return { ...t, standards: s || [] };
-                    }),
-                  )
-                }
-                style={{ maxHeight: 350, overflow: "scroll" }}
-              />
-            </Dropdown>
-          </InputGroup>
-        </td>
-        <td className='align-middle'>
-          <Form.Select
-            value={task.standards?.length === 0 ? "" : task.progression}
-            disabled={task.standards?.length === 0}
-            onChange={(e) =>
-              setTasks(
-                tasks.map((t, i) => {
-                  if (i !== idx) return t;
-                  else return { ...t, progression: e.target.value };
-                }),
-              )
-            }
-          >
-            <option disabled value=''></option>
-            <option value='1'>1 - Far Below Expectations</option>
-            <option value='2'>2 - Below Expectations</option>
-            <option value='3'>3 - Meets Expectations</option>
-            <option value='4'>4 - Exceeds Expectations</option>
-          </Form.Select>
-        </td>
-        <td className='align-middle'>
-          <input
-            id='engagement'
-            className='form-control'
-            type='number'
-            min='1'
-            max='4'
-            step='1'
-            value={task.engagement}
-            onChange={(e) =>
-              setTasks(
-                tasks.map((t, i) => {
-                  if (i !== idx) return t;
-                  else return { ...t, engagement: e.target.value };
-                }),
-              )
-            }
-          />
-        </td>
-        <td>
-          <textarea
-            id={`${idx}_comments`}
-            className='form-control'
-            value={task.comments}
-            onChange={(e) =>
-              setTasks(
-                tasks.map((t, i) => {
-                  if (i !== idx) return t;
-                  else return { ...t, comments: e.target.value };
-                }),
-              )
-            }
-            required
-          />
-        </td>
-      </tr>
+      <Col className=''>
+        <Card className='mb-3' key={task_idx}>
+          <Card.Header className='d-flex'>
+            <div className='h5 align-self-end'>Task {task_idx + 1}</div>
+            <Button
+              type='button'
+              variant='danger'
+              className='ms-auto'
+              onClick={() => {
+                setTasks(tasks.filter((t, i) => i !== task_idx));
+              }}
+              disabled={tasks.length <= 1}
+            >
+              <i className='bi bi-trash-fill' />
+            </Button>
+          </Card.Header>
+          <Card.Body className='d-flex'>
+            <div className='d-flex me-3 card p-3 bg-light-subtle'>
+              <div className='d-flex flex-column pb-3'>
+                <div className='h5 d-flex'>
+                  Summary
+                  <OverlayTrigger
+                    placement='top'
+                    className='ms-auto'
+                    overlay={
+                      <Popover>
+                        <Popover.Header>Comments</Popover.Header>
+                        <Popover.Body>
+                          What did the student work on? What did they do well?
+                          What did they struggle with?
+                          <hr />
+                          <div className='text-decoration-underline'>
+                            Example
+                          </div>
+                          "Worked on adding fractions with unlike denominators.
+                          Struggled with finding the least common denominator."
+                        </Popover.Body>
+                      </Popover>
+                    }
+                  >
+                    <i className='bi bi-info-square ms-auto'></i>
+                  </OverlayTrigger>
+                </div>
+
+                <textarea
+                  id={`${task_idx}_comments`}
+                  className='form-control'
+                  value={task.comments}
+                  onChange={(e) =>
+                    setTasks(
+                      tasks.map((t, i) => {
+                        if (i !== task_idx) return t;
+                        else return { ...t, comments: e.target.value };
+                      }),
+                    )
+                  }
+                  required
+                />
+                <div className='invalid-feedback'>
+                  Please provide a brief summary for this task
+                </div>
+              </div>
+              <div className='d-flex flex-column'>
+                <div className='h5 d-flex'>
+                  Engagement
+                  <OverlayTrigger
+                    placement='top'
+                    overlay={
+                      <Popover>
+                        <Popover.Header>Engagement</Popover.Header>
+                        <Popover.Body>
+                          How well did the student work with the tutor?
+                        </Popover.Body>
+                      </Popover>
+                    }
+                  >
+                    <i className='bi bi-info-square ms-auto ps-2'></i>
+                  </OverlayTrigger>
+                </div>
+                <input
+                  id='engagement'
+                  className='form-control'
+                  type='number'
+                  min='1'
+                  max='4'
+                  step='1'
+                  value={task.engagement}
+                  onChange={(e) =>
+                    setTasks(
+                      tasks.map((t, i) => {
+                        if (i !== task_idx) return t;
+                        else return { ...t, engagement: e.target.value };
+                      }),
+                    )
+                  }
+                />
+              </div>
+            </div>
+            <div className='vr' />
+            <div className='d-flex'>
+              <Container>
+                <Row xs={{ cols: "auto" }}>
+                  {task.standards.map((standard, standard_idx) => {
+                    return (
+                      <Col>
+                        <Card className='bg-light-subtle mb-3'>
+                          <Card.Header className='d-flex'>
+                            {standard.key === "" ? (
+                              <div className='text-body-secondary text-wrap align-self-center'>
+                                Select a Standard
+                              </div>
+                            ) : (
+                              <div
+                                className='h5 text-wrap align-self-end'
+                                style={{ width: "12rem" }}
+                              >
+                                {grades[standard.grade]} {standard.category}
+                              </div>
+                            )}
+
+                            <Button
+                              variant='danger'
+                              className='ms-auto'
+                              onClick={() => {
+                                setTasks(
+                                  tasks.map((t, i) => {
+                                    if (i !== task_idx) return t;
+                                    else
+                                      return {
+                                        ...t,
+                                        standards: t.standards.filter(
+                                          (s, j) => j !== standard_idx,
+                                        ),
+                                      };
+                                  }),
+                                );
+                              }}
+                            >
+                              <i className='bi bi-trash-fill' />
+                            </Button>
+                          </Card.Header>
+                          <Card.Body>
+                            <InputGroup className='pb-2'>
+                              <Dropdown>
+                                <Dropdown.Toggle
+                                  id_={`${task_idx}_${standard_idx}_standard`}
+                                  as={StandardDropdownToggle}
+                                  value={standard.key || "Standard"}
+                                  className=''
+                                />
+                                <Dropdown.Menu
+                                  as={StandardDropdown}
+                                  value={standard}
+                                  valueSetter={(s) =>
+                                    setTasks(
+                                      tasks.map((t, i) => {
+                                        if (i !== task_idx) return t;
+                                        else {
+                                          return {
+                                            ...t,
+                                            standards: t.standards.map(
+                                              (s1, j) => {
+                                                if (j !== standard_idx)
+                                                  return s1;
+                                                else
+                                                  return {
+                                                    ...s,
+                                                    progression: s1.progression,
+                                                  };
+                                              },
+                                            ),
+                                          };
+                                        }
+                                      }),
+                                    )
+                                  }
+                                  style={{
+                                    maxHeight: 350,
+                                    overflow: "scroll",
+                                  }}
+                                />
+                              </Dropdown>
+                            </InputGroup>
+                            <Form.Select
+                              value={standard?.progression}
+                              onChange={(e) => {
+                                setTasks(
+                                  tasks.map((t, i) => {
+                                    if (i !== task_idx) return t;
+                                    else
+                                      return {
+                                        ...t,
+                                        standards: t.standards.map((s, j) => {
+                                          if (j !== standard_idx) return s;
+                                          else
+                                            return {
+                                              ...s,
+                                              progression: e.target.value,
+                                            };
+                                        }),
+                                      };
+                                  }),
+                                );
+                              }}
+                            >
+                              <option disabled value=''>
+                                Progression
+                              </option>
+                              <option value='1'>
+                                1 - Far Below Expectations
+                              </option>
+                              <option value='2'>2 - Below Expectations</option>
+                              <option value='3'>3 - Meets Expectations</option>
+                              <option value='4'>
+                                4 - Exceeds Expectations
+                              </option>
+                            </Form.Select>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    );
+                  })}
+                  <Col className='align-self-center'>
+                    <Button
+                      variant='secondary'
+                      onClick={() => {
+                        setTasks(
+                          tasks.map((t, i) => {
+                            if (i !== task_idx) return t;
+                            else
+                              return {
+                                ...t,
+                                standards: [
+                                  ...t.standards,
+                                  {
+                                    key: "",
+                                    progression: "4",
+                                  },
+                                ],
+                              };
+                          }),
+                        );
+                      }}
+                    >
+                      Add Standard
+                    </Button>
+                  </Col>
+                </Row>
+              </Container>
+            </div>
+          </Card.Body>
+        </Card>
+      </Col>
     );
   });
 
@@ -662,6 +768,7 @@ const NewStudentEval = () => {
                 </option>
                 {tutorOptions()}
               </select>
+              <div className='invalid-feedback'>Please select a tutor</div>
             </div>
             <div className='col'>
               <label className='form-label h5'>Date</label>
@@ -674,12 +781,18 @@ const NewStudentEval = () => {
                   setEvaluation({ ...evaluation, date: e.target.value })
                 }
               />
+              <div className='invalid-feedback'>
+                Please provide a date for the evaluation
+              </div>
             </div>
           </div>
           <hr />
           <div className='d-flex flex-column'>
-            <div className='h5'>Tasks</div>
-            <Table striped>
+            <div className='h4'>Tasks</div>
+            <Container>
+              <Row xs={{ cols: "auto" }}>{tasksList}</Row>
+            </Container>
+            {/* <Table striped>
               <thead>
                 <tr>
                   <th></th>
@@ -750,7 +863,7 @@ const NewStudentEval = () => {
                 </tr>
               </thead>
               <tbody>{tasksList}</tbody>
-            </Table>
+            </Table> */}
             <Button
               type='button'
               variant='secondary'
@@ -811,6 +924,9 @@ const NewStudentEval = () => {
                   setEvaluation({ ...evaluation, next_session: e.target.value })
                 }
               />
+              <div className='invalid-feedback'>
+                Please enter plans for the next session
+              </div>
             </div>
           </div>
         </div>
@@ -860,12 +976,12 @@ const NewStudentEval = () => {
         show={showNewStandardPane}
         onHide={() => setShowNewStandardPane(false)}
         placement='end'
-        style={{ width: "75%" }}
+        style={{ width: "75%", overflow: "auto" }}
       >
         <TrackStandard
           standards={standards}
           setStandards={setStandards}
-          close={() => setShowNewStandardPane(false)}
+          close={() => {}}
         />
       </Offcanvas>
     </>

@@ -42,13 +42,20 @@ const TrackStandard = ({ standards, setStandards, close }) => {
   function addStandard(e) {
     e.preventDefault();
 
-    setStandards([...standards, selectedStandard]);
+    if (!standards.find((s) => s.id === selectedStandard.id)) {
+      setStandards([...standards, selectedStandard]);
+      addToast({
+        header: "Standard Added",
+        message: `Standard ${selectedStandard.key} is ready to be added to the task`,
+      });
+    } else {
+      addToast({
+        header: "Standard Already Added",
+        message: `Standard ${selectedStandard.key} is already added to the task`,
+      });
+    }
     setShowSingle(false);
     close();
-    addToast({
-      header: "Standard Added",
-      message: `Standard ${selectedStandard.key} is ready to be added to the task`,
-    });
   }
 
   const gradeTabs = grades.map((g, i) => {
