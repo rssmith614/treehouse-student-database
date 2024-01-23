@@ -175,9 +175,15 @@ const NewStudentEval = () => {
 
   useEffect(() => {
     for (let i = 0; i < tasks.length; i++) {
-      if (tasks[i].progression <= 2 || tasks[i].engagement <= 2) {
+      if (tasks[i].engagement <= 2) {
         document.getElementById("flagForReview").classList.remove("d-none");
         return;
+      }
+      for (let j = 0; j < tasks[i].standards.length; j++) {
+        if (tasks[i].standards[j].progression <= 2) {
+          document.getElementById("flagForReview").classList.remove("d-none");
+          return;
+        }
       }
     }
 
@@ -485,8 +491,8 @@ const NewStudentEval = () => {
 
   const tasksList = tasks.map((task, task_idx) => {
     return (
-      <Col className=''>
-        <Card className='mb-3' key={task_idx}>
+      <Col className='d-flex flex-column'>
+        <Card className='mb-3 flex-fill' key={task_idx}>
           <Card.Header className='d-flex'>
             <div className='h5 align-self-end'>Task {task_idx + 1}</div>
             <Button
@@ -502,109 +508,99 @@ const NewStudentEval = () => {
             </Button>
           </Card.Header>
           <Card.Body className='d-flex'>
-            <div className='d-flex me-3 card p-3 bg-light-subtle'>
-              <div className='d-flex flex-column pb-3'>
-                <div className='h5 d-flex'>
-                  Summary
-                  <OverlayTrigger
-                    placement='top'
-                    className='ms-auto'
-                    overlay={
-                      <Popover>
-                        <Popover.Header>Comments</Popover.Header>
-                        <Popover.Body>
-                          What did the student work on? What did they do well?
-                          What did they struggle with?
-                          <hr />
-                          <div className='text-decoration-underline'>
-                            Example
-                          </div>
-                          "Worked on adding fractions with unlike denominators.
-                          Struggled with finding the least common denominator."
-                        </Popover.Body>
-                      </Popover>
-                    }
-                  >
-                    <i className='bi bi-info-square ms-auto'></i>
-                  </OverlayTrigger>
-                </div>
-
-                <textarea
-                  id={`${task_idx}_comments`}
-                  className='form-control'
-                  value={task.comments}
-                  onChange={(e) =>
-                    setTasks(
-                      tasks.map((t, i) => {
-                        if (i !== task_idx) return t;
-                        else return { ...t, comments: e.target.value };
-                      }),
-                    )
+            <div className='d-flex flex-column mw-0 me-3'>
+              <div className='h5 d-flex'>
+                Summary
+                <OverlayTrigger
+                  placement='top'
+                  className='ms-auto'
+                  overlay={
+                    <Popover>
+                      <Popover.Header>Comments</Popover.Header>
+                      <Popover.Body>
+                        What did the student work on? What did they do well?
+                        What did they struggle with?
+                        <hr />
+                        <div className='text-decoration-underline'>Example</div>
+                        "Worked on adding fractions with unlike denominators.
+                        Struggled with finding the least common denominator."
+                      </Popover.Body>
+                    </Popover>
                   }
-                  required
-                />
-                <div className='invalid-feedback'>
-                  Please provide a brief summary for this task
-                </div>
+                >
+                  <i className='bi bi-info-square ms-auto'></i>
+                </OverlayTrigger>
               </div>
-              <div className='d-flex flex-column'>
-                <div className='h5 d-flex'>
-                  Engagement
-                  <OverlayTrigger
-                    placement='top'
-                    overlay={
-                      <Popover>
-                        <Popover.Header>Engagement</Popover.Header>
-                        <Popover.Body>
-                          How well did the student work with the tutor?
-                        </Popover.Body>
-                      </Popover>
-                    }
-                  >
-                    <i className='bi bi-info-square ms-auto ps-2'></i>
-                  </OverlayTrigger>
+              <div className='d-flex card bg-light-subtle'>
+                <div className='card-body'>
+                  <div className='d-flex flex-column'>
+                    <textarea
+                      id={`${task_idx}_comments`}
+                      className='form-control'
+                      value={task.comments}
+                      onChange={(e) =>
+                        setTasks(
+                          tasks.map((t, i) => {
+                            if (i !== task_idx) return t;
+                            else return { ...t, comments: e.target.value };
+                          }),
+                        )
+                      }
+                      required
+                    />
+                    <div className='invalid-feedback'>
+                      Please provide a brief summary for this task
+                    </div>
+                  </div>
+                  <hr />
+                  <div className='d-flex flex-column'>
+                    <div className='h5 d-flex'>
+                      Engagement
+                      <OverlayTrigger
+                        placement='top'
+                        overlay={
+                          <Popover>
+                            <Popover.Header>Engagement</Popover.Header>
+                            <Popover.Body>
+                              How well did the student work with the tutor?
+                            </Popover.Body>
+                          </Popover>
+                        }
+                      >
+                        <i className='bi bi-info-square ms-auto ps-2'></i>
+                      </OverlayTrigger>
+                    </div>
+                    <input
+                      id='engagement'
+                      className='form-control'
+                      type='number'
+                      min='1'
+                      max='4'
+                      step='1'
+                      value={task.engagement}
+                      onChange={(e) =>
+                        setTasks(
+                          tasks.map((t, i) => {
+                            if (i !== task_idx) return t;
+                            else return { ...t, engagement: e.target.value };
+                          }),
+                        )
+                      }
+                    />
+                  </div>
                 </div>
-                <input
-                  id='engagement'
-                  className='form-control'
-                  type='number'
-                  min='1'
-                  max='4'
-                  step='1'
-                  value={task.engagement}
-                  onChange={(e) =>
-                    setTasks(
-                      tasks.map((t, i) => {
-                        if (i !== task_idx) return t;
-                        else return { ...t, engagement: e.target.value };
-                      }),
-                    )
-                  }
-                />
               </div>
             </div>
             <div className='vr' />
-            <div className='d-flex'>
-              <Container>
-                <Row xs={{ cols: "auto" }}>
-                  {task.standards.map((standard, standard_idx) => {
-                    return (
-                      <Col>
-                        <Card className='bg-light-subtle mb-3'>
-                          <Card.Header className='d-flex'>
-                            {standard.key === "" ? (
-                              <div className='text-body-secondary text-wrap align-self-center'>
-                                Select a Standard
-                              </div>
-                            ) : (
-                              <div
-                                className='h5 text-wrap align-self-end'
-                                style={{ width: "12rem" }}
-                              >
-                                {grades[standard.grade]} {standard.category}
-                              </div>
-                            )}
-
+            <div className='d-flex flex-column ps-3'>
+              <div className='h5'>Standards</div>
+              <Card className='p-3 bg-light-subtle'>
+                {task.standards.length === 0 ? null : (
+                  <ul className='list-group mb-3'>
+                    {task.standards.map((standard, standard_idx) => {
+                      return (
+                        <li className='list-group-item d-flex'>
+                          <div className='d-flex flex-column justify-content-center pe-3'>
                             <Button
                               variant='danger'
                               className='ms-auto'
@@ -625,49 +621,46 @@ const NewStudentEval = () => {
                             >
                               <i className='bi bi-trash-fill' />
                             </Button>
-                          </Card.Header>
-                          <Card.Body>
-                            <InputGroup className='pb-2'>
-                              <Dropdown>
-                                <Dropdown.Toggle
-                                  id_={`${task_idx}_${standard_idx}_standard`}
-                                  as={StandardDropdownToggle}
-                                  value={standard.key || "Standard"}
-                                  className=''
-                                />
-                                <Dropdown.Menu
-                                  as={StandardDropdown}
-                                  value={standard}
-                                  valueSetter={(s) =>
-                                    setTasks(
-                                      tasks.map((t, i) => {
-                                        if (i !== task_idx) return t;
-                                        else {
-                                          return {
-                                            ...t,
-                                            standards: t.standards.map(
-                                              (s1, j) => {
-                                                if (j !== standard_idx)
-                                                  return s1;
-                                                else
-                                                  return {
-                                                    ...s,
-                                                    progression: s1.progression,
-                                                  };
-                                              },
-                                            ),
-                                          };
-                                        }
-                                      }),
-                                    )
-                                  }
-                                  style={{
-                                    maxHeight: 350,
-                                    overflow: "scroll",
-                                  }}
-                                />
-                              </Dropdown>
-                            </InputGroup>
+                          </div>
+                          <div className='d-flex flex-column'>
+                            <Dropdown className='pb-1'>
+                              <Dropdown.Toggle
+                                id_={`${task_idx}_${standard_idx}_standard`}
+                                as={StandardDropdownToggle}
+                                value={standard.key || "Standard"}
+                                className=''
+                              />
+                              <Dropdown.Menu
+                                as={StandardDropdown}
+                                value={standard}
+                                valueSetter={(s) =>
+                                  setTasks(
+                                    tasks.map((t, i) => {
+                                      if (i !== task_idx) return t;
+                                      else {
+                                        return {
+                                          ...t,
+                                          standards: t.standards.map(
+                                            (s1, j) => {
+                                              if (j !== standard_idx) return s1;
+                                              else
+                                                return {
+                                                  ...s,
+                                                  progression: s1.progression,
+                                                };
+                                            },
+                                          ),
+                                        };
+                                      }
+                                    }),
+                                  )
+                                }
+                                style={{
+                                  maxHeight: 350,
+                                  overflow: "scroll",
+                                }}
+                              />
+                            </Dropdown>
                             <Form.Select
                               value={standard?.progression}
                               onChange={(e) => {
@@ -702,38 +695,38 @@ const NewStudentEval = () => {
                                 4 - Exceeds Expectations
                               </option>
                             </Form.Select>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    );
-                  })}
-                  <Col className='align-self-center'>
-                    <Button
-                      variant='secondary'
-                      onClick={() => {
-                        setTasks(
-                          tasks.map((t, i) => {
-                            if (i !== task_idx) return t;
-                            else
-                              return {
-                                ...t,
-                                standards: [
-                                  ...t.standards,
-                                  {
-                                    key: "",
-                                    progression: "4",
-                                  },
-                                ],
-                              };
-                          }),
-                        );
-                      }}
-                    >
-                      Add Standard
-                    </Button>
-                  </Col>
-                </Row>
-              </Container>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                <Col className=''>
+                  <Button
+                    variant='secondary'
+                    onClick={() => {
+                      setTasks(
+                        tasks.map((t, i) => {
+                          if (i !== task_idx) return t;
+                          else
+                            return {
+                              ...t,
+                              standards: [
+                                ...t.standards,
+                                {
+                                  key: "",
+                                  progression: "4",
+                                },
+                              ],
+                            };
+                        }),
+                      );
+                    }}
+                  >
+                    Add Standard
+                  </Button>
+                </Col>
+              </Card>
             </div>
           </Card.Body>
         </Card>
@@ -792,78 +785,6 @@ const NewStudentEval = () => {
             <Container>
               <Row xs={{ cols: "auto" }}>{tasksList}</Row>
             </Container>
-            {/* <Table striped>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Subject</th>
-                  <th>Standard</th>
-                  <th>
-                    <div className='d-flex'>
-                      Progression
-                      <OverlayTrigger
-                        placement='top'
-                        overlay={
-                          <Popover>
-                            <Popover.Header>Progression</Popover.Header>
-                            <Popover.Body>
-                              Rate the student's mastery of the standard
-                            </Popover.Body>
-                          </Popover>
-                        }
-                      >
-                        <i className='bi bi-info-square ms-auto'></i>
-                      </OverlayTrigger>
-                    </div>
-                  </th>
-                  <th>
-                    <div className='d-flex'>
-                      Engagement
-                      <OverlayTrigger
-                        placement='top'
-                        overlay={
-                          <Popover>
-                            <Popover.Header>Engagement</Popover.Header>
-                            <Popover.Body>
-                              How well did the student work with the tutor?
-                            </Popover.Body>
-                          </Popover>
-                        }
-                      >
-                        <i className='bi bi-info-square ms-auto ps-2'></i>
-                      </OverlayTrigger>
-                    </div>
-                  </th>
-                  <th>
-                    <div className='d-flex'>
-                      Comments
-                      <OverlayTrigger
-                        placement='top'
-                        overlay={
-                          <Popover>
-                            <Popover.Header>Comments</Popover.Header>
-                            <Popover.Body>
-                              What did the student work on? What did they do
-                              well? What did they struggle with?
-                              <hr />
-                              <div className='text-decoration-underline'>
-                                Example
-                              </div>
-                              "Worked on adding fractions with unlike
-                              denominators. Struggled with finding the least
-                              common denominator."
-                            </Popover.Body>
-                          </Popover>
-                        }
-                      >
-                        <i className='bi bi-info-square ms-auto'></i>
-                      </OverlayTrigger>
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>{tasksList}</tbody>
-            </Table> */}
             <Button
               type='button'
               variant='secondary'
