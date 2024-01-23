@@ -7,7 +7,6 @@ import React, { useEffect, useState } from "react";
 import { Can } from "../../Services/can";
 import dayjs from "dayjs";
 import { Dropdown, InputGroup, Table, Form, Button } from "react-bootstrap";
-import { ArrayToCSV } from "../../Services/csv";
 
 const StudentProfilesList = () => {
   const [students, setStudents] = useState(null);
@@ -42,32 +41,33 @@ const StudentProfilesList = () => {
   }
 
   function csvExport() {
-    let csvString = ArrayToCSV(
-      students.map((student) => {
-        let { preferred_tutor, ..._ } = student.data();
-        return {
-          ..._,
-          emergency_contacts: student
-            .data()
-            .emergency_contacts.map((contact) => {
-              return (
-                contact["relation"] +
-                ": " +
-                contact["name"] +
-                " " +
-                contact["phone"]
-              );
-            })
-            .join("; "),
-        };
-      }),
-    );
-    let csvBlob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
-    let csvUrl = URL.createObjectURL(csvBlob);
-    let downloadLink = document.createElement("a");
-    downloadLink.href = csvUrl;
-    downloadLink.setAttribute("download", "students.csv");
-    downloadLink.click();
+    let csvString = "data:text/csv;charset=utf-8,";
+    csvString +=
+      "Student Name,Student School,Student Grade,Student DOB,Student Source,Preferred Tutor,Parent Name,Parent Phone,Medical Conditions,Emergency Contacts,Other Info\n";
+
+    students.forEach((student) => {
+      let studentData = student.data();
+      csvString += `"${studentData.student_name}",`;
+      csvString += `"${studentData.student_school}",`;
+      csvString += `"${studentData.student_grade}",`;
+      csvString += `"${dayjs(studentData.student_dob).format("MMMM DD, YYYY")}",`;
+      csvString += `"${studentData.student_source}",`;
+      csvString += `"${studentData.preferred_tutor_name}",`;
+      csvString += `"${studentData.parent_name}",`;
+      csvString += `"${studentData.parent_phone}",`;
+      csvString += `"${studentData.medical_conditions}",`;
+      csvString += `"${studentData.emergency_contacts.map((e) => {
+        return `${e.name} (${e.relation}): ${e.phone}`;
+      })}",`;
+      csvString += `"${studentData.other}"\n`;
+    });
+
+    const encodedUri = encodeURI(csvString);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "students.csv");
+    document.body.appendChild(link); // Required for FF
+    link.click();
   }
 
   function studentList() {
