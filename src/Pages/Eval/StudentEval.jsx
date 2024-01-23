@@ -16,11 +16,9 @@ import {
   Card,
   Col,
   Container,
-  InputGroup,
   OverlayTrigger,
   Popover,
   Row,
-  Table,
 } from "react-bootstrap";
 import { Eval } from "../../Services/defineAbility";
 import { ToastContext } from "../../Services/toast";
