@@ -66,14 +66,14 @@ const EvalsTable = ({ filterBy, id }) => {
                   }
                 } else if (task.data().standards) {
                   if (task.data().standards.length === 0) {
-                    return task.data().subject;
+                    return task.data().comments;
                   } else {
-                    return `${task.data().subject}: ${
+                    return `${task.data().comments}: ${
                       (await standardsLabel(task.data().standards)) || ""
                     }`;
                   }
                 } else {
-                  return task.data().subject;
+                  return task.data().comments;
                 }
               },
             ),
@@ -109,10 +109,14 @@ const EvalsTable = ({ filterBy, id }) => {
   async function standardsLabel(standards) {
     if (standards.length === 0) return "None";
     else if (standards.length === 1)
-      return (await getDoc(doc(db, "standards", standards[0]))).data().key;
+      return (
+        await getDoc(doc(db, "standards", standards[0]?.id || standards[0]))
+      ).data().key;
     else
       return `${
-        (await getDoc(doc(db, "standards", standards[0]))).data().key
+        (
+          await getDoc(doc(db, "standards", standards[0]?.id || standards[0]))
+        ).data().key
       } +${standards.length - 1} more`;
   }
 

@@ -11,7 +11,17 @@ import {
 import { db, storage } from "../../Services/firebase";
 import { AbilityContext, Can } from "../../Services/can";
 import { getDownloadURL, ref } from "firebase/storage";
-import { Button, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Col,
+  Container,
+  InputGroup,
+  OverlayTrigger,
+  Popover,
+  Row,
+  Table,
+} from "react-bootstrap";
 import { Eval } from "../../Services/defineAbility";
 import { ToastContext } from "../../Services/toast";
 import { useAbility } from "@casl/react";
@@ -22,6 +32,18 @@ const progressions = {
   3: "3 - Meets Expectations",
   4: "4 - Exceeds Expectations",
   "": "N/A",
+};
+
+const grades = {
+  K: "Kindergarten",
+  1: "1st Grade",
+  2: "2nd Grade",
+  3: "3rd Grade",
+  4: "4th Grade",
+  5: "5th Grade",
+  6: "6th Grade",
+  7: "7th Grade",
+  8: "8th Grade",
 };
 
 const StudentEval = () => {
@@ -63,20 +85,30 @@ const StudentEval = () => {
               compiledTasks[i] = { ...t.data(), id: t.id };
             } else {
               const standardPromises =
-                t
-                  .data()
-                  .standards?.map((standardId) =>
-                    getDoc(doc(db, "standards", standardId)),
-                  ) || [];
+                t.data().standards?.map(async (standard) => {
+                  return {
+                    ...(
+                      await getDoc(
+                        doc(db, "standards", standard?.id || standard),
+                      )
+                    ).data(),
+                    id: (
+                      await getDoc(
+                        doc(db, "standards", standard?.id || standard),
+                      )
+                    ).id,
+                    progression: standard?.progression || t.data().progression,
+                  };
+                }) || [];
               const standardsData = await Promise.all(standardPromises);
-              const standards = standardsData.map((s) => ({
-                ...s.data(),
-                id: s.id,
-              }));
+              // debugger;
+              // const standards = standardsData.map((s) => ({
+              //   ...s.sdata,
+              // }));
               compiledTasks[i] = {
                 ...t.data(),
                 id: t.id,
-                standards: standards,
+                standards: standardsData,
               };
             }
           }),
@@ -112,65 +144,142 @@ const StudentEval = () => {
     else return `${standards[0].key} +${standards.length - 1} more`;
   }
 
-  const tasksList = tasks.map((task, idx) => {
+  // const tasksList = tasks.map((task, idx) => {
+  //   return (
+  //     <tr className='my-3' key={idx}>
+  //       <td>
+  //         <div id='subject'>{task.subject}</div>
+  //       </td>
+  //       <td>
+  //         {task.standards.length === 0 ? (
+  //           <>None</>
+  //         ) : (
+  //           <OverlayTrigger
+  //             placement='right'
+  //             flip={true}
+  //             overlay={
+  //               task.standards.length !== 0 ? (
+  //                 task.standards.length === 1 ? (
+  //                   <Popover className=''>
+  //                     <Popover.Header>{task.standards[0].key}</Popover.Header>
+  //                     <Popover.Body>
+  //                       <div className='text-decoration-underline'>
+  //                         Description
+  //                       </div>
+  //                       {task.standards[0].description}
+  //                     </Popover.Body>
+  //                   </Popover>
+  //                 ) : (
+  //                   <Popover className='' key={idx}>
+  //                     {task.standards.map((standard, idx) => (
+  //                       <>
+  //                         <Popover.Header>{standard.key}</Popover.Header>
+  //                         <Popover.Body>
+  //                           <div className='text-decoration-underline'>
+  //                             Description
+  //                           </div>
+  //                           {standard.description}
+  //                         </Popover.Body>
+  //                       </>
+  //                     ))}
+  //                   </Popover>
+  //                 )
+  //               ) : (
+  //                 <></>
+  //               )
+  //             }
+  //           >
+  //             <div>{standardsLabel(task.standards)}</div>
+  //           </OverlayTrigger>
+  //         )}
+  //       </td>
+  //       <td>
+  //         <div id='progression'>{progressions[task.progression]}</div>
+  //       </td>
+  //       <td>
+  //         <div id='engagement'>{task.engagement}</div>
+  //       </td>
+  //       <td>
+  //         <div id='comments'>{task.comments}</div>
+  //       </td>
+  //     </tr>
+  //   );
+  // });
+
+  const tasksList = tasks.map((task, task_idx) => {
     return (
-      <tr className='my-3' key={idx}>
-        <td>
-          <div id='subject'>{task.subject}</div>
-        </td>
-        <td>
-          {task.standards.length === 0 ? (
-            <>None</>
-          ) : (
-            <OverlayTrigger
-              placement='right'
-              flip={true}
-              overlay={
-                task.standards.length !== 0 ? (
-                  task.standards.length === 1 ? (
-                    <Popover className=''>
-                      <Popover.Header>{task.standards[0].key}</Popover.Header>
-                      <Popover.Body>
-                        <div className='text-decoration-underline'>
-                          Description
-                        </div>
-                        {task.standards[0].description}
-                      </Popover.Body>
-                    </Popover>
-                  ) : (
-                    <Popover className='' key={idx}>
-                      {task.standards.map((standard, idx) => (
-                        <>
-                          <Popover.Header>{standard.key}</Popover.Header>
-                          <Popover.Body>
-                            <div className='text-decoration-underline'>
-                              Description
-                            </div>
-                            {standard.description}
-                          </Popover.Body>
-                        </>
-                      ))}
-                    </Popover>
-                  )
-                ) : (
-                  <></>
-                )
-              }
-            >
-              <div>{standardsLabel(task.standards)}</div>
-            </OverlayTrigger>
-          )}
-        </td>
-        <td>
-          <div id='progression'>{progressions[task.progression]}</div>
-        </td>
-        <td>
-          <div id='engagement'>{task.engagement}</div>
-        </td>
-        <td>
-          <div id='comments'>{task.comments}</div>
-        </td>
-      </tr>
+      <Col className=''>
+        <Card className='mb-3' key={task_idx}>
+          <Card.Header className='d-flex'>
+            <div className='h5 align-self-end'>Task {task_idx + 1}</div>
+          </Card.Header>
+          <Card.Body className='d-flex'>
+            <div className='d-flex card p-3 bg-light-subtle'>
+              <div className='d-flex flex-column pb-3'>
+                <div className='h5 d-flex'>Summary</div>
+                <div>{task.comments}</div>
+              </div>
+              <div className='d-flex flex-column'>
+                <div className='h5 d-flex'>Engagement</div>
+                <div>{task.engagement}</div>
+              </div>
+            </div>
+            {task.standards.length === 0 ? (
+              <></>
+            ) : (
+              <>
+                <div className='vr ms-3' />
+                <div className='d-flex flex-column'>
+                  <div className='h5 ms-3'>Standards</div>
+                  <div className='d-flex'>
+                    <Container>
+                      <Row xs={{ cols: "auto" }}>
+                        {task.standards.map((standard, standard_idx) => {
+                          return (
+                            <Col>
+                              <Card className='bg-light-subtle mb-3'>
+                                <Card.Header className='d-flex'>
+                                  {grades[standard.grade]} {standard.category}
+                                </Card.Header>
+                                <Card.Body>
+                                  <OverlayTrigger
+                                    placement='right'
+                                    flip={true}
+                                    key={standard.id}
+                                    overlay={
+                                      <Popover className=''>
+                                        <Popover.Header>
+                                          {standard.key} <br />
+                                          {`${grades[standard.grade]} ${standard.category}: ${
+                                            standard.sub_category
+                                          }`}
+                                        </Popover.Header>
+                                        <Popover.Body>
+                                          <div className='text-decoration-underline'>
+                                            Description
+                                          </div>
+                                          {standard.description}
+                                        </Popover.Body>
+                                      </Popover>
+                                    }
+                                  >
+                                    <div>{standard.key}</div>
+                                  </OverlayTrigger>
+                                  {progressions[standard.progression]}
+                                </Card.Body>
+                              </Card>
+                            </Col>
+                          );
+                        })}
+                      </Row>
+                    </Container>
+                  </div>
+                </div>
+              </>
+            )}
+          </Card.Body>
+        </Card>
+      </Col>
     );
   });
 
@@ -220,20 +329,9 @@ const StudentEval = () => {
         </div>
         <hr />
         <div className='h5'>Tasks</div>
-        <Row className='d-flex px-3'>
-          <Table striped>
-            <thead>
-              <tr>
-                <th>Subject</th>
-                <th>Standard</th>
-                <th>Progression</th>
-                <th>Engagement</th>
-                <th>Comments</th>
-              </tr>
-            </thead>
-            <tbody>{tasksList}</tbody>
-          </Table>
-        </Row>
+        <Container>
+          <Row xs={{ cols: "auto" }}>{tasksList}</Row>
+        </Container>
         <hr />
         <div className='row my-3'>
           <div className='col'>

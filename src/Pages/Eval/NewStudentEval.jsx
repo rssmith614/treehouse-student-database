@@ -118,16 +118,16 @@ const NewStudentEval = () => {
 
             const fetchStandardsPromises = tasks.map((task) => {
               const standardsPromises =
-                task.standards?.map((standardId) => {
-                  if (standardId === "") return Promise.resolve(null);
-                  return getDoc(doc(db, "standards", standardId)).then(
-                    (standard) => {
-                      return {
-                        ...standard.data(),
-                        id: standard.id,
-                      };
-                    },
-                  );
+                task.standards?.map((standard) => {
+                  if (standard === "") return Promise.resolve(null);
+                  return getDoc(
+                    doc(db, "standards", standard?.id || standard),
+                  ).then((sdata) => {
+                    return {
+                      ...sdata.data(),
+                      id: sdata.id,
+                    };
+                  });
                 }) || [];
               return Promise.all(standardsPromises);
             });
