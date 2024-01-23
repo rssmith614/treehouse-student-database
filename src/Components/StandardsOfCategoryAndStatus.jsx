@@ -103,14 +103,15 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
           );
           return getDocs(evaluationRef).then((tasksSnapshot) => {
             tasksSnapshot.forEach((taskDoc) => {
-              const task = taskDoc.data();
-              const { standards, progression } = task;
+              const standards = taskDoc.data().standards;
               if (!standards) return;
               standards.forEach((standard) => {
-                if (!standardProgression[standard]) {
-                  standardProgression[standard] = [];
+                if (!standardProgression[standard?.id || standard]) {
+                  standardProgression[standard?.id || standard] = [];
                 }
-                standardProgression[standard].push(progression);
+                standardProgression[standard?.id || standard].push(
+                  standard?.progression || taskDoc.data().progression,
+                );
               });
             });
           });
@@ -203,8 +204,8 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
           {true ? (
             <Button
               variant='link'
-              className='me-auto link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
-              onClick={() => setSelectedStandard(subCat[1])}
+              className='me-auto link-underline link-underline-opacity-0'
+              style={{ cursor: "default" }}
             >
               <h5>{subCat[0]}</h5>
             </Button>

@@ -57,11 +57,7 @@ const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
       return (
         <Card className='p-3 my-3' key={i}>
           {track ? (
-            <Button
-              variant='link'
-              className='me-auto link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
-              onClick={() => setSelection(subCat[1])}
-            >
+            <Button variant='link' className='me-auto' onClick={() => {}}>
               <h5>{subCat[0]}</h5>
             </Button>
           ) : (
