@@ -48,7 +48,7 @@ const StudentEval = () => {
   const [evaluation, setEvaluation] = useState({});
   const [tasks, setTasks] = useState([]);
 
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const [worksheet, setWorksheet] = useState(null);
 
@@ -99,10 +99,6 @@ const StudentEval = () => {
                   };
                 }) || [];
               const standardsData = await Promise.all(standardPromises);
-              // debugger;
-              // const standards = standardsData.map((s) => ({
-              //   ...s.sdata,
-              // }));
               compiledTasks[i] = {
                 ...t.data(),
                 id: t.id,
@@ -126,6 +122,7 @@ const StudentEval = () => {
             );
           });
           setTasks(compiledTasks);
+          setLoading(false);
         });
       },
     );
@@ -269,7 +266,11 @@ const StudentEval = () => {
         <hr />
         <div className='h5 text-decoration-underline'>Tasks</div>
         <Container>
-          <Row xs={{ cols: "auto" }}>{tasksList}</Row>
+          {loading ? (
+            <div className='d-flex align-self-center spinner-border' />
+          ) : (
+            <Row xs={{ cols: "auto" }}>{tasksList}</Row>
+          )}
         </Container>
         <hr />
         <div className='row my-3'>
@@ -306,15 +307,6 @@ const StudentEval = () => {
             </div>
           </div>
         </div>
-        {/* <Can I="manage" on="Eval">
-          <hr />
-          <div className="row my-3">
-            <div className="col">
-              <label className="form-label h5">Eval Created By</label>
-              <div id="creator" className="">{evaluation.owner}</div>
-            </div>
-          </div>
-        </Can> */}
       </div>
       <div className='d-flex'>
         <button
