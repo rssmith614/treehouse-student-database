@@ -285,8 +285,18 @@ const NewStudentEval = () => {
 
     const worksheetUpload = document.getElementById("worksheet").files[0];
 
+    if (document.getElementById("worksheet").type === "text") {
+      setEvaluation({
+        ...evaluation,
+        worksheet: document.getElementById("worksheet").value,
+      });
+    }
+
     if (worksheetUpload) {
-      const worksheetRef = ref(storage, `worksheets/${worksheetUpload.name}`);
+      const worksheetRef = ref(
+        storage,
+        `worksheets/${studentRef.current.id}/${worksheetUpload.name}`,
+      );
 
       uploadBytes(worksheetRef, worksheetUpload).then(() =>
         addDoc(collection(db, "evaluations"), {
@@ -796,6 +806,24 @@ const NewStudentEval = () => {
           <div className='row my-3'>
             <div className='col'>
               <label className='form-label h5'>Worksheet</label>
+              <Form.Select
+                className='mb-2'
+                defaultValue='file'
+                onChange={(e) => {
+                  if (e.target.value === "file") {
+                    document.getElementById("worksheet").type = "file";
+                    document.getElementById("worksheet").placeholder = "";
+                  } else {
+                    document.getElementById("worksheet").type = "text";
+                    document.getElementById("worksheet").placeholder =
+                      "Link to Worksheet";
+                  }
+                }}
+              >
+                <option value='file'>File Upload</option>
+                <option value='url'>URL</option>
+              </Form.Select>
+
               <input id='worksheet' className='form-control' type='file' />
             </div>
             <div className='col'>

@@ -305,7 +305,7 @@ const StudentEvalEdit = () => {
     let tutorName =
       tutors.find((t) => t.id === selectedTutor)?.data().displayName || "";
 
-    let evalUpload = evaluation;
+    let evalUpload = { ...evaluation };
 
     evalUpload.tutor_id = selectedTutor;
     evalUpload.tutor_name = tutorName;
@@ -325,19 +325,42 @@ const StudentEvalEdit = () => {
       evalUpload.flagged = true;
     }
 
-    const worksheetUpload = document.getElementById("worksheet").files[0];
+    let worksheetUpload = null;
+    let worksheetReplacement = false;
 
-    if (worksheetUpload) {
+    if (
+      document.getElementById("worksheet").type === "text" &&
+      document.getElementById("worksheet").value !== ""
+    ) {
+      evalUpload.worksheet = document.getElementById("worksheet").value;
+      worksheetReplacement = true;
+    } else if (
+      document.getElementById("worksheet").type === "file" &&
+      document.getElementById("worksheet").files.length > 0
+    ) {
+      worksheetUpload = document.getElementById("worksheet").files[0];
+      worksheetReplacement = true;
+    }
+
+    if (worksheetReplacement) {
       if (evaluation?.worksheet !== "" && evaluation?.worksheet !== undefined) {
-        deleteObject(ref(storage, evaluation?.worksheet));
+        try {
+          console.log(evaluation?.worksheet);
+          deleteObject(ref(storage, evaluation?.worksheet));
+        } catch (err) {}
       }
 
-      const worksheetRef = ref(storage, `worksheets/${worksheetUpload.name}`);
+      if (worksheetUpload !== null) {
+        const worksheetRef = ref(
+          storage,
+          `worksheets/${evalUpload.student_id}/${worksheetUpload.name}`,
+        );
 
-      await uploadBytes(worksheetRef, worksheetUpload).then(() => {
-        // setEvaluation({ ...evaluation, worksheet: worksheetRef.fullPath });
-        evalUpload.worksheet = worksheetRef.fullPath;
-      });
+        await uploadBytes(worksheetRef, worksheetUpload).then(() => {
+          // setEvaluation({ ...evaluation, worksheet: worksheetRef.fullPath });
+          evalUpload.worksheet = worksheetRef.fullPath;
+        });
+      }
     } else {
       evalUpload.worksheet = evaluation?.worksheet;
     }
@@ -346,7 +369,6 @@ const StudentEvalEdit = () => {
       .then(() => {
         tasks.forEach((t) => {
           let { id: _, standard: __, ...rest } = t;
-          console.log(t.standards);
           if (t.id === undefined) {
             addDoc(collection(evalRef.current, "tasks"), {
               ...rest,
@@ -385,7 +407,9 @@ const StudentEvalEdit = () => {
       )
     ) {
       if (evaluation?.worksheet !== "" && evaluation?.worksheet !== undefined) {
-        await deleteObject(ref(storage, evaluation?.worksheet));
+        try {
+          await deleteObject(ref(storage, evaluation?.worksheet));
+        } catch (err) {}
       }
 
       // cascade delete tasks
@@ -856,6 +880,23 @@ const StudentEvalEdit = () => {
           <div className='row my-3'>
             <div className='col'>
               <label className='form-label h5'>Worksheet</label>
+              <Form.Select
+                className='mb-2'
+                defaultValue='file'
+                onChange={(e) => {
+                  if (e.target.value === "file") {
+                    document.getElementById("worksheet").type = "file";
+                    document.getElementById("worksheet").placeholder = "";
+                  } else {
+                    document.getElementById("worksheet").type = "text";
+                    document.getElementById("worksheet").placeholder =
+                      "Link to Worksheet";
+                  }
+                }}
+              >
+                <option value='file'>File Upload</option>
+                <option value='url'>URL</option>
+              </Form.Select>
               <input id='worksheet' className='form-control' type='file' />
               <div className='p-1 text-muted fst-italic'>
                 Uploading a new worksheet will override the old one.
