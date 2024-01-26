@@ -247,6 +247,9 @@ const StudentEvalEdit = () => {
 
   async function sumbitEval(e) {
     e.preventDefault();
+    document.getElementById("submit").innerHtml =
+      "Submit <span class='spinner-border spinner-border-sm' />";
+    document.getElementById("submit").disabled = true;
 
     const elements = document.getElementsByClassName("is-invalid");
     if (elements.length > 0) {
@@ -275,6 +278,7 @@ const StudentEvalEdit = () => {
         clean = false;
       }
       t.standards.forEach((s, standard_i) => {
+        console.log(i, s, standard_i);
         if (s.key === "") {
           document
             .getElementById(`${i}_${standard_i}_standard`)
@@ -297,7 +301,11 @@ const StudentEvalEdit = () => {
       clean = false;
     }
 
-    if (!clean) return;
+    if (!clean) {
+      document.getElementById("submit").innerHTML = "Submit";
+      document.getElementById("submit").disabled = false;
+      return;
+    }
 
     localStorage.removeItem(`${params.evalid}`);
     localStorage.removeItem(`${params.evalid}_tasks`);
@@ -342,6 +350,8 @@ const StudentEvalEdit = () => {
         worksheetReplacement = true;
       } catch (err) {
         document.getElementById("worksheet").classList.add("is-invalid");
+        document.getElementById("submit").innerHTML = "Submit";
+        document.getElementById("submit").disabled = false;
         return;
       }
     } else if (
@@ -411,7 +421,11 @@ const StudentEvalEdit = () => {
       .then(() => navigate(-1));
   }
 
-  async function handleDelete() {
+  async function handleDelete(e) {
+    document.getElementById("delete").innerHTML =
+      "Delete <span class='spinner-border spinner-border-sm' />";
+    document.getElementById("delete").disabled = false;
+
     if (
       window.confirm(
         `You are about to DELETE this evaluation for ${evaluation?.student_name}. Are you sure you want to do this?`,
@@ -439,6 +453,9 @@ const StudentEvalEdit = () => {
         });
       });
     }
+
+    document.getElementById("delete").innerHTML = "Delete";
+    document.getElementById("delete").disabled = false;
   }
 
   function tutorOptions() {
@@ -453,19 +470,53 @@ const StudentEvalEdit = () => {
   }
 
   const StandardDropdownToggle = React.forwardRef(
-    ({ style, className, onClick, value, id_ }, ref) => (
+    ({ style, className, onClick, value, id_, selected }, ref) => (
       <>
-        <Form.Control
-          id={id_}
-          ref={ref}
-          style={{ ...style, cursor: "pointer" }}
-          className={className}
-          onClick={(e) => {
-            e.preventDefault();
-            onClick(e);
-          }}
-          value={value}
-        ></Form.Control>
+        {selected.key !== "" ? (
+          <OverlayTrigger
+            placement='right'
+            flip={true}
+            key={id_}
+            overlay={
+              <Popover className=''>
+                <Popover.Header>
+                  {selected.key} <br />
+                  {`${grades[selected.grade]} ${selected.category}: ${
+                    selected.sub_category
+                  }`}
+                </Popover.Header>
+                <Popover.Body>
+                  <div className='text-decoration-underline'>Description</div>
+                  {selected.description}
+                </Popover.Body>
+              </Popover>
+            }
+          >
+            <Form.Control
+              id={id_}
+              ref={ref}
+              style={{ ...style, cursor: "pointer" }}
+              className={className}
+              onClick={(e) => {
+                e.preventDefault();
+                onClick(e);
+              }}
+              defaultValue={value}
+            ></Form.Control>
+          </OverlayTrigger>
+        ) : (
+          <Form.Control
+            id={id_}
+            ref={ref}
+            style={{ ...style, cursor: "pointer" }}
+            className={className}
+            onClick={(e) => {
+              e.preventDefault();
+              onClick(e);
+            }}
+            defaultValue={value}
+          ></Form.Control>
+        )}
         <div className='invalid-feedback'>Please select a standard</div>
       </>
     ),
@@ -674,7 +725,10 @@ const StudentEvalEdit = () => {
                   <ul className='list-group mb-3'>
                     {task.standards.map((standard, standard_idx) => {
                       return (
-                        <li className='list-group-item d-flex'>
+                        <li
+                          key={standard_idx}
+                          className='list-group-item d-flex'
+                        >
                           <div className='d-flex flex-column justify-content-center pe-3'>
                             <Button
                               variant='danger'
@@ -704,6 +758,7 @@ const StudentEvalEdit = () => {
                                 as={StandardDropdownToggle}
                                 value={standard.key || "Standard"}
                                 className=''
+                                selected={standard}
                               />
                               <Dropdown.Menu
                                 as={StandardDropdown}
@@ -910,9 +965,12 @@ const StudentEvalEdit = () => {
               </Form.Select>
               <input id='worksheet' className='form-control' type='file' />
               <div className='invalid-feedback'>Please provide a valid URL</div>
-              <div className='p-1 text-secondary fst-italic fs-6'>
-                Uploading a new worksheet will override the old one.
-              </div>
+              {evaluation?.worksheet !== "" &&
+              evaluation?.worksheet !== null ? (
+                <div className='p-1 text-secondary fst-italic fs-6'>
+                  Uploading a new worksheet will override the old one.
+                </div>
+              ) : null}
             </div>
             <div className='col'>
               <label className='form-label h5'>Worksheet Completion</label>
@@ -978,6 +1036,7 @@ const StudentEvalEdit = () => {
             Back
           </button>
           <Button
+            id='delete'
             variant='danger'
             className='m-3 ms-auto'
             type='button'
@@ -985,7 +1044,11 @@ const StudentEvalEdit = () => {
           >
             Delete
           </Button>
-          <button className='btn btn-primary m-3' onClick={sumbitEval}>
+          <button
+            id='submit'
+            className='btn btn-primary m-3'
+            onClick={sumbitEval}
+          >
             Submit
           </button>
         </div>
