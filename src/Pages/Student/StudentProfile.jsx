@@ -207,7 +207,7 @@ const StudentProfile = () => {
               </div>
               <div className='d-flex'>{student.medical_conditions}</div>
             </div>
-            <div className='d-flex p-3 flex-column flex-fill'>
+            <div className='d-flex p-3 flex-column w-50'>
               <div className='d-flex h5 text-decoration-underline'>
                 Other Info
               </div>
