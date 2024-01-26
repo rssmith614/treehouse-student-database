@@ -63,15 +63,14 @@ const StudentEval = () => {
   const ability = useAbility(AbilityContext);
 
   useEffect(() => {
-    const unsubscribeEval = onSnapshot(evalRef.current, (res) => {
+    const unsubscribeEval = onSnapshot(evalRef.current, async (res) => {
       setEvaluation(res.data());
       if (res.data().worksheet === "" || !res.data().worksheet) return;
 
       try {
         worksheetRef.current = ref(storage, res.data().worksheet);
-        getDownloadURL(worksheetRef.current).then((url) => {
-          setWorksheet(url);
-        });
+        let url = await getDownloadURL(worksheetRef.current);
+        setWorksheet(url);
       } catch (err) {
         setWorksheet(res.data().worksheet);
       }

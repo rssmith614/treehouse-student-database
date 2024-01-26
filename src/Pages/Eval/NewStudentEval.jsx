@@ -283,13 +283,25 @@ const NewStudentEval = () => {
         tutorName = tutor.displayName;
     });
 
-    const worksheetUpload = document.getElementById("worksheet").files[0];
+    let worksheetUpload = null;
+    let worksheetURL = null;
 
-    if (document.getElementById("worksheet").type === "text") {
-      setEvaluation({
-        ...evaluation,
-        worksheet: document.getElementById("worksheet").value,
-      });
+    if (document.getElementById("worksheet").value !== "") {
+      if (document.getElementById("worksheet").type === "url") {
+        try {
+          let input = document.getElementById("worksheet").value;
+          if (!/^(ftp|http|https):\/\/[^ "]+$/.test(input)) {
+            input = `https://${input}`;
+          }
+          let worksheetLink = new URL(input);
+          worksheetURL = worksheetLink.href;
+        } catch (err) {
+          document.getElementById("worksheet").classList.add("is-invalid");
+          return;
+        }
+      } else if (document.getElementById("worksheet").files.length > 0) {
+        worksheetUpload = document.getElementById("worksheet").files[0];
+      }
     }
 
     if (worksheetUpload) {
@@ -346,13 +358,13 @@ const NewStudentEval = () => {
         tutor_id: selectedTutor,
         tutor_name: tutorName,
         owner: auth.currentUser.uid,
+        worksheet: worksheetURL,
         flagged: document
           .getElementById("flagForReview")
           .classList.contains("btn-outline-danger"),
       })
         .then((d) => {
           tasks.forEach((t) => {
-            console.log(t);
             addDoc(collection(d, "tasks"), {
               ...t,
               standards: t.standards.map((s) => {
@@ -399,6 +411,7 @@ const NewStudentEval = () => {
             onClick(e);
           }}
           value={value}
+          onChange={() => {}}
         ></Form.Control>
         <div className='invalid-feedback'>Please select a standard</div>
       </>
@@ -499,8 +512,8 @@ const NewStudentEval = () => {
 
   const tasksList = tasks.map((task, task_idx) => {
     return (
-      <Col className='d-flex flex-column'>
-        <Card className='mb-3 flex-fill' key={task_idx}>
+      <Col className='d-flex flex-column' key={task_idx}>
+        <Card className='mb-3 flex-fill'>
           <Card.Header className='d-flex'>
             <div className='h5 align-self-end'>Task {task_idx + 1}</div>
             <Button
@@ -607,7 +620,10 @@ const NewStudentEval = () => {
                   <ul className='list-group mb-3'>
                     {task.standards.map((standard, standard_idx) => {
                       return (
-                        <li className='list-group-item d-flex'>
+                        <li
+                          className='list-group-item d-flex'
+                          key={standard_idx}
+                        >
                           <div className='d-flex flex-column justify-content-center pe-3'>
                             <Button
                               variant='danger'
@@ -814,7 +830,7 @@ const NewStudentEval = () => {
                     document.getElementById("worksheet").type = "file";
                     document.getElementById("worksheet").placeholder = "";
                   } else {
-                    document.getElementById("worksheet").type = "text";
+                    document.getElementById("worksheet").type = "url";
                     document.getElementById("worksheet").placeholder =
                       "Link to Worksheet";
                   }
@@ -825,6 +841,7 @@ const NewStudentEval = () => {
               </Form.Select>
 
               <input id='worksheet' className='form-control' type='file' />
+              <div className='invalid-feedback'>Please provide a valid URL</div>
             </div>
             <div className='col'>
               <label className='form-label h5'>Worksheet Completion</label>
@@ -928,7 +945,7 @@ const NewStudentEval = () => {
         <TrackStandard
           standards={standards}
           setStandards={setStandards}
-          close={() => {}}
+          close={() => setShowNewStandardPane(false)}
         />
       </Offcanvas>
     </>

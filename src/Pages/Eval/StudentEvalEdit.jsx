@@ -329,11 +329,21 @@ const StudentEvalEdit = () => {
     let worksheetReplacement = false;
 
     if (
-      document.getElementById("worksheet").type === "text" &&
+      document.getElementById("worksheet").type === "url" &&
       document.getElementById("worksheet").value !== ""
     ) {
-      evalUpload.worksheet = document.getElementById("worksheet").value;
-      worksheetReplacement = true;
+      try {
+        let input = document.getElementById("worksheet").value;
+        if (!/^(ftp|http|https):\/\/[^ "]+$/.test(input)) {
+          input = `https://${input}`;
+        }
+        let worksheetLink = new URL(input);
+        evalUpload.worksheet = worksheetLink.href;
+        worksheetReplacement = true;
+      } catch (err) {
+        document.getElementById("worksheet").classList.add("is-invalid");
+        return;
+      }
     } else if (
       document.getElementById("worksheet").type === "file" &&
       document.getElementById("worksheet").files.length > 0
@@ -346,7 +356,8 @@ const StudentEvalEdit = () => {
       if (evaluation?.worksheet !== "" && evaluation?.worksheet !== undefined) {
         try {
           console.log(evaluation?.worksheet);
-          deleteObject(ref(storage, evaluation?.worksheet));
+          let oldRef = ref(storage, evaluation?.worksheet);
+          await deleteObject(oldRef);
         } catch (err) {}
       }
 
@@ -554,8 +565,8 @@ const StudentEvalEdit = () => {
 
   const tasksList = tasks.map((task, task_idx) => {
     return (
-      <Col className='d-flex flex-column'>
-        <Card className='mb-3 flex-fill' key={task_idx}>
+      <Col className='d-flex flex-column' key={task_idx}>
+        <Card className='mb-3 flex-fill'>
           <Card.Header className='d-flex'>
             <div className='h5 align-self-end'>Task {task_idx + 1}</div>
             <Button
@@ -817,7 +828,7 @@ const StudentEvalEdit = () => {
               <select
                 id='tutor'
                 className='form-control'
-                value={selectedTutor}
+                value={selectedTutor || ""}
                 onChange={(e) => setSelectedTutor(e.target.value)}
                 required
               >
@@ -834,7 +845,7 @@ const StudentEvalEdit = () => {
                 id='date'
                 className='form-control'
                 type='date'
-                value={evaluation?.date}
+                value={evaluation?.date || ""}
                 onChange={(e) =>
                   setEvaluation({ ...evaluation, date: e.target.value })
                 }
@@ -888,7 +899,7 @@ const StudentEvalEdit = () => {
                     document.getElementById("worksheet").type = "file";
                     document.getElementById("worksheet").placeholder = "";
                   } else {
-                    document.getElementById("worksheet").type = "text";
+                    document.getElementById("worksheet").type = "url";
                     document.getElementById("worksheet").placeholder =
                       "Link to Worksheet";
                   }
@@ -898,7 +909,8 @@ const StudentEvalEdit = () => {
                 <option value='url'>URL</option>
               </Form.Select>
               <input id='worksheet' className='form-control' type='file' />
-              <div className='p-1 text-muted fst-italic'>
+              <div className='invalid-feedback'>Please provide a valid URL</div>
+              <div className='p-1 text-secondary fst-italic fs-6'>
                 Uploading a new worksheet will override the old one.
               </div>
             </div>
@@ -908,7 +920,7 @@ const StudentEvalEdit = () => {
                 id='worksheet_completion'
                 className='form-control'
                 type='text'
-                value={evaluation?.worksheet_completion}
+                value={evaluation?.worksheet_completion || ""}
                 onChange={(e) =>
                   setEvaluation({
                     ...evaluation,
