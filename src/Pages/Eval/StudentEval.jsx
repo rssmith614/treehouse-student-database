@@ -63,14 +63,17 @@ const StudentEval = () => {
   const ability = useAbility(AbilityContext);
 
   useEffect(() => {
-    const unsubscribeEval = onSnapshot(evalRef.current, (res) => {
+    const unsubscribeEval = onSnapshot(evalRef.current, async (res) => {
       setEvaluation(res.data());
       if (res.data().worksheet === "" || !res.data().worksheet) return;
 
-      worksheetRef.current = ref(storage, res.data().worksheet);
-      getDownloadURL(worksheetRef.current).then((url) => {
+      try {
+        worksheetRef.current = ref(storage, res.data().worksheet);
+        let url = await getDownloadURL(worksheetRef.current);
         setWorksheet(url);
-      });
+      } catch (err) {
+        setWorksheet(res.data().worksheet);
+      }
     });
 
     const unsubscribeTasks = onSnapshot(
@@ -135,7 +138,7 @@ const StudentEval = () => {
 
   const tasksList = tasks.map((task, task_idx) => {
     return (
-      <Col className='d-flex flex-column'>
+      <Col className='d-flex flex-column' key={task_idx}>
         <Card className='mb-3 flex-fill' key={task_idx}>
           <Card.Header>Task {task_idx + 1}</Card.Header>
           <Card.Body className='d-flex'>
@@ -267,7 +270,7 @@ const StudentEval = () => {
         <div className='h5 text-decoration-underline'>Tasks</div>
         <Container>
           {loading ? (
-            <div className='d-flex align-self-center spinner-border' />
+            <div className='d-flex align-self-center spinner-border' key={0} />
           ) : (
             <Row xs={{ cols: "auto" }}>{tasksList}</Row>
           )}

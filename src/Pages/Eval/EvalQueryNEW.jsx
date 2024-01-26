@@ -87,6 +87,7 @@ const EvalQuery = () => {
   }, [tutorList]);
 
   async function sendit(e) {
+    localStorage.setItem("queryTimestamp", dayjs());
     // Validate non-empty conditions
     if (
       evalConditions.length === 0 &&
@@ -186,15 +187,19 @@ const EvalQuery = () => {
   async function exportCSV() {
     let csvContent = "data:text/csv;charset=utf-8,";
 
-    csvContent += `Date,Student,Tutor,Worksheet Link,Worksheet Completion, Next Session Plans,Subject,Standards,Progression,Engagement,Comments\n`;
+    csvContent += `Date,Student,Tutor,Worksheet Link,Worksheet Completion, Next Session Plans,Standards,Progression,Engagement,Comments\n`;
 
     let exportData = Promise.all(
       evals.map(async (evaluation) => {
         let worksheetDownloadUrl = "";
         if (evaluation.worksheet !== "") {
-          worksheetDownloadUrl = await getDownloadURL(
-            ref(storage, evaluation.worksheet),
-          );
+          try {
+            worksheetDownloadUrl = await getDownloadURL(
+              ref(storage, evaluation.worksheet),
+            );
+          } catch (err) {
+            worksheetDownloadUrl = evaluation.worksheet;
+          }
         }
 
         return Promise.all(
@@ -207,13 +212,22 @@ const EvalQuery = () => {
                 standards: await Promise.all(
                   task.data().standards.map(async (standard) => {
                     return (
-                      (await getDoc(doc(db, "standards", standard))).data()
-                        .key || ""
+                      (
+                        await getDoc(
+                          doc(db, "standards", standard?.id || standard),
+                        )
+                      ).data().key || ""
                     );
                   }),
                 ).then((standards) => {
                   return `"${standards.join(", ")}"`;
                 }),
+                progression: `"${task
+                  .data()
+                  .standards.map((standard) => {
+                    return standard.progression;
+                  })
+                  .join(", ")}"`,
               };
             } else {
               return { ...task.data(), standards: "" };
@@ -223,6 +237,7 @@ const EvalQuery = () => {
           return {
             ...evaluation,
             tasks: tasks.map((task) => {
+              console.log(task);
               return {
                 date: evaluation.date,
                 student: evaluation.student_name,
@@ -230,9 +245,9 @@ const EvalQuery = () => {
                 worksheet: `"${worksheetDownloadUrl}"`,
                 worksheet_completion: `"${evaluation.worksheet_completion}"`,
                 next_session: `"${evaluation.next_session}"`,
-                subject: task.subject,
+                // subject: task.subject,
                 standards: task.standards,
-                progression: task.progression,
+                progression: task?.progression,
                 engagement: task.engagement,
                 comments: `"${task.comments}"`,
               };
@@ -244,7 +259,7 @@ const EvalQuery = () => {
 
     (await exportData).forEach((evaluation) => {
       evaluation.tasks.forEach((task) => {
-        csvContent += `${task.date},${task.student},${task.tutor},${task.worksheet},${task.worksheet_completion},${task.next_session},${task.subject},${task.standards},${task.progression},${task.engagement},${task.comments}\n`;
+        csvContent += `${task.date},${task.student},${task.tutor},${task.worksheet},${task.worksheet_completion},${task.next_session},${task.standards},${task.progression},${task.engagement},${task.comments}\n`;
       });
     });
 
@@ -1051,7 +1066,22 @@ const EvalQuery = () => {
       <Card className='bg-light-subtle'>
         <Card.Body>
           <Row>
-            <div className='h4'>{evals.length} Results</div>
+            <div className='h4'>
+              {evals.length} Results{" "}
+              {localStorage.getItem("queryTimestamp") ? (
+                <div className='text-secondary fs-6'>
+                  Last fetched{" "}
+                  {dayjs
+                    .duration(
+                      dayjs(localStorage.getItem("queryTimestamp")).diff(
+                        dayjs(),
+                      ),
+                    )
+                    .humanize()}{" "}
+                  ago
+                </div>
+              ) : null}
+            </div>
             <Table striped hover responsive>
               <thead>
                 <tr>
@@ -1116,6 +1146,7 @@ const EvalQuery = () => {
               onClick={() => {
                 setEvals([]);
                 localStorage.removeItem("evalQueryResults");
+                localStorage.removeItem("queryTimestamp");
               }}
             >
               Clear
