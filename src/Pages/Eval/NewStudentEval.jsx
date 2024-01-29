@@ -599,14 +599,16 @@ const NewStudentEval = () => {
                       id={`${task_idx}_comments`}
                       className='form-control'
                       value={task.comments}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setTasks(
                           tasks.map((t, i) => {
                             if (i !== task_idx) return t;
                             else return { ...t, comments: e.target.value };
                           }),
-                        )
-                      }
+                        );
+                        e.target.style.height = "auto";
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                      }}
                       required
                     />
                     <div className='invalid-feedback'>
