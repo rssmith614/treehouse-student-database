@@ -1060,25 +1060,41 @@ const StudentEvalEdit = () => {
           </button>
         </div>
         {/* </form> */}
-        <Button
-          variant='danger'
-          className='mx-3 ms-auto'
-          id='flagForReview'
-          onClick={(e) => {
-            e.preventDefault();
-            if (e.target.classList.contains("btn-danger")) {
-              e.target.classList.remove("btn-danger");
-              e.target.classList.add("btn-outline-danger");
-              e.target.innerHTML = "Flagged for Admin Review";
-            } else {
-              e.target.classList.remove("btn-outline-danger");
-              e.target.classList.add("btn-danger");
-              e.target.innerHTML = "Flag for Admin Review?";
+        <div id='flagForReview' className='mx-3 ms-auto'>
+          <OverlayTrigger
+            placement='left'
+            overlay={
+              <Popover>
+                <Popover.Header>Flag for Review</Popover.Header>
+                <Popover.Body>
+                  Select this option if you would like an administrator to
+                  review this evaluation and discuss the session with you and/or
+                  the student's parent
+                </Popover.Body>
+              </Popover>
             }
-          }}
-        >
-          Flag for Admin Review?
-        </Button>
+          >
+            <i className='bi bi-question-square mx-3'></i>
+          </OverlayTrigger>
+          <Button
+            variant='danger'
+            className=''
+            onClick={(e) => {
+              e.preventDefault();
+              if (e.target.classList.contains("btn-danger")) {
+                e.target.classList.remove("btn-danger");
+                e.target.classList.add("btn-outline-danger");
+                e.target.innerHTML = "Flagged for Admin Review";
+              } else {
+                e.target.classList.remove("btn-outline-danger");
+                e.target.classList.add("btn-danger");
+                e.target.innerHTML = "Flag for Admin Review?";
+              }
+            }}
+          >
+            Flag for Admin Review?
+          </Button>
+        </div>
       </div>
       <Offcanvas
         show={showNewStandardPane}
