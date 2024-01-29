@@ -207,7 +207,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
               className='me-auto link-underline link-underline-opacity-0'
               style={{ cursor: "default" }}
             >
-              <h5>{subCat[0]}</h5>
+              <h4>{subCat[0]}</h4>
             </Button>
           ) : (
             <Button
@@ -215,7 +215,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
               className='me-auto link-underline link-underline-opacity-0'
               style={{ cursor: "default" }}
             >
-              <h5>{subCat[0]}</h5>
+              <h4>{subCat[0]}</h4>
             </Button>
           )}
           <Container>
