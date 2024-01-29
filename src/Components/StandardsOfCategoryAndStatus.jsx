@@ -297,7 +297,12 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
           )}
         </Card.Body>
       </Card>
-      <Offcanvas show={show} onHide={() => setShow(false)} placement='end'>
+      <Offcanvas
+        show={show}
+        onHide={() => setShow(false)}
+        onExited={() => setSelectedStandard(null)}
+        placement='end'
+      >
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Standard {selectedStandard?.key}</Offcanvas.Title>
         </Offcanvas.Header>
