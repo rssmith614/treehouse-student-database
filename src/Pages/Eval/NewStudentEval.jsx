@@ -927,9 +927,14 @@ const NewStudentEval = () => {
                 id='next_session'
                 className='form-control'
                 value={evaluation.next_session}
-                onChange={(e) =>
-                  setEvaluation({ ...evaluation, next_session: e.target.value })
-                }
+                onChange={(e) => {
+                  setEvaluation({
+                    ...evaluation,
+                    next_session: e.target.value,
+                  });
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
               />
               <div className='invalid-feedback'>
                 Please enter plans for the next session
