@@ -16,7 +16,12 @@ const grades = [
 ];
 const categories = ["Math", "Reading"];
 
-const TrackStandard = ({ standards, setStandards, close }) => {
+const TrackStandard = ({
+  standards,
+  setStandards,
+  close,
+  standardSelector,
+}) => {
   const [selectedStandard, setSelectedStandard] = useState(null);
 
   const [grade, setGrade] = useState(localStorage.getItem("grade") || "K");
@@ -41,6 +46,8 @@ const TrackStandard = ({ standards, setStandards, close }) => {
 
   function addStandard(e) {
     e.preventDefault();
+
+    standardSelector(selectedStandard);
 
     if (!standards.find((s) => s.id === selectedStandard.id)) {
       setStandards([...standards, selectedStandard]);

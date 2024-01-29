@@ -65,6 +65,8 @@ const StudentEvalEdit = () => {
 
   const params = useParams();
 
+  const newStandardSelector = useRef(null);
+
   const evalRef = useRef(doc(db, "evaluations", params.evalid));
   const [student, setStudent] = useState("");
 
@@ -502,6 +504,7 @@ const StudentEvalEdit = () => {
                 onClick(e);
               }}
               defaultValue={value}
+              readOnly
             ></Form.Control>
           </OverlayTrigger>
         ) : (
@@ -515,6 +518,7 @@ const StudentEvalEdit = () => {
               onClick(e);
             }}
             defaultValue={value}
+            readOnly
           ></Form.Control>
         )}
         <div className='invalid-feedback'>Please select a standard</div>
@@ -604,7 +608,10 @@ const StudentEvalEdit = () => {
             <Button
               className='align-self-end'
               variant='link'
-              onClick={() => setShowNewStandardPane(true)}
+              onClick={() => {
+                setShowNewStandardPane(true);
+                newStandardSelector.current = valueSetter;
+              }}
             >
               Find another Standard
             </Button>
@@ -1083,6 +1090,7 @@ const StudentEvalEdit = () => {
           standards={standards}
           setStandards={setStandards}
           close={() => setShowNewStandardPane(false)}
+          standardSelector={newStandardSelector.current}
         />
       </Offcanvas>
     </>

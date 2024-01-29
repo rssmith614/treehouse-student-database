@@ -60,6 +60,8 @@ const NewStudentEval = () => {
 
   const params = useParams();
 
+  const newStandardSelector = useRef(null);
+
   const [evaluation, setEvaluation] = useState(
     localStorage.getItem(`${params.studentid}_eval`)
       ? JSON.parse(localStorage.getItem(`${params.studentid}_eval`))
@@ -399,20 +401,55 @@ const NewStudentEval = () => {
   }
 
   const StandardDropdownToggle = React.forwardRef(
-    ({ style, className, onClick, value, id_ }, ref) => (
+    ({ style, className, onClick, value, id_, selected }, ref) => (
       <>
-        <Form.Control
-          id={id_}
-          ref={ref}
-          style={{ ...style, cursor: "pointer" }}
-          className={className}
-          onClick={(e) => {
-            e.preventDefault();
-            onClick(e);
-          }}
-          value={value}
-          onChange={() => {}}
-        ></Form.Control>
+        {selected.key !== "" ? (
+          <OverlayTrigger
+            placement='right'
+            flip={true}
+            key={id_}
+            overlay={
+              <Popover className=''>
+                <Popover.Header>
+                  {selected.key} <br />
+                  {`${grades[selected.grade]} ${selected.category}: ${
+                    selected.sub_category
+                  }`}
+                </Popover.Header>
+                <Popover.Body>
+                  <div className='text-decoration-underline'>Description</div>
+                  {selected.description}
+                </Popover.Body>
+              </Popover>
+            }
+          >
+            <Form.Control
+              id={id_}
+              ref={ref}
+              style={{ ...style, cursor: "pointer" }}
+              className={className}
+              onClick={(e) => {
+                e.preventDefault();
+                onClick(e);
+              }}
+              value={value}
+              onChange={() => {}}
+              readOnly
+            ></Form.Control>
+          </OverlayTrigger>
+        ) : (
+          <Form.Control
+            id={id_}
+            ref={ref}
+            style={{ ...style, cursor: "pointer" }}
+            className={className}
+            onClick={(e) => {
+              e.preventDefault();
+              onClick(e);
+            }}
+            defaultValue={value}
+          ></Form.Control>
+        )}
         <div className='invalid-feedback'>Please select a standard</div>
       </>
     ),
@@ -500,7 +537,10 @@ const NewStudentEval = () => {
             <Button
               className='align-self-end'
               variant='link'
-              onClick={() => setShowNewStandardPane(true)}
+              onClick={() => {
+                newStandardSelector.current = valueSetter;
+                setShowNewStandardPane(true);
+              }}
             >
               Find another Standard
             </Button>
@@ -653,6 +693,7 @@ const NewStudentEval = () => {
                                 as={StandardDropdownToggle}
                                 value={standard.key || "Standard"}
                                 className=''
+                                selected={standard}
                               />
                               <Dropdown.Menu
                                 as={StandardDropdown}
@@ -945,7 +986,11 @@ const NewStudentEval = () => {
         <TrackStandard
           standards={standards}
           setStandards={setStandards}
-          close={() => setShowNewStandardPane(false)}
+          close={() => {
+            setShowNewStandardPane(false);
+            newStandardSelector.current = null;
+          }}
+          standardSelector={newStandardSelector.current}
         />
       </Offcanvas>
     </>
