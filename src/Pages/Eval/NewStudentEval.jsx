@@ -60,6 +60,8 @@ const NewStudentEval = () => {
 
   const params = useParams();
 
+  const newStandardSelector = useRef(null);
+
   const [evaluation, setEvaluation] = useState(
     localStorage.getItem(`${params.studentid}_eval`)
       ? JSON.parse(localStorage.getItem(`${params.studentid}_eval`))
@@ -399,20 +401,55 @@ const NewStudentEval = () => {
   }
 
   const StandardDropdownToggle = React.forwardRef(
-    ({ style, className, onClick, value, id_ }, ref) => (
+    ({ style, className, onClick, value, id_, selected }, ref) => (
       <>
-        <Form.Control
-          id={id_}
-          ref={ref}
-          style={{ ...style, cursor: "pointer" }}
-          className={className}
-          onClick={(e) => {
-            e.preventDefault();
-            onClick(e);
-          }}
-          value={value}
-          onChange={() => {}}
-        ></Form.Control>
+        {selected.key !== "" ? (
+          <OverlayTrigger
+            placement='right'
+            flip={true}
+            key={id_}
+            overlay={
+              <Popover className=''>
+                <Popover.Header>
+                  {selected.key} <br />
+                  {`${grades[selected.grade]} ${selected.category}: ${
+                    selected.sub_category
+                  }`}
+                </Popover.Header>
+                <Popover.Body>
+                  <div className='text-decoration-underline'>Description</div>
+                  {selected.description}
+                </Popover.Body>
+              </Popover>
+            }
+          >
+            <Form.Control
+              id={id_}
+              ref={ref}
+              style={{ ...style, cursor: "pointer" }}
+              className={className}
+              onClick={(e) => {
+                e.preventDefault();
+                onClick(e);
+              }}
+              value={value}
+              onChange={() => {}}
+              readOnly
+            ></Form.Control>
+          </OverlayTrigger>
+        ) : (
+          <Form.Control
+            id={id_}
+            ref={ref}
+            style={{ ...style, cursor: "pointer" }}
+            className={className}
+            onClick={(e) => {
+              e.preventDefault();
+              onClick(e);
+            }}
+            defaultValue={value}
+          ></Form.Control>
+        )}
         <div className='invalid-feedback'>Please select a standard</div>
       </>
     ),
@@ -500,7 +537,10 @@ const NewStudentEval = () => {
             <Button
               className='align-self-end'
               variant='link'
-              onClick={() => setShowNewStandardPane(true)}
+              onClick={() => {
+                newStandardSelector.current = valueSetter;
+                setShowNewStandardPane(true);
+              }}
             >
               Find another Standard
             </Button>
@@ -559,14 +599,16 @@ const NewStudentEval = () => {
                       id={`${task_idx}_comments`}
                       className='form-control'
                       value={task.comments}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setTasks(
                           tasks.map((t, i) => {
                             if (i !== task_idx) return t;
                             else return { ...t, comments: e.target.value };
                           }),
-                        )
-                      }
+                        );
+                        e.target.style.height = "auto";
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                      }}
                       required
                     />
                     <div className='invalid-feedback'>
@@ -653,6 +695,7 @@ const NewStudentEval = () => {
                                 as={StandardDropdownToggle}
                                 value={standard.key || "Standard"}
                                 className=''
+                                selected={standard}
                               />
                               <Dropdown.Menu
                                 as={StandardDropdown}
@@ -884,9 +927,14 @@ const NewStudentEval = () => {
                 id='next_session'
                 className='form-control'
                 value={evaluation.next_session}
-                onChange={(e) =>
-                  setEvaluation({ ...evaluation, next_session: e.target.value })
-                }
+                onChange={(e) => {
+                  setEvaluation({
+                    ...evaluation,
+                    next_session: e.target.value,
+                  });
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
               />
               <div className='invalid-feedback'>
                 Please enter plans for the next session
@@ -916,25 +964,41 @@ const NewStudentEval = () => {
           </button>
         </div>
         {/* </form> */}
-        <Button
-          variant='danger'
-          className='mx-3 ms-auto'
-          id='flagForReview'
-          onClick={(e) => {
-            e.preventDefault();
-            if (e.target.classList.contains("btn-danger")) {
-              e.target.classList.remove("btn-danger");
-              e.target.classList.add("btn-outline-danger");
-              e.target.innerHTML = "Flagged for Admin Review";
-            } else {
-              e.target.classList.remove("btn-outline-danger");
-              e.target.classList.add("btn-danger");
-              e.target.innerHTML = "Flag for Admin Review?";
+        <div id='flagForReview' className='mx-3 ms-auto'>
+          <OverlayTrigger
+            placement='left'
+            overlay={
+              <Popover>
+                <Popover.Header>Flag for Review</Popover.Header>
+                <Popover.Body>
+                  Select this option if you would like an administrator to
+                  review this evaluation and discuss the session with you and/or
+                  the student's parent
+                </Popover.Body>
+              </Popover>
             }
-          }}
-        >
-          Flag for Admin Review?
-        </Button>
+          >
+            <i className='bi bi-question-square mx-3'></i>
+          </OverlayTrigger>
+          <Button
+            variant='danger'
+            className=''
+            onClick={(e) => {
+              e.preventDefault();
+              if (e.target.classList.contains("btn-danger")) {
+                e.target.classList.remove("btn-danger");
+                e.target.classList.add("btn-outline-danger");
+                e.target.innerHTML = "Flagged for Admin Review";
+              } else {
+                e.target.classList.remove("btn-outline-danger");
+                e.target.classList.add("btn-danger");
+                e.target.innerHTML = "Flag for Admin Review?";
+              }
+            }}
+          >
+            Flag for Admin Review?
+          </Button>
+        </div>
       </div>
       <Offcanvas
         show={showNewStandardPane}
@@ -945,7 +1009,11 @@ const NewStudentEval = () => {
         <TrackStandard
           standards={standards}
           setStandards={setStandards}
-          close={() => setShowNewStandardPane(false)}
+          close={() => {
+            setShowNewStandardPane(false);
+            newStandardSelector.current = null;
+          }}
+          standardSelector={newStandardSelector.current}
         />
       </Offcanvas>
     </>

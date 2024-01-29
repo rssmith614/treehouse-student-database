@@ -207,7 +207,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
               className='me-auto link-underline link-underline-opacity-0'
               style={{ cursor: "default" }}
             >
-              <h5>{subCat[0]}</h5>
+              <h4>{subCat[0]}</h4>
             </Button>
           ) : (
             <Button
@@ -215,7 +215,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
               className='me-auto link-underline link-underline-opacity-0'
               style={{ cursor: "default" }}
             >
-              <h5>{subCat[0]}</h5>
+              <h4>{subCat[0]}</h4>
             </Button>
           )}
           <Container>
@@ -297,7 +297,12 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
           )}
         </Card.Body>
       </Card>
-      <Offcanvas show={show} onHide={() => setShow(false)} placement='end'>
+      <Offcanvas
+        show={show}
+        onHide={() => setShow(false)}
+        onExited={() => setSelectedStandard(null)}
+        placement='end'
+      >
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Standard {selectedStandard?.key}</Offcanvas.Title>
         </Offcanvas.Header>

@@ -65,6 +65,8 @@ const StudentEvalEdit = () => {
 
   const params = useParams();
 
+  const newStandardSelector = useRef(null);
+
   const evalRef = useRef(doc(db, "evaluations", params.evalid));
   const [student, setStudent] = useState("");
 
@@ -502,6 +504,7 @@ const StudentEvalEdit = () => {
                 onClick(e);
               }}
               defaultValue={value}
+              readOnly
             ></Form.Control>
           </OverlayTrigger>
         ) : (
@@ -515,6 +518,7 @@ const StudentEvalEdit = () => {
               onClick(e);
             }}
             defaultValue={value}
+            readOnly
           ></Form.Control>
         )}
         <div className='invalid-feedback'>Please select a standard</div>
@@ -604,7 +608,10 @@ const StudentEvalEdit = () => {
             <Button
               className='align-self-end'
               variant='link'
-              onClick={() => setShowNewStandardPane(true)}
+              onClick={() => {
+                setShowNewStandardPane(true);
+                newStandardSelector.current = valueSetter;
+              }}
             >
               Find another Standard
             </Button>
@@ -664,14 +671,19 @@ const StudentEvalEdit = () => {
                       id={`${task_idx}_comments`}
                       className='form-control'
                       value={task.comments}
-                      onChange={(e) =>
+                      onMouseOver={(e) => {
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                      }}
+                      onChange={(e) => {
                         setTasks(
                           tasks.map((t, i) => {
                             if (i !== task_idx) return t;
                             else return { ...t, comments: e.target.value };
                           }),
-                        )
-                      }
+                        );
+                        e.target.style.height = "auto";
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                      }}
                       required
                     />
                     <div className='invalid-feedback'>
@@ -1013,9 +1025,17 @@ const StudentEvalEdit = () => {
                 id='next_session'
                 className='form-control'
                 value={evaluation?.next_session}
-                onChange={(e) =>
-                  setEvaluation({ ...evaluation, next_session: e.target.value })
-                }
+                onMouseOver={(e) => {
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
+                onChange={(e) => {
+                  setEvaluation({
+                    ...evaluation,
+                    next_session: e.target.value,
+                  });
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
               />
               <div className='invalid-feedback'>
                 Please enter plans for the next session
@@ -1053,25 +1073,41 @@ const StudentEvalEdit = () => {
           </button>
         </div>
         {/* </form> */}
-        <Button
-          variant='danger'
-          className='mx-3 ms-auto'
-          id='flagForReview'
-          onClick={(e) => {
-            e.preventDefault();
-            if (e.target.classList.contains("btn-danger")) {
-              e.target.classList.remove("btn-danger");
-              e.target.classList.add("btn-outline-danger");
-              e.target.innerHTML = "Flagged for Admin Review";
-            } else {
-              e.target.classList.remove("btn-outline-danger");
-              e.target.classList.add("btn-danger");
-              e.target.innerHTML = "Flag for Admin Review?";
+        <div id='flagForReview' className='mx-3 ms-auto'>
+          <OverlayTrigger
+            placement='left'
+            overlay={
+              <Popover>
+                <Popover.Header>Flag for Review</Popover.Header>
+                <Popover.Body>
+                  Select this option if you would like an administrator to
+                  review this evaluation and discuss the session with you and/or
+                  the student's parent
+                </Popover.Body>
+              </Popover>
             }
-          }}
-        >
-          Flag for Admin Review?
-        </Button>
+          >
+            <i className='bi bi-question-square mx-3'></i>
+          </OverlayTrigger>
+          <Button
+            variant='danger'
+            className=''
+            onClick={(e) => {
+              e.preventDefault();
+              if (e.target.classList.contains("btn-danger")) {
+                e.target.classList.remove("btn-danger");
+                e.target.classList.add("btn-outline-danger");
+                e.target.innerHTML = "Flagged for Admin Review";
+              } else {
+                e.target.classList.remove("btn-outline-danger");
+                e.target.classList.add("btn-danger");
+                e.target.innerHTML = "Flag for Admin Review?";
+              }
+            }}
+          >
+            Flag for Admin Review?
+          </Button>
+        </div>
       </div>
       <Offcanvas
         show={showNewStandardPane}
@@ -1083,6 +1119,7 @@ const StudentEvalEdit = () => {
           standards={standards}
           setStandards={setStandards}
           close={() => setShowNewStandardPane(false)}
+          standardSelector={newStandardSelector.current}
         />
       </Offcanvas>
     </>

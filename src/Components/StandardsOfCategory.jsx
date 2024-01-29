@@ -58,7 +58,7 @@ const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
         <Card className='p-3 my-3' key={i}>
           {track ? (
             <Button variant='link' className='me-auto' onClick={() => {}}>
-              <h5>{subCat[0]}</h5>
+              <h4>{subCat[0]}</h4>
             </Button>
           ) : (
             <Button
@@ -66,7 +66,7 @@ const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
               className='me-auto link-underline link-underline-opacity-0'
               style={{ cursor: "default" }}
             >
-              <h5>{subCat[0]}</h5>
+              <h4>{subCat[0]}</h4>
             </Button>
           )}
           <Container>
