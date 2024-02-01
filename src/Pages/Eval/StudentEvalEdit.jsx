@@ -1118,7 +1118,10 @@ const StudentEvalEdit = () => {
         <TrackStandard
           standards={standards}
           setStandards={setStandards}
-          close={() => setShowNewStandardPane(false)}
+          close={() => {
+            setShowNewStandardPane(false);
+            newStandardSelector.current = null;
+          }}
           standardSelector={newStandardSelector.current}
         />
       </Offcanvas>

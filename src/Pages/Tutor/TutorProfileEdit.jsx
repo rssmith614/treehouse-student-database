@@ -13,11 +13,12 @@ import {
 } from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import { AbilityContext, Can } from "../../Services/can";
 import { Tutor } from "../../Services/defineAbility";
 import { useAbility } from "@casl/react";
 import { sendAuthApprovedEmail } from "../../Services/email";
+import Avatar from "boring-avatars";
 
 const TutorProfileEdit = () => {
   const [tutor, setTutor] = useState({});
@@ -159,6 +160,44 @@ const TutorProfileEdit = () => {
   const innerContent = (
     <div className='d-flex align-items-center'>
       <Row xs={{ cols: "auto" }}>
+        <Col className='d-flex flex-column align-items-center'>
+          <Card className='bg-dark p-1'>
+            <Avatar
+              size={100}
+              name={tutor.displayName + tutor?.seed || ""}
+              square={true}
+              variant='beam'
+              colors={["#ffcc00", "#253550", "#FFFFFF", "#858786", "#000"]}
+            />
+          </Card>
+          <Button
+            className='mt-1 mb-3'
+            onClick={() =>
+              setTutor({
+                ...tutor,
+                seed: Math.random().toString(36).substring(2, 7),
+              })
+            }
+          >
+            Randomize
+          </Button>
+        </Col>
+        <Col>
+          <div className='d-flex flex-column p-3'>
+            <div className='h3'>Display Name</div>
+            <input
+              className='form-control m-1'
+              value={tutor?.displayName || ""}
+              onChange={(e) => {
+                setTutor({
+                  ...tutor,
+                  displayName: e.target.value,
+                  seed: undefined,
+                });
+              }}
+            ></input>
+          </div>
+        </Col>
         <Col>
           <div className='d-flex flex-column p-3'>
             <div className='h3'>Email</div>
@@ -225,7 +264,7 @@ const TutorProfileEdit = () => {
       <h1 className='d-flex display-1'>Tutor Profile - {tutor?.displayName}</h1>
       <form onSubmit={handleSubmit}>
         <div className='d-flex flex-row justify-content-center'>
-          <div className='d-flex flex-fill m-3 p-3 card bg-light-subtle justify-content-center'>
+          <div className='d-flex flex-fill m-3 pt-3 px-3 card bg-light-subtle justify-content-center'>
             {loading ? (
               <div className='spinner-border align-self-center' />
             ) : (

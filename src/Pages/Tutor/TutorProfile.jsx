@@ -36,7 +36,7 @@ const TutorProfile = () => {
     localStorage.setItem("tutorProfileTab", tab);
   }, [tab]);
 
-  function deny(id) {
+  async function deny(id) {
     if (
       !window.confirm(
         `You are about to DENY access to ${tutor.displayName}. Are you sure you want to do this?`,
@@ -45,7 +45,7 @@ const TutorProfile = () => {
       return;
     }
 
-    deleteDoc(tutorDocRef.current).then(() => navigate("/tutors"));
+    await deleteDoc(tutorDocRef.current).then(() => navigate("/tutors"));
   }
 
   function capitalize(str) {
@@ -91,7 +91,7 @@ const TutorProfile = () => {
                     <Card className='bg-dark p-1'>
                       <Avatar
                         size={100}
-                        name={tutor.displayName}
+                        name={tutor.displayName + tutor?.seed || ""}
                         square={true}
                         variant='beam'
                         colors={[

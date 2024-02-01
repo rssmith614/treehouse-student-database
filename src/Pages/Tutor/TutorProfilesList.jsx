@@ -76,7 +76,7 @@ const TutorProfilesList = () => {
             <Card className='bg-dark p-1' style={{ maxWidth: 60 }}>
               <Avatar
                 size={50}
-                name={tutorData.displayName}
+                name={tutorData.displayName + tutorData?.seed || ""}
                 square={true}
                 variant='beam'
                 colors={["#ffcc00", "#253550", "#FFFFFF", "#858786", "#000"]}
