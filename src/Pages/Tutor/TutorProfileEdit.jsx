@@ -192,7 +192,7 @@ const TutorProfileEdit = () => {
                 setTutor({
                   ...tutor,
                   displayName: e.target.value,
-                  seed: undefined,
+                  seed: null,
                 });
               }}
             ></input>
