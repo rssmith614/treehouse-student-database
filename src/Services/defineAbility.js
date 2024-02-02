@@ -17,6 +17,8 @@ function defineAbilityFor(user) {
   }
 
   else if (tutorClearance === "tutor") {
+    can('edit', Tutor, { uid: user.id });
+    cannot('edit', Tutor, ['clearance'], { uid: user.id }).because("Tutor cannot change their own clearance");
     can('edit', Eval, { owner: user.id });
     can('edit', Assessment, { issued_by: user.id });
   }
