@@ -236,7 +236,7 @@ const StudentProfilesList = () => {
         className={className}
         aria-labelledby={labeledBy}
       >
-        <Dropdown.Item>
+        <div className='dropdown-item'>
           <InputGroup>
             <Form.Control
               autoFocus
@@ -251,7 +251,7 @@ const StudentProfilesList = () => {
               onClick={() => valueSetter("")}
             />
           </InputGroup>
-        </Dropdown.Item>
+        </div>
       </div>
     ),
   );
