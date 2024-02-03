@@ -185,7 +185,7 @@ const StudentProfileEdit = () => {
       "Save Changes <span class='spinner-border spinner-border-sm' />";
 
     let preferredTutorName = "";
-    if (student.preferred_tutor !== "") {
+    if (selectedTutor !== "") {
       preferredTutorName = tutors
         .find(
           (tutor) =>
