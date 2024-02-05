@@ -5,7 +5,6 @@ import {
   Col,
   Container,
   Nav,
-  Offcanvas,
   OverlayTrigger,
   Popover,
   Row,
@@ -36,11 +35,11 @@ const categories = ["Math", "Reading"];
 const StandardsOfCategoryAndStatus = ({ student }) => {
   const [loading, setLoading] = useState(true);
   const [subcategories, setSubcategories] = useState({});
-  const [selectedStandard, setSelectedStandard] = useState(null);
+  // const [selectedStandard, setSelectedStandard] = useState(null);
 
   const [standardAverages, setStandardAverages] = useState({});
 
-  const [show, setShow] = useState(false);
+  // const [show, setShow] = useState(false);
 
   const [grade, setGrade] = useState(localStorage.getItem("grade") || "K");
   const [category, setCategory] = useState(
@@ -170,11 +169,11 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
     );
   });
 
-  useEffect(() => {
-    if (selectedStandard) {
-      setShow(true);
-    }
-  }, [selectedStandard]);
+  // useEffect(() => {
+  //   if (selectedStandard) {
+  //     setShow(true);
+  //   }
+  // }, [selectedStandard]);
 
   function color(standard) {
     let temp = standardAverages[standard.id];
@@ -262,7 +261,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
                           className={`btn btn-link ${color(standard)}
                         link-underline link-underline-opacity-0 link-underline-opacity-0-hover`}
                           style={{ cursor: "pointer" }}
-                          onClick={() => setSelectedStandard(standard)}
+                          // onClick={() => setSelectedStandard(standard)}
                         >
                           {standard.key}
                         </button>
@@ -297,7 +296,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
           )}
         </Card.Body>
       </Card>
-      <Offcanvas
+      {/* <Offcanvas
         show={show}
         onHide={() => setShow(false)}
         onExited={() => setSelectedStandard(null)}
@@ -319,7 +318,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
             </Card.Body>
           </Card>
         </Offcanvas.Body>
-      </Offcanvas>
+      </Offcanvas> */}
     </div>
   );
 };

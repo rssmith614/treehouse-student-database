@@ -10,10 +10,21 @@ import {
   Row,
 } from "react-bootstrap";
 import { db } from "../Services/firebase";
+import { useAbility } from "@casl/react";
+import { AbilityContext } from "../Services/can";
+import { Standard } from "../Services/defineAbility";
 
-const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
+const StandardsOfCategory = ({
+  grade,
+  category,
+  setSelection,
+  addSelection,
+  track,
+}) => {
   const [subcategories, setSubcategories] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const ability = useAbility(AbilityContext);
 
   useEffect(() => {
     const unsubscribeStandards = onSnapshot(
@@ -86,6 +97,7 @@ const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
                       <OverlayTrigger
                         placement='right'
                         flip={true}
+                        trigger={"hover"}
                         overlay={
                           <Popover className=''>
                             <Popover.Header>{standard.key}</Popover.Header>
@@ -93,7 +105,7 @@ const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
                               <div className='text-decoration-underline'>
                                 Description
                               </div>
-                              {standard.description}
+                              <div>{standard.description}</div>
                               {/* {standard.questions !== undefined ? 
                               <>
                                 <div className="text-decoration-underline">Example Question</div>
@@ -103,6 +115,17 @@ const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
                               :
                               <></>
                             } */}
+                              {track ? (
+                                <Button
+                                  className='mt-3'
+                                  id='addStandard'
+                                  onClick={addSelection}
+                                >
+                                  Add
+                                </Button>
+                              ) : (
+                                <></>
+                              )}
                             </Popover.Body>
                           </Popover>
                         }
@@ -110,7 +133,11 @@ const StandardsOfCategory = ({ grade, category, setSelection, track }) => {
                         <button
                           className='btn btn-link link-body-emphasis link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
                           style={{ cursor: "pointer" }}
-                          onClick={() => setSelection(standard)}
+                          onClick={
+                            ability.can("edit", Standard)
+                              ? () => setSelection(standard)
+                              : () => {}
+                          }
                         >
                           {standard.key}
                         </button>

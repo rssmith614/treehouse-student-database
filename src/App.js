@@ -89,10 +89,13 @@ function App() {
     }
   })
 
+  // TOAST MANAGEMENT
   const [toasts, setToasts] = useState([]);
   const [shownToasts, setShownToasts] = useState([]);
 
   function addToast(newToast) {
+    // allows for multiple toasts
+    // maintains order while allowing removal and disappear animation
     setToasts(prevToasts => [newToast, ...prevToasts]);
     setShownToasts(prevShownToasts => [...prevShownToasts, newToast]);
   }
