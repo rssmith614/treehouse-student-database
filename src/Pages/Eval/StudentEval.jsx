@@ -151,6 +151,15 @@ const StudentEval = () => {
                     <div>{task.comments}</div>
                   </div>
                   <hr />
+                  {task.standards.length === 0 ? (
+                    <>
+                      <div className='d-flex flex-column'>
+                        <div className='fst-italic'>
+                          Progression: {task.progression}/4
+                        </div>
+                      </div>
+                    </>
+                  ) : null}
                   <div className='d-flex flex-column'>
                     <div className='fst-italic'>
                       Engagement: {task.engagement}/4
