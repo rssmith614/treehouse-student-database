@@ -21,6 +21,7 @@ const NewProfile = () => {
           student_school: "",
           student_source: "",
           preferred_tutor: "",
+          classes: "",
           other: "",
           medical_conditions: "",
         },
@@ -383,6 +384,19 @@ const NewProfile = () => {
             </select>
           </div>
 
+          <div className='mb-3'>
+            <label htmlFor='classes' className='form-label h5'>
+              Classes
+            </label>
+            <textarea
+              className='form-control'
+              id='classes'
+              value={student.classes}
+              onChange={(e) =>
+                setStudent({ ...student, classes: e.target.value })
+              }
+            />
+          </div>
           <div className='mb-3'>
             <label htmlFor='extraInfo' className='form-label h5'>
               Other Info
