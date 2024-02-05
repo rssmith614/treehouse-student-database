@@ -404,6 +404,15 @@ const StudentProfileEdit = () => {
           </select>
         </div>
       </div>
+      <div className='d-flex p-3 flex-column flex-fill'>
+        <div className='d-flex h5'>Classes</div>
+        <textarea
+          className='d-flex form-control'
+          id='medicalConditions'
+          value={student.classes}
+          onChange={(e) => setStudent({ ...student, classes: e.target.value })}
+        />
+      </div>
       <div className='d-flex justify-content-start'>
         <div className='d-flex p-3 flex-column flex-fill'>
           <div className='d-flex h5'>Medical Conditions</div>

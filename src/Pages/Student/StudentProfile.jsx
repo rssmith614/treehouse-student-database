@@ -185,7 +185,7 @@ const StudentProfile = () => {
               </div>
               <div className='d-flex'>{student.parent_name}</div>
             </div>
-            <div className='d-flex p-3 flex-column flex-fill'>
+            <div className='d-flex p-3 flex-column w-50'>
               <div className='d-flex h5 text-decoration-underline'>
                 Parent Phone Number
               </div>
@@ -198,6 +198,10 @@ const StudentProfile = () => {
                 Preferred Tutor
               </div>
               <div className='d-flex'>{student.preferred_tutor_name}</div>
+            </div>
+            <div className='d-flex p-3 flex-column w-50'>
+              <div className='d-flex h5 text-decoration-underline'>Classes</div>
+              <div className='d-flex'>{student.classes}</div>
             </div>
           </div>
           <div className='d-flex justify-content-start'>
