@@ -30,26 +30,31 @@ const Login = ({ setUserProfile }) => {
           const user = result.user;
           // console.log(user);
 
+          // Check if user is in the database
           getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {
             if (userDoc.exists()) {
               if (
                 userDoc.data().clearance === "held" ||
                 userDoc.data().clearance === "revoked"
               ) {
+                // deny access based on clearance
                 window.alert(
                   "You do not have access to the Treehouse Student Database. Contact an administrator.",
                 );
                 signOut(auth);
               } else if (userDoc.data().clearance === "pending") {
+                // special case for pending clearance
                 window.alert(
                   "Your access to the Treehouse Student Database is pending. You will be notified when your access has been granted.",
                 );
                 signOut(auth);
               } else {
+                // successful login
                 setUserProfile(userDoc);
                 navigate(`/tutor/${userDoc.id}`);
               }
             } else {
+              // unrecognized user
               if (
                 !window.confirm(
                   "You are not registered in the database. Would you like to request access?",
@@ -57,6 +62,7 @@ const Login = ({ setUserProfile }) => {
               ) {
                 signOut(auth);
               } else {
+                // auth request
                 let { apiKey: _, ...rest } = {
                   ...JSON.parse(JSON.stringify(user.toJSON())),
                   activated: false,

@@ -10,12 +10,14 @@ function defineAbilityFor(user) {
   const tutorClearance = user.data().clearance;
   // const tutorEmail = user.data().email;
 
+  // ADMIN ABILITIES
   if (tutorClearance === 'admin') {
     can('manage', 'all');
     cannot('edit', Tutor, ['clearance'], { uid: user.id }).because("Admin cannot change their own clearance");
     cannot('delete', Tutor, { uid: user.id }).because("Admin cannot delete themselves");
   }
 
+  // TUTOR ABILITIES
   else if (tutorClearance === "tutor") {
     can('edit', Tutor, { uid: user.id });
     cannot('edit', Tutor, ['clearance'], { uid: user.id }).because("Tutor cannot change their own clearance");
@@ -56,4 +58,14 @@ class Assessment {
   }
 }
 
-export { defineAbilityFor, Tutor, Eval, Assessment }
+class Standard {
+  constructor(dict) {
+    for (const key in dict) {
+      if (dict.hasOwnProperty(key)) {
+        this[key] = dict[key];
+      }
+    }
+  }
+}
+
+export { defineAbilityFor, Tutor, Eval, Assessment, Standard }

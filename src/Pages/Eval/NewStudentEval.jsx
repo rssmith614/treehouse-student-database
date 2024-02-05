@@ -448,6 +448,7 @@ const NewStudentEval = () => {
               onClick(e);
             }}
             defaultValue={value}
+            readOnly
           ></Form.Control>
         )}
         <div className='invalid-feedback'>Please select a standard</div>

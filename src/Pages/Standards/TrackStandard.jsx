@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Card, Nav, Offcanvas } from "react-bootstrap";
+import { Button, Card, Nav } from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { ToastContext } from "../../Services/toast";
 
@@ -29,7 +29,7 @@ const TrackStandard = ({
     localStorage.getItem("category") || "Math",
   );
 
-  const [showSingle, setShowSingle] = useState(false);
+  // const [showSingle, setShowSingle] = useState(false);
 
   const addToast = useContext(ToastContext);
 
@@ -38,11 +38,11 @@ const TrackStandard = ({
     localStorage.setItem("category", category);
   }, [grade, category]);
 
-  useEffect(() => {
-    if (selectedStandard) {
-      setShowSingle(true);
-    }
-  }, [selectedStandard]);
+  // useEffect(() => {
+  //   if (selectedStandard) {
+  //     // addStandard();
+  //   }
+  // }, [selectedStandard]);
 
   function addStandard(e) {
     e.preventDefault();
@@ -61,7 +61,7 @@ const TrackStandard = ({
         message: `Standard ${selectedStandard.key} is already added to the task`,
       });
     }
-    setShowSingle(false);
+    // setShowSingle(false);
     close();
   }
 
@@ -95,35 +95,35 @@ const TrackStandard = ({
     );
   });
 
-  const addSingle = (
-    <>
-      <Offcanvas.Header closeButton>
-        <Offcanvas.Title>
-          Add <strong>{selectedStandard?.key}</strong> to the list of standards
-        </Offcanvas.Title>
-      </Offcanvas.Header>
-      <Offcanvas.Body>
-        <p className='fst-italic text-decoration-underline'>Description</p>
-        <p>{selectedStandard?.description}</p>
-        {selectedStandard?.questions !== undefined ? (
-          <>
-            <p className='fst-italic text-decoration-underline'>
-              Example Question
-            </p>
-            <div>Q: {selectedStandard.questions[0].question}</div>
-            <div>A: {selectedStandard.questions[0].answer}</div>
-          </>
-        ) : (
-          <></>
-        )}
-        <hr />
+  // const addSingle = (
+  //   <>
+  //     <Offcanvas.Header closeButton>
+  //       <Offcanvas.Title>
+  //         Add <strong>{selectedStandard?.key}</strong> to the list of standards
+  //       </Offcanvas.Title>
+  //     </Offcanvas.Header>
+  //     <Offcanvas.Body>
+  //       <p className='fst-italic text-decoration-underline'>Description</p>
+  //       <p>{selectedStandard?.description}</p>
+  //       {selectedStandard?.questions !== undefined ? (
+  //         <>
+  //           <p className='fst-italic text-decoration-underline'>
+  //             Example Question
+  //           </p>
+  //           <div>Q: {selectedStandard.questions[0].question}</div>
+  //           <div>A: {selectedStandard.questions[0].answer}</div>
+  //         </>
+  //       ) : (
+  //         <></>
+  //       )}
+  //       <hr />
 
-        <Button className='mt-3' id='addStandard' onClick={addStandard}>
-          Add
-        </Button>
-      </Offcanvas.Body>
-    </>
-  );
+  //       <Button className='mt-3' id='addStandard' onClick={addStandard}>
+  //         Add
+  //       </Button>
+  //     </Offcanvas.Body>
+  //   </>
+  // );
 
   return (
     <div className='d-flex flex-column p-3'>
@@ -145,6 +145,7 @@ const TrackStandard = ({
             grade={grade}
             category={category}
             setSelection={setSelectedStandard}
+            addSelection={addStandard}
             track
           />
         </Card.Body>
@@ -154,7 +155,7 @@ const TrackStandard = ({
           Done
         </Button>
       </div>
-      <Offcanvas
+      {/* <Offcanvas
         show={showSingle}
         onHide={() => {
           setShowSingle(false);
@@ -163,7 +164,7 @@ const TrackStandard = ({
         placement='end'
       >
         {addSingle}
-      </Offcanvas>
+      </Offcanvas> */}
     </div>
   );
 };
