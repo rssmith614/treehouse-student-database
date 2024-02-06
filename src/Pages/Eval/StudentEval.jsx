@@ -148,7 +148,7 @@ const StudentEval = () => {
                 {/* <div className='card-header'>Comments</div> */}
                 <div className='card-body'>
                   <div className='d-flex flex-column'>
-                    <div>{task.comments}</div>
+                    <div className='text-break'>{task.comments}</div>
                   </div>
                   <hr />
                   {task.standards.length === 0 ? (
