@@ -14,7 +14,7 @@ import dayjs from "dayjs";
 
 import { db } from "../Services/firebase";
 import { useNavigate } from "react-router-dom";
-import { Dropdown, InputGroup, Table, Form } from "react-bootstrap";
+import { Dropdown, InputGroup, Table, Form, Button } from "react-bootstrap";
 
 const EvalsTable = ({ filterBy, id }) => {
   const [evals, setEvals] = useState([]);
@@ -120,6 +120,81 @@ const EvalsTable = ({ filterBy, id }) => {
       } +${standards.length - 1} more`;
   }
 
+  const EvalRow = ({ evaluation }) => {
+    const [expanded, setExpanded] = useState(evaluation.tasks.length < 2);
+
+    return expanded ? (
+      <tr
+        key={evaluation.id}
+        onClick={() => navigate(`/eval/${evaluation.id}`)}
+        style={{ cursor: "pointer" }}
+      >
+        <td className='align-middle'>
+          {dayjs(evaluation.date).format("MMMM DD, YYYY")}
+        </td>
+        <td className='align-middle'>
+          {filterBy === "tutor"
+            ? evaluation.student_name
+            : evaluation.tutor_name}
+        </td>
+        <td className='align-middle'>
+          {evaluation.tasks.map((t, i) => {
+            return (
+              <div key={i} className='text-break'>
+                {t}
+                <br />
+              </div>
+            );
+          })}
+        </td>
+        <td className='align-top'>
+          {evaluation.tasks.length > 1 ? (
+            <Button
+              className='ms-auto btn-sm'
+              variant='secondary'
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded(false);
+              }}
+            >
+              Collapse
+            </Button>
+          ) : null}
+        </td>
+      </tr>
+    ) : (
+      <tr
+        key={evaluation.id}
+        onClick={() => navigate(`/eval/${evaluation.id}`)}
+        style={{ cursor: "pointer" }}
+      >
+        <td className='align-middle'>
+          {dayjs(evaluation.date).format("MMMM DD, YYYY")}
+        </td>
+        <td className='align-middle'>
+          {filterBy === "tutor"
+            ? evaluation.student_name
+            : evaluation.tutor_name}
+        </td>
+        <td className='align-middle'>
+          <div className='text-break'>{evaluation.tasks[0]}</div>
+        </td>
+        <td className='text-end'>
+          <Button
+            className='ms-auto btn-sm'
+            variant='secondary'
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded(true);
+            }}
+          >
+            +{evaluation.tasks.length - 1}
+          </Button>
+        </td>
+      </tr>
+    );
+  };
+
   function evalList() {
     const tableData = evals.filter((evaluation) => {
       return (
@@ -146,30 +221,7 @@ const EvalsTable = ({ filterBy, id }) => {
     }
 
     return tableData.map((evaluation) => {
-      return (
-        <tr
-          key={evaluation.id}
-          onClick={() => navigate(`/eval/${evaluation.id}`)}
-          style={{ cursor: "pointer" }}
-        >
-          <td>{dayjs(evaluation.date).format("MMMM DD, YYYY")}</td>
-          <td>
-            {filterBy === "tutor"
-              ? evaluation.student_name
-              : evaluation.tutor_name}
-          </td>
-          <td>
-            {evaluation.tasks.map((t, i) => {
-              return (
-                <div key={i}>
-                  {t}
-                  <br />
-                </div>
-              );
-            })}
-          </td>
-        </tr>
-      );
+      return <EvalRow key={evaluation.id} evaluation={evaluation} />;
     });
   }
 
@@ -306,9 +358,7 @@ const EvalsTable = ({ filterBy, id }) => {
             </th>
           )}
           <th>Tasks</th>
-          {/* <th className="w-50">Subject</th>
-          <th>Engagement</th>
-          <th>Progression</th> */}
+          <th></th>
         </tr>
       </thead>
       <tbody>{evalList()}</tbody>
