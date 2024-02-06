@@ -399,7 +399,8 @@ const StudentEvalEdit = () => {
           if (t.id === undefined) {
             addDoc(collection(evalRef.current, "tasks"), {
               ...rest,
-              progression: t.standards.length === 0 ? t.progression : null,
+              progression:
+                t.standards.length === 0 ? t.progression || "4" : null,
               standards: t.standards.map((s) => {
                 return { id: s.id, progression: s.progression };
               }),
@@ -407,7 +408,8 @@ const StudentEvalEdit = () => {
           } else {
             setDoc(doc(db, "evaluations", evalRef.current.id, "tasks", t.id), {
               ...rest,
-              progression: t.standards.length === 0 ? t.progression : null,
+              progression:
+                t.standards.length === 0 ? t.progression || "4" : null,
               standards: t.standards.map((s) => {
                 return { id: s.id, progression: s.progression };
               }),
