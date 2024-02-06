@@ -34,6 +34,8 @@ import {
 } from "react-bootstrap";
 import { deleteObject, ref, uploadBytes } from "firebase/storage";
 import TrackStandard from "../Standards/TrackStandard";
+import { Can } from "../../Services/can";
+import { Eval } from "../../Services/defineAbility";
 
 const grades = {
   K: "Kindergarten",
@@ -397,7 +399,8 @@ const StudentEvalEdit = () => {
           if (t.id === undefined) {
             addDoc(collection(evalRef.current, "tasks"), {
               ...rest,
-              progression: t.standards.length === 0 ? t.progression : null,
+              progression:
+                t.standards.length === 0 ? t.progression || "4" : null,
               standards: t.standards.map((s) => {
                 return { id: s.id, progression: s.progression };
               }),
@@ -405,7 +408,8 @@ const StudentEvalEdit = () => {
           } else {
             setDoc(doc(db, "evaluations", evalRef.current.id, "tasks", t.id), {
               ...rest,
-              progression: t.standards.length === 0 ? t.progression : null,
+              progression:
+                t.standards.length === 0 ? t.progression || "4" : null,
               standards: t.standards.map((s) => {
                 return { id: s.id, progression: s.progression };
               }),
@@ -1087,6 +1091,28 @@ const StudentEvalEdit = () => {
                 Please enter plans for the next session
               </div>
             </div>
+            <Can I='manage' an={Eval}>
+              <div className='px-3'>
+                <hr />
+                <h5>Owner</h5>
+                <Form.Select
+                  className='w-25'
+                  value={evaluation.owner}
+                  onChange={(e) => {
+                    setEvaluation({ ...evaluation, owner: e.target.value });
+                  }}
+                >
+                  {tutors.map((tutor) => {
+                    let tutorData = tutor.data();
+                    return (
+                      <option value={tutor.id} key={tutor.id}>
+                        {tutorData.displayName}
+                      </option>
+                    );
+                  })}
+                </Form.Select>
+              </div>
+            </Can>
           </div>
         </div>
         <div className='d-flex'>
