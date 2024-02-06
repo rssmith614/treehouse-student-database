@@ -138,14 +138,15 @@ const EvalsTable = ({ filterBy, id }) => {
             : evaluation.tutor_name}
         </td>
         <td className='align-middle'>
-          {evaluation.tasks.map((t, i) => {
-            return (
-              <div key={i} className='text-break'>
-                {t}
-                <br />
-              </div>
-            );
-          })}
+          <ul className='list-group'>
+            {evaluation.tasks.map((t, i) => {
+              return (
+                <li key={i} className='text-break'>
+                  {t}
+                </li>
+              );
+            })}
+          </ul>
         </td>
         <td className='align-top'>
           {evaluation.tasks.length > 1 ? (
@@ -177,7 +178,9 @@ const EvalsTable = ({ filterBy, id }) => {
             : evaluation.tutor_name}
         </td>
         <td className='align-middle'>
-          <div className='text-break'>{evaluation.tasks[0]}</div>
+          <ul className='list-group'>
+            <li className='text-break'>{evaluation.tasks[0]}</li>
+          </ul>
         </td>
         <td className='text-end'>
           <Button
