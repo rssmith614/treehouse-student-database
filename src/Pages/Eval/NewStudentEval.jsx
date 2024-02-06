@@ -80,6 +80,7 @@ const NewStudentEval = () => {
           {
             subject: "",
             standards: [],
+            progression: "4",
             engagement: "4",
             comments: "",
           },
@@ -175,12 +176,19 @@ const NewStudentEval = () => {
 
   useEffect(() => {
     for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].standards.length < 1 && tasks[i].progression <= 2) {
+        document.getElementById("flagForReview").classList.remove("d-none");
+        return;
+      }
       if (tasks[i].engagement <= 2) {
         document.getElementById("flagForReview").classList.remove("d-none");
         return;
       }
       for (let j = 0; j < tasks[i].standards.length; j++) {
-        if (tasks[i].standards[j].progression <= 2) {
+        if (
+          tasks[i].standards[j].progression &&
+          tasks[i].standards[j].progression <= 2
+        ) {
           document.getElementById("flagForReview").classList.remove("d-none");
           return;
         }
@@ -207,6 +215,7 @@ const NewStudentEval = () => {
       {
         subject: "",
         standards: [],
+        progression: "4",
         engagement: "4",
         comments: "",
       },
@@ -259,6 +268,16 @@ const NewStudentEval = () => {
           // addToast({
           //   header: "Missing Standard",
           //   message: "Please select a standard",
+          // });
+          clean = false;
+        }
+        if (s.progression === "") {
+          document
+            .getElementById(`${i}_${standard_i}_progression`)
+            .classList.add(`is-invalid`);
+          // addToast({
+          //   header: "Missing Progression",
+          //   message: "Please select a progression for all standards",
           // });
           clean = false;
         }
@@ -333,6 +352,7 @@ const NewStudentEval = () => {
             tasks.forEach((t) =>
               addDoc(collection(doc, "tasks"), {
                 ...t,
+                progression: t.standards.length === 0 ? t.progression : null,
                 standards: t.standards.map((s) => {
                   return { id: s.id, progression: s.progression };
                 }),
@@ -369,6 +389,7 @@ const NewStudentEval = () => {
           tasks.forEach((t) => {
             addDoc(collection(d, "tasks"), {
               ...t,
+              progression: t.standards.length === 0 ? t.progression : null,
               standards: t.standards.map((s) => {
                 return { id: s.id, progression: s.progression };
               }),
@@ -616,6 +637,48 @@ const NewStudentEval = () => {
                       Please provide a brief summary for this task
                     </div>
                   </div>
+                  {task.standards.length === 0 ? (
+                    <>
+                      <hr />
+                      <div className='d-flex flex-column'>
+                        <div className='h5 d-flex'>
+                          Progression
+                          <OverlayTrigger
+                            placement='top'
+                            overlay={
+                              <Popover>
+                                <Popover.Header>Progression</Popover.Header>
+                                <Popover.Body>
+                                  How well did the student understand the
+                                  material?
+                                </Popover.Body>
+                              </Popover>
+                            }
+                          >
+                            <i className='bi bi-info-square ms-auto ps-2'></i>
+                          </OverlayTrigger>
+                        </div>
+                        <input
+                          id='progression'
+                          className='form-control'
+                          type='number'
+                          min='1'
+                          max='4'
+                          step='1'
+                          value={task.progression}
+                          onChange={(e) =>
+                            setTasks(
+                              tasks.map((t, i) => {
+                                if (i !== task_idx) return t;
+                                else
+                                  return { ...t, progression: e.target.value };
+                              }),
+                            )
+                          }
+                        />
+                      </div>
+                    </>
+                  ) : null}
                   <hr />
                   <div className='d-flex flex-column'>
                     <div className='h5 d-flex'>
@@ -730,6 +793,7 @@ const NewStudentEval = () => {
                               />
                             </Dropdown>
                             <Form.Select
+                              id={`${task_idx}_${standard_idx}_progression`}
                               value={standard?.progression}
                               onChange={(e) => {
                                 setTasks(
@@ -763,6 +827,9 @@ const NewStudentEval = () => {
                                 4 - Exceeds Expectations
                               </option>
                             </Form.Select>
+                            <div className='invalid-feedback'>
+                              Please select a progression for this standard
+                            </div>
                           </div>
                         </li>
                       );
@@ -783,7 +850,7 @@ const NewStudentEval = () => {
                                 ...t.standards,
                                 {
                                   key: "",
-                                  progression: "4",
+                                  progression: "",
                                 },
                               ],
                             };

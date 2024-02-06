@@ -225,12 +225,19 @@ const StudentEvalEdit = () => {
 
   useEffect(() => {
     for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].standards.length < 1 && tasks[i].progression <= 2) {
+        document.getElementById("flagForReview").classList.remove("d-none");
+        return;
+      }
       if (tasks[i].engagement <= 2) {
         document.getElementById("flagForReview").classList.remove("d-none");
         return;
       }
       for (let j = 0; j < tasks[i].standards.length; j++) {
-        if (tasks[i].standards[j].progression <= 2) {
+        if (
+          tasks[i].standards[j].progression &&
+          tasks[i].standards[j].progression <= 2
+        ) {
           document.getElementById("flagForReview").classList.remove("d-none");
           return;
         }
@@ -319,11 +326,6 @@ const StudentEvalEdit = () => {
 
     evalUpload.tutor_id = selectedTutor;
     evalUpload.tutor_name = tutorName;
-    // setEvaluation({
-    //   ...evaluation,
-    //   tutor_id: selectedTutor,
-    //   tutor_name: tutorName,
-    // });
 
     if (
       document
@@ -395,6 +397,7 @@ const StudentEvalEdit = () => {
           if (t.id === undefined) {
             addDoc(collection(evalRef.current, "tasks"), {
               ...rest,
+              progression: t.standards.length === 0 ? t.progression : null,
               standards: t.standards.map((s) => {
                 return { id: s.id, progression: s.progression };
               }),
@@ -402,6 +405,7 @@ const StudentEvalEdit = () => {
           } else {
             setDoc(doc(db, "evaluations", evalRef.current.id, "tasks", t.id), {
               ...rest,
+              progression: t.standards.length === 0 ? t.progression : null,
               standards: t.standards.map((s) => {
                 return { id: s.id, progression: s.progression };
               }),
@@ -690,6 +694,48 @@ const StudentEvalEdit = () => {
                       Please provide a brief summary for this task
                     </div>
                   </div>
+                  {task.standards.length === 0 ? (
+                    <>
+                      <hr />
+                      <div className='d-flex flex-column'>
+                        <div className='h5 d-flex'>
+                          Progression
+                          <OverlayTrigger
+                            placement='top'
+                            overlay={
+                              <Popover>
+                                <Popover.Header>Progression</Popover.Header>
+                                <Popover.Body>
+                                  How well did the student understand the
+                                  material?
+                                </Popover.Body>
+                              </Popover>
+                            }
+                          >
+                            <i className='bi bi-info-square ms-auto ps-2'></i>
+                          </OverlayTrigger>
+                        </div>
+                        <input
+                          id='progression'
+                          className='form-control'
+                          type='number'
+                          min='1'
+                          max='4'
+                          step='1'
+                          value={task.progression || "4"}
+                          onChange={(e) =>
+                            setTasks(
+                              tasks.map((t, i) => {
+                                if (i !== task_idx) return t;
+                                else
+                                  return { ...t, progression: e.target.value };
+                              }),
+                            )
+                          }
+                        />
+                      </div>
+                    </>
+                  ) : null}
                   <hr />
                   <div className='d-flex flex-column'>
                     <div className='h5 d-flex'>
@@ -857,7 +903,7 @@ const StudentEvalEdit = () => {
                                 ...t.standards,
                                 {
                                   key: "",
-                                  progression: "4",
+                                  progression: "",
                                 },
                               ],
                             };

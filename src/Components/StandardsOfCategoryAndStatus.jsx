@@ -234,6 +234,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
                       <OverlayTrigger
                         placement='right'
                         flip={true}
+                        trigger={["hover", "focus", "click"]}
                         overlay={
                           <Popover className=''>
                             <Popover.Header>{standard.key}</Popover.Header>
