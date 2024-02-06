@@ -34,6 +34,8 @@ import {
 } from "react-bootstrap";
 import { deleteObject, ref, uploadBytes } from "firebase/storage";
 import TrackStandard from "../Standards/TrackStandard";
+import { Can } from "../../Services/can";
+import { Eval } from "../../Services/defineAbility";
 
 const grades = {
   K: "Kindergarten",
@@ -1087,6 +1089,28 @@ const StudentEvalEdit = () => {
                 Please enter plans for the next session
               </div>
             </div>
+            <Can I='manage' an={Eval}>
+              <div className='px-3'>
+                <hr />
+                <h5>Owner</h5>
+                <Form.Select
+                  className='w-25'
+                  value={evaluation.owner}
+                  onChange={(e) => {
+                    setEvaluation({ ...evaluation, owner: e.target.value });
+                  }}
+                >
+                  {tutors.map((tutor) => {
+                    let tutorData = tutor.data();
+                    return (
+                      <option value={tutor.id} key={tutor.id}>
+                        {tutorData.displayName}
+                      </option>
+                    );
+                  })}
+                </Form.Select>
+              </div>
+            </Can>
           </div>
         </div>
         <div className='d-flex'>

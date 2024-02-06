@@ -47,6 +47,7 @@ const grades = {
 const StudentEval = () => {
   const [evaluation, setEvaluation] = useState({});
   const [tasks, setTasks] = useState([]);
+  const [evalOwnerName, setEvalOwnerName] = useState("");
 
   const [loading, setLoading] = useState(true);
 
@@ -65,6 +66,9 @@ const StudentEval = () => {
   useEffect(() => {
     const unsubscribeEval = onSnapshot(evalRef.current, async (res) => {
       setEvaluation(res.data());
+      await getDoc(doc(db, "tutors", res.data().owner)).then((owner) => {
+        setEvalOwnerName(owner.data().displayName);
+      });
       if (res.data().worksheet === "" || !res.data().worksheet) return;
 
       try {
@@ -319,6 +323,11 @@ const StudentEval = () => {
             </div>
           </div>
         </div>
+        <Can I='manage' an={Eval}>
+          <hr />
+          <h5 className='text-decoration-underline'>Owner</h5>
+          <div>{evalOwnerName}</div>
+        </Can>
       </div>
       <div className='d-flex'>
         <button
