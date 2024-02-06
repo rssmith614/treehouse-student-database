@@ -36,6 +36,11 @@ const NewStudentAssessment = () => {
 
   const navigate = useNavigate();
 
+  // scroll to top on load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     const unsubscribeStudent = onSnapshot(
       doc(db, "students", params.studentid),

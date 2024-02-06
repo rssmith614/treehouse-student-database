@@ -44,6 +44,11 @@ const NewProfile = () => {
 
   const navigate = useNavigate();
 
+  // scroll to top on load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "tutors"), (res) =>
       setTutors(res.docs),
