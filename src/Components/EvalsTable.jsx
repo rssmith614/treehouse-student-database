@@ -148,7 +148,7 @@ const EvalsTable = ({ filterBy, id }) => {
             })}
           </ul>
         </td>
-        <td className='align-top'>
+        <td className='text-end'>
           {evaluation.tasks.length > 1 ? (
             <Button
               className='ms-auto btn-sm'
