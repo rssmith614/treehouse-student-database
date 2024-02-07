@@ -51,16 +51,11 @@ const TrackStandard = ({
 
     if (!standards.find((s) => s.id === selectedStandard.id)) {
       setStandards([...standards, selectedStandard]);
-      addToast({
-        header: "Standard Added",
-        message: `Standard ${selectedStandard.key} is ready to be added to the task`,
-      });
-    } else {
-      addToast({
-        header: "Standard Already Added",
-        message: `Standard ${selectedStandard.key} is already added to the task`,
-      });
     }
+    addToast({
+      header: "Standard Added",
+      message: `Standard ${selectedStandard.key} has been selected`,
+    });
     // setShowSingle(false);
     close();
   }
