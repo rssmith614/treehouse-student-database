@@ -97,7 +97,7 @@ const StandardsOfCategory = ({
                       <OverlayTrigger
                         placement='right'
                         flip={true}
-                        trigger={"hover"}
+                        trigger={"focus"}
                         overlay={
                           <Popover className=''>
                             <Popover.Header>{standard.key}</Popover.Header>
