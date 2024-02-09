@@ -26,8 +26,6 @@ import {
   Offcanvas,
   Card,
   Container,
-  Row,
-  Col,
 } from "react-bootstrap";
 import TrackStandard from "../Standards/TrackStandard";
 
@@ -579,154 +577,153 @@ const NewStudentEval = () => {
 
   const tasksList = tasks.map((task, task_idx) => {
     return (
-      <Col className='d-flex flex-column' key={task_idx}>
-        <Card className='mb-3 flex-fill'>
-          <Card.Header className='d-flex'>
-            <div className='h5 align-self-end'>Task {task_idx + 1}</div>
-            <Button
-              type='button'
-              variant='danger'
-              className='ms-auto'
-              onClick={() => {
-                setTasks(tasks.filter((t, i) => i !== task_idx));
-              }}
-              disabled={tasks.length <= 1}
-            >
-              <i className='bi bi-trash-fill' />
-            </Button>
-          </Card.Header>
-          <Card.Body className='d-flex'>
-            <div className='d-flex flex-column mw-0 me-3'>
-              <div className='h5 d-flex'>
-                Summary
-                <OverlayTrigger
-                  placement='top'
-                  className='ms-auto'
-                  overlay={
-                    <Popover>
-                      <Popover.Header>Comments</Popover.Header>
-                      <Popover.Body>
-                        What did the student work on? What did they do well?
-                        What did they struggle with?
-                        <hr />
-                        <div className='text-decoration-underline'>Example</div>
-                        "Worked on adding fractions with unlike denominators.
-                        Struggled with finding the least common denominator."
-                      </Popover.Body>
-                    </Popover>
-                  }
-                >
-                  <i className='bi bi-info-square ms-auto'></i>
-                </OverlayTrigger>
-              </div>
-              <div className='d-flex card bg-light-subtle'>
-                <div className='card-body'>
-                  <div className='d-flex flex-column'>
-                    <textarea
-                      id={`${task_idx}_comments`}
-                      className='form-control'
-                      value={task.comments}
-                      onChange={(e) => {
-                        setTasks(
-                          tasks.map((t, i) => {
-                            if (i !== task_idx) return t;
-                            else return { ...t, comments: e.target.value };
-                          }),
-                        );
-                        e.target.style.height = "auto";
-                        e.target.style.height = `${e.target.scrollHeight}px`;
-                      }}
-                      required
-                    />
-                    <div className='invalid-feedback'>
-                      Please provide a brief summary for this task
-                    </div>
-                  </div>
-                  {task.standards.length === 0 ? (
-                    <>
+      <Card className='mb-3' id={task_idx}>
+        <Card.Header className='d-flex'>
+          <div className='h5 align-self-end'>Task {task_idx + 1}</div>
+          <Button
+            type='button'
+            variant='danger'
+            className='ms-auto'
+            onClick={() => {
+              setTasks(tasks.filter((t, i) => i !== task_idx));
+            }}
+            disabled={tasks.length <= 1}
+          >
+            <i className='bi bi-trash-fill' />
+          </Button>
+        </Card.Header>
+        <Card.Body className='d-flex'>
+          <div className='d-flex flex-column flex-fill'>
+            <div className='h5 d-flex'>
+              Summary
+              <OverlayTrigger
+                placement='top'
+                className='ms-auto'
+                overlay={
+                  <Popover>
+                    <Popover.Header>Comments</Popover.Header>
+                    <Popover.Body>
+                      What did the student work on? What did they do well? What
+                      did they struggle with?
                       <hr />
-                      <div className='d-flex flex-column'>
-                        <div className='h5 d-flex'>
-                          Progression
-                          <OverlayTrigger
-                            placement='top'
-                            overlay={
-                              <Popover>
-                                <Popover.Header>Progression</Popover.Header>
-                                <Popover.Body>
-                                  How well did the student understand the
-                                  material?
-                                </Popover.Body>
-                              </Popover>
-                            }
-                          >
-                            <i className='bi bi-info-square ms-auto ps-2'></i>
-                          </OverlayTrigger>
-                        </div>
-                        <input
-                          id='progression'
-                          className='form-control'
-                          type='number'
-                          min='1'
-                          max='4'
-                          step='1'
-                          value={task.progression}
-                          onChange={(e) =>
-                            setTasks(
-                              tasks.map((t, i) => {
-                                if (i !== task_idx) return t;
-                                else
-                                  return { ...t, progression: e.target.value };
-                              }),
-                            )
-                          }
-                        />
-                      </div>
-                    </>
-                  ) : null}
-                  <hr />
-                  <div className='d-flex flex-column'>
-                    <div className='h5 d-flex'>
-                      Engagement
-                      <OverlayTrigger
-                        placement='top'
-                        overlay={
-                          <Popover>
-                            <Popover.Header>Engagement</Popover.Header>
-                            <Popover.Body>
-                              How well did the student work with the tutor?
-                            </Popover.Body>
-                          </Popover>
-                        }
-                      >
-                        <i className='bi bi-info-square ms-auto ps-2'></i>
-                      </OverlayTrigger>
-                    </div>
-                    <input
-                      id='engagement'
-                      className='form-control'
-                      type='number'
-                      min='1'
-                      max='4'
-                      step='1'
-                      value={task.engagement}
-                      onChange={(e) =>
-                        setTasks(
-                          tasks.map((t, i) => {
-                            if (i !== task_idx) return t;
-                            else return { ...t, engagement: e.target.value };
-                          }),
-                        )
-                      }
-                    />
+                      <div className='text-decoration-underline'>Example</div>
+                      "Worked on adding fractions with unlike denominators.
+                      Struggled with finding the least common denominator."
+                    </Popover.Body>
+                  </Popover>
+                }
+              >
+                <i className='bi bi-info-square ms-auto'></i>
+              </OverlayTrigger>
+            </div>
+            <div className='d-flex card bg-light-subtle'>
+              <div className='card-body'>
+                <div className='d-flex flex-column'>
+                  <textarea
+                    id={`${task_idx}_comments`}
+                    className='form-control'
+                    value={task.comments}
+                    onChange={(e) => {
+                      setTasks(
+                        tasks.map((t, i) => {
+                          if (i !== task_idx) return t;
+                          else return { ...t, comments: e.target.value };
+                        }),
+                      );
+                      e.target.style.height = "auto";
+                      e.target.style.height = `${e.target.scrollHeight}px`;
+                    }}
+                    required
+                  />
+                  <div className='invalid-feedback'>
+                    Please provide a brief summary for this task
                   </div>
+                </div>
+                {task.standards.length === 0 ? (
+                  <>
+                    <hr />
+                    <div className='d-flex flex-column'>
+                      <div className='h5 d-flex'>
+                        Progression
+                        <OverlayTrigger
+                          placement='top'
+                          overlay={
+                            <Popover>
+                              <Popover.Header>Progression</Popover.Header>
+                              <Popover.Body>
+                                How well did the student understand the
+                                material?
+                              </Popover.Body>
+                            </Popover>
+                          }
+                        >
+                          <i className='bi bi-info-square ms-auto ps-2'></i>
+                        </OverlayTrigger>
+                      </div>
+                      <input
+                        id='progression'
+                        className='form-control'
+                        type='number'
+                        min='1'
+                        max='4'
+                        step='1'
+                        value={task.progression}
+                        onChange={(e) =>
+                          setTasks(
+                            tasks.map((t, i) => {
+                              if (i !== task_idx) return t;
+                              else return { ...t, progression: e.target.value };
+                            }),
+                          )
+                        }
+                      />
+                    </div>
+                  </>
+                ) : null}
+                <hr />
+                <div className='d-flex flex-column'>
+                  <div className='h5 d-flex'>
+                    Engagement
+                    <OverlayTrigger
+                      placement='top'
+                      overlay={
+                        <Popover>
+                          <Popover.Header>Engagement</Popover.Header>
+                          <Popover.Body>
+                            How well did the student work with the tutor?
+                          </Popover.Body>
+                        </Popover>
+                      }
+                    >
+                      <i className='bi bi-info-square ms-auto ps-2'></i>
+                    </OverlayTrigger>
+                  </div>
+                  <input
+                    id='engagement'
+                    className='form-control'
+                    type='number'
+                    min='1'
+                    max='4'
+                    step='1'
+                    value={task.engagement}
+                    onChange={(e) =>
+                      setTasks(
+                        tasks.map((t, i) => {
+                          if (i !== task_idx) return t;
+                          else return { ...t, engagement: e.target.value };
+                        }),
+                      )
+                    }
+                  />
                 </div>
               </div>
             </div>
-            <div className='vr' />
-            <div className='d-flex flex-column ps-3'>
-              <div className='h5'>Standards</div>
-              <Card className='p-3 bg-light-subtle'>
+          </div>
+          <div className='vr mx-3' />
+          <div className='d-flex flex-column'>
+            <div className='h5'>Standards</div>
+            <div className='d-flex'>
+              <Card className='p-3 bg-light-subtle flex-fill justify-content-center'>
                 {task.standards.length === 0 ? null : (
                   <ul className='list-group mb-3'>
                     {task.standards.map((standard, standard_idx) => {
@@ -799,6 +796,7 @@ const NewStudentEval = () => {
                             </Dropdown>
                             <Form.Select
                               id={`${task_idx}_${standard_idx}_progression`}
+                              style={{ width: "auto" }}
                               value={standard?.progression}
                               onChange={(e) => {
                                 setTasks(
@@ -841,36 +839,34 @@ const NewStudentEval = () => {
                     })}
                   </ul>
                 )}
-                <Col className=''>
-                  <Button
-                    variant='secondary'
-                    onClick={() => {
-                      setTasks(
-                        tasks.map((t, i) => {
-                          if (i !== task_idx) return t;
-                          else
-                            return {
-                              ...t,
-                              standards: [
-                                ...t.standards,
-                                {
-                                  key: "",
-                                  progression: "",
-                                },
-                              ],
-                            };
-                        }),
-                      );
-                    }}
-                  >
-                    Add Standard
-                  </Button>
-                </Col>
+                <Button
+                  variant='secondary'
+                  onClick={() => {
+                    setTasks(
+                      tasks.map((t, i) => {
+                        if (i !== task_idx) return t;
+                        else
+                          return {
+                            ...t,
+                            standards: [
+                              ...t.standards,
+                              {
+                                key: "",
+                                progression: "",
+                              },
+                            ],
+                          };
+                      }),
+                    );
+                  }}
+                >
+                  Add Standard
+                </Button>
               </Card>
             </div>
-          </Card.Body>
-        </Card>
-      </Col>
+          </div>
+        </Card.Body>
+      </Card>
     );
   });
 
@@ -922,9 +918,7 @@ const NewStudentEval = () => {
           <hr />
           <div className='d-flex flex-column'>
             <div className='h4'>Tasks</div>
-            <Container>
-              <Row xs={{ cols: "auto" }}>{tasksList}</Row>
-            </Container>
+            <Container>{tasksList}</Container>
             <Button
               type='button'
               variant='secondary'
