@@ -203,7 +203,11 @@ const TutorProfile = () => {
         </Card.Header>
         <Card.Body>
           <div className='d-flex flex-column'>
-            <EvalsTable filterBy='tutor' id={tutorDocRef.current.id} />
+            <EvalsTable
+              filterBy='tutor'
+              id={tutorDocRef.current.id}
+              _limit={10}
+            />
           </div>
         </Card.Body>
       </Card>
