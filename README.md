@@ -23,3 +23,14 @@ npm start
 ## Authors / Contributors
 
 - [Robert Smith](https://github.com/rssmith614)
+
+## Other notes
+
+Firestore database is backed up weekly on Sundays via gcloud. To view current backups, run the following command:
+
+```bash
+gcloud alpha firestore backups list \
+--format="table(name, database, state)"
+```
+
+Further documentation on Firestore backups can be found [here](https://cloud.google.com/firestore/docs/backups#create_and_manage_backup_schedules).
