@@ -134,9 +134,10 @@ const StandardsOfCategory = ({
                           className='btn btn-link link-body-emphasis link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
                           style={{ cursor: "pointer" }}
                           onClick={
-                            ability.can("edit", Standard)
-                              ? () => setSelection(standard)
-                              : () => {}
+                            !track &&
+                            !ability.can("edit", new Standard(standard))
+                              ? () => {}
+                              : () => setSelection(standard)
                           }
                         >
                           {standard.key}
