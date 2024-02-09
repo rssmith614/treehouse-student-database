@@ -24,6 +24,8 @@ const StandardsOfCategory = ({
   const [subcategories, setSubcategories] = useState({});
   const [loading, setLoading] = useState(true);
 
+  const [poppedStandard, setPoppedStandard] = useState({});
+
   const ability = useAbility(AbilityContext);
 
   useEffect(() => {
@@ -97,7 +99,7 @@ const StandardsOfCategory = ({
                       <OverlayTrigger
                         placement='right'
                         flip={true}
-                        trigger={"focus"}
+                        show={poppedStandard === standard}
                         overlay={
                           <Popover className=''>
                             <Popover.Header>{standard.key}</Popover.Header>
@@ -133,12 +135,18 @@ const StandardsOfCategory = ({
                         <button
                           className='btn btn-link link-body-emphasis link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
                           style={{ cursor: "pointer" }}
-                          onClick={
-                            !track &&
-                            !ability.can("edit", new Standard(standard))
-                              ? () => {}
-                              : () => setSelection(standard)
-                          }
+                          onClick={() => {
+                            if (
+                              !track &&
+                              !ability.can("edit", new Standard(standard))
+                            ) {
+                              return;
+                            } else {
+                              setSelection(standard);
+                            }
+                            setPoppedStandard(standard);
+                          }}
+                          onBlur={() => setPoppedStandard({})}
                         >
                           {standard.key}
                         </button>
