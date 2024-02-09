@@ -1,9 +1,11 @@
 import {
   collection,
   doc,
+  getCountFromServer,
   getDoc,
   getDocs,
   onSnapshot,
+  orderBy,
   query,
   updateDoc,
   where,
@@ -14,10 +16,19 @@ import dayjs from "dayjs";
 
 import { db } from "../Services/firebase";
 import { useNavigate } from "react-router-dom";
-import { Dropdown, InputGroup, Table, Form, Button } from "react-bootstrap";
+import {
+  Dropdown,
+  InputGroup,
+  Table,
+  Form,
+  Button,
+  Pagination,
+} from "react-bootstrap";
 
-const EvalsTable = ({ filterBy, id }) => {
+const EvalsTable = ({ filterBy, id, _limit }) => {
   const [evals, setEvals] = useState([]);
+  const [numRecords, setNumRecords] = useState(0);
+  const [cursorIndex, setCursorIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const [tableSort, setTableSort] = useState("date_desc");
@@ -30,14 +41,36 @@ const EvalsTable = ({ filterBy, id }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    docRef.current = doc(db, filterBy, id);
-
     let q;
 
     if (filterBy === "tutor") {
       q = query(collection(db, "evaluations"), where("tutor_id", "==", id));
     } else if (filterBy === "student") {
       q = query(collection(db, "evaluations"), where("student_id", "==", id));
+    }
+
+    getCountFromServer(q).then((count) => {
+      setNumRecords(count.data().count);
+    });
+  }, [filterBy, id]);
+
+  useEffect(() => {
+    docRef.current = doc(db, filterBy, id);
+
+    let q;
+
+    if (filterBy === "tutor") {
+      q = query(
+        collection(db, "evaluations"),
+        where("tutor_id", "==", id),
+        orderBy("date", "desc"),
+      );
+    } else if (filterBy === "student") {
+      q = query(
+        collection(db, "evaluations"),
+        where("student_id", "==", id),
+        orderBy("date", "desc"),
+      );
     }
 
     const unsubscribeEvals = onSnapshot(q, (res) => {
@@ -104,7 +137,7 @@ const EvalsTable = ({ filterBy, id }) => {
     });
 
     return () => unsubscribeEvals();
-  }, [filterBy, id]);
+  }, [filterBy, id, cursorIndex, _limit]);
 
   async function standardsLabel(standards) {
     if (standards.length === 0) return "None";
@@ -223,9 +256,20 @@ const EvalsTable = ({ filterBy, id }) => {
         break;
     }
 
-    return tableData.map((evaluation) => {
-      return <EvalRow key={evaluation.id} evaluation={evaluation} />;
-    });
+    if (_limit) {
+      return tableData.map((evaluation) => {
+        if (
+          tableData.indexOf(evaluation) >= cursorIndex &&
+          tableData.indexOf(evaluation) < cursorIndex + _limit
+        )
+          return <EvalRow key={evaluation.id} evaluation={evaluation} />;
+        else return null;
+      });
+    } else {
+      return tableData.map((evaluation) => {
+        return <EvalRow key={evaluation.id} evaluation={evaluation} />;
+      });
+    }
   }
 
   function filterIcon(column) {
@@ -306,66 +350,112 @@ const EvalsTable = ({ filterBy, id }) => {
     ),
   );
 
+  const PageNavigation = () => {
+    return (
+      <Pagination>
+        <Pagination.First onClick={() => setCursorIndex(0)} />
+        <Pagination.Prev
+          onClick={() => setCursorIndex(Math.max(cursorIndex - _limit, 0))}
+        />
+        {Array.from({ length: Math.ceil(numRecords / _limit) }, (_, i) => (
+          <Pagination.Item
+            key={i}
+            active={i * _limit === cursorIndex}
+            onClick={() => setCursorIndex(i * _limit)}
+          >
+            {i + 1}
+          </Pagination.Item>
+        ))}
+        <Pagination.Next
+          onClick={() =>
+            setCursorIndex(
+              Math.min(
+                cursorIndex + _limit,
+                Math.max(0, Math.floor((numRecords - 1) / _limit) * _limit),
+              ),
+            )
+          }
+        />
+        <Pagination.Last
+          onClick={() =>
+            setCursorIndex(
+              Math.max(0, Math.floor((numRecords - 1) / _limit) * _limit),
+            )
+          }
+        />
+      </Pagination>
+    );
+  };
+
   return (
-    <Table striped hover>
-      <thead>
-        <tr>
-          <th className='w-25' style={{ cursor: "pointer" }}>
-            <Dropdown variant='' drop='up'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                Date {filterIcon("date")}
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item onClick={() => setTableSort("date_desc")}>
-                  Newer First
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => setTableSort("date_asc")}>
-                  Older First
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          </th>
-          {filterBy === "tutor" ? (
+    <div>
+      {_limit ? (
+        <div className='text-secondary'>
+          Showing {cursorIndex + 1} -{" "}
+          {Math.min(cursorIndex + _limit, numRecords)} of {numRecords}{" "}
+        </div>
+      ) : null}
+      <Table striped hover>
+        <thead>
+          <tr>
             <th className='w-25' style={{ cursor: "pointer" }}>
-              <Dropdown autoClose='outside' drop='up'>
-                <Dropdown.Toggle
-                  as={DropdownTableHeaderToggle}
-                  id='student-filter'
-                >
-                  Student {filterIcon("student")}
+              <Dropdown variant='' drop='up'>
+                <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                  Date {filterIcon("date")}
                 </Dropdown.Toggle>
-
-                <Dropdown.Menu
-                  as={FilterTableHeader}
-                  value={studentFilter}
-                  valueSetter={setStudentFilter}
-                />
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={() => setTableSort("date_desc")}>
+                    Newer First
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setTableSort("date_asc")}>
+                    Older First
+                  </Dropdown.Item>
+                </Dropdown.Menu>
               </Dropdown>
             </th>
-          ) : (
-            <th className='w-25' style={{ cursor: "pointer" }}>
-              <Dropdown autoClose='outside' drop='up'>
-                <Dropdown.Toggle
-                  as={DropdownTableHeaderToggle}
-                  id='tutor-filter'
-                >
-                  Tutor {filterIcon("tutor")}
-                </Dropdown.Toggle>
+            {filterBy === "tutor" ? (
+              <th className='w-25' style={{ cursor: "pointer" }}>
+                <Dropdown autoClose='outside' drop='up'>
+                  <Dropdown.Toggle
+                    as={DropdownTableHeaderToggle}
+                    id='student-filter'
+                  >
+                    Student {filterIcon("student")}
+                  </Dropdown.Toggle>
 
-                <Dropdown.Menu
-                  as={FilterTableHeader}
-                  value={tutorFilter}
-                  valueSetter={setTutorFilter}
-                />
-              </Dropdown>
-            </th>
-          )}
-          <th>Tasks</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>{evalList()}</tbody>
-    </Table>
+                  <Dropdown.Menu
+                    as={FilterTableHeader}
+                    value={studentFilter}
+                    valueSetter={setStudentFilter}
+                  />
+                </Dropdown>
+              </th>
+            ) : (
+              <th className='w-25' style={{ cursor: "pointer" }}>
+                <Dropdown autoClose='outside' drop='up'>
+                  <Dropdown.Toggle
+                    as={DropdownTableHeaderToggle}
+                    id='tutor-filter'
+                  >
+                    Tutor {filterIcon("tutor")}
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu
+                    as={FilterTableHeader}
+                    value={tutorFilter}
+                    valueSetter={setTutorFilter}
+                  />
+                </Dropdown>
+              </th>
+            )}
+            <th>Tasks</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>{evalList()}</tbody>
+      </Table>
+      {_limit ? <PageNavigation /> : null}
+    </div>
   );
 };
 

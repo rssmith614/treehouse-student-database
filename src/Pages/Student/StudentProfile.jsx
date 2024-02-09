@@ -250,7 +250,11 @@ const StudentProfile = () => {
         </Tab.Pane>
         <Tab.Pane eventKey='evals'>
           <div className='d-flex flex-column'>
-            <EvalsTable filterBy='student' id={studentRef.current.id} />
+            <EvalsTable
+              filterBy='student'
+              id={studentRef.current.id}
+              _limit={10}
+            />
             <button
               className='btn btn-primary m-3 align-self-end'
               onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}
