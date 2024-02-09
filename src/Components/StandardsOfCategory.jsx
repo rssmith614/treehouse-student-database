@@ -24,6 +24,8 @@ const StandardsOfCategory = ({
   const [subcategories, setSubcategories] = useState({});
   const [loading, setLoading] = useState(true);
 
+  const [poppedStandard, setPoppedStandard] = useState({});
+
   const ability = useAbility(AbilityContext);
 
   useEffect(() => {
@@ -66,7 +68,13 @@ const StandardsOfCategory = ({
     .sort((a, b) => a[0].localeCompare(b[0]))
     .map((subCat, i) => {
       return (
-        <Card className='p-3 my-3' key={i}>
+        <Card
+          className='p-3 my-3'
+          key={i}
+          onTouchEnd={(e) => {
+            if (e.target.id !== poppedStandard.id) setPoppedStandard({});
+          }}
+        >
           {track ? (
             <Button variant='link' className='me-auto' onClick={() => {}}>
               <h4>{subCat[0]}</h4>
@@ -97,7 +105,7 @@ const StandardsOfCategory = ({
                       <OverlayTrigger
                         placement='right'
                         flip={true}
-                        trigger={"focus"}
+                        show={poppedStandard === standard}
                         overlay={
                           <Popover className=''>
                             <Popover.Header>{standard.key}</Popover.Header>
@@ -131,13 +139,21 @@ const StandardsOfCategory = ({
                         }
                       >
                         <button
+                          id={standard.id}
                           className='btn btn-link link-body-emphasis link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
                           style={{ cursor: "pointer" }}
-                          onClick={
-                            ability.can("edit", Standard)
-                              ? () => setSelection(standard)
-                              : () => {}
-                          }
+                          onClick={() => {
+                            if (
+                              !track &&
+                              !ability.can("edit", new Standard(standard))
+                            ) {
+                              return;
+                            } else {
+                              setSelection(standard);
+                            }
+                            setPoppedStandard(standard);
+                          }}
+                          onBlur={() => setPoppedStandard({})}
                         >
                           {standard.key}
                         </button>
