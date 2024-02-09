@@ -577,7 +577,7 @@ const NewStudentEval = () => {
 
   const tasksList = tasks.map((task, task_idx) => {
     return (
-      <Card className='mb-3' id={task_idx}>
+      <Card className='mb-3' key={task_idx}>
         <Card.Header className='d-flex'>
           <div className='h5 align-self-end'>Task {task_idx + 1}</div>
           <Button

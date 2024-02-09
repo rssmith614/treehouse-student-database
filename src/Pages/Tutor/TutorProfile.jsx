@@ -2,19 +2,26 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Can } from "../../Services/can";
-import { deleteDoc, doc, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "../../Services/firebase";
 import EvalsTable from "../../Components/EvalsTable";
-import { Button, Card, Col, Nav, Row, Tab } from "react-bootstrap";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { Tutor } from "../../Services/defineAbility";
 import Avatar from "boring-avatars";
 
 const TutorProfile = () => {
   const [tutor, setTutor] = useState({});
 
-  const [tab, setTab] = useState(
-    localStorage.getItem("tutorProfileTab") || "about",
-  );
+  const [recentStudents, setRecentStudents] = useState([]);
 
   const navigate = useNavigate();
 
@@ -25,16 +32,31 @@ const TutorProfile = () => {
   useEffect(() => {
     tutorDocRef.current = doc(db, "tutors", params.tutorid);
 
-    const unsubscribeTutor = onSnapshot(tutorDocRef.current, (doc) =>
-      setTutor(doc.data()),
-    );
+    const unsubscribeTutor = onSnapshot(tutorDocRef.current, (doc) => {
+      setTutor(doc.data());
+      getDocs(
+        query(
+          collection(db, "evaluations"),
+          where("tutor_id", "==", doc.id),
+          orderBy("date", "desc"),
+        ),
+      ).then((querySnapshot) => {
+        let students = [];
+        querySnapshot.forEach((doc) => {
+          let data = doc.data();
+          if (
+            students.length < 5 &&
+            !students.find((student) => student.id === data.student_id)
+          ) {
+            students.push({ id: data.student_id, name: data.student_name });
+          }
+        });
+        setRecentStudents(students);
+      });
+    });
 
     return () => unsubscribeTutor();
   }, [params.tutorid]);
-
-  useEffect(() => {
-    localStorage.setItem("tutorProfileTab", tab);
-  }, [tab]);
 
   async function deny(id) {
     if (
@@ -60,105 +82,131 @@ const TutorProfile = () => {
 
   return (
     <div className='p-3 d-flex flex-column'>
-      <h1 className='d-flex display-1'>Tutor Profile - {tutor?.displayName}</h1>
+      <h1 className='d-flex display-1'>Tutor Profile</h1>
       <div className='d-flex flex-row justify-content-center'>
-        <Card className='d-flex flex-fill bg-light-subtle justify-content-center'>
-          <Tab.Container activeKey={tab}>
-            <Nav variant='underline' className='card-header'>
-              <Nav.Item>
-                <Nav.Link
-                  data-bs-toggle='tab'
-                  eventKey='about'
-                  onClick={() => setTab("about")}
+        <Card className='d-flex flex-fill bg-light-subtle justify-content-center m-3'>
+          <Card.Header>
+            <div className='h3 pt-1'>About</div>
+          </Card.Header>
+          <Card.Body className='d-flex flex-column justify-content-between'>
+            <div className='d-flex flex-column p-3'>
+              <Row>
+                <Col className='col-md-auto'>
+                  <Card className='bg-dark p-1'>
+                    <Avatar
+                      size={100}
+                      name={tutor.displayName + tutor?.seed || ""}
+                      square={true}
+                      variant='beam'
+                      colors={[
+                        "#ffcc00",
+                        "#253550",
+                        "#FFFFFF",
+                        "#858786",
+                        "#000",
+                      ]}
+                    />
+                  </Card>
+                </Col>
+                <Col>
+                  <div className='display-4 pt-3'>{tutor?.displayName}</div>
+                </Col>
+              </Row>
+              <Row xs={{ cols: "auto" }}>
+                <Col>
+                  <div className='d-flex flex-column p-3'>
+                    <div className='h3'>Email</div>
+                    <div>{tutor?.email}</div>
+                  </div>
+                </Col>
+                <Col>
+                  <div className='d-flex flex-column p-3'>
+                    <div className='h3'>Role</div>
+                    <div>{capitalize(tutor?.clearance)}</div>
+                  </div>
+                </Col>
+                <Col>
+                  <div className='d-flex flex-column p-3'>
+                    <div className='h3'>Preferred Student Ages</div>
+                    <div>{tutor?.preferredAges || ""}</div>
+                  </div>
+                </Col>
+                <Col>
+                  <div className='d-flex flex-column p-3'>
+                    <div className='h3'>Preferred Subjects</div>
+                    <div>{tutor?.preferredSubjects || ""}</div>
+                  </div>
+                </Col>
+              </Row>
+            </div>
+            <div className='d-flex'>
+              <Can I='edit' this={tutorInstance}>
+                {tutor?.clearance === "pending" ? (
+                  <Button
+                    className='btn btn-danger m-3 ms-auto'
+                    onClick={() => deny(tutorDocRef.current.id)}
+                  >
+                    Deny Access Request
+                  </Button>
+                ) : (
+                  <></>
+                )}
+                <button
+                  className='btn btn-info m-3 ms-auto'
+                  onClick={() =>
+                    navigate(`/tutor/edit/${tutorDocRef.current.id}`)
+                  }
                 >
-                  About
-                </Nav.Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Nav.Link
-                  data-bs-toggle='tab'
-                  eventKey='evals'
-                  onClick={() => setTab("evals")}
-                >
-                  Evaluations
-                </Nav.Link>
-              </Nav.Item>
-            </Nav>
-            <Tab.Content className='card-body'>
-              <Tab.Pane eventKey='about'>
-                <div className='d-flex p-3'>
-                  <Row xs={{ cols: "auto" }}>
-                    <Card className='bg-dark p-1'>
-                      <Avatar
-                        size={100}
-                        name={tutor.displayName + tutor?.seed || ""}
-                        square={true}
-                        variant='beam'
-                        colors={[
-                          "#ffcc00",
-                          "#253550",
-                          "#FFFFFF",
-                          "#858786",
-                          "#000",
-                        ]}
-                      />
-                    </Card>
-                    <Col>
-                      <div className='d-flex flex-column p-3'>
-                        <div className='h3'>Email</div>
-                        <div>{tutor?.email}</div>
-                      </div>
-                    </Col>
-                    <Col>
-                      <div className='d-flex flex-column p-3'>
-                        <div className='h3'>Role</div>
-                        <div>{capitalize(tutor?.clearance)}</div>
-                      </div>
-                    </Col>
-                    <Col>
-                      <div className='d-flex flex-column p-3'>
-                        <div className='h3'>Preferred Student Ages</div>
-                        <div>{tutor?.preferredAges || ""}</div>
-                      </div>
-                    </Col>
-                    <Col>
-                      <div className='d-flex flex-column p-3'>
-                        <div className='h3'>Preferred Subjects</div>
-                        <div>{tutor?.preferredSubjects || ""}</div>
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-              </Tab.Pane>
-              <Tab.Pane eventKey='evals'>
+                  Make Changes
+                </button>
+              </Can>
+            </div>
+          </Card.Body>
+        </Card>
+
+        <Card className='bg-light-subtle m-3 mw-0'>
+          <Card.Header>
+            <div className='h3 pt-1'>New Evaluation - Recent Students</div>
+          </Card.Header>
+          <Card.Body>
+            <Container className='d-flex justify-content-center'>
+              {recentStudents.length === 0 ? (
                 <div className='d-flex flex-column'>
-                  <EvalsTable filterBy='tutor' id={tutorDocRef.current.id} />
+                  <p className='h5'>No recent students</p>
+                  <Button onClick={() => navigate("/eval/new")}>
+                    Find a Student
+                  </Button>
                 </div>
-              </Tab.Pane>
-            </Tab.Content>
-          </Tab.Container>
+              ) : (
+                <ul className='list-group flex-fill'>
+                  {recentStudents.map((student, index) => (
+                    <li key={index} className='list-group-item d-flex'>
+                      <Button
+                        className='flex-fill'
+                        onClick={() => navigate(`/eval/new/${student.id}`)}
+                        size='lg'
+                        variant=''
+                      >
+                        {student.name}
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Container>
+          </Card.Body>
         </Card>
       </div>
-      <div className='d-flex'>
-        <Can I='edit' this={tutorInstance}>
-          {tutor?.clearance === "pending" ? (
-            <Button
-              className='btn btn-danger m-3'
-              onClick={() => deny(tutorDocRef.current.id)}
-            >
-              Deny Access Request
-            </Button>
-          ) : (
-            <></>
-          )}
-          <button
-            className='btn btn-info m-3 ms-auto'
-            onClick={() => navigate(`/tutor/edit/${tutorDocRef.current.id}`)}
-          >
-            Make Changes
-          </button>
-        </Can>
-      </div>
+      <Card className='bg-light-subtle m-3'>
+        <Card.Header>
+          <div className='h3 pt-1'>Evaluations</div>
+        </Card.Header>
+        <Card.Body>
+          <div className='d-flex flex-column'>
+            <EvalsTable filterBy='tutor' id={tutorDocRef.current.id} />
+          </div>
+        </Card.Body>
+      </Card>
     </div>
   );
 };
