@@ -299,7 +299,21 @@ const StudentEvalEdit = () => {
           // });
           clean = false;
         }
+        if (s.progression === "") {
+          document
+            .getElementById(`${i}_${standard_i}_progression`)
+            .classList.add(`is-invalid`);
+          clean = false;
+        }
       });
+      if (t.standards.length === 0) {
+        if (t.progression === "") {
+          document
+            .getElementById(`${i}_progression`)
+            .classList.add(`is-invalid`);
+          clean = false;
+        }
+      }
     });
 
     if (evaluation.next_session === "") {
@@ -653,6 +667,7 @@ const StudentEvalEdit = () => {
               <OverlayTrigger
                 placement='top'
                 className='ms-auto'
+                flip={true}
                 overlay={
                   <Popover>
                     <Popover.Header>Comments</Popover.Header>
@@ -717,14 +732,10 @@ const StudentEvalEdit = () => {
                           <i className='bi bi-info-square ms-auto ps-2'></i>
                         </OverlayTrigger>
                       </div>
-                      <input
-                        id='progression'
-                        className='form-control'
-                        type='number'
-                        min='1'
-                        max='4'
-                        step='1'
-                        value={task.progression || "4"}
+                      <Form.Select
+                        id={`${task_idx}_progression`}
+                        style={{ width: "auto" }}
+                        value={task.progression}
                         onChange={(e) =>
                           setTasks(
                             tasks.map((t, i) => {
@@ -733,14 +744,25 @@ const StudentEvalEdit = () => {
                             }),
                           )
                         }
-                      />
+                      >
+                        <option disabled value=''>
+                          Select One
+                        </option>
+                        <option value='1'>1</option>
+                        <option value='2'>2</option>
+                        <option value='3'>3</option>
+                        <option value='4'>4</option>
+                      </Form.Select>
+                      <div className='invalid-feedback'>
+                        Please set a progression for this task
+                      </div>
                     </div>
                   </>
                 ) : null}
                 <hr />
                 <div className='d-flex flex-column'>
                   <div className='h5 d-flex'>
-                    Engagement
+                    Select One
                     <OverlayTrigger
                       placement='top'
                       overlay={
@@ -755,13 +777,9 @@ const StudentEvalEdit = () => {
                       <i className='bi bi-info-square ms-auto ps-2'></i>
                     </OverlayTrigger>
                   </div>
-                  <input
-                    id='engagement'
-                    className='form-control'
-                    type='number'
-                    min='1'
-                    max='4'
-                    step='1'
+                  <Form.Select
+                    id={`${task_idx}_engagement`}
+                    style={{ width: "auto" }}
                     value={task.engagement}
                     onChange={(e) =>
                       setTasks(
@@ -771,7 +789,18 @@ const StudentEvalEdit = () => {
                         }),
                       )
                     }
-                  />
+                  >
+                    <option disabled value=''>
+                      Select One
+                    </option>
+                    <option value='1'>1</option>
+                    <option value='2'>2</option>
+                    <option value='3'>3</option>
+                    <option value='4'>4</option>
+                  </Form.Select>
+                  <div className='invalid-feedback'>
+                    Please set an engagement level for this task
+                  </div>
                 </div>
               </div>
             </div>
@@ -846,6 +875,7 @@ const StudentEvalEdit = () => {
                             />
                           </Dropdown>
                           <Form.Select
+                            id={`${task_idx}_${standard_idx}_progression`}
                             style={{ width: "auto" }}
                             value={standard?.progression}
                             onChange={(e) => {
@@ -878,6 +908,9 @@ const StudentEvalEdit = () => {
                             <option value='3'>3 - Meets Expectations</option>
                             <option value='4'>4 - Exceeds Expectations</option>
                           </Form.Select>
+                          <div className='invalid-feedback'>
+                            Please select a progression
+                          </div>
                         </div>
                       </li>
                     );
