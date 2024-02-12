@@ -78,8 +78,8 @@ const NewStudentEval = () => {
           {
             subject: "",
             standards: [],
-            progression: "4",
-            engagement: "4",
+            progression: "",
+            engagement: "",
             comments: "",
           },
         ],
@@ -218,8 +218,8 @@ const NewStudentEval = () => {
       {
         subject: "",
         standards: [],
-        progression: "4",
-        engagement: "4",
+        progression: "",
+        engagement: "",
         comments: "",
       },
     ]);
@@ -254,9 +254,11 @@ const NewStudentEval = () => {
       clean = false;
     }
 
-    tasks.forEach((t, i) => {
+    tasks.forEach((t, task_i) => {
       if (t.comments === "") {
-        document.getElementById(`${i}_comments`).classList.add(`is-invalid`);
+        document
+          .getElementById(`${task_i}_comments`)
+          .classList.add(`is-invalid`);
         // addToast({
         //   header: "Missing Summary",
         //   message: "Please enter a summary for all tasks",
@@ -266,7 +268,7 @@ const NewStudentEval = () => {
       t.standards.forEach((s, standard_i) => {
         if (s.key === "") {
           document
-            .getElementById(`${i}_${standard_i}_standard`)
+            .getElementById(`${task_i}_${standard_i}_standard`)
             .classList.add(`is-invalid`);
           // addToast({
           //   header: "Missing Standard",
@@ -276,15 +278,23 @@ const NewStudentEval = () => {
         }
         if (s.progression === "") {
           document
-            .getElementById(`${i}_${standard_i}_progression`)
+            .getElementById(`${task_i}_${standard_i}_progression`)
             .classList.add(`is-invalid`);
-          // addToast({
-          //   header: "Missing Progression",
-          //   message: "Please select a progression for all standards",
-          // });
           clean = false;
         }
       });
+      if (t.standards.length === 0) {
+        if (t.progression === "") {
+          document
+            .getElementById(`${task_i}_progression`)
+            .classList.add("is-invalid");
+          clean = false;
+        }
+      }
+      if (t.engagement === "") {
+        document.getElementById("engagement").classList.add("is-invalid");
+        clean = false;
+      }
     });
 
     if (evaluation.next_session === "") {
@@ -599,6 +609,7 @@ const NewStudentEval = () => {
               <OverlayTrigger
                 placement='top'
                 className='ms-auto'
+                flip={true}
                 overlay={
                   <Popover>
                     <Popover.Header>Comments</Popover.Header>
@@ -660,23 +671,30 @@ const NewStudentEval = () => {
                           <i className='bi bi-info-square ms-auto ps-2'></i>
                         </OverlayTrigger>
                       </div>
-                      <input
-                        id='progression'
-                        className='form-control'
-                        type='number'
-                        min='1'
-                        max='4'
-                        step='1'
+                      <Form.Select
+                        id={`${task_idx}_progression`}
+                        style={{ width: "auto" }}
                         value={task.progression}
-                        onChange={(e) =>
+                        onChange={(e) => {
                           setTasks(
                             tasks.map((t, i) => {
                               if (i !== task_idx) return t;
                               else return { ...t, progression: e.target.value };
                             }),
-                          )
-                        }
-                      />
+                          );
+                        }}
+                      >
+                        <option disabled value=''>
+                          Select One
+                        </option>
+                        <option value='1'>1</option>
+                        <option value='2'>2</option>
+                        <option value='3'>3</option>
+                        <option value='4'>4</option>
+                      </Form.Select>
+                      <div className='invalid-feedback'>
+                        Please set a progression for this task
+                      </div>
                     </div>
                   </>
                 ) : null}
@@ -698,23 +716,30 @@ const NewStudentEval = () => {
                       <i className='bi bi-info-square ms-auto ps-2'></i>
                     </OverlayTrigger>
                   </div>
-                  <input
+                  <Form.Select
                     id='engagement'
-                    className='form-control'
-                    type='number'
-                    min='1'
-                    max='4'
-                    step='1'
+                    style={{ width: "auto" }}
                     value={task.engagement}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setTasks(
                         tasks.map((t, i) => {
                           if (i !== task_idx) return t;
                           else return { ...t, engagement: e.target.value };
                         }),
-                      )
-                    }
-                  />
+                      );
+                    }}
+                  >
+                    <option disabled value=''>
+                      Select One
+                    </option>
+                    <option value='1'>1</option>
+                    <option value='2'>2</option>
+                    <option value='3'>3</option>
+                    <option value='4'>4</option>
+                  </Form.Select>
+                  <div className='invalid-feedback'>
+                    Please set an engagement level for this task
+                  </div>
                 </div>
               </div>
             </div>
