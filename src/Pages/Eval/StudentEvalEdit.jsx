@@ -667,6 +667,7 @@ const StudentEvalEdit = () => {
               <OverlayTrigger
                 placement='top'
                 className='ms-auto'
+                flip={true}
                 overlay={
                   <Popover>
                     <Popover.Header>Comments</Popover.Header>
