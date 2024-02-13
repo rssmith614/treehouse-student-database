@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext, useMemo } from "react";
 import {
   collection,
   doc,
@@ -16,6 +16,7 @@ import {
   Card,
   Col,
   Container,
+  Modal,
   OverlayTrigger,
   Popover,
   Row,
@@ -50,6 +51,8 @@ const StudentEval = () => {
   const [evalOwnerName, setEvalOwnerName] = useState("");
 
   const [loading, setLoading] = useState(true);
+
+  const [showModal, setShowModal] = useState(false); // For ownership request
 
   const [worksheet, setWorksheet] = useState(null);
 
@@ -226,7 +229,7 @@ const StudentEval = () => {
     );
   });
 
-  let evalInstance = new Eval(evaluation);
+  const evalInstance = useMemo(() => new Eval(evaluation), [evaluation]);
 
   return (
     <div className='p-3 d-flex flex-column'>
@@ -344,6 +347,52 @@ const StudentEval = () => {
           >
             Make Changes
           </button>
+        </Can>
+        <Can not I='edit' this={evalInstance}>
+          <Button
+            variant='info'
+            className='m-3 ms-auto'
+            onClick={() => setShowModal(true)}
+          >
+            Make Changes
+          </Button>
+          <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+            <Modal.Header closeButton>
+              <Modal.Title>Ownership Request</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <p>
+                You don't have permission to edit this evaluation. You can
+                request ownership by sending a message to an Admin.
+              </p>
+              <p className='lead'>
+                Hello, I would like to request ownership of evaluation #
+                {params.evalid}.
+              </p>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant='secondary' onClick={() => setShowModal(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant='primary'
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    "Hello, I would like to request ownership of evaluation #" +
+                      params.evalid +
+                      ".",
+                  );
+                  setShowModal(false);
+                  addToast({
+                    header: "Success",
+                    message: "Message copied to clipboard.",
+                  });
+                }}
+              >
+                Copy Message
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </Can>
       </div>
       {evaluation.flagged ? (

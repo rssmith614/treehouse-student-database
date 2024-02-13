@@ -178,20 +178,25 @@ const TutorProfile = () => {
                   </Button>
                 </div>
               ) : (
-                <ul className='list-group flex-fill'>
-                  {recentStudents.map((student, index) => (
-                    <li key={index} className='list-group-item d-flex'>
-                      <Button
-                        className='flex-fill'
-                        onClick={() => navigate(`/eval/new/${student.id}`)}
-                        size='lg'
-                        variant=''
-                      >
-                        {student.name}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
+                <div className='d-flex flex-column flex-fill'>
+                  <ul className='list-group flex-fill mb-3'>
+                    {recentStudents.map((student, index) => (
+                      <li key={index} className='list-group-item d-flex'>
+                        <Button
+                          className='flex-fill'
+                          onClick={() => navigate(`/eval/new/${student.id}`)}
+                          size='lg'
+                          variant=''
+                        >
+                          {student.name}
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button onClick={() => navigate("/eval/new")}>
+                    Find another Student
+                  </Button>
+                </div>
               )}
             </Container>
           </Card.Body>
