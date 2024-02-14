@@ -19,6 +19,7 @@ const StandardsOfCategory = ({
   category,
   setSelection,
   addSelection,
+  filter = "",
   track,
 }) => {
   const [subcategories, setSubcategories] = useState({});
@@ -91,6 +92,16 @@ const StandardsOfCategory = ({
           <Container>
             <Row xs={{ cols: "auto" }}>
               {subCat[1]
+                .filter((s) => {
+                  return -(
+                    s.key.toLowerCase().includes(filter.toLowerCase()) ||
+                    s.category.toLowerCase().includes(filter.toLowerCase()) ||
+                    s.sub_category
+                      .toLowerCase()
+                      .includes(filter.toLowerCase()) ||
+                    s.description.toLowerCase().includes(filter.toLowerCase())
+                  );
+                })
                 .sort((a, b) => {
                   return (
                     a.key.split(".")[1].localeCompare(b.key.split(".")[1]) ||
@@ -142,7 +153,8 @@ const StandardsOfCategory = ({
                           id={standard.id}
                           className='btn btn-link link-body-emphasis link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
                           style={{ cursor: "pointer" }}
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.target.focus();
                             if (
                               !track &&
                               !ability.can("edit", new Standard(standard))

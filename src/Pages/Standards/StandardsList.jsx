@@ -1,4 +1,11 @@
-import { Button, Card, Form, Nav, Offcanvas } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Form,
+  InputGroup,
+  Nav,
+  Offcanvas,
+} from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { useContext, useEffect, useState } from "react";
 import { Can } from "../../Services/can";
@@ -25,6 +32,7 @@ const StandardsList = () => {
     localStorage.getItem("category") || "Math",
   );
 
+  const [standardFilter, setStandardFilter] = useState("");
   const [selectedStandard, setSelectedStandard] = useState(null);
   const [show, setShow] = useState(false);
 
@@ -275,10 +283,27 @@ const StandardsList = () => {
           </Nav>
         </Card.Header>
         <Card.Body>
+          <InputGroup className='w-25 mb-3'>
+            <Form.Control
+              type='text'
+              placeholder={`Search ${grades.find((g) => g[0] === grade[0])} ${category}`}
+              value={standardFilter}
+              onChange={(e) => {
+                setStandardFilter(e.target.value);
+              }}
+            />
+            <Button
+              variant='secondary'
+              className='bi bi-x-lg input-group-text'
+              style={{ cursor: "pointer" }}
+              onClick={() => setStandardFilter("")}
+            />
+          </InputGroup>
           <StandardsOfCategory
             grade={grade}
             category={category}
             setSelection={setSelectedStandard}
+            filter={standardFilter}
           />
         </Card.Body>
       </Card>

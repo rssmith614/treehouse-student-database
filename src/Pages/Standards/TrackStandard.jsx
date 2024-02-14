@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Card, Nav } from "react-bootstrap";
+import { Button, Card, InputGroup, Nav, Form } from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { ToastContext } from "../../Services/toast";
 
@@ -23,6 +23,8 @@ const TrackStandard = ({
   standardSelector,
 }) => {
   const [selectedStandard, setSelectedStandard] = useState(null);
+
+  const [standardFilter, setStandardFilter] = useState("");
 
   const [grade, setGrade] = useState(localStorage.getItem("grade") || "K");
   const [category, setCategory] = useState(
@@ -136,11 +138,28 @@ const TrackStandard = ({
           </Nav>
         </Card.Header>
         <Card.Body>
+          <InputGroup className='w-25 mb-3'>
+            <Form.Control
+              type='text'
+              placeholder={`Search ${grades.find((g) => g[0] === grade[0])} ${category}`}
+              value={standardFilter}
+              onChange={(e) => {
+                setStandardFilter(e.target.value);
+              }}
+            />
+            <Button
+              variant='secondary'
+              className='bi bi-x-lg input-group-text'
+              style={{ cursor: "pointer" }}
+              onClick={() => setStandardFilter("")}
+            />
+          </InputGroup>
           <StandardsOfCategory
             grade={grade}
             category={category}
             setSelection={setSelectedStandard}
             addSelection={addStandard}
+            filter={standardFilter}
             track
           />
         </Card.Body>
