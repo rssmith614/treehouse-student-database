@@ -141,7 +141,7 @@ const TrackStandard = ({
           <InputGroup className='w-25 mb-3'>
             <Form.Control
               type='text'
-              placeholder={`Search ${grades[grade]} ${category}`}
+              placeholder={`Search ${grades.find((g) => g[0] === grade[0])} ${category}`}
               value={standardFilter}
               onChange={(e) => {
                 setStandardFilter(e.target.value);
