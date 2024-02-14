@@ -153,7 +153,8 @@ const StandardsOfCategory = ({
                           id={standard.id}
                           className='btn btn-link link-body-emphasis link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
                           style={{ cursor: "pointer" }}
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.target.focus();
                             if (
                               !track &&
                               !ability.can("edit", new Standard(standard))
