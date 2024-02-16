@@ -179,11 +179,15 @@ const NewStudentEval = () => {
 
   useEffect(() => {
     for (let i = 0; i < tasks.length; i++) {
-      if (tasks[i].standards.length < 1 && tasks[i].progression <= 2) {
+      if (
+        tasks[i].standards.length < 1 &&
+        tasks[i].progression !== "" &&
+        tasks[i].progression <= 2
+      ) {
         document.getElementById("flagForReview").classList.remove("d-none");
         return;
       }
-      if (tasks[i].engagement <= 2) {
+      if (tasks[i].engagement !== "" && tasks[i].engagement <= 2) {
         document.getElementById("flagForReview").classList.remove("d-none");
         return;
       }
