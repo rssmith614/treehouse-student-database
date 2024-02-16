@@ -26,6 +26,7 @@ import {
 
 const EvalsTable = ({ filterBy, id, _limit }) => {
   const [evals, setEvals] = useState([]);
+  const [tableData, setTableData] = useState([]);
   const [cursorIndex, setCursorIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -116,12 +117,50 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
           });
         }),
       )
-        .then((compiledEvals) => setEvals(compiledEvals))
+        .then((compiledEvals) => {
+          setEvals(compiledEvals);
+        })
         .then(() => setLoading(false));
     });
 
     return () => unsubscribeEvals();
-  }, [filterBy, id, cursorIndex, _limit]);
+  }, [filterBy, id, _limit]);
+
+  useEffect(() => {
+    let temp = evals.filter((evaluation) => {
+      return (
+        evaluation.student_name
+          .toLowerCase()
+          .includes(studentFilter.toLowerCase()) &&
+        evaluation.tutor_name.toLowerCase().includes(tutorFilter.toLowerCase())
+      );
+    });
+
+    switch (tableSort) {
+      case "date_asc":
+        temp.sort((a, b) => {
+          return dayjs(a.date).diff(dayjs(b.date));
+        });
+        break;
+      case "date_desc":
+        temp.sort((a, b) => {
+          return dayjs(b.date).diff(dayjs(a.date));
+        });
+        break;
+      default:
+        break;
+    }
+
+    setTableData(temp);
+  }, [evals, studentFilter, tableSort, tutorFilter]);
+
+  useEffect(() => {
+    if (cursorIndex > tableData.length - _limit + 1) {
+      setCursorIndex(
+        Math.max(0, Math.floor((tableData.length - 1) / _limit) * _limit),
+      );
+    }
+  }, [tableData, cursorIndex, _limit]);
 
   async function standardsLabel(standards) {
     if (standards.length === 0) return "None";
@@ -221,30 +260,6 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
   };
 
   function evalList() {
-    const tableData = evals.filter((evaluation) => {
-      return (
-        evaluation.student_name
-          .toLowerCase()
-          .includes(studentFilter.toLowerCase()) &&
-        evaluation.tutor_name.toLowerCase().includes(tutorFilter.toLowerCase())
-      );
-    });
-
-    switch (tableSort) {
-      case "date_asc":
-        tableData.sort((a, b) => {
-          return dayjs(a.date).diff(dayjs(b.date));
-        });
-        break;
-      case "date_desc":
-        tableData.sort((a, b) => {
-          return dayjs(b.date).diff(dayjs(a.date));
-        });
-        break;
-      default:
-        break;
-    }
-
     if (_limit) {
       return tableData.map((evaluation) => {
         if (
@@ -346,21 +361,27 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
         <Pagination.Prev
           onClick={() => setCursorIndex(Math.max(cursorIndex - _limit, 0))}
         />
-        {Array.from({ length: Math.ceil(evals.length / _limit) }, (_, i) => (
-          <Pagination.Item
-            key={i}
-            active={i * _limit === cursorIndex}
-            onClick={() => setCursorIndex(i * _limit)}
-          >
-            {i + 1}
-          </Pagination.Item>
-        ))}
+        {Array.from(
+          { length: Math.ceil(tableData.length / _limit) },
+          (_, i) => (
+            <Pagination.Item
+              key={i}
+              active={i * _limit === cursorIndex}
+              onClick={() => setCursorIndex(i * _limit)}
+            >
+              {i + 1}
+            </Pagination.Item>
+          ),
+        )}
         <Pagination.Next
           onClick={() =>
             setCursorIndex(
               Math.min(
                 cursorIndex + _limit,
-                Math.max(0, Math.floor((evals.length - 1) / _limit) * _limit),
+                Math.max(
+                  0,
+                  Math.floor((tableData.length - 1) / _limit) * _limit,
+                ),
               ),
             )
           }
@@ -368,7 +389,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
         <Pagination.Last
           onClick={() =>
             setCursorIndex(
-              Math.max(0, Math.floor((evals.length - 1) / _limit) * _limit),
+              Math.max(0, Math.floor((tableData.length - 1) / _limit) * _limit),
             )
           }
         />
@@ -378,10 +399,28 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
 
   return (
     <div>
+      <PageNavigation />
       {_limit ? (
         <div className='text-secondary'>
           Showing {cursorIndex + 1} -{" "}
-          {Math.min(cursorIndex + _limit, evals.length)} of {evals.length}{" "}
+          {Math.min(cursorIndex + _limit, tableData.length)} of{" "}
+          {tableData.length}{" "}
+          {tableData.length < evals.length ? (
+            <>
+              Filtered Results
+              <Button
+                variant='link'
+                className='mb-1'
+                style={{ "--bs-btn-padding-y": "0rem" }}
+                onClick={() => {
+                  setStudentFilter("");
+                  setTutorFilter("");
+                }}
+              >
+                Clear Filters
+              </Button>
+            </>
+          ) : null}
         </div>
       ) : null}
       <Table striped hover style={{ tableLayout: "fixed" }}>

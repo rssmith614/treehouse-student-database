@@ -124,7 +124,10 @@ const Navbar = ({ userProfile }) => {
                 View Tutor Profile
               </NavDropdown.Item>
               <NavDropdown.Item
-                onClick={() => signOut(auth).then(navigate("/login"))}
+                onClick={() => {
+                  signOut(auth);
+                  navigate("/login");
+                }}
               >
                 Log Out
               </NavDropdown.Item>
