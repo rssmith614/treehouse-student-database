@@ -7,7 +7,7 @@ $primary: $treehouse-yellow;
 $secondary: tint-color($treehouse-blue, 20%);
 $success: #1ad13e;
 $warning: #da622f;
-$info: #000;
+$info: #a5b691;
 
 @import "../node_modules/bootstrap/scss/variables";
 
@@ -22,6 +22,7 @@ $info: #000;
 
 // $body-bg:                           $treehouse-blue;
 $body-bg-dark:                      shade-color($treehouse-blue, 30%);
+// $body-bg-dark:                      #090806;
 $light-bg-subtle-dark:              $treehouse-blue;
 $body-secondary-bg-dark:            shade-color($treehouse-blue, 20%);
 $body-tertiary-bg-dark:             shade-color($treehouse-blue, 10%);

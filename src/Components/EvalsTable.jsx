@@ -1,7 +1,6 @@
 import {
   collection,
   doc,
-  getCountFromServer,
   getDoc,
   getDocs,
   onSnapshot,
@@ -27,7 +26,6 @@ import {
 
 const EvalsTable = ({ filterBy, id, _limit }) => {
   const [evals, setEvals] = useState([]);
-  const [numRecords, setNumRecords] = useState(0);
   const [cursorIndex, setCursorIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -39,20 +37,6 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
   const docRef = useRef(doc(db, filterBy, id));
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    let q;
-
-    if (filterBy === "tutor") {
-      q = query(collection(db, "evaluations"), where("tutor_id", "==", id));
-    } else if (filterBy === "student") {
-      q = query(collection(db, "evaluations"), where("student_id", "==", id));
-    }
-
-    getCountFromServer(q).then((count) => {
-      setNumRecords(count.data().count);
-    });
-  }, [filterBy, id]);
 
   useEffect(() => {
     docRef.current = doc(db, filterBy, id);
@@ -154,7 +138,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
   }
 
   const EvalRow = ({ evaluation }) => {
-    const [expanded, setExpanded] = useState(evaluation.tasks.length < 2);
+    const [expanded, setExpanded] = useState(false);
 
     return expanded ? (
       <tr
@@ -174,26 +158,24 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
           <ul className='list-group'>
             {evaluation.tasks.map((t, i) => {
               return (
-                <li key={i} className='text-break'>
+                <li key={i} className='text-break list-group-item'>
                   {t}
                 </li>
               );
             })}
           </ul>
         </td>
-        <td className='text-end'>
-          {evaluation.tasks.length > 1 ? (
-            <Button
-              className='ms-auto btn-sm'
-              variant='secondary'
-              onClick={(e) => {
-                e.stopPropagation();
-                setExpanded(false);
-              }}
-            >
-              Collapse
-            </Button>
-          ) : null}
+        <td className='text-center'>
+          <Button
+            className='ms-auto btn-sm mt-1'
+            variant='secondary'
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded(false);
+            }}
+          >
+            Show Less
+          </Button>
         </td>
       </tr>
     ) : (
@@ -212,19 +194,26 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
         </td>
         <td className='align-middle'>
           <ul className='list-group'>
-            <li className='text-break'>{evaluation.tasks[0]}</li>
+            <li className='d-flex justify-content-between align-items-center'>
+              <span className='text-truncate pe-3'>{evaluation.tasks[0]}</span>
+              <span className='badge text-bg-primary'>
+                {evaluation.tasks.length} Task
+                {evaluation.tasks.length > 1 ? "s" : ""}
+              </span>
+            </li>
           </ul>
         </td>
-        <td className='text-end'>
+        <td className='text-center'>
           <Button
-            className='ms-auto btn-sm'
+            className='ms-auto btn-sm mt-1'
             variant='secondary'
             onClick={(e) => {
               e.stopPropagation();
               setExpanded(true);
             }}
           >
-            +{evaluation.tasks.length - 1}
+            Show More
+            <br />
           </Button>
         </td>
       </tr>
@@ -357,7 +346,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
         <Pagination.Prev
           onClick={() => setCursorIndex(Math.max(cursorIndex - _limit, 0))}
         />
-        {Array.from({ length: Math.ceil(numRecords / _limit) }, (_, i) => (
+        {Array.from({ length: Math.ceil(evals.length / _limit) }, (_, i) => (
           <Pagination.Item
             key={i}
             active={i * _limit === cursorIndex}
@@ -371,7 +360,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
             setCursorIndex(
               Math.min(
                 cursorIndex + _limit,
-                Math.max(0, Math.floor((numRecords - 1) / _limit) * _limit),
+                Math.max(0, Math.floor((evals.length - 1) / _limit) * _limit),
               ),
             )
           }
@@ -379,7 +368,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
         <Pagination.Last
           onClick={() =>
             setCursorIndex(
-              Math.max(0, Math.floor((numRecords - 1) / _limit) * _limit),
+              Math.max(0, Math.floor((evals.length - 1) / _limit) * _limit),
             )
           }
         />
@@ -392,13 +381,19 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
       {_limit ? (
         <div className='text-secondary'>
           Showing {cursorIndex + 1} -{" "}
-          {Math.min(cursorIndex + _limit, numRecords)} of {numRecords}{" "}
+          {Math.min(cursorIndex + _limit, evals.length)} of {evals.length}{" "}
         </div>
       ) : null}
-      <Table striped hover>
+      <Table striped hover style={{ tableLayout: "fixed" }}>
+        <colgroup>
+          <col style={{ width: "20%" }} />
+          <col style={{ width: "30%" }} />
+          <col style={{ width: "40%" }} />
+          <col style={{ width: "10%" }} />
+        </colgroup>
         <thead>
           <tr>
-            <th className='w-25' style={{ cursor: "pointer" }}>
+            <th className='' style={{ cursor: "pointer" }}>
               <Dropdown variant='' drop='up'>
                 <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                   Date {filterIcon("date")}
@@ -414,7 +409,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
               </Dropdown>
             </th>
             {filterBy === "tutor" ? (
-              <th className='w-25' style={{ cursor: "pointer" }}>
+              <th className='' style={{ cursor: "pointer" }}>
                 <Dropdown autoClose='outside' drop='up'>
                   <Dropdown.Toggle
                     as={DropdownTableHeaderToggle}
@@ -431,7 +426,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
                 </Dropdown>
               </th>
             ) : (
-              <th className='w-25' style={{ cursor: "pointer" }}>
+              <th className='' style={{ cursor: "pointer" }}>
                 <Dropdown autoClose='outside' drop='up'>
                   <Dropdown.Toggle
                     as={DropdownTableHeaderToggle}
@@ -454,6 +449,11 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
         </thead>
         <tbody>{evalList()}</tbody>
       </Table>
+      {/* <Container>
+        <Row xs={{ cols: 'auto' }}>
+          {evalList()}
+        </Row>
+      </Container> */}
       {_limit ? <PageNavigation /> : null}
     </div>
   );
