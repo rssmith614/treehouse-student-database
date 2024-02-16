@@ -28,6 +28,7 @@ import {
   Container,
 } from "react-bootstrap";
 import TrackStandard from "../Standards/TrackStandard";
+import MDEditor from "@uiw/react-md-editor";
 
 const grades = {
   K: "Kindergarten",
@@ -634,19 +635,17 @@ const NewStudentEval = () => {
             <div className='d-flex card bg-light-subtle'>
               <div className='card-body'>
                 <div className='d-flex flex-column'>
-                  <textarea
+                  <MDEditor
                     id={`${task_idx}_comments`}
-                    className='form-control'
+                    preview='edit'
                     value={task.comments}
                     onChange={(e) => {
                       setTasks(
                         tasks.map((t, i) => {
                           if (i !== task_idx) return t;
-                          else return { ...t, comments: e.target.value };
+                          else return { ...t, comments: e };
                         }),
                       );
-                      e.target.style.height = "auto";
-                      e.target.style.height = `${e.target.scrollHeight}px`;
                     }}
                     required
                   />

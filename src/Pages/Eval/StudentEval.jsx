@@ -24,6 +24,7 @@ import {
 import { Eval } from "../../Services/defineAbility";
 import { ToastContext } from "../../Services/toast";
 import { useAbility } from "@casl/react";
+import Markdown from "react-markdown";
 
 const progressions = {
   1: "1 - Far Below Expectations",
@@ -155,7 +156,8 @@ const StudentEval = () => {
                 {/* <div className='card-header'>Comments</div> */}
                 <div className='card-body'>
                   <div className='d-flex flex-column'>
-                    <div className='text-break'>{task.comments}</div>
+                    {/* <div className='text-break'>{task.comments}</div> */}
+                    <Markdown>{task.comments}</Markdown>
                   </div>
                   <hr />
                   {task.standards.length === 0 ? (
