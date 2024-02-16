@@ -181,7 +181,10 @@ const TutorProfile = () => {
                 <div className='d-flex flex-column flex-fill'>
                   <ul className='list-group flex-fill mb-3'>
                     {recentStudents.map((student, index) => (
-                      <li key={index} className='list-group-item d-flex'>
+                      <li
+                        key={index}
+                        className='list-group-item list-group-item-action d-flex'
+                      >
                         <Button
                           className='flex-fill'
                           onClick={() => navigate(`/eval/new/${student.id}`)}
