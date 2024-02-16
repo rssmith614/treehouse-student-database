@@ -103,26 +103,48 @@ const EvalQuery = () => {
     e.target.innerHTML =
       "Loading... <Spinner className='ms-2' animation='border' size='sm' />";
 
-    // Get students
-
-    let studentQueryConditions = studentConditions.map((condition) => {
-      return where(condition.name, condition.condition, condition.value);
-    });
-
-    let studentCandidates = (
-      await getDocs(
-        query.apply(null, [
-          collection(db, "students"),
-          ...studentQueryConditions,
-        ]),
-      )
-    ).docs.map((doc) => doc.id);
-
     // Get evals
 
     let evalQueryConditions = evalConditions.map((condition) => {
       return where(condition.name, condition.condition, condition.value);
     });
+
+    // Get students
+
+    if (studentConditions.length !== 0) {
+      let studentQueryConditions = studentConditions.map((condition) => {
+        return where(condition.name, condition.condition, condition.value);
+      });
+
+      let studentCandidates = (
+        await getDocs(
+          query.apply(null, [
+            collection(db, "students"),
+            ...studentQueryConditions,
+          ]),
+        )
+      ).docs.map((doc) => doc.id);
+
+      if (studentCandidates.length > 0) {
+        evalQueryConditions.push(where("student_id", "in", studentCandidates));
+      } else {
+        setEvals([]);
+        addToast({
+          header: "Query Complete",
+          message: (
+            <>
+              0 Results
+              <br />
+              No students match the given conditions
+            </>
+          ),
+        });
+        e.target.removeAttribute("disabled");
+        e.target.innerHTML = "Query!";
+        localStorage.setItem("evalQueryResults", JSON.stringify([]));
+        return;
+      }
+    }
 
     if (tutorList.length > 0) {
       evalQueryConditions.push(
@@ -132,26 +154,6 @@ const EvalQuery = () => {
           tutorList.map((t) => t.uid),
         ),
       );
-    }
-
-    if (studentCandidates.length > 0) {
-      evalQueryConditions.push(where("student_id", "in", studentCandidates));
-    } else if (studentConditions.length > 0) {
-      setEvals([]);
-      addToast({
-        header: "Query Complete",
-        message: (
-          <>
-            0 Results
-            <br />
-            No students match the given conditions
-          </>
-        ),
-      });
-      e.target.removeAttribute("disabled");
-      e.target.innerHTML = "Query!";
-      localStorage.setItem("evalQueryResults", JSON.stringify([]));
-      return;
     }
 
     getDocs(
