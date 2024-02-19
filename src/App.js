@@ -27,7 +27,7 @@ import { defineAbilityFor } from "./Services/defineAbility";
 import { getDoc, doc } from 'firebase/firestore';
 
 import { auth, db } from './Services/firebase';
-import { useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import StudentEval from './Pages/Eval/StudentEval';
 import StudentEvalEdit from './Pages/Eval/StudentEvalEdit';
 import NewEval from './Pages/Eval/NewEval';
@@ -117,6 +117,8 @@ function App() {
       )
     })
   )
+
+  const markdownMode = createContext(localStorage.getItem("markdown") === "true" ? true : false);
 
   return (
     <AbilityContext.Provider value={defineAbilityFor(userProfile)}>

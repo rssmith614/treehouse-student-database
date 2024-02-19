@@ -8,6 +8,7 @@ import {
   Navbar as BsNavbar,
   Nav,
   NavDropdown,
+  Form,
 } from "react-bootstrap";
 
 // import treehouseLogo from "../images/Treehouse-Logo-New.svg";
@@ -18,6 +19,12 @@ const Navbar = ({ userProfile }) => {
   const { pathname } = useLocation();
 
   const [userName, setUserName] = useState("");
+
+  const [markdown, setMarkdown] = useState(
+    localStorage.getItem("markdown")
+      ? localStorage.getItem("markdown")
+      : "false",
+  );
 
   useEffect(() => {
     if (userProfile) setUserName(userProfile.data().displayName);
@@ -130,6 +137,26 @@ const Navbar = ({ userProfile }) => {
                 }}
               >
                 Log Out
+              </NavDropdown.Item>
+              <NavDropdown.Item>
+                <Form.Check
+                  type='switch'
+                  id='custom-switch'
+                  label='Markdown Mode'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  value={markdown === "true" ? true : false}
+                  onChange={() => {
+                    if (markdown === "true") {
+                      localStorage.setItem("markdown", "false");
+                      setMarkdown("false");
+                    } else {
+                      localStorage.setItem("markdown", "true");
+                      setMarkdown("true");
+                    }
+                  }}
+                />
               </NavDropdown.Item>
             </NavDropdown>
           </Nav>

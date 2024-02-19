@@ -693,21 +693,41 @@ const StudentEvalEdit = () => {
             <div className='d-flex card bg-light-subtle'>
               <div className='card-body'>
                 <div className='d-flex flex-column'>
-                  <MDEditor
-                    id={`${task_idx}_comments`}
-                    height='100%'
-                    value={task.comments}
-                    preview='edit'
-                    onChange={(e) => {
-                      setTasks(
-                        tasks.map((t, i) => {
-                          if (i !== task_idx) return t;
-                          else return { ...t, comments: e };
-                        }),
-                      );
-                    }}
-                    required
-                  />
+                  {localStorage.getItem("markdown") === "true" ? (
+                    <MDEditor
+                      id={`${task_idx}_comments`}
+                      height='100%'
+                      value={task.comments}
+                      preview='edit'
+                      onChange={(e) => {
+                        setTasks(
+                          tasks.map((t, i) => {
+                            if (i !== task_idx) return t;
+                            else return { ...t, comments: e };
+                          }),
+                        );
+                      }}
+                      required
+                    />
+                  ) : (
+                    <textarea
+                      id={`${task_idx}_comments`}
+                      className='form-control'
+                      value={task.comments}
+                      onMouseOver={(e) => {
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                      }}
+                      onChange={(e) =>
+                        setTasks(
+                          tasks.map((t, i) => {
+                            if (i !== task_idx) return t;
+                            else return { ...t, comments: e.target.value };
+                          }),
+                        )
+                      }
+                      required
+                    />
+                  )}
                   <div className='invalid-feedback'>
                     Please provide a brief summary for this task
                   </div>

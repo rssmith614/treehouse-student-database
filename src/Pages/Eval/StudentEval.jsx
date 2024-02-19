@@ -25,6 +25,7 @@ import { Eval } from "../../Services/defineAbility";
 import { ToastContext } from "../../Services/toast";
 import { useAbility } from "@casl/react";
 import Markdown from "react-markdown";
+import MDEditor from "@uiw/react-md-editor";
 
 const progressions = {
   1: "1 - Far Below Expectations",
@@ -158,6 +159,7 @@ const StudentEval = () => {
                   <div className='d-flex flex-column'>
                     {/* <div className='text-break'>{task.comments}</div> */}
                     <Markdown>{task.comments}</Markdown>
+                    {/* <MDEditor value={task.comments} preview="preview" hideToolbar /> */}
                   </div>
                   <hr />
                   {task.standards.length === 0 ? (
