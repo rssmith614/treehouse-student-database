@@ -155,17 +155,15 @@ const StudentProfile = () => {
               Assessments
             </Nav.Link>
           </Nav.Item>
-          <Can I='read' on='grades'>
-            <Nav.Item>
-              <Nav.Link
-                data-bs-toggle='tab'
-                eventKey='grades'
-                onClick={() => setTab("grades")}
-              >
-                Grades
-              </Nav.Link>
-            </Nav.Item>
-          </Can>
+          <Nav.Item>
+            <Nav.Link
+              data-bs-toggle='tab'
+              eventKey='grades'
+              onClick={() => setTab("grades")}
+            >
+              Grades
+            </Nav.Link>
+          </Nav.Item>
         </Nav>
       </div>
       <Tab.Content className='card-body'>

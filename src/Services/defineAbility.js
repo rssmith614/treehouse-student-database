@@ -68,4 +68,15 @@ class Standard {
   }
 }
 
-export { defineAbilityFor, Tutor, Eval, Assessment, Standard }
+class Grade {
+  constructor(dict) {
+    for (const key in dict) {
+      if (dict.hasOwnProperty(key)) {
+        this[key] = dict[key];
+      }
+    }
+  }
+
+}
+
+export { defineAbilityFor, Tutor, Eval, Assessment, Standard, Grade }
