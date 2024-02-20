@@ -11,7 +11,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { Button, Card, Offcanvas, Table } from "react-bootstrap";
+import { Button, Card, InputGroup, Offcanvas, Table } from "react-bootstrap";
 import dayjs from "dayjs";
 import { ToastContext } from "../Services/toast";
 import { Can } from "../Services/can";
@@ -33,8 +33,6 @@ const StudentGrades = ({ student }) => {
   const [showEdit, setShowEdit] = useState(false);
 
   const addToast = useContext(ToastContext);
-
-  const gradeRegex = /^[A-DF][+-]?$/;
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -70,11 +68,18 @@ const StudentGrades = ({ student }) => {
         document.getElementById(`subject-${index}`).classList.add("is-invalid");
         clean = false;
       }
-      if (!gradeRegex.test(grade.grade)) {
+      if (
+        grade.grade === "" ||
+        parseFloat(grade.grade) < 0 ||
+        parseFloat(grade.grade) > 100
+      ) {
         document.getElementById(`grade-${index}`).classList.add("is-invalid");
+        document
+          .getElementById(`grade-${index}`)
+          .parentElement.classList.add("is-invalid");
         clean = false;
       }
-      if (/^[CDF]/.test(grade.grade) && grade.comments === "") {
+      if (parseFloat(grade.grade) < 80 && grade.comments === "") {
         document
           .getElementById(`comments-${index}`)
           .classList.add("is-invalid");
@@ -134,11 +139,18 @@ const StudentGrades = ({ student }) => {
         document.getElementById(`subject-${index}`).classList.add("is-invalid");
         clean = false;
       }
-      if (!gradeRegex.test(grade.grade)) {
+      if (
+        grade.grade === "" ||
+        parseFloat(grade.grade) < 0 ||
+        parseFloat(grade.grade) > 100
+      ) {
         document.getElementById(`grade-${index}`).classList.add("is-invalid");
+        document
+          .getElementById(`grade-${index}`)
+          .parentElement.classList.add("is-invalid");
         clean = false;
       }
-      if (/^[CDF]/.test(grade.grade) && grade.comments === "") {
+      if (parseFloat(grade.grade) < 80 && grade.comments === "") {
         document
           .getElementById(`comments-${index}`)
           .classList.add("is-invalid");
@@ -241,7 +253,7 @@ const StudentGrades = ({ student }) => {
                     {grades.map((grade, index) => {
                       return (
                         <tr key={index}>
-                          <td>
+                          <td className='align-middle'>
                             <Button
                               variant='danger'
                               size='sm'
@@ -253,7 +265,7 @@ const StudentGrades = ({ student }) => {
                               <i className='bi bi-trash-fill'></i>
                             </Button>
                           </td>
-                          <td>
+                          <td className='align-middle'>
                             <input
                               id={`subject-${index}`}
                               className='form-control'
@@ -269,27 +281,31 @@ const StudentGrades = ({ student }) => {
                               Please specify a subject
                             </div>
                           </td>
-                          <td>
-                            <input
-                              id={`grade-${index}`}
-                              className='form-control'
-                              type='text'
-                              value={grade.grade}
-                              onChange={(e) => {
-                                const newGrades = [...grades];
-                                newGrades[index].grade = e.target.value;
-                                setGrades(newGrades);
-                              }}
-                            />
+                          <td className='align-middle'>
+                            <InputGroup>
+                              <input
+                                id={`grade-${index}`}
+                                className='form-control'
+                                type='number'
+                                min={0}
+                                max={100}
+                                value={grade.grade}
+                                onChange={(e) => {
+                                  const newGrades = [...grades];
+                                  newGrades[index].grade = e.target.value;
+                                  setGrades(newGrades);
+                                }}
+                              />
+                              <InputGroup.Text>%</InputGroup.Text>
+                            </InputGroup>
                             <div className='invalid-feedback'>
                               Please specify a valid grade
                             </div>
                           </td>
-                          <td>
-                            <input
+                          <td className='align-middle'>
+                            <textarea
                               id={`comments-${index}`}
                               className='form-control'
-                              type='text'
                               value={grade.comments}
                               onChange={(e) => {
                                 const newGrades = [...grades];
@@ -410,29 +426,33 @@ const StudentGrades = ({ student }) => {
                             </div>
                           </td>
                           <td>
-                            <input
-                              id={`grade-${index}`}
-                              className='form-control'
-                              type='text'
-                              value={grade.grade}
-                              onChange={(e) => {
-                                const newGrades = [...selectedGrade.grades];
-                                newGrades[index].grade = e.target.value;
-                                setSelectedGrade({
-                                  ...selectedGrade,
-                                  grades: newGrades,
-                                });
-                              }}
-                            />
+                            <InputGroup>
+                              <input
+                                id={`grade-${index}`}
+                                className='form-control'
+                                type='number'
+                                min={0}
+                                max={100}
+                                value={grade.grade}
+                                onChange={(e) => {
+                                  const newGrades = [...selectedGrade.grades];
+                                  newGrades[index].grade = e.target.value;
+                                  setSelectedGrade({
+                                    ...selectedGrade,
+                                    grades: newGrades,
+                                  });
+                                }}
+                              />
+                              <InputGroup.Text>%</InputGroup.Text>
+                            </InputGroup>
                             <div className='invalid-feedback'>
                               Please specify a valid grade
                             </div>
                           </td>
                           <td>
-                            <input
+                            <textarea
                               id={`comments-${index}`}
                               className='form-control'
-                              type='text'
                               value={grade.comments}
                               onChange={(e) => {
                                 const newGrades = [...selectedGrade.grades];
