@@ -99,20 +99,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
             return {
               ...evaluation.data(),
               id: evaluation.id,
-              tasks: compiledTasks.sort((a, b) => {
-                let a_standard = a.split(":").at(1) || "0.0.0";
-                let b_standard = b.split(":").at(1) || "0.0.0";
-                return (
-                  a_standard
-                    .split(".")[1]
-                    .localeCompare(b_standard.split(".")[1]) ||
-                  a_standard.split(".")[2] - b_standard.split(".")[2] ||
-                  a_standard
-                    .split(".")[2]
-                    .localeCompare(b_standard.split(".")[2]) ||
-                  a_standard.localeCompare(b_standard)
-                );
-              }),
+              tasks: compiledTasks,
             };
           });
         }),
