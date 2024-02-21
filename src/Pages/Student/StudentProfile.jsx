@@ -20,6 +20,7 @@ import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
 import AssessmentsOfStudent from "../../Components/AssessmentsOfStudent";
 import StandardsOfCategoryAndStatus from "../../Components/StandardsOfCategoryAndStatus";
+import StudentGrades from "../../Components/StudentGrades";
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
@@ -152,6 +153,15 @@ const StudentProfile = () => {
               onClick={() => setTab("assessments")}
             >
               Assessments
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link
+              data-bs-toggle='tab'
+              eventKey='grades'
+              onClick={() => setTab("grades")}
+            >
+              Grades
             </Nav.Link>
           </Nav.Item>
         </Nav>
@@ -289,6 +299,9 @@ const StudentProfile = () => {
               Issue New Assessment
             </button>
           </div>
+        </Tab.Pane>
+        <Tab.Pane eventKey='grades'>
+          <StudentGrades student={studentRef.current.id} />
         </Tab.Pane>
       </Tab.Content>
     </Tab.Container>
