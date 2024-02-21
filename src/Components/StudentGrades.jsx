@@ -14,7 +14,7 @@ import {
 import { Button, Card, InputGroup, Offcanvas, Table } from "react-bootstrap";
 import dayjs from "dayjs";
 import { ToastContext } from "../Services/toast";
-import { Can } from "../Services/can";
+import { AbilityContext, Can } from "../Services/can";
 import { Grade } from "../Services/defineAbility";
 
 const StudentGrades = ({ student }) => {
@@ -33,6 +33,8 @@ const StudentGrades = ({ student }) => {
   const [showEdit, setShowEdit] = useState(false);
 
   const addToast = useContext(ToastContext);
+
+  const ability = useContext(AbilityContext);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -195,8 +197,15 @@ const StudentGrades = ({ student }) => {
           style={{ cursor: "pointer" }}
           onClick={(e) => {
             e.preventDefault();
-            setSelectedGrade(grade);
-            setShowEdit(true);
+            if (ability.can("edit", new Grade(grade))) {
+              setSelectedGrade(grade);
+              setShowEdit(true);
+            } else {
+              addToast({
+                header: "Unauthorized",
+                message: "You are not authorized to edit this record",
+              });
+            }
           }}
         >
           <td>{dayjs(grade.date).format("MMMM DD, YYYY")}</td>
@@ -389,7 +398,7 @@ const StudentGrades = ({ student }) => {
                     {selectedGrade.grades.map((grade, index) => {
                       return (
                         <tr key={index}>
-                          <td>
+                          <td className='align-middle'>
                             <Button
                               variant='danger'
                               size='sm'
@@ -406,7 +415,7 @@ const StudentGrades = ({ student }) => {
                               <i className='bi bi-trash-fill'></i>
                             </Button>
                           </td>
-                          <td>
+                          <td className='align-middle'>
                             <input
                               id={`subject-${index}`}
                               className='form-control'
@@ -425,7 +434,7 @@ const StudentGrades = ({ student }) => {
                               Please specify a subject
                             </div>
                           </td>
-                          <td>
+                          <td className='align-middle'>
                             <InputGroup>
                               <input
                                 id={`grade-${index}`}
