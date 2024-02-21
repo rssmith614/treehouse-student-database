@@ -13,6 +13,7 @@ function defineAbilityFor(user) {
   // ADMIN ABILITIES
   if (tutorClearance === 'admin') {
     can('manage', 'all');
+
     cannot('edit', Tutor, ['clearance'], { uid: user.id }).because("Admin cannot change their own clearance");
     cannot('delete', Tutor, { uid: user.id }).because("Admin cannot delete themselves");
   }
@@ -21,8 +22,12 @@ function defineAbilityFor(user) {
   else if (tutorClearance === "tutor") {
     can('edit', Tutor, { uid: user.id });
     cannot('edit', Tutor, ['clearance'], { uid: user.id }).because("Tutor cannot change their own clearance");
+
     can('edit', Eval, { owner: user.id });
+
     can('edit', Assessment, { issued_by: user.id });
+
+    can('edit', Grade, { tutor_id: user.id });
   }
 
   return build({ detectSubjectType: item => item.constructor });
