@@ -918,6 +918,7 @@ const NewStudentEval = () => {
           {notes.notes && (
             <OverlayTrigger
               placment='bottom'
+              trigger={"hover"}
               flip={true}
               overlay={
                 <Popover>
@@ -945,6 +946,7 @@ const NewStudentEval = () => {
         <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
           <OverlayTrigger
             placement='right'
+            trigger={"hover"}
             overlay={
               <Popover>
                 <Popover.Body>
