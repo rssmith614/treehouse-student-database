@@ -916,60 +916,36 @@ const NewStudentEval = () => {
         <div className='d-flex'>
           <h1 className='display-1'>New Session Evaluation</h1>
           {notes.notes && (
-            <OverlayTrigger
-              placment='bottom'
-              trigger={"hover"}
-              flip={true}
-              overlay={
-                <Popover>
-                  <Popover.Body>
-                    Click to see the "Next Session" notes from the last session
-                    with {student.student_name}
-                  </Popover.Body>
-                </Popover>
-              }
+            <Button
+              variant=''
+              className='w-25 ms-auto'
+              onClick={() => setShowNotes(true)}
             >
-              <Card
-                className='w-25 ms-auto'
-                style={{ cursor: "pointer" }}
-                onClick={() => setShowNotes(true)}
-              >
+              <Card className=''>
                 <Card.Header>Last Session's Notes</Card.Header>
                 <Card.Body>
                   <div className='text-truncate'>{notes.notes}</div>
                 </Card.Body>
               </Card>
-            </OverlayTrigger>
+            </Button>
           )}
         </div>
         {/* <form onSubmit={sumbitEval}> */}
         <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
-          <OverlayTrigger
-            placement='right'
-            trigger={"hover"}
-            overlay={
-              <Popover>
-                <Popover.Body>
-                  Click to go to {student.student_name}'s profile
-                </Popover.Body>
-              </Popover>
-            }
+          <Button
+            variant=''
+            className='me-auto'
+            size='lg'
+            style={{
+              "--bs-btn-padding-x": "0rem",
+              "--bs-btn-padding-y": "0rem",
+            }}
+            onClick={() => navigate(`/students/${studentRef.current.id}`)}
           >
-            <Button
-              variant=''
-              className='me-auto'
-              size='lg'
-              style={{
-                "--bs-btn-padding-x": "0rem",
-                "--bs-btn-padding-y": "0rem",
-              }}
-              onClick={() => navigate(`/students/${studentRef.current.id}`)}
-            >
-              <div className='text-decoration-underline h3'>
-                {student.student_name}
-              </div>
-            </Button>
-          </OverlayTrigger>
+            <div className='text-decoration-underline h3'>
+              {student.student_name}
+            </div>
+          </Button>
           <div className='row my-3'>
             <div className='col'>
               <label className='form-label h5'>Tutor</label>
