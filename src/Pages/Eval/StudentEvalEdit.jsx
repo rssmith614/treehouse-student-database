@@ -969,7 +969,7 @@ const StudentEvalEdit = () => {
           <div className='row my-3'>
             <div className='col'>
               <label className='form-label h5'>Tutor</label>
-              <select
+              <Form.Select
                 id='tutor'
                 className='form-control'
                 value={selectedTutor || ""}
@@ -980,7 +980,7 @@ const StudentEvalEdit = () => {
                   Select One
                 </option>
                 {tutorOptions()}
-              </select>
+              </Form.Select>
             </div>
             <div className='invalid-feedback'>Please select a tutor</div>
             <div className='col'>
