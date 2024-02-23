@@ -14,7 +14,6 @@ import StudentProfile from './Pages/Student/StudentProfile';
 import StudentProfilesList from './Pages/Student/StudentProfilesList';
 import StudentProfileEdit from './Pages/Student/StudentProfileEdit';
 
-import NewTutorPage from './Pages/Tutor/NewTutorPage';
 import TutorProfile from './Pages/Tutor/TutorProfile';
 import TutorProfilesList from './Pages/Tutor/TutorProfilesList';
 import TutorProfileEdit from './Pages/Tutor/TutorProfileEdit';
@@ -44,7 +43,7 @@ import StudentAssessment from './Pages/Assessments/StudentAssessment';
 import StudentAssessmentEdit from './Pages/Assessments/StudentAssessmentEdit';
 import EvalsPendingReview from './Pages/Eval/EvalsPendingReview';
 import Footer from './Components/Footer';
- 
+
 function App() {
 
   // THEME MANAGEMENT
@@ -141,13 +140,11 @@ function App() {
             <Route path="/students/:studentid" element={<StudentProfile />} />
             <Route path="students/edit/:studentid" element={<StudentProfileEdit />} />
 
-            <Route path="/newtutor" element={<NewTutorPage />} />
             <Route path="/tutors" element={<TutorProfilesList />} />
             <Route path="/tutor/:tutorid" element={<TutorProfile />} />
             <Route path="/tutor/edit/:tutorid" element={<TutorProfileEdit />} />
 
             <Route path="/standards" element={<StandardsList />} />
-            {/* <Route path="/standard/new/:studentid" element={<TrackStandard />} /> */}
 
             <Route path='/assessments' element={<AssessmentsList />} />
             <Route path='/assessments/edit/:assessmentid' element={<AssessmentEdit />} />
