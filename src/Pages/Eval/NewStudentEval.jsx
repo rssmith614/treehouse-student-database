@@ -26,6 +26,7 @@ import {
   Offcanvas,
   Card,
   Container,
+  Modal,
 } from "react-bootstrap";
 import TrackStandard from "../Standards/TrackStandard";
 
@@ -53,6 +54,9 @@ const NewStudentEval = () => {
   // const [loading, setLoading] = useState(true);
 
   const [showNewStandardPane, setShowNewStandardPane] = useState(false);
+
+  const [notes, setNotes] = useState({});
+  const [showNotes, setShowNotes] = useState(false);
 
   const addToast = useContext(ToastContext);
 
@@ -110,6 +114,13 @@ const NewStudentEval = () => {
     );
 
     const unsubscribeEvals = onSnapshot(evalsQuery, (evalsSnapshot) => {
+      setNotes({
+        tutor: evalsSnapshot.docs[0]?.data()?.tutor_name,
+        date: evalsSnapshot.docs[0]?.data()?.date,
+        notes: evalsSnapshot.docs[0]?.data()?.next_session,
+        id: evalsSnapshot.docs[0]?.id,
+      });
+
       const fetchTasksPromises = evalsSnapshot.docs.map((evaluation) => {
         return getDocs(collection(evaluation.ref, "tasks")).then(
           (tasksSnapshot) => {
@@ -902,20 +913,43 @@ const NewStudentEval = () => {
   return (
     <>
       <div className='p-3 d-flex flex-column'>
-        <h1 className='display-1'>New Session Evaluation</h1>
+        <div className='d-flex'>
+          <h1 className='display-1'>New Session Evaluation</h1>
+          {notes.notes && (
+            <Button
+              variant=''
+              className='w-25 ms-auto'
+              onClick={() => setShowNotes(true)}
+            >
+              <Card className=''>
+                <Card.Header>Last Session's Notes</Card.Header>
+                <Card.Body>
+                  <div className='text-truncate'>{notes.notes}</div>
+                </Card.Body>
+              </Card>
+            </Button>
+          )}
+        </div>
         {/* <form onSubmit={sumbitEval}> */}
         <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
-          <div
-            className='h3'
-            data-toggle='tooltip'
-            title='Contact an administrator if this is incorrect'
+          <Button
+            variant=''
+            className='me-auto'
+            size='lg'
+            style={{
+              "--bs-btn-padding-x": "0rem",
+              "--bs-btn-padding-y": "0rem",
+            }}
+            onClick={() => navigate(`/students/${studentRef.current.id}`)}
           >
-            {student.student_name}
-          </div>
+            <div className='text-decoration-underline h3'>
+              {student.student_name}
+            </div>
+          </Button>
           <div className='row my-3'>
             <div className='col'>
               <label className='form-label h5'>Tutor</label>
-              <select
+              <Form.Select
                 id='tutor'
                 className='form-control'
                 value={selectedTutor}
@@ -925,7 +959,7 @@ const NewStudentEval = () => {
                   Select One
                 </option>
                 {tutorOptions()}
-              </select>
+              </Form.Select>
               <div className='invalid-feedback'>Please select a tutor</div>
             </div>
             <div className='col'>
@@ -1112,6 +1146,43 @@ const NewStudentEval = () => {
           standardSelector={newStandardSelector.current}
         />
       </Offcanvas>
+      <Modal show={showNotes} onHide={() => setShowNotes(false)}>
+        <Modal.Header>
+          <Modal.Title>For {student.student_name}'s Next Session</Modal.Title>
+          <Button
+            variant='secondary'
+            onClick={() => setShowNotes(false)}
+            style={{ "--bs-bg-opacity": "0" }}
+          >
+            <i className='bi bi-x-lg' />
+          </Button>
+        </Modal.Header>
+        <Modal.Body>
+          <div className='d-flex flex-column'>
+            <div className='d-flex'>
+              <div className='d-flex flex-column'>
+                <div className='h6'>{notes.tutor}</div>
+                <div className='text-secondary'>
+                  {dayjs(notes.date).format("MMMM DD, YYYY")}
+                </div>
+              </div>
+              <div className='ms-auto align-self-center'>
+                <Button
+                  variant='secondary'
+                  size='sm'
+                  onClick={() => navigate(`/eval/${notes.id}`)}
+                >
+                  Previous Evaluation{" "}
+                  <i className='ms-auto ps-1 bi bi-box-arrow-up-right'></i>
+                </Button>
+              </div>
+            </div>
+            <hr />
+            <div className='h5'>Notes</div>
+            <div className=''>{notes.notes}</div>
+          </div>
+        </Modal.Body>
+      </Modal>
     </>
   );
 };
