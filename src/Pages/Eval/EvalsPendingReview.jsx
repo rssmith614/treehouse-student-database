@@ -1,9 +1,11 @@
+import dayjs from "dayjs";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { db } from "../../Services/firebase";
-import { Card, Dropdown, InputGroup, Table, Form } from "react-bootstrap";
+import { Card, Dropdown, Table } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
+import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
+import FilterTableHeader from "../../Components/FilterTableHeader";
+import { db } from "../../Services/firebase";
 
 const EvalsPendingReview = () => {
   const [evals, setEvals] = useState([]);
@@ -97,59 +99,6 @@ const EvalsPendingReview = () => {
         return <i className='bi bi-filter ms-auto' />;
     }
   }
-
-  const DropdownTableHeaderToggle = React.forwardRef(
-    ({ children, onClick }, ref) => (
-      <div
-        className='d-flex'
-        ref={ref}
-        onClick={(e) => {
-          e.preventDefault();
-          onClick(e);
-        }}
-      >
-        {children}
-      </div>
-    ),
-  );
-
-  const FilterTableHeader = React.forwardRef(
-    (
-      {
-        children,
-        style,
-        className,
-        "aria-labelledby": labeledBy,
-        value,
-        valueSetter,
-      },
-      ref,
-    ) => (
-      <div
-        ref={ref}
-        style={style}
-        className={className}
-        aria-labelledby={labeledBy}
-      >
-        <Dropdown.Item>
-          <InputGroup>
-            <Form.Control
-              autoFocus
-              type='text'
-              placeholder='Search'
-              value={value}
-              onChange={(e) => valueSetter(e.target.value)}
-            />
-            <i
-              className='bi bi-x-lg input-group-text'
-              style={{ cursor: "pointer" }}
-              onClick={() => valueSetter("")}
-            />
-          </InputGroup>
-        </Dropdown.Item>
-      </div>
-    ),
-  );
 
   return (
     <div className='d-flex flex-column p-3'>

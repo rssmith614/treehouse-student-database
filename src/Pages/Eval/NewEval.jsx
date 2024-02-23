@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { db } from "../../Services/firebase";
 import React, { useEffect, useState } from "react";
 import { Button, Dropdown, Form, InputGroup } from "react-bootstrap";
+import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
+import ComboTableHeader from "../../Components/ComboTableHeader";
+import FilterTableHeader from "../../Components/FilterTableHeader";
 
 const NewEval = () => {
   const [students, setStudents] = useState(null);
@@ -120,103 +123,6 @@ const NewEval = () => {
         return <></>;
     }
   }
-
-  const DropdownTableHeaderToggle = React.forwardRef(
-    ({ children, onClick }, ref) => (
-      <div
-        className='d-flex'
-        ref={ref}
-        onClick={(e) => {
-          e.preventDefault();
-          onClick(e);
-        }}
-      >
-        {children}
-      </div>
-    ),
-  );
-
-  const FilterTableHeader = React.forwardRef(
-    (
-      {
-        children,
-        style,
-        className,
-        "aria-labelledby": labeledBy,
-        value,
-        valueSetter,
-      },
-      ref,
-    ) => (
-      <div
-        ref={ref}
-        style={style}
-        className={className}
-        aria-labelledby={labeledBy}
-      >
-        <Dropdown.Item>
-          <InputGroup>
-            <Form.Control
-              autoFocus
-              type='text'
-              placeholder='Search'
-              value={value}
-              onChange={(e) => valueSetter(e.target.value)}
-            />
-            <i
-              className='bi bi-x-lg input-group-text'
-              style={{ cursor: "pointer" }}
-              onClick={() => valueSetter("")}
-            />
-          </InputGroup>
-        </Dropdown.Item>
-      </div>
-    ),
-  );
-
-  const ComboTableHeader = React.forwardRef(
-    (
-      {
-        children,
-        style,
-        className,
-        "aria-labelledby": labeledBy,
-        value,
-        valueSetter,
-      },
-      ref,
-    ) => (
-      <div
-        ref={ref}
-        style={style}
-        className={className}
-        aria-labelledby={labeledBy}
-      >
-        {/* <Dropdown.Item>
-          <InputGroup>
-            <Form.Control
-              autoFocus
-              type='text'
-              placeholder='Search'
-              value={value}
-              onChange={(e) => valueSetter(e.target.value)}
-            />
-            <i
-              className='bi bi-x-lg input-group-text'
-              style={{ cursor: "pointer" }}
-              onClick={() => valueSetter("")}
-            />
-          </InputGroup>
-        </Dropdown.Item> */}
-        <Dropdown.Item onClick={() => setTableSort("name_asc")}>
-          A - Z
-        </Dropdown.Item>
-        <Dropdown.Item onClick={() => setTableSort("name_desc")}>
-          Z - A
-        </Dropdown.Item>
-      </div>
-    ),
-  );
 
   const listTable = (
     <table className='table table-striped table-hover'>
