@@ -1,782 +1,319 @@
 import {
   collection,
-  collectionGroup,
-  count,
-  getAggregateFromServer,
+  doc,
+  getDoc,
   getDocs,
+  onSnapshot,
   query,
   where,
-  documentId,
-  getDoc,
-  doc,
 } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Dropdown,
-  Form,
-  InputGroup,
-  Row,
-  Table,
-} from "react-bootstrap";
-import { db } from "../../Services/firebase";
+import React, { useContext, useEffect, useState } from "react";
+import { Button } from "react-bootstrap";
+import { db, storage } from "../../Services/firebase";
+
 import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
+import { getDownloadURL, ref } from "firebase/storage";
+import { ToastContext } from "../../Services/toast";
+import QueryParameters from "./Components/QueryParameters";
+import QueryResults from "./Components/QueryResults";
 
 const EvalQuery = () => {
-  const [dateMatching, setDateMatching] = useState("on"); // on, (on or) before, (on or) after, between
-  const [subjectMatching, setSubjectMatching] = useState("like");
-
-  const [studentNameMatching, setStudentNameMatching] = useState("like");
-  const [schoolMatching, setSchoolMatching] = useState("like");
-  const [sourceMatching, setSourceMatching] = useState("like");
-  const [gradeMatching, setGradeMatching] = useState("like");
-
-  const [tutorList, setTutorList] = useState([]); // for matching tutor name on eval
-  const [preferredTutorList, setPreferredTutorList] = useState([]); // for matching student's preferred tutor
+  const [evalConditions, setEvalConditions] = useState(
+    localStorage.getItem("evalConditions")
+      ? JSON.parse(localStorage.getItem("evalConditions"))
+      : [],
+  );
+  const [studentConditions, setStudentConditions] = useState(
+    localStorage.getItem("studentConditions")
+      ? JSON.parse(localStorage.getItem("studentConditions"))
+      : [],
+  );
+  const [tutorList, setTutorList] = useState(
+    localStorage.getItem("tutorList")
+      ? JSON.parse(localStorage.getItem("tutorList"))
+      : [],
+  );
 
   const [tutors, setTutors] = useState([]);
 
-  const [evals, setEvals] = useState([]);
+  const [evals, setEvals] = useState(
+    localStorage.getItem("evalQueryResults")
+      ? JSON.parse(localStorage.getItem("evalQueryResults"))
+      : [],
+  );
 
-  const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
+  const addToast = useContext(ToastContext);
 
   useEffect(() => {
-    getDocs(collection(db, "tutors")).then((res) => setTutors(res.docs));
+    const unsubscribeTutors = onSnapshot(
+      collection(db, "tutors"),
+      (snapshot) => {
+        setTutors(snapshot.docs.map((doc) => doc.data()));
+      },
+    );
+
+    return () => {
+      unsubscribeTutors();
+    };
   }, []);
 
-  function filterInPlace(a, condition, thisArg) {
-    let j = 0;
+  useEffect(() => {
+    localStorage.setItem("evalConditions", JSON.stringify(evalConditions));
+  }, [evalConditions]);
 
-    a.forEach((e, i) => {
-      if (condition.call(thisArg, e, i, a)) {
-        if (i !== j) a[j] = e;
-        j++;
-      }
-    });
+  useEffect(() => {
+    localStorage.setItem(
+      "studentConditions",
+      JSON.stringify(studentConditions),
+    );
+  }, [studentConditions]);
 
-    a.length = j;
-    return a;
-  }
+  useEffect(() => {
+    localStorage.setItem("tutorList", JSON.stringify(tutorList));
+  }, [tutorList]);
 
-  async function queryEvals(e) {
-    e.preventDefault();
-
-    setLoading(true);
-    setEvals([]);
-
-    let evalQueryConditions = [];
-
-    // EVAL FILTERS
-
-    if (dateMatching === "between") {
-      let evalStartDate = document.getElementById("eval_date").value;
-      let evalEndDate = document.getElementById("eval_date_end").value;
-
-      evalQueryConditions.push(
-        where("date", ">=", evalStartDate),
-        where("date", "<=", evalEndDate),
-      );
-    } else {
-      let evalDate = document.getElementById("eval_date").value;
-
-      if (evalDate !== "") {
-        if (dateMatching === "on") {
-          evalQueryConditions.push(where("date", "==", evalDate));
-        } else if (dateMatching === "before") {
-          evalQueryConditions.push(where("date", "<=", evalDate));
-        } else if (dateMatching === "after") {
-          evalQueryConditions.push(where("date", ">=", evalDate));
-        }
-      }
-    }
-
-    if (subjectMatching === "exact") {
-      let evalSubject = document.getElementById("subject").value;
-      let evalIds = [];
-      (
-        await getDocs(
-          query(
-            collectionGroup(db, "tasks"),
-            where("subject", "==", evalSubject),
-          ),
-        )
-      ).forEach((task) => {
-        evalIds.push(task.ref.parent.parent.id);
-      });
-      evalQueryConditions.push(where(documentId(), "in", evalIds));
-    }
-
-    // STUDENT FILTERS
-
-    let studentQueryConditions = [];
-
-    if (studentNameMatching === "exact") {
-      let studentName = document.getElementById("student_name").value;
-      studentQueryConditions.push(where("student_name", "==", studentName));
-    }
-
+  async function sendit(e) {
+    localStorage.setItem("queryTimestamp", dayjs());
+    // Validate non-empty conditions
     if (
-      preferredTutorList.length !== 0 &&
-      preferredTutorList.length < tutors.length
+      evalConditions.length === 0 &&
+      studentConditions.length === 0 &&
+      (tutorList.length === 0 || tutorList.length === tutors.length)
     ) {
-      studentQueryConditions.push(
-        where(
-          "preferred_tutor",
-          "in",
-          preferredTutorList.map((t) => t.id),
-        ),
-      );
-    }
-
-    if (schoolMatching === "exact") {
-      let studentSchool = document.getElementById("student_school").value;
-      studentQueryConditions.push(where("student_school", "==", studentSchool));
-    }
-
-    if (sourceMatching === "exact") {
-      let studentSource = document.getElementById("student_source").value;
-      studentQueryConditions.push(where("student_source", "==", studentSource));
-    }
-
-    if (gradeMatching === "exact") {
-      let studentGrade = document.getElementById("student_grade").value;
-      studentQueryConditions.push(where("student_grade", "==", studentGrade));
-    }
-
-    studentQueryConditions.unshift(collection(db, "students"));
-    let studentCount = (
-      await getAggregateFromServer(collection(db, "students"), {
-        count: count(),
-      })
-    ).data().count;
-    let studentCandidates = (
-      await getDocs(query.apply(null, studentQueryConditions))
-    ).docs;
-
-    if (studentNameMatching === "like") {
-      let studentName = document.getElementById("student_name").value;
-      filterInPlace(studentCandidates, (s) =>
-        s.data().student_name.toLowerCase().includes(studentName.toLowerCase()),
-      );
-    }
-
-    if (schoolMatching === "like") {
-      let studentSchool = document.getElementById("student_school").value;
-      filterInPlace(studentCandidates, (s) =>
-        s
-          .data()
-          .student_school.toLowerCase()
-          .includes(studentSchool.toLowerCase()),
-      );
-    }
-
-    if (sourceMatching === "like") {
-      let studentSource = document.getElementById("student_source").value;
-      filterInPlace(studentCandidates, (s) =>
-        s
-          .data()
-          .student_source.toLowerCase()
-          .includes(studentSource.toLowerCase()),
-      );
-    }
-
-    if (gradeMatching === "like") {
-      let studentGrade = document.getElementById("student_grade").value;
-      filterInPlace(studentCandidates, (s) =>
-        s
-          .data()
-          .student_grade.toLowerCase()
-          .includes(studentGrade.toLowerCase()),
-      );
-    }
-
-    if (studentCount > studentCandidates.length) {
-      if (studentCandidates.length !== 0) {
-        evalQueryConditions.push(
-          where(
-            "student_id",
-            "in",
-            studentCandidates.map((s) => s.id),
-          ),
-        );
-      }
-    }
-
-    // TUTOR FILTER
-
-    if (tutorList.length !== 0 && tutorList.length !== tutors.length) {
-      evalQueryConditions.push(
-        where(
-          "tutor_id",
-          "in",
-          tutorList.map((t) => t.id),
-        ),
-      );
-    }
-
-    if (evalQueryConditions.length === 0) {
-      if (
-        !window.confirm(
-          "You either specified no filters, or are using filters that can only be applied client-side. This will query every evaluation in the database. Proceed?",
-        )
-      ) {
-        setLoading(false);
+      if (!window.confirm("Query ALL evaluations from the database?")) {
         return;
       }
     }
 
-    evalQueryConditions.unshift(collection(db, "evaluations"));
-    let evalQuery = query.apply(null, evalQueryConditions);
+    e.target.setAttribute("disabled", true);
+    e.target.innerHTML =
+      "Loading... <Spinner className='ms-2' animation='border' size='sm' />";
 
-    getDocs(evalQuery)
-      .then((res) => {
-        Promise.all(
-          res.docs.map(async (evaluation) => {
-            return Promise.all(
-              (await getDocs(collection(evaluation.ref, "tasks"))).docs.map(
-                async (task) => {
-                  if (task.data().standard === "") return task.data().subject;
-                  else {
-                    return `${task.data().subject}: ${
-                      (
-                        await getDoc(doc(db, "standards", task.data().standard))
-                      ).data().key
-                    }`;
-                  }
-                },
-              ),
-            ).then((compiledTasks) => {
-              return {
-                ...evaluation.data(),
-                id: evaluation.id,
-                tasks: compiledTasks.sort((a, b) => {
-                  let a_standard = a.split(":").at(1) || "0.0.0";
-                  let b_standard = b.split(":").at(1) || "0.0.0";
-                  return (
-                    a_standard
-                      .split(".")[1]
-                      .localeCompare(b_standard.split(".")[1]) ||
-                    a_standard.split(".")[2] - b_standard.split(".")[2] ||
-                    a_standard
-                      .split(".")[2]
-                      .localeCompare(b_standard.split(".")[2]) ||
-                    a_standard.localeCompare(b_standard)
-                  );
-                }),
-              };
-            });
-          }),
-        ).then((compiledEvals) => {
-          // console.log(compiledEvals)
-          if (subjectMatching === "like") {
-            let evalSubject = document.getElementById("subject").value;
-            setEvals(
-              compiledEvals.filter((e) => {
-                let taskString = e.tasks.join(" ");
-                return taskString
-                  .toLowerCase()
-                  .includes(evalSubject.toLowerCase());
-              }),
-            );
-          } else {
-            setEvals(compiledEvals);
-          }
-        });
-      })
-      .then(setLoading(false));
-  }
+    // Get evals
 
-  const MatchingType = React.forwardRef(({ children, onClick }, ref) => (
-    <Button
-      variant='secondary'
-      className='d-flex'
-      ref={ref}
-      onClick={(e) => {
-        e.preventDefault();
-        onClick(e);
-      }}
-    >
-      {children}
-    </Button>
-  ));
+    let evalQueryConditions = evalConditions.map((condition) => {
+      return where(condition.name, condition.condition, condition.value);
+    });
 
-  const tutorDropdownLabel = (list) => {
-    if (list.length === tutors.length || list.length === 0) {
-      return "Any";
-    } else {
-      return list.map((t, i) => {
-        return i > 0 ? " " + t.data().displayName : t.data().displayName;
+    // Get students
+
+    if (studentConditions.length !== 0) {
+      let studentQueryConditions = studentConditions.map((condition) => {
+        return where(condition.name, condition.condition, condition.value);
       });
-    }
-  };
 
-  const TutorDropdownToggle = React.forwardRef(
-    ({ style, className, onClick, value }, ref) => (
-      <Form.Control
-        ref={ref}
-        style={{ ...style, cursor: "pointer" }}
-        className={className}
-        onClick={(e) => {
-          e.preventDefault();
-          onClick(e);
-        }}
-        value={tutorDropdownLabel(value)}
-        readOnly
-      ></Form.Control>
-    ),
-  );
+      let studentCandidates = (
+        await getDocs(
+          query.apply(null, [
+            collection(db, "students"),
+            ...studentQueryConditions,
+          ]),
+        )
+      ).docs.map((doc) => doc.id);
 
-  const TutorDropdown = React.forwardRef(
-    ({ style, className, value, valueSetter }, ref) => {
-      const [search, setSearch] = useState("");
-
-      return (
-        <div
-          ref={ref}
-          style={style}
-          className={className}
-          onClick={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <Form.Control
-            className='mx-3 my-2 w-auto'
-            placeholder='Search'
-            onChange={(e) => setSearch(e.target.value)}
-            value={search}
-          />
-          {/* <Form.Check
-          label='Select All'
-          className="mx-3 my-2 w-auto"
-          checked={value.length === tutors.length}
-          onChange={e => e.target.checked ? valueSetter(tutors) : valueSetter([])}
-        /> */}
-          {tutors
-            .filter((t) =>
-              t.data().displayName.toLowerCase().includes(search.toLowerCase()),
-            )
-            .map((tutor, i) => {
-              return (
-                <Form.Check
-                  key={i}
-                  checked={value.includes(tutor)}
-                  label={tutor.data().displayName}
-                  className='mx-3 my-2 w-auto'
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      valueSetter([...value, tutor]);
-                    } else {
-                      valueSetter(value.filter((t) => t !== tutor));
-                    }
-                  }}
-                />
-              );
-            })}
-        </div>
-      );
-    },
-  );
-
-  const dateMatchingLabel = () => {
-    switch (dateMatching) {
-      case "on":
-        return "On";
-      case "before":
-        return "On or Before";
-      case "after":
-        return "On or After";
-      case "between":
-        return "Between";
-      default:
-        return "";
-    }
-  };
-
-  const [tableSort, setTableSort] = useState("date_desc");
-
-  const [tutorFilter, setTutorFilter] = useState("");
-  const [studentFilter, setStudentFilter] = useState("");
-
-  function evalList() {
-    const tableData = evals.filter((evaluation) => {
-      return (
-        evaluation.student_name
-          .toLowerCase()
-          .includes(studentFilter.toLowerCase()) &&
-        evaluation.tutor_name.toLowerCase().includes(tutorFilter.toLowerCase())
-      );
-    });
-
-    switch (tableSort) {
-      case "date_asc":
-        tableData.sort((a, b) => {
-          return dayjs(a.date).diff(dayjs(b.date));
+      if (studentCandidates.length > 0) {
+        evalQueryConditions.push(where("student_id", "in", studentCandidates));
+      } else {
+        setEvals([]);
+        addToast({
+          header: "Query Complete",
+          message: (
+            <>
+              0 Results
+              <br />
+              No students match the given conditions
+            </>
+          ),
         });
-        break;
-      case "date_desc":
-        tableData.sort((a, b) => {
-          return dayjs(b.date).diff(dayjs(a.date));
-        });
-        break;
-      default:
-        break;
+        e.target.removeAttribute("disabled");
+        e.target.innerHTML = "Query!";
+        localStorage.setItem("evalQueryResults", JSON.stringify([]));
+        return;
+      }
     }
 
-    return tableData.map((evaluation) => {
-      return (
-        <tr
-          key={evaluation.id}
-          onClick={() => navigate(`/eval/${evaluation.id}`)}
-          style={{ cursor: "pointer" }}
-        >
-          <td>{dayjs(evaluation.date).format("MMMM DD, YYYY")}</td>
-          <td>{evaluation.student_name}</td>
-          <td>{evaluation.tutor_name}</td>
-          <td>
-            {evaluation.tasks.map((t) => {
-              return (
-                <>
-                  {t}
-                  <br />
-                </>
-              );
-            })}
-          </td>
-        </tr>
+    if (tutorList.length > 0) {
+      evalQueryConditions.push(
+        where(
+          "tutor_id",
+          "in",
+          tutorList.map((t) => t.uid),
+        ),
       );
+    }
+
+    getDocs(
+      query.apply(null, [
+        collection(db, "evaluations"),
+        ...evalQueryConditions,
+      ]),
+    ).then(async (snapshot) => {
+      let tempEvals = snapshot.docs.map(async (evaluation) => {
+        let evalData = { ...evaluation.data(), id: evaluation.id };
+        let tasksSnapshot = await getDocs(collection(evaluation.ref, "tasks"));
+        let tasksCount = tasksSnapshot.size;
+        let tasks = tasksSnapshot.docs.map((task) => {
+          return { ...task.data(), id: task.id };
+        });
+        return { ...evalData, ...tasks, tasksCount };
+      });
+      Promise.all(tempEvals).then((evaluations) => {
+        addToast({
+          header: "Query Complete",
+          message: `${evaluations.length} result${
+            evaluations.length === 1 ? "" : "s"
+          }`,
+        });
+        setEvals(evaluations);
+        e.target.removeAttribute("disabled");
+        e.target.innerHTML = "Query!";
+        localStorage.setItem("evalQueryResults", JSON.stringify(evaluations));
+      });
     });
   }
 
-  function filterIcon(column) {
-    switch (column) {
-      case "date":
-        if (tableSort === "date_asc")
-          return <i className='bi bi-sort-up ms-auto' />;
-        else if (tableSort === "date_desc")
-          return <i className='bi bi-sort-down ms-auto' />;
-        else return <i className='bi bi-filter ms-auto' />;
+  async function exportCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,";
 
-      case "student":
-        if (studentFilter !== "")
-          return <i className='bi bi-funnel-fill ms-auto' />;
-        else return <i className='bi bi-funnel ms-auto' />;
-      case "tutor":
-        if (tutorFilter !== "")
-          return <i className='bi bi-funnel-fill ms-auto' />;
-        else return <i className='bi bi-funnel ms-auto' />;
+    csvContent += `Date,Student,Tutor,Worksheet Link,Worksheet Completion, Next Session Plans,Standards,Progression,Engagement,Comments\n`;
 
-      default:
-        return <i className='bi bi-filter ms-auto' />;
-    }
+    let exportData = Promise.all(
+      evals.map(async (evaluation) => {
+        let worksheetDownloadUrl = "";
+        if (evaluation.worksheet !== "") {
+          try {
+            worksheetDownloadUrl = await getDownloadURL(
+              ref(storage, evaluation.worksheet),
+            );
+          } catch (err) {
+            worksheetDownloadUrl = evaluation.worksheet;
+          }
+        }
+
+        return Promise.all(
+          (
+            await getDocs(collection(db, "evaluations", evaluation.id, "tasks"))
+          ).docs.map(async (task) => {
+            if (task.data().standards) {
+              return {
+                ...task.data(),
+                standards: await Promise.all(
+                  task.data().standards.map(async (standard) => {
+                    return (
+                      (
+                        await getDoc(
+                          doc(db, "standards", standard?.id || standard),
+                        )
+                      ).data().key || ""
+                    );
+                  }),
+                ).then((standards) => {
+                  return `"${standards.join(", ")}"`;
+                }),
+                progression: `"${task
+                  .data()
+                  .standards.map((standard) => {
+                    return standard.progression;
+                  })
+                  .join(", ")}"`,
+              };
+            } else {
+              return { ...task.data(), standards: "" };
+            }
+          }),
+        ).then((tasks) => {
+          return {
+            ...evaluation,
+            tasks: tasks.map((task) => {
+              return {
+                date: evaluation.date,
+                student: evaluation.student_name,
+                tutor: evaluation.tutor_name,
+                worksheet: `"${worksheetDownloadUrl}"`,
+                worksheet_completion: `"${evaluation.worksheet_completion}"`,
+                next_session: `"${evaluation.next_session}"`,
+                // subject: task.subject,
+                standards: task.standards,
+                progression: task?.progression,
+                engagement: task.engagement,
+                comments: `"${task.comments}"`,
+              };
+            }),
+          };
+        });
+      }),
+    );
+
+    (await exportData).forEach((evaluation) => {
+      evaluation.tasks.forEach((task) => {
+        csvContent += `${task.date},${task.student},${task.tutor},${task.worksheet},${task.worksheet_completion},${task.next_session},${task.standards},${task.progression},${task.engagement},${task.comments}\n`;
+      });
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `eval-task-export-${dayjs().format("YYYY-MM-DD-HH-mm-ss")}.csv`,
+    );
+    document.body.appendChild(link); // Required for FF
+
+    link.click();
   }
-
-  const DropdownTableHeaderToggle = React.forwardRef(
-    ({ children, onClick }, ref) => (
-      <div
-        className='d-flex'
-        ref={ref}
-        onClick={(e) => {
-          e.preventDefault();
-          onClick(e);
-        }}
-      >
-        {children}
-      </div>
-    ),
-  );
-
-  const FilterTableHeader = React.forwardRef(
-    (
-      {
-        children,
-        style,
-        className,
-        "aria-labelledby": labeledBy,
-        value,
-        valueSetter,
-      },
-      ref,
-    ) => (
-      <div
-        ref={ref}
-        style={style}
-        className={className}
-        aria-labelledby={labeledBy}
-      >
-        <Dropdown.Item>
-          <InputGroup>
-            <Form.Control
-              autoFocus
-              type='text'
-              placeholder='Search'
-              value={value}
-              onChange={(e) => valueSetter(e.target.value)}
-            />
-            <i
-              className='bi bi-x-lg input-group-text'
-              style={{ cursor: "pointer" }}
-              onClick={() => valueSetter("")}
-            />
-          </InputGroup>
-        </Dropdown.Item>
-      </div>
-    ),
-  );
 
   return (
-    <div className='d-flex flex-column p-3'>
-      <div className='display-1'>Eval Querying Tool</div>
-      <div className='h5'>Define filters, then press "Query"</div>
-      {/* <Form onSubmit={queryEvals}> */}
-      <Card className='p-3 bg-light-subtle'>
-        <Row>
-          <div className='h4'>Evaluation</div>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Label className='h5'>Date</Form.Label>
-            <InputGroup>
-              <Dropdown>
-                <Dropdown.Toggle variant='secondary'>
-                  {dateMatchingLabel()}
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <Dropdown.Item onClick={() => setDateMatching("on")}>
-                    On
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => setDateMatching("before")}>
-                    On or Before
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => setDateMatching("after")}>
-                    On or After
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => setDateMatching("between")}>
-                    Between
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
+    <div className='p-3'>
+      <div className='display-1'>Evaluation Query Tool</div>
 
-              {dateMatching === "between" ? (
-                <>
-                  <Form.Control type='date' id='eval_date' required />
-                  <Form.Control type='date' id='eval_date_end' required />
-                </>
-              ) : (
-                <Form.Control type='date' id='eval_date' />
-              )}
-            </InputGroup>
-          </Col>
-          <Col>
-            <Form.Label className='h5'>Subject</Form.Label>
-            <InputGroup>
-              <Button
-                as={MatchingType}
-                onClick={() =>
-                  subjectMatching === "like"
-                    ? setSubjectMatching("exact")
-                    : setSubjectMatching("like")
-                }
-              >
-                {subjectMatching === "like" ? "Contains" : "Exactly"}
-              </Button>
-              <Form.Control type='text' id='subject' />
-            </InputGroup>
-          </Col>
-        </Row>
-        <hr />
-        <Row>
-          <div className='h4'>Student</div>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Label className='h5'>Name</Form.Label>
-            <InputGroup>
-              <Button
-                as={MatchingType}
-                onClick={() =>
-                  studentNameMatching === "like"
-                    ? setStudentNameMatching("exact")
-                    : setStudentNameMatching("like")
-                }
-              >
-                {studentNameMatching === "like" ? "Contains" : "Exactly"}
-              </Button>
-              <Form.Control type='text' id='student_name' />
-            </InputGroup>
-          </Col>
-          <Col>
-            <Form.Label className='h5'>Preferred Tutor</Form.Label>
-            <InputGroup>
-              <Dropdown>
-                <Dropdown.Toggle
-                  as={TutorDropdownToggle}
-                  value={preferredTutorList}
-                />
-                <Dropdown.Menu
-                  as={TutorDropdown}
-                  value={preferredTutorList}
-                  valueSetter={setPreferredTutorList}
-                />
-              </Dropdown>
-            </InputGroup>
-          </Col>
-        </Row>
-        <br />
-        <Row>
-          <Col>
-            <Form.Label className='h5'>School</Form.Label>
-            <InputGroup>
-              <Button
-                as={MatchingType}
-                onClick={() =>
-                  schoolMatching === "like"
-                    ? setSchoolMatching("exact")
-                    : setSchoolMatching("like")
-                }
-              >
-                {schoolMatching === "like" ? "Contains" : "Exactly"}
-              </Button>
-              <Form.Control type='text' id='student_school' />
-            </InputGroup>
-          </Col>
-          <Col>
-            <Form.Label className='h5'>Source</Form.Label>
-            <InputGroup>
-              <Button
-                as={MatchingType}
-                onClick={() =>
-                  sourceMatching === "like"
-                    ? setSourceMatching("exact")
-                    : setSourceMatching("like")
-                }
-              >
-                {sourceMatching === "like" ? "Contains" : "Exactly"}
-              </Button>
-              <Form.Control type='text' id='student_source' />
-            </InputGroup>
-          </Col>
-          <Col>
-            <Form.Label className='h5'>Grade</Form.Label>
-            <InputGroup>
-              <Button
-                as={MatchingType}
-                onClick={() =>
-                  gradeMatching === "like"
-                    ? setGradeMatching("exact")
-                    : setGradeMatching("like")
-                }
-              >
-                {gradeMatching === "like" ? "Contains" : "Exactly"}
-              </Button>
-              <Form.Control type='text' id='student_grade' />
-            </InputGroup>
-          </Col>
-        </Row>
-        <hr />
-        <Row>
-          <div className='h4'>Tutor</div>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Label className='h5'>Name</Form.Label>
-            <InputGroup>
-              <Dropdown>
-                <Dropdown.Toggle as={TutorDropdownToggle} value={tutorList} />
-                <Dropdown.Menu
-                  as={TutorDropdown}
-                  value={tutorList}
-                  valueSetter={setTutorList}
-                />
-              </Dropdown>
-            </InputGroup>
-          </Col>
-          <Col></Col>
-        </Row>
-      </Card>
-      <div className='d-flex justify-content-center'>
-        {loading ? (
-          <Button className='m-3 w-25' id='queryButton' disabled>
-            Query <span className='spinner-border spinner-border-sm' />
-          </Button>
-        ) : (
-          <Button className='m-3 w-25' onClick={queryEvals} id='queryButton'>
-            Query
-          </Button>
-        )}
+      <QueryParameters
+        evalConditions={evalConditions}
+        setEvalConditions={setEvalConditions}
+        studentConditions={studentConditions}
+        setStudentConditions={setStudentConditions}
+        tutors={tutors}
+        tutorList={tutorList}
+        setTutorList={setTutorList}
+      />
+
+      <div className='d-flex py-3'>
+        <Button
+          id='query'
+          variant='primary'
+          className='me-auto'
+          onClick={sendit}
+        >
+          Query!
+        </Button>
+        <Button
+          variant='secondary'
+          className='ms-auto'
+          onClick={() => {
+            setEvalConditions([]);
+            setStudentConditions([]);
+            setTutorList([]);
+          }}
+        >
+          Reset Conditions
+        </Button>
       </div>
-      {/* </Form> */}
-      {loading ? (
-        <></>
-      ) : (
-        <Card className='px-3 pt-3 bg-light-subtle'>
-          <div className='h3'>
-            {evals.length} result{evals.length !== 1 ? "s" : ""}
-          </div>
-          <Table striped hover>
-            <thead>
-              <tr>
-                <th className='w-25' style={{ cursor: "pointer" }}>
-                  <Dropdown variant='' drop='up'>
-                    <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                      Date {filterIcon("date")}
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                      <Dropdown.Item onClick={() => setTableSort("date_desc")}>
-                        Newer First
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={() => setTableSort("date_asc")}>
-                        Older First
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </th>
-                <th className='w-25' style={{ cursor: "pointer" }}>
-                  <Dropdown autoClose='outside' drop='up'>
-                    <Dropdown.Toggle
-                      as={DropdownTableHeaderToggle}
-                      id='student-filter'
-                    >
-                      Student {filterIcon("student")}
-                    </Dropdown.Toggle>
 
-                    <Dropdown.Menu
-                      as={FilterTableHeader}
-                      value={studentFilter}
-                      valueSetter={setStudentFilter}
-                    />
-                  </Dropdown>
-                </th>
-                <th className='w-25' style={{ cursor: "pointer" }}>
-                  <Dropdown autoClose='outside' drop='up'>
-                    <Dropdown.Toggle
-                      as={DropdownTableHeaderToggle}
-                      id='tutor-filter'
-                    >
-                      Tutor {filterIcon("tutor")}
-                    </Dropdown.Toggle>
-
-                    <Dropdown.Menu
-                      as={FilterTableHeader}
-                      value={tutorFilter}
-                      valueSetter={setTutorFilter}
-                    />
-                  </Dropdown>
-                </th>
-                <th>Tasks</th>
-                {/* <th className="w-50">Subject</th>
-              <th className="">Engagement</th>
-              <th className="">Progression</th> */}
-              </tr>
-            </thead>
-            <tbody>{evalList()}</tbody>
-          </Table>
-        </Card>
-      )}
+      <QueryResults results={evals} />
+      <div className='d-flex pt-3'>
+        <Button
+          variant='secondary'
+          onClick={() => {
+            setEvals([]);
+            localStorage.removeItem("evalQueryResults");
+            localStorage.removeItem("queryTimestamp");
+          }}
+        >
+          Clear
+        </Button>
+        <Button variant='primary' className='ms-auto' onClick={exportCSV}>
+          Export Query Results
+        </Button>
+      </div>
     </div>
   );
 };
