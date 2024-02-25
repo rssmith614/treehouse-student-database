@@ -9,11 +9,11 @@ import {
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
-import { db, storage } from "../../Services/firebase";
+import { db, storage } from "../../../Services/firebase";
 
 import dayjs from "dayjs";
 import { getDownloadURL, ref } from "firebase/storage";
-import { ToastContext } from "../../Services/toast";
+import { ToastContext } from "../../../Services/toast";
 import QueryParameters from "./Components/QueryParameters";
 import QueryResults from "./Components/QueryResults";
 

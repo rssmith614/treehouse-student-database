@@ -1,6 +1,6 @@
 import { Card, Table, Dropdown } from "react-bootstrap";
-import DropdownTableHeaderToggle from "../../../Components/DropdownTableHeaderToggle";
-import FilterTableHeader from "../../../Components/FilterTableHeader";
+import DropdownTableHeaderToggle from "../../../../Components/DropdownTableHeaderToggle";
+import FilterTableHeader from "../../../../Components/FilterTableHeader";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
