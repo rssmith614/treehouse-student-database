@@ -41,7 +41,7 @@ const EvalHeader = ({ evaluation, setEvaluation }) => {
   return (
     <>
       <Button
-        variant=''
+        variant='link'
         className='me-auto'
         size='lg'
         style={{
@@ -50,9 +50,7 @@ const EvalHeader = ({ evaluation, setEvaluation }) => {
         }}
         onClick={() => navigate(`/students/${evaluation.student_id}`)}
       >
-        <div className='text-decoration-underline h3'>
-          {evaluation.student_name}
-        </div>
+        <div className='h3'>{evaluation.student_name}</div>
       </Button>
       <div className='row my-3'>
         <div className='col'>
@@ -60,7 +58,7 @@ const EvalHeader = ({ evaluation, setEvaluation }) => {
           <Form.Select
             id='tutor'
             className='form-control'
-            value={evaluation.tutor_id}
+            value={evaluation?.tutor_id || ""}
             onChange={(e) => {
               setEvaluation({
                 ...evaluation,
@@ -83,7 +81,7 @@ const EvalHeader = ({ evaluation, setEvaluation }) => {
             id='date'
             className='form-control'
             type='date'
-            value={evaluation.date}
+            value={evaluation?.date || ""}
             onChange={(e) =>
               setEvaluation({ ...evaluation, date: e.target.value })
             }

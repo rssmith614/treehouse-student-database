@@ -115,7 +115,7 @@ const TaskSummary = ({ task, task_idx, tasks, setTasks }) => {
               </OverlayTrigger>
             </div>
             <Form.Select
-              id='engagement'
+              id={`${task_idx}_engagement`}
               style={{ width: "auto" }}
               value={task.engagement}
               onChange={(e) => {

@@ -38,6 +38,7 @@ const NewStudentEval = () => {
     localStorage.getItem(`${params.studentid}_eval`)
       ? JSON.parse(localStorage.getItem(`${params.studentid}_eval`))
       : {
+          tutor_id: auth.currentUser.uid,
           date: dayjs().format("YYYY-MM-DD"),
           worksheet: "",
           worksheet_completion: "",
@@ -244,7 +245,9 @@ const NewStudentEval = () => {
         }
       }
       if (t.engagement === "") {
-        document.getElementById("engagement").classList.add("is-invalid");
+        document
+          .getElementById(`${task_i}_engagement`)
+          .classList.add("is-invalid");
         clean = false;
       }
     });
@@ -368,7 +371,7 @@ const NewStudentEval = () => {
               className='w-25 ms-auto'
               onClick={() => setShowNotes(true)}
             >
-              <Card className=''>
+              <Card className='shadow' style={{ cursor: "pointer" }}>
                 <Card.Header>Last Session's Notes</Card.Header>
                 <Card.Body>
                   <div className='text-truncate'>{notes.notes}</div>

@@ -2,12 +2,12 @@ import { collection, onSnapshot } from "firebase/firestore";
 
 import { useNavigate } from "react-router-dom";
 
-import { db } from "../../Services/firebase";
 import React, { useEffect, useState } from "react";
 import { Button, Dropdown, Form, InputGroup } from "react-bootstrap";
 import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
-import ComboTableHeader from "../../Components/ComboTableHeader";
 import FilterTableHeader from "../../Components/FilterTableHeader";
+import SortTableHeader from "../../Components/SortTableHeader";
+import { db } from "../../Services/firebase";
 
 const NewEval = () => {
   const [students, setStudents] = useState(null);
@@ -133,11 +133,7 @@ const NewEval = () => {
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Student Name {filterIcon("name")}
               </Dropdown.Toggle>
-              <Dropdown.Menu
-                as={ComboTableHeader}
-                value={nameFilter}
-                valueSetter={setNameFilter}
-              />
+              <Dropdown.Menu as={SortTableHeader} sortSetter={setTableSort} />
             </Dropdown>
           </th>
           <th style={{ cursor: "pointer" }}>

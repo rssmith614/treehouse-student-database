@@ -3,7 +3,13 @@ import { Button, Card, Container } from "react-bootstrap";
 import TaskStandards from "./TaskStandards";
 import TaskSummary from "./TaskSummary";
 
-const Tasks = ({ tasks, setTasks, standards, setStandards }) => {
+const Tasks = ({
+  tasks,
+  setTasks,
+  standards,
+  setStandards,
+  setTasksToDelete,
+}) => {
   function addTask() {
     setTasks([
       ...tasks,
@@ -28,6 +34,8 @@ const Tasks = ({ tasks, setTasks, standards, setStandards }) => {
             className='ms-auto'
             onClick={() => {
               setTasks(tasks.filter((t, i) => i !== task_idx));
+              if (setTasksToDelete)
+                setTasksToDelete((prev) => [...prev, task.id]);
             }}
             disabled={tasks.length <= 1}
           >
