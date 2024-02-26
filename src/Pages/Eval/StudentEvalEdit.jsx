@@ -1,5 +1,3 @@
-import { useNavigate, useParams } from "react-router-dom";
-import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   addDoc,
   collection,
@@ -7,47 +5,36 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
   onSnapshot,
+  orderBy,
+  query,
   setDoc,
   updateDoc,
-  query,
   where,
-  orderBy,
-  limit,
 } from "firebase/firestore";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import history from "history/browser";
 
-import { db, storage } from "../../Services/firebase";
-import { ToastContext } from "../../Services/toast";
+import { deleteObject, ref, uploadBytes } from "firebase/storage";
 import {
   Button,
-  Card,
-  Col,
-  Container,
-  Dropdown,
   Form,
   Offcanvas,
   OverlayTrigger,
   Popover,
-  Row,
+  Spinner,
 } from "react-bootstrap";
-import { deleteObject, ref, uploadBytes } from "firebase/storage";
-import TrackStandard from "../Standards/TrackStandard";
 import { Can } from "../../Services/can";
 import { Eval } from "../../Services/defineAbility";
-
-const grades = {
-  K: "Kindergarten",
-  1: "1st Grade",
-  2: "2nd Grade",
-  3: "3rd Grade",
-  4: "4th Grade",
-  5: "5th Grade",
-  6: "6th Grade",
-  7: "7th Grade",
-  8: "8th Grade",
-};
+import { db, storage } from "../../Services/firebase";
+import { ToastContext } from "../../Services/toast";
+import TrackStandard from "../Standards/TrackStandard";
+import EvalFooter from "./Components/EvalFooter";
+import EvalHeader from "./Components/EvalHeader";
+import Tasks from "./Components/Tasks";
 
 const StudentEvalEdit = () => {
   const [evaluation, setEvaluation] = useState({});
@@ -172,7 +159,7 @@ const StudentEvalEdit = () => {
     );
 
     const unsubscribeEvals = onSnapshot(evalsQuery, (evalsSnapshot) => {
-      const fetchTasksPromises = evalsSnapshot.docs.map((evaluation) => {
+      const fetchTasksPromises = evalsSnapshot.docs.map(async (evaluation) => {
         return getDocs(collection(evaluation.ref, "tasks")).then(
           (tasksSnapshot) => {
             const tasks = tasksSnapshot.docs.map((doc) => {
@@ -184,7 +171,7 @@ const StudentEvalEdit = () => {
 
             const fetchStandardsPromises = tasks.map((task) => {
               const standardsPromises =
-                task.standards?.map((standard) => {
+                task.standards?.map(async (standard) => {
                   if (standard === "") return Promise.resolve(null);
                   return getDoc(
                     doc(db, "standards", standard?.id || standard),
@@ -215,7 +202,6 @@ const StudentEvalEdit = () => {
           }
           return acc;
         }, []);
-        // console.log(uniqueStandards);
         setStandards(uniqueStandards);
       });
     });
@@ -276,20 +262,12 @@ const StudentEvalEdit = () => {
 
     if (!selectedTutor) {
       document.getElementById("tutor").classList.add("is-invalid");
-      // addToast({
-      //   header: "No Tutor Selected",
-      //   message: "Please select a tutor before submitting",
-      // });
       clean = false;
     }
 
     tasks.forEach((t, i) => {
       if (t.comments === "") {
         document.getElementById(`${i}_comments`).classList.add(`is-invalid`);
-        // addToast({
-        //   header: "Missing Summary",
-        //   message: "Please enter a summary for all tasks",
-        // });
         clean = false;
       }
       t.standards.forEach((s, standard_i) => {
@@ -297,10 +275,6 @@ const StudentEvalEdit = () => {
           document
             .getElementById(`${i}_${standard_i}_standard`)
             .classList.add(`is-invalid`);
-          // addToast({
-          //   header: "Missing Standard",
-          //   message: "Please select a standard",
-          // });
           clean = false;
         }
         if (s.progression === "") {
@@ -318,14 +292,14 @@ const StudentEvalEdit = () => {
           clean = false;
         }
       }
+      if (t.engagement === "") {
+        document.getElementById(`${i}_engagement`).classList.add(`is-invalid`);
+        clean = false;
+      }
     });
 
     if (evaluation.next_session === "") {
       document.getElementById("next_session").classList.add("is-invalid");
-      // addToast({
-      //   header: "Missing Next Session Plans",
-      //   message: "Please enter plans for the next session",
-      // });
       clean = false;
     }
 
@@ -352,7 +326,6 @@ const StudentEvalEdit = () => {
         .classList.contains("btn-outline-danger") &&
       !document.getElementById("flagForReview").classList.contains("d-none")
     ) {
-      // setEvaluation({ ...evaluation, flagged: true });
       evalUpload.flagged = true;
     }
 
@@ -401,7 +374,6 @@ const StudentEvalEdit = () => {
         );
 
         await uploadBytes(worksheetRef, worksheetUpload).then(() => {
-          // setEvaluation({ ...evaluation, worksheet: worksheetRef.fullPath });
           evalUpload.worksheet = worksheetRef.fullPath;
         });
       }
@@ -485,642 +457,38 @@ const StudentEvalEdit = () => {
     document.getElementById("delete").disabled = false;
   }
 
-  function tutorOptions() {
-    return tutors.map((tutor) => {
-      let tutorData = tutor.data();
-      return (
-        <option value={tutor.id} key={tutor.id}>
-          {tutorData.displayName}
-        </option>
-      );
-    });
-  }
-
-  const StandardDropdownToggle = React.forwardRef(
-    ({ style, className, onClick, value, id_, selected }, ref) => (
-      <>
-        {selected.key !== "" ? (
-          <OverlayTrigger
-            placement='right'
-            flip={true}
-            key={id_}
-            overlay={
-              <Popover className=''>
-                <Popover.Header>
-                  {selected.key} <br />
-                  {`${grades[selected.grade]} ${selected.category}: ${
-                    selected.sub_category
-                  }`}
-                </Popover.Header>
-                <Popover.Body>
-                  <div className='text-decoration-underline'>Description</div>
-                  {selected.description}
-                </Popover.Body>
-              </Popover>
-            }
-          >
-            <Form.Control
-              id={id_}
-              ref={ref}
-              style={{ ...style, cursor: "pointer" }}
-              className={className}
-              onClick={(e) => {
-                e.preventDefault();
-                onClick(e);
-              }}
-              defaultValue={value}
-              readOnly
-            ></Form.Control>
-          </OverlayTrigger>
-        ) : (
-          <Form.Control
-            id={id_}
-            ref={ref}
-            style={{ ...style, cursor: "pointer" }}
-            className={className}
-            onClick={(e) => {
-              e.preventDefault();
-              onClick(e);
-            }}
-            defaultValue={value}
-            readOnly
-          ></Form.Control>
-        )}
-        <div className='invalid-feedback'>Please select a standard</div>
-      </>
-    ),
-  );
-
-  const StandardDropdown = React.forwardRef(
-    ({ style, className, value, valueSetter }, ref) => {
-      const [search, setSearch] = useState("");
-
-      return (
-        <div
-          ref={ref}
-          style={style}
-          className={className}
-          onClick={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <Form.Control
-            className='mx-3 my-2 w-auto'
-            placeholder='Search'
-            onChange={(e) => setSearch(e.target.value)}
-            value={search}
-          />
-          {standards
-            .filter((s) => {
-              return -(
-                s.key.toLowerCase().includes(search.toLowerCase()) ||
-                s.category.toLowerCase().includes(search.toLowerCase()) ||
-                s.sub_category.toLowerCase().includes(search.toLowerCase()) ||
-                s.description.toLowerCase().includes(search.toLowerCase())
-              );
-            })
-            .sort((a, b) => {
-              return (
-                a.key.split(".")[1].localeCompare(b.key.split(".")[1]) ||
-                a.key.split(".")[2] - b.key.split(".")[2] ||
-                a.key.split(".")[2].localeCompare(b.key.split(".")[2]) ||
-                a.key.localeCompare(b.key)
-              );
-            })
-            .map((standard, i) => {
-              return (
-                <OverlayTrigger
-                  placement='right'
-                  flip={true}
-                  key={standard.id}
-                  overlay={
-                    <Popover className=''>
-                      <Popover.Header>
-                        {standard.key} <br />
-                        {`${grades[standard.grade]} ${standard.category}: ${
-                          standard.sub_category
-                        }`}
-                      </Popover.Header>
-                      <Popover.Body>
-                        <div className='text-decoration-underline'>
-                          Description
-                        </div>
-                        {standard.description}
-                      </Popover.Body>
-                    </Popover>
-                  }
-                >
-                  <div key={standard.id}>
-                    <Form.Check
-                      type={"radio"}
-                      checked={
-                        value === undefined ? false : value.id === standard.id
-                      }
-                      label={standard.key}
-                      className='mx-3 my-2 w-auto'
-                      onChange={(e) => {
-                        valueSetter(standard);
-                      }}
-                    />
-                  </div>
-                </OverlayTrigger>
-              );
-            })}
-          <div className='d-flex flex-column'>
-            <div className='px-3 fs-6 fst-italic text-end'>
-              Can't find what you're looking for?
-            </div>
-            <Button
-              className='align-self-end'
-              variant='link'
-              onClick={() => {
-                setShowNewStandardPane(true);
-                newStandardSelector.current = valueSetter;
-              }}
-            >
-              Find another Standard
-            </Button>
-          </div>
-        </div>
-      );
-    },
-  );
-
-  const tasksList = tasks.map((task, task_idx) => {
-    return (
-      <Card key={task_idx} className='mb-3 flex-fill'>
-        <Card.Header className='d-flex'>
-          <div className='h5 align-self-end'>Task {task_idx + 1}</div>
-          <Button
-            type='button'
-            variant='danger'
-            className='ms-auto'
-            onClick={() => {
-              setTasks(tasks.filter((t, i) => i !== task_idx));
-              if (task.id) setTasksToDelete([...tasksToDelete, task.id]);
-            }}
-            disabled={tasks.length <= 1}
-          >
-            <i className='bi bi-trash-fill' />
-          </Button>
-        </Card.Header>
-        <Card.Body className='d-flex'>
-          <div className='d-flex flex-column flex-fill'>
-            <div className='h5 d-flex'>
-              Summary
-              <OverlayTrigger
-                placement='top'
-                className='ms-auto'
-                flip={true}
-                overlay={
-                  <Popover>
-                    <Popover.Header>Comments</Popover.Header>
-                    <Popover.Body>
-                      What did the student work on? What did they do well? What
-                      did they struggle with?
-                      <hr />
-                      <div className='text-decoration-underline'>Example</div>
-                      "Worked on adding fractions with unlike denominators.
-                      Struggled with finding the least common denominator."
-                    </Popover.Body>
-                  </Popover>
-                }
-              >
-                <i className='bi bi-info-square ms-auto'></i>
-              </OverlayTrigger>
-            </div>
-            <div className='d-flex card bg-light-subtle'>
-              <div className='card-body'>
-                <div className='d-flex flex-column'>
-                  <textarea
-                    id={`${task_idx}_comments`}
-                    className='form-control'
-                    value={task.comments}
-                    onMouseOver={(e) => {
-                      e.target.style.height = `${e.target.scrollHeight}px`;
-                    }}
-                    onChange={(e) => {
-                      setTasks(
-                        tasks.map((t, i) => {
-                          if (i !== task_idx) return t;
-                          else return { ...t, comments: e.target.value };
-                        }),
-                      );
-                      e.target.style.height = "auto";
-                      e.target.style.height = `${e.target.scrollHeight}px`;
-                    }}
-                    required
-                  />
-                  <div className='invalid-feedback'>
-                    Please provide a brief summary for this task
-                  </div>
-                </div>
-                {task.standards.length === 0 ? (
-                  <>
-                    <hr />
-                    <div className='d-flex flex-column'>
-                      <div className='h5 d-flex'>
-                        Progression
-                        <OverlayTrigger
-                          placement='top'
-                          overlay={
-                            <Popover>
-                              <Popover.Header>Progression</Popover.Header>
-                              <Popover.Body>
-                                How well did the student understand the
-                                material?
-                              </Popover.Body>
-                            </Popover>
-                          }
-                        >
-                          <i className='bi bi-info-square ms-auto ps-2'></i>
-                        </OverlayTrigger>
-                      </div>
-                      <Form.Select
-                        id={`${task_idx}_progression`}
-                        style={{ width: "auto" }}
-                        value={task.progression}
-                        onChange={(e) =>
-                          setTasks(
-                            tasks.map((t, i) => {
-                              if (i !== task_idx) return t;
-                              else return { ...t, progression: e.target.value };
-                            }),
-                          )
-                        }
-                      >
-                        <option disabled value=''>
-                          Select One
-                        </option>
-                        <option value='1'>1</option>
-                        <option value='2'>2</option>
-                        <option value='3'>3</option>
-                        <option value='4'>4</option>
-                      </Form.Select>
-                      <div className='invalid-feedback'>
-                        Please set a progression for this task
-                      </div>
-                    </div>
-                  </>
-                ) : null}
-                <hr />
-                <div className='d-flex flex-column'>
-                  <div className='h5 d-flex'>
-                    Engagement
-                    <OverlayTrigger
-                      placement='top'
-                      overlay={
-                        <Popover>
-                          <Popover.Header>Engagement</Popover.Header>
-                          <Popover.Body>
-                            How well did the student work with the tutor?
-                          </Popover.Body>
-                        </Popover>
-                      }
-                    >
-                      <i className='bi bi-info-square ms-auto ps-2'></i>
-                    </OverlayTrigger>
-                  </div>
-                  <Form.Select
-                    id={`${task_idx}_engagement`}
-                    style={{ width: "auto" }}
-                    value={task.engagement}
-                    onChange={(e) =>
-                      setTasks(
-                        tasks.map((t, i) => {
-                          if (i !== task_idx) return t;
-                          else return { ...t, engagement: e.target.value };
-                        }),
-                      )
-                    }
-                  >
-                    <option disabled value=''>
-                      Select One
-                    </option>
-                    <option value='1'>1</option>
-                    <option value='2'>2</option>
-                    <option value='3'>3</option>
-                    <option value='4'>4</option>
-                  </Form.Select>
-                  <div className='invalid-feedback'>
-                    Please set an engagement level for this task
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className='vr mx-3' />
-          <div className='d-flex flex-column'>
-            <div className='h5'>Standards</div>
-            <Card className='p-3 bg-light-subtle'>
-              {task.standards.length === 0 ? null : (
-                <ul className='list-group mb-3'>
-                  {task.standards.map((standard, standard_idx) => {
-                    return (
-                      <li key={standard_idx} className='list-group-item d-flex'>
-                        <div className='d-flex flex-column justify-content-center pe-3'>
-                          <Button
-                            variant='danger'
-                            className='ms-auto'
-                            onClick={() => {
-                              setTasks(
-                                tasks.map((t, i) => {
-                                  if (i !== task_idx) return t;
-                                  else
-                                    return {
-                                      ...t,
-                                      standards: t.standards.filter(
-                                        (s, j) => j !== standard_idx,
-                                      ),
-                                    };
-                                }),
-                              );
-                            }}
-                          >
-                            <i className='bi bi-trash-fill' />
-                          </Button>
-                        </div>
-                        <div className='d-flex flex-column'>
-                          <Dropdown className='pb-1'>
-                            <Dropdown.Toggle
-                              id_={`${task_idx}_${standard_idx}_standard`}
-                              as={StandardDropdownToggle}
-                              value={standard.key || "Standard"}
-                              className=''
-                              selected={standard}
-                            />
-                            <Dropdown.Menu
-                              as={StandardDropdown}
-                              value={standard}
-                              valueSetter={(s) =>
-                                setTasks(
-                                  tasks.map((t, i) => {
-                                    if (i !== task_idx) return t;
-                                    else {
-                                      return {
-                                        ...t,
-                                        standards: t.standards.map((s1, j) => {
-                                          if (j !== standard_idx) return s1;
-                                          else
-                                            return {
-                                              ...s,
-                                              progression: s1.progression,
-                                            };
-                                        }),
-                                      };
-                                    }
-                                  }),
-                                )
-                              }
-                              style={{
-                                maxHeight: 350,
-                                overflow: "scroll",
-                              }}
-                            />
-                          </Dropdown>
-                          <Form.Select
-                            id={`${task_idx}_${standard_idx}_progression`}
-                            style={{ width: "auto" }}
-                            value={standard?.progression}
-                            onChange={(e) => {
-                              setTasks(
-                                tasks.map((t, i) => {
-                                  if (i !== task_idx) return t;
-                                  else
-                                    return {
-                                      ...t,
-                                      standards: t.standards.map((s, j) => {
-                                        if (j !== standard_idx) return s;
-                                        else
-                                          return {
-                                            ...s,
-                                            progression: e.target.value,
-                                          };
-                                      }),
-                                    };
-                                }),
-                              );
-                            }}
-                          >
-                            <option disabled value=''>
-                              Progression
-                            </option>
-                            <option value='1'>
-                              1 - Far Below Expectations
-                            </option>
-                            <option value='2'>2 - Below Expectations</option>
-                            <option value='3'>3 - Meets Expectations</option>
-                            <option value='4'>4 - Exceeds Expectations</option>
-                          </Form.Select>
-                          <div className='invalid-feedback'>
-                            Please select a progression
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-              <Col className=''>
-                <Button
-                  variant='secondary'
-                  onClick={() => {
-                    setTasks(
-                      tasks.map((t, i) => {
-                        if (i !== task_idx) return t;
-                        else
-                          return {
-                            ...t,
-                            standards: [
-                              ...t.standards,
-                              {
-                                key: "",
-                                progression: "",
-                              },
-                            ],
-                          };
-                      }),
-                    );
-                  }}
-                >
-                  Add Standard
-                </Button>
-              </Col>
-            </Card>
-          </div>
-        </Card.Body>
-      </Card>
-    );
-  });
-
   return (
     <>
       <div className='p-3 d-flex flex-column'>
         <h1 className='display-1'>Edit Session Evaluation</h1>
-        {/* <form onSubmit={sumbitEval}> */}
         <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
-          <div
-            className='h3'
-            data-toggle='tooltip'
-            title='Contact an administrator if this is incorrect'
-          >
-            {evaluation?.student_name}
-          </div>
-          <div className='row my-3'>
-            <div className='col'>
-              <label className='form-label h5'>Tutor</label>
-              <Form.Select
-                id='tutor'
-                className='form-control'
-                value={selectedTutor || ""}
-                onChange={(e) => setSelectedTutor(e.target.value)}
-                required
-              >
-                <option disabled value=''>
-                  Select One
-                </option>
-                {tutorOptions()}
-              </Form.Select>
+          {loading ? (
+            <div className='d-flex justify-content-center align-items-center'>
+              <Spinner animation='border' role='status'>
+                <span className='visually-hidden'>Loading...</span>
+              </Spinner>
             </div>
-            <div className='invalid-feedback'>Please select a tutor</div>
-            <div className='col'>
-              <label className='form-label h5'>Date</label>
-              <input
-                id='date'
-                className='form-control'
-                type='date'
-                value={evaluation?.date || ""}
-                onChange={(e) =>
-                  setEvaluation({ ...evaluation, date: e.target.value })
-                }
+          ) : (
+            <>
+              <EvalHeader
+                evaluation={evaluation}
+                setEvaluation={setEvaluation}
               />
-            </div>
-          </div>
-          <div className='invalid-feedback'>
-            Please provide a date for the evaluation
-          </div>
-          <hr />
-          <div className='h5'>Tasks</div>
-          <Row className='d-flex flex-column'>
-            {loading ? (
-              <div className='spinner-border align-self-center' />
-            ) : (
-              <div className='d-flex flex-column'>
-                <Container>
-                  {/* <Row xs={{ cols: "auto" }}>{tasksList}</Row> */}
-                  {tasksList}
-                </Container>
-                <Button
-                  type='button'
-                  variant='secondary'
-                  className='me-auto'
-                  onClick={() =>
-                    setTasks([
-                      ...tasks,
-                      {
-                        subject: "",
-                        standards: [],
-                        progression: "",
-                        engagement: "",
-                        comments: "",
-                      },
-                    ])
-                  }
-                >
-                  Add Task
-                </Button>
-              </div>
-            )}
-          </Row>
-          <hr />
-          <div className='row my-3'>
-            <div className='col'>
-              <label className='form-label h5'>Worksheet</label>
-              <Form.Select
-                className='mb-2'
-                defaultValue='file'
-                onChange={(e) => {
-                  if (e.target.value === "file") {
-                    document.getElementById("worksheet").type = "file";
-                    document.getElementById("worksheet").placeholder = "";
-                  } else {
-                    document.getElementById("worksheet").type = "url";
-                    document.getElementById("worksheet").placeholder =
-                      "Link to Worksheet";
-                  }
-                }}
-              >
-                <option value='file'>File Upload</option>
-                <option value='url'>URL</option>
-              </Form.Select>
-              <input id='worksheet' className='form-control' type='file' />
-              <div className='invalid-feedback'>Please provide a valid URL</div>
-              {evaluation?.worksheet !== "" &&
-              evaluation?.worksheet !== null ? (
-                <div className='p-1 text-secondary fst-italic fs-6'>
-                  Uploading a new worksheet will override the old one.
-                </div>
-              ) : null}
-            </div>
-            <div className='col'>
-              <label className='form-label h5'>Worksheet Completion</label>
-              <input
-                id='worksheet_completion'
-                className='form-control'
-                type='text'
-                value={evaluation?.worksheet_completion || ""}
-                onChange={(e) =>
-                  setEvaluation({
-                    ...evaluation,
-                    worksheet_completion: e.target.value,
-                  })
-                }
+              <hr />
+              <div className='h5'>Tasks</div>
+              <Tasks
+                setTasks={setTasks}
+                tasks={tasks}
+                standards={standards}
+                setStandards={setStandards}
+                setTasksToDelete={setTasksToDelete}
               />
-            </div>
-            <div className='col'>
-              <div className='d-flex'>
-                <label className='form-label h5'>Next Session Plans</label>
-                <OverlayTrigger
-                  placement='top'
-                  overlay={
-                    <Popover>
-                      <Popover.Header>Next Session Plans</Popover.Header>
-                      <Popover.Body>
-                        List any standards or concepts that you would like the
-                        student to work on during their next session
-                        <hr />
-                        <div className='text-decoration-underline'>Example</div>
-                        "Continue working on 1.G.2 and move on to 1.G.3, working
-                        on subdividing shapes"
-                      </Popover.Body>
-                    </Popover>
-                  }
-                >
-                  <i className='bi bi-info-square ms-auto'></i>
-                </OverlayTrigger>
-              </div>
-              <textarea
-                id='next_session'
-                className='form-control'
-                value={evaluation?.next_session}
-                onMouseOver={(e) => {
-                  e.target.style.height = `${e.target.scrollHeight}px`;
-                }}
-                onChange={(e) => {
-                  setEvaluation({
-                    ...evaluation,
-                    next_session: e.target.value,
-                  });
-                  e.target.style.height = "auto";
-                  e.target.style.height = `${e.target.scrollHeight}px`;
-                }}
+              <hr />
+              <EvalFooter
+                evaluation={evaluation}
+                setEvaluation={setEvaluation}
               />
-              <div className='invalid-feedback'>
-                Please enter plans for the next session
-              </div>
-            </div>
-            <Can I='manage' an={Eval}>
-              <div className='px-3'>
+              <Can I='manage' an={Eval}>
                 <hr />
                 <h5>Owner</h5>
                 <Form.Select
@@ -1139,9 +507,9 @@ const StudentEvalEdit = () => {
                     );
                   })}
                 </Form.Select>
-              </div>
-            </Can>
-          </div>
+              </Can>
+            </>
+          )}
         </div>
         <div className='d-flex'>
           <button
@@ -1172,7 +540,6 @@ const StudentEvalEdit = () => {
             Submit
           </button>
         </div>
-        {/* </form> */}
         <div id='flagForReview' className='mx-3 ms-auto'>
           <OverlayTrigger
             placement='left'
