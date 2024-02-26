@@ -3,15 +3,15 @@ import {
   Card,
   Form,
   InputGroup,
+  Modal,
   Nav,
   Offcanvas,
 } from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { useContext, useEffect, useState } from "react";
 import { Can } from "../../Services/can";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
+import EditStandard from "./Components/EditStandard";
 
 const grades = [
   "Kindergarten",
@@ -81,71 +81,41 @@ const StandardsList = () => {
     }
   }, [selectedStandard]);
 
-  function handleSubmit(e) {
-    e.preventDefault();
-
-    document.getElementById("submitChanges").innerHTML =
-      "Saving <span class='spinner-border spinner-border-sm' />";
-    document.getElementById("submitChanges").setAttribute("disabled", true);
-
-    if (document.getElementById("key").value !== selectedStandard.key) {
-    }
-
-    let newStandard = {
-      key: document.getElementById("key").value,
-      grade: document.getElementById("grade").value,
-      category: document.getElementById("category").value,
-      sub_category: document.getElementById("sub_category").value,
-      description: document.getElementById("description").value,
-    };
-
-    updateDoc(doc(db, "standards", selectedStandard.id), newStandard)
-      .then(
-        addToast({
-          header: "Changes Saved",
-          message: `Standard ${newStandard.key} has been updated (Refresh to see)`,
-        }),
-      )
-      .then(() => {
-        setEdit(false);
-        setShow(false);
-      });
-  }
-
   const displayStandard = (
-    <Offcanvas
+    <Modal
       show={show}
       onHide={() => {
         setShow(false);
       }}
       onExited={() => setSelectedStandard(null)}
-      placement='end'
+      size='lg'
     >
-      <Offcanvas.Header closeButton>
-        <Offcanvas.Title>
+      <Modal.Header closeButton>
+        <Modal.Title>
           <strong>{selectedStandard ? selectedStandard.key : ""}</strong>
-        </Offcanvas.Title>
-      </Offcanvas.Header>
-      <Offcanvas.Body>
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
         <p className='fst-italic text-decoration-underline'>Description</p>
         <p>{selectedStandard ? selectedStandard.description : ""}</p>
-        {selectedStandard ? (
-          selectedStandard.questions !== undefined ? (
-            <>
-              <p className='fst-italic text-decoration-underline'>
-                Example Question
-              </p>
-              <div>Q: {selectedStandard.questions[0].question}</div>
-              <div>A: {selectedStandard.questions[0].answer}</div>
-            </>
-          ) : (
-            <></>
-          ) // it's ok I hate this syntax too
-        ) : (
-          <></>
-        )}
-        <hr />
+        {selectedStandard?.image ? (
+          <Card.Img src={selectedStandard?.image} />
+        ) : null}
+        {selectedStandard?.question ? (
+          <>
+            <hr />
+            <p className='fst-italic text-decoration-underline'>
+              Example Question
+            </p>
+            {selectedStandard?.question_image ? (
+              <Card.Img src={selectedStandard?.question_image} />
+            ) : null}
+            <div className='fw-bold pt-1'>{selectedStandard?.question}</div>
+            <div>Sample Answer: {selectedStandard?.answer}</div>
+          </>
+        ) : null}
         <Can I='edit' on='standards'>
+          <hr />
           <div className='d-flex'>
             <Button
               variant='info'
@@ -156,115 +126,8 @@ const StandardsList = () => {
             </Button>
           </div>
         </Can>
-      </Offcanvas.Body>
-    </Offcanvas>
-  );
-
-  const editStandard = (
-    <Offcanvas
-      show={show}
-      onHide={() => setShow(false)}
-      onExited={() => {
-        setSelectedStandard(null);
-        setEdit(false);
-      }}
-      placement='end'
-    >
-      {selectedStandard ? (
-        <>
-          <Offcanvas.Header closeButton>
-            <Offcanvas.Title>
-              <strong>Edit {selectedStandard.key}</strong>
-            </Offcanvas.Title>
-          </Offcanvas.Header>
-          <Offcanvas.Body>
-            <Form onSubmit={handleSubmit}>
-              <Form.Label>Standard Name</Form.Label>
-              <Form.Control
-                type='text'
-                defaultValue={selectedStandard.key}
-                id='key'
-              />
-
-              <Form.Label className='pt-3'>Grade Level</Form.Label>
-              <Form.Control
-                type='text'
-                defaultValue={selectedStandard.grade}
-                id='grade'
-              />
-
-              <Form.Label className='pt-3'>Category</Form.Label>
-              <Form.Select
-                defaultValue={selectedStandard.category}
-                id='category'
-              >
-                <option value='Math'>Math</option>
-                <option value='Reading'>Reading</option>
-              </Form.Select>
-
-              <Form.Label className='pt-3'>Sub-Category</Form.Label>
-              <Form.Control
-                type='text'
-                defaultValue={selectedStandard.sub_category}
-                id='sub_category'
-              />
-
-              <Form.Label className='pt-3'>Description</Form.Label>
-              <Form.Control
-                as='textarea'
-                defaultValue={selectedStandard.description}
-                id='description'
-                style={{ height: "150px" }}
-              />
-
-              {/* <p className="pt-3">Questions</p>
-            {selectedStandard.questions !== undefined ?
-              selectedStandard.questions.map((q) => {
-                return (
-                  <div className="d-flex justify-content-evenly">
-                    <Card className="my-1 bg-light-subtle">
-                      <Card.Header className="d-flex">
-                        Q: {q.question}
-                      </Card.Header>
-                      <Card.Body>
-                        A: {q.answer}
-                      </Card.Body>
-                    </Card>
-                    <Button className="p-3 m-3" variant='danger'>X</Button>
-                  </div>
-                )
-              })
-              :
-              <></>
-            }
-            <div className="d-flex pt-3">
-              <Button variant='secondary' className="flex-fill">+</Button>
-            </div> */}
-
-              <div className='d-flex'>
-                <Button
-                  type='button'
-                  className='mt-3'
-                  variant='secondary'
-                  onClick={() => setEdit(false)}
-                >
-                  Back
-                </Button>
-                <Button
-                  type='submit'
-                  className='ms-auto mt-3'
-                  id='submitChanges'
-                >
-                  Save Changes
-                </Button>
-              </div>
-            </Form>
-          </Offcanvas.Body>
-        </>
-      ) : (
-        <></>
-      )}
-    </Offcanvas>
+      </Modal.Body>
+    </Modal>
   );
 
   return (
@@ -307,7 +170,17 @@ const StandardsList = () => {
           />
         </Card.Body>
       </Card>
-      {edit ? editStandard : displayStandard}
+      {edit ? (
+        <EditStandard
+          selectedStandard={selectedStandard}
+          setSelectedStandard={setSelectedStandard}
+          setEdit={setEdit}
+          setShow={setShow}
+          show={show}
+        />
+      ) : (
+        displayStandard
+      )}
     </div>
   );
 };

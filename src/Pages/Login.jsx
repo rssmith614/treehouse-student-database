@@ -98,7 +98,7 @@ const Login = ({ setUserProfile }) => {
             className='d-flex flex-row justify-content-evenly align-items-center '
             xs={{ cols: "auto" }}
           >
-            <Col className='w-25'>
+            <Col xs={12} sm={4}>
               <div className='h-100 p-2'>
                 <img
                   src={treehouseLogo}
