@@ -27,8 +27,6 @@ const StandardsOfCategory = ({
 
   const [poppedStandard, setPoppedStandard] = useState({});
 
-  const ability = useAbility(AbilityContext);
-
   useEffect(() => {
     const unsubscribeStandards = onSnapshot(
       query(
@@ -125,26 +123,29 @@ const StandardsOfCategory = ({
                                 Description
                               </div>
                               <div>{standard.description}</div>
-                              {/* {standard.questions !== undefined ? 
-                              <>
-                                <div className="text-decoration-underline">Example Question</div>
-                                <div>Q: {standard.questions[0].question}</div>
-                                <div>A: {standard.questions[0].answer}</div>
-                              </>
-                              :
-                              <></>
-                            } */}
-                              {track ? (
+                              <div className='d-flex'>
+                                {track ? (
+                                  <Button
+                                    className='mt-3'
+                                    id='addStandard'
+                                    onClick={addSelection}
+                                  >
+                                    Add
+                                  </Button>
+                                ) : (
+                                  <></>
+                                )}
                                 <Button
-                                  className='mt-3'
-                                  id='addStandard'
-                                  onClick={addSelection}
+                                  variant='link'
+                                  className='ms-auto'
+                                  onClick={() => {
+                                    setSelection(standard);
+                                    setPoppedStandard({});
+                                  }}
                                 >
-                                  Add
+                                  More...
                                 </Button>
-                              ) : (
-                                <></>
-                              )}
+                              </div>
                             </Popover.Body>
                           </Popover>
                         }
@@ -155,15 +156,9 @@ const StandardsOfCategory = ({
                           style={{ cursor: "pointer" }}
                           onClick={(e) => {
                             e.target.focus();
-                            if (
-                              !track &&
-                              !ability.can("edit", new Standard(standard))
-                            ) {
-                              return;
-                            } else {
-                              setSelection(standard);
+                            if (!track) {
+                              setPoppedStandard(standard);
                             }
-                            setPoppedStandard(standard);
                           }}
                           onBlur={() => setPoppedStandard({})}
                         >
