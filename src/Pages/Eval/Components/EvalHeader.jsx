@@ -29,11 +29,13 @@ const EvalHeader = ({ evaluation, setEvaluation }) => {
   }, []);
 
   useEffect(() => {
-    setEvaluation({
-      ...evaluation,
-      tutor_name: tutors.find((t) => t.id === evaluation.tutor_id)?.displayName,
+    setEvaluation((prev) => {
+      return {
+        ...prev,
+        tutor_name: tutors.find((t) => t.id === prev.tutor_id)?.displayName,
+      };
     });
-  }, [evaluation, tutors, setEvaluation]);
+  }, [tutors, setEvaluation]);
 
   function tutorOptions() {
     return tutors.map((tutor) => {
