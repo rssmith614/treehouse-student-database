@@ -1,16 +1,7 @@
-import {
-  Button,
-  Card,
-  Form,
-  InputGroup,
-  Modal,
-  Nav,
-  Offcanvas,
-} from "react-bootstrap";
+import { Button, Card, Form, InputGroup, Modal, Nav } from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Can } from "../../Services/can";
-import { ToastContext } from "../../Services/toast";
 import EditStandard from "./Components/EditStandard";
 
 const grades = [
@@ -37,8 +28,6 @@ const StandardsList = () => {
   const [show, setShow] = useState(false);
 
   const [edit, setEdit] = useState(false);
-
-  const addToast = useContext(ToastContext);
 
   useEffect(() => {
     localStorage.setItem("grade", grade);
