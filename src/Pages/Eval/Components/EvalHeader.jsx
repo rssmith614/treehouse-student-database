@@ -26,7 +26,14 @@ const EvalHeader = ({ evaluation, setEvaluation }) => {
     return () => {
       unsubscribeTutors();
     };
-  });
+  }, []);
+
+  useEffect(() => {
+    setEvaluation({
+      ...evaluation,
+      tutor_name: tutors.find((t) => t.id === evaluation.tutor_id)?.displayName,
+    });
+  }, [evaluation, tutors, setEvaluation]);
 
   function tutorOptions() {
     return tutors.map((tutor) => {
