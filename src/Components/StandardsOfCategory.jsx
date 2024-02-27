@@ -10,9 +10,6 @@ import {
   Row,
 } from "react-bootstrap";
 import { db } from "../Services/firebase";
-import { useAbility } from "@casl/react";
-import { AbilityContext } from "../Services/can";
-import { Standard } from "../Services/defineAbility";
 
 const StandardsOfCategory = ({
   grade,

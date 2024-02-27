@@ -1,6 +1,6 @@
 import { doc, updateDoc } from "firebase/firestore";
 import { useContext, useState } from "react";
-import { Button, Card, Form, Modal, Offcanvas } from "react-bootstrap";
+import { Button, Card, Form, Modal } from "react-bootstrap";
 import { db, storage } from "../../../Services/firebase";
 import { ToastContext } from "../../../Services/toast";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";

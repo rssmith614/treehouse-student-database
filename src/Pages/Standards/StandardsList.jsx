@@ -1,17 +1,8 @@
-import {
-  Button,
-  Card,
-  Form,
-  InputGroup,
-  Modal,
-  Nav,
-  Offcanvas,
-} from "react-bootstrap";
-import StandardsOfCategory from "../../Components/StandardsOfCategory";
-import { useContext, useEffect, useState } from "react";
+import { Button, Card, Form, InputGroup, Modal, Nav } from "react-bootstrap";
+import { useEffect, useState } from "react";
 import { Can } from "../../Services/can";
-import { ToastContext } from "../../Services/toast";
 import EditStandard from "./Components/EditStandard";
+import StandardsOfCategory from "../../Components/StandardsOfCategory";
 
 const grades = [
   "Kindergarten",
@@ -37,8 +28,6 @@ const StandardsList = () => {
   const [show, setShow] = useState(false);
 
   const [edit, setEdit] = useState(false);
-
-  const addToast = useContext(ToastContext);
 
   useEffect(() => {
     localStorage.setItem("grade", grade);
@@ -114,7 +103,24 @@ const StandardsList = () => {
             <div>Sample Answer: {selectedStandard?.answer}</div>
           </>
         ) : null}
+        {selectedStandard?.image ? (
+          <Card.Img src={selectedStandard?.image} />
+        ) : null}
+        {selectedStandard?.question ? (
+          <>
+            <hr />
+            <p className='fst-italic text-decoration-underline'>
+              Example Question
+            </p>
+            {selectedStandard?.question_image ? (
+              <Card.Img src={selectedStandard?.question_image} />
+            ) : null}
+            <div className='fw-bold pt-1'>{selectedStandard?.question}</div>
+            <div>Sample Answer: {selectedStandard?.answer}</div>
+          </>
+        ) : null}
         <Can I='edit' on='standards'>
+          <hr />
           <hr />
           <div className='d-flex'>
             <Button
@@ -170,6 +176,17 @@ const StandardsList = () => {
           />
         </Card.Body>
       </Card>
+      {edit ? (
+        <EditStandard
+          selectedStandard={selectedStandard}
+          setSelectedStandard={setSelectedStandard}
+          setEdit={setEdit}
+          setShow={setShow}
+          show={show}
+        />
+      ) : (
+        displayStandard
+      )}
       {edit ? (
         <EditStandard
           selectedStandard={selectedStandard}
