@@ -125,7 +125,9 @@ const StandardsOfCategory = ({
                                   <Button
                                     className='mt-3'
                                     id='addStandard'
-                                    onClick={addSelection}
+                                    onClick={() => {
+                                      addSelection(standard);
+                                    }}
                                   >
                                     Add
                                   </Button>
@@ -134,7 +136,7 @@ const StandardsOfCategory = ({
                                 )}
                                 <Button
                                   variant='link'
-                                  className='ms-auto'
+                                  className='ms-auto mt-3'
                                   onClick={() => {
                                     setSelection(standard);
                                     setPoppedStandard({});
@@ -153,9 +155,9 @@ const StandardsOfCategory = ({
                           style={{ cursor: "pointer" }}
                           onClick={(e) => {
                             e.target.focus();
-                            if (!track) {
-                              setPoppedStandard(standard);
-                            }
+                            // if (!track) {
+                            setPoppedStandard(standard);
+                            // }
                           }}
                           onBlur={() => setPoppedStandard({})}
                         >

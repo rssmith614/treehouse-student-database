@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { Button, Card, InputGroup, Nav, Form } from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { ToastContext } from "../../Services/toast";
+import StandardInfo from "./Components/StandardInfo";
 
 const grades = [
   "Kindergarten",
@@ -31,7 +32,7 @@ const TrackStandard = ({
     localStorage.getItem("category") || "Math",
   );
 
-  // const [showSingle, setShowSingle] = useState(false);
+  const [show, setShow] = useState(false);
 
   const addToast = useContext(ToastContext);
 
@@ -40,25 +41,16 @@ const TrackStandard = ({
     localStorage.setItem("category", category);
   }, [grade, category]);
 
-  // useEffect(() => {
-  //   if (selectedStandard) {
-  //     // addStandard();
-  //   }
-  // }, [selectedStandard]);
+  function addStandard(standardToAdd) {
+    standardSelector(standardToAdd);
 
-  function addStandard(e) {
-    e.preventDefault();
-
-    standardSelector(selectedStandard);
-
-    if (!standards.find((s) => s.id === selectedStandard.id)) {
-      setStandards([...standards, selectedStandard]);
+    if (!standards.find((s) => s.id === standardToAdd.id)) {
+      setStandards([...standards, standardToAdd]);
     }
     addToast({
       header: "Standard Added",
-      message: `Standard ${selectedStandard.key} has been selected`,
+      message: `Standard ${standardToAdd.key} has been selected`,
     });
-    // setShowSingle(false);
     close();
   }
 
@@ -92,94 +84,69 @@ const TrackStandard = ({
     );
   });
 
-  // const addSingle = (
-  //   <>
-  //     <Offcanvas.Header closeButton>
-  //       <Offcanvas.Title>
-  //         Add <strong>{selectedStandard?.key}</strong> to the list of standards
-  //       </Offcanvas.Title>
-  //     </Offcanvas.Header>
-  //     <Offcanvas.Body>
-  //       <p className='fst-italic text-decoration-underline'>Description</p>
-  //       <p>{selectedStandard?.description}</p>
-  //       {selectedStandard?.questions !== undefined ? (
-  //         <>
-  //           <p className='fst-italic text-decoration-underline'>
-  //             Example Question
-  //           </p>
-  //           <div>Q: {selectedStandard.questions[0].question}</div>
-  //           <div>A: {selectedStandard.questions[0].answer}</div>
-  //         </>
-  //       ) : (
-  //         <></>
-  //       )}
-  //       <hr />
-
-  //       <Button className='mt-3' id='addStandard' onClick={addStandard}>
-  //         Add
-  //       </Button>
-  //     </Offcanvas.Body>
-  //   </>
-  // );
+  useEffect(() => {
+    if (selectedStandard) {
+      setShow(true);
+    }
+  }, [selectedStandard]);
 
   return (
-    <div className='d-flex flex-column p-3'>
-      <div className='display-1'>Add Standard to Evaluation Task</div>
-      <div className='h5'>Select a Standard to Add to a Task</div>
-      <Card className='bg-light-subtle'>
-        <Card.Header>
-          <Nav variant='underline' activeKey={grade}>
-            {gradeTabs}
-          </Nav>
-        </Card.Header>
-        <Card.Header>
-          <Nav fill variant='underline' activeKey={category}>
-            {categoryTabs}
-          </Nav>
-        </Card.Header>
-        <Card.Body>
-          <InputGroup className='w-25 mb-3'>
-            <Form.Control
-              type='text'
-              placeholder={`Search ${grades.find((g) => g[0] === grade[0])} ${category}`}
-              value={standardFilter}
-              onChange={(e) => {
-                setStandardFilter(e.target.value);
-              }}
+    <>
+      <div className='d-flex flex-column p-3'>
+        <div className='display-1'>Add Standard to Evaluation Task</div>
+        <div className='h5'>Select a Standard to Add to a Task</div>
+        <Card className='bg-light-subtle'>
+          <Card.Header>
+            <Nav variant='underline' activeKey={grade}>
+              {gradeTabs}
+            </Nav>
+          </Card.Header>
+          <Card.Header>
+            <Nav fill variant='underline' activeKey={category}>
+              {categoryTabs}
+            </Nav>
+          </Card.Header>
+          <Card.Body>
+            <InputGroup className='w-25 mb-3'>
+              <Form.Control
+                type='text'
+                placeholder={`Search ${grades.find((g) => g[0] === grade[0])} ${category}`}
+                value={standardFilter}
+                onChange={(e) => {
+                  setStandardFilter(e.target.value);
+                }}
+              />
+              <Button
+                variant='secondary'
+                className='bi bi-x-lg input-group-text'
+                style={{ cursor: "pointer" }}
+                onClick={() => setStandardFilter("")}
+              />
+            </InputGroup>
+            <StandardsOfCategory
+              grade={grade}
+              category={category}
+              setSelection={setSelectedStandard}
+              addSelection={addStandard}
+              filter={standardFilter}
+              track
             />
-            <Button
-              variant='secondary'
-              className='bi bi-x-lg input-group-text'
-              style={{ cursor: "pointer" }}
-              onClick={() => setStandardFilter("")}
-            />
-          </InputGroup>
-          <StandardsOfCategory
-            grade={grade}
-            category={category}
-            setSelection={setSelectedStandard}
-            addSelection={addStandard}
-            filter={standardFilter}
-            track
-          />
-        </Card.Body>
-      </Card>
-      <div className='d-flex p-3'>
-        <Button variant='secondary' onClick={close}>
-          Done
-        </Button>
+          </Card.Body>
+        </Card>
+        <div className='d-flex p-3'>
+          <Button variant='secondary' onClick={close}>
+            Done
+          </Button>
+        </div>
       </div>
-      {/* <Offcanvas
-        show={showSingle}
-        onHide={() => {
-          setShowSingle(false);
-        }}
-        onExited={() => setSelectedStandard(null)}
-        placement='end'
-      >
-        {addSingle}
-      </Offcanvas> */}
-    </div>
+      <StandardInfo
+        selectedStandard={selectedStandard}
+        setSelectedStandard={setSelectedStandard}
+        show={show}
+        setShow={setShow}
+        addSelection={addStandard}
+      />
+    </>
   );
 };
 

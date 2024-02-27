@@ -21,7 +21,7 @@ const EditStandard = ({
 
   const addToast = useContext(ToastContext);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     document.getElementById("submitChanges").innerHTML =
@@ -37,7 +37,7 @@ const EditStandard = ({
           "standards/" + selectedStandard.id + "/" + imageUpload.name,
         );
 
-        uploadBytes(imageRef, imageUpload).then((snapshot) => {
+        await uploadBytes(imageRef, imageUpload).then((snapshot) => {
           setImage(getDownloadURL(snapshot.ref));
         });
       }
@@ -45,18 +45,22 @@ const EditStandard = ({
       setImage(document.getElementById("image").value);
     }
 
+    debugger;
+
     if (questionImageType === "file") {
       const questionImageUpload =
         document.getElementById("question_image").files[0];
       if (questionImageUpload) {
         const questionImageRef = ref(
-          db,
+          storage,
           "standards/" + selectedStandard.id + "/" + questionImageUpload.name,
         );
 
-        uploadBytes(questionImageRef, questionImageUpload).then((snapshot) => {
-          setQuestionImage(getDownloadURL(snapshot.ref));
-        });
+        await uploadBytes(questionImageRef, questionImageUpload).then(
+          (snapshot) => {
+            setQuestionImage(getDownloadURL(snapshot.ref));
+          },
+        );
       }
     } else {
       setQuestionImage(document.getElementById("question_image").value);
@@ -82,7 +86,7 @@ const EditStandard = ({
         }),
       )
       .then(() => {
-        setEdit(false);
+        // setEdit(false);
         setShow(false);
       });
   }
@@ -227,9 +231,15 @@ const EditStandard = ({
                 onBlur={(e) => setQuestionImage(e.target.value)}
               />
             ) : (
-              <Form.Control type='file' />
+              <Form.Control
+                id='question_image'
+                type='file'
+                onChange={(e) =>
+                  setQuestionImage(URL.createObjectURL(e.target.files[0]))
+                }
+              />
             )}
-            {questionImageType === "link" && questionImage !== "" ? (
+            {questionImage !== "" ? (
               <>
                 <Card className='mt-3'>
                   <Card.Header>Image Preview</Card.Header>

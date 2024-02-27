@@ -1,8 +1,8 @@
-import { Button, Card, Form, InputGroup, Modal, Nav } from "react-bootstrap";
+import { Button, Card, Form, InputGroup, Nav } from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { useEffect, useState } from "react";
-import { Can } from "../../Services/can";
 import EditStandard from "./Components/EditStandard";
+import StandardInfo from "./Components/StandardInfo";
 
 const grades = [
   "Kindergarten",
@@ -70,55 +70,6 @@ const StandardsList = () => {
     }
   }, [selectedStandard]);
 
-  const displayStandard = (
-    <Modal
-      show={show}
-      onHide={() => {
-        setShow(false);
-      }}
-      onExited={() => setSelectedStandard(null)}
-      size='lg'
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>
-          <strong>{selectedStandard ? selectedStandard.key : ""}</strong>
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <p className='fst-italic text-decoration-underline'>Description</p>
-        <p>{selectedStandard ? selectedStandard.description : ""}</p>
-        {selectedStandard?.image ? (
-          <Card.Img src={selectedStandard?.image} />
-        ) : null}
-        {selectedStandard?.question ? (
-          <>
-            <hr />
-            <p className='fst-italic text-decoration-underline'>
-              Example Question
-            </p>
-            {selectedStandard?.question_image ? (
-              <Card.Img src={selectedStandard?.question_image} />
-            ) : null}
-            <div className='fw-bold pt-1'>{selectedStandard?.question}</div>
-            <div>Sample Answer: {selectedStandard?.answer}</div>
-          </>
-        ) : null}
-        <Can I='edit' on='standards'>
-          <hr />
-          <div className='d-flex'>
-            <Button
-              variant='info'
-              className='ms-auto'
-              onClick={() => setEdit(true)}
-            >
-              Edit This Standard
-            </Button>
-          </div>
-        </Can>
-      </Modal.Body>
-    </Modal>
-  );
-
   return (
     <div className='d-flex flex-column p-3'>
       <div className='display-1'>Standards Cheat Sheet</div>
@@ -168,7 +119,13 @@ const StandardsList = () => {
           show={show}
         />
       ) : (
-        displayStandard
+        <StandardInfo
+          selectedStandard={selectedStandard}
+          setSelectedStandard={setSelectedStandard}
+          show={show}
+          setShow={setShow}
+          setEdit={setEdit}
+        />
       )}
     </div>
   );
