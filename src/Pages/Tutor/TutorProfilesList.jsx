@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../../Services/firebase";
 
-import Avatar from "boring-avatars";
 import { collection, onSnapshot } from "firebase/firestore";
-import { Card, Dropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import ComboTableHeader from "../../Components/ComboTableHeader";
-import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
-import FilterTableHeader from "../../Components/FilterTableHeader";
+import { Card, Dropdown, Form, InputGroup } from "react-bootstrap";
+import Avatar from "boring-avatars";
 
 const TutorProfilesList = () => {
   const [tutors, setTutors] = useState([]);
@@ -161,6 +158,103 @@ const TutorProfilesList = () => {
     }
   }
 
+  const DropdownTableHeaderToggle = React.forwardRef(
+    ({ children, onClick }, ref) => (
+      <div
+        className='d-flex'
+        ref={ref}
+        onClick={(e) => {
+          e.preventDefault();
+          onClick(e);
+        }}
+      >
+        {children}
+      </div>
+    ),
+  );
+
+  const ComboTableHeader = React.forwardRef(
+    (
+      {
+        children,
+        style,
+        className,
+        "aria-labelledby": labeledBy,
+        value,
+        valueSetter,
+      },
+      ref,
+    ) => (
+      <div
+        ref={ref}
+        style={style}
+        className={className}
+        aria-labelledby={labeledBy}
+      >
+        <Dropdown.Item>
+          <InputGroup>
+            <Form.Control
+              autoFocus
+              type='text'
+              placeholder='Search'
+              value={value}
+              onChange={(e) => valueSetter(e.target.value)}
+            />
+            <i
+              className='bi bi-x-lg input-group-text'
+              style={{ cursor: "pointer" }}
+              onClick={() => valueSetter("")}
+            />
+          </InputGroup>
+        </Dropdown.Item>
+        <Dropdown.Item onClick={() => setTableSort("name_asc")}>
+          A - Z
+        </Dropdown.Item>
+        <Dropdown.Item onClick={() => setTableSort("name_desc")}>
+          Z - A
+        </Dropdown.Item>
+      </div>
+    ),
+  );
+
+  const FilterTableHeader = React.forwardRef(
+    (
+      {
+        children,
+        style,
+        className,
+        "aria-labelledby": labeledBy,
+        value,
+        valueSetter,
+      },
+      ref,
+    ) => (
+      <div
+        ref={ref}
+        style={style}
+        className={className}
+        aria-labelledby={labeledBy}
+      >
+        <Dropdown.Item>
+          <InputGroup>
+            <Form.Control
+              autoFocus
+              type='text'
+              placeholder='Search'
+              value={value}
+              onChange={(e) => valueSetter(e.target.value)}
+            />
+            <i
+              className='bi bi-x-lg input-group-text'
+              style={{ cursor: "pointer" }}
+              onClick={() => valueSetter("")}
+            />
+          </InputGroup>
+        </Dropdown.Item>
+      </div>
+    ),
+  );
+
   const listTable = (
     <table className='table table-striped table-hover'>
       <thead>
@@ -175,7 +269,6 @@ const TutorProfilesList = () => {
                 as={ComboTableHeader}
                 value={nameFilter}
                 valueSetter={setNameFilter}
-                sortSetter={setTableSort}
               />
             </Dropdown>
           </th>
@@ -235,6 +328,9 @@ const TutorProfilesList = () => {
           listTable
         )}
       </div>
+      {/* <Can do="manage" on="tutors">
+        <button className="btn btn-primary m-3 ms-auto" onClick={() => navigate('/newtutor')}>Register New Tutor</button>
+      </Can> */}
       {tutors.filter((tutor) => {
         return tutor.data().clearance === "pending";
       }).length === 0 ? (
