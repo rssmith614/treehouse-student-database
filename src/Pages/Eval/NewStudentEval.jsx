@@ -105,6 +105,7 @@ const NewStudentEval = () => {
         message: "Your previously started session evaluation has been restored",
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.studentid]);
 
   useEffect(() => {
