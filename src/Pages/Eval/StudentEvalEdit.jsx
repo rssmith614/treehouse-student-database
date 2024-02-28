@@ -239,12 +239,15 @@ const StudentEvalEdit = () => {
     document.getElementById("flagForReview").classList.add("d-none");
   }, [tasks]);
 
-  useEffect(() => {
-    if (evaluation.length !== 0 && tasks.length !== 0) {
-      localStorage.setItem(`${params.evalid}`, JSON.stringify(evaluation));
-      localStorage.setItem(`${params.evalid}_tasks`, JSON.stringify(tasks));
-    }
-  }, [evaluation, tasks, params.evalid]);
+  function handleEvalChange(newEval) {
+    setEvaluation(newEval);
+    // localStorage.setItem(`${params.studentid}_eval`, JSON.stringify(newEval));
+  }
+
+  function handleTasksChange(newTasks) {
+    setTasks(newTasks);
+    // localStorage.setItem(`${params.studentid}_tasks`, JSON.stringify(newTasks));
+  }
 
   async function sumbitEval(e) {
     e.preventDefault();
@@ -472,12 +475,12 @@ const StudentEvalEdit = () => {
             <>
               <EvalHeader
                 evaluation={evaluation}
-                setEvaluation={setEvaluation}
+                handleEvalChange={handleEvalChange}
               />
               <hr />
               <div className='h5'>Tasks</div>
               <Tasks
-                setTasks={setTasks}
+                handleTasksChange={handleTasksChange}
                 tasks={tasks}
                 standards={standards}
                 setStandards={setStandards}
@@ -486,7 +489,7 @@ const StudentEvalEdit = () => {
               <hr />
               <EvalFooter
                 evaluation={evaluation}
-                setEvaluation={setEvaluation}
+                handleEvalChange={handleEvalChange}
               />
               <Can I='manage' an={Eval}>
                 <hr />
@@ -516,8 +519,6 @@ const StudentEvalEdit = () => {
             type='button'
             className='btn btn-secondary m-3 me-auto'
             onClick={() => {
-              localStorage.removeItem(`${params.evalid}`);
-              localStorage.removeItem(`${params.evalid}_tasks`);
               history.back();
             }}
           >
