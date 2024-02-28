@@ -1,6 +1,6 @@
 import { Form, OverlayTrigger, Popover } from "react-bootstrap";
 
-const TaskSummary = ({ task, task_idx, tasks, setTasks }) => {
+const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
   return (
     <>
       <div className='h5 d-flex'>
@@ -34,7 +34,7 @@ const TaskSummary = ({ task, task_idx, tasks, setTasks }) => {
               className='form-control'
               value={task.comments}
               onChange={(e) => {
-                setTasks(
+                handleTasksChange(
                   tasks.map((t, i) => {
                     if (i !== task_idx) return t;
                     else return { ...t, comments: e.target.value };
@@ -74,7 +74,7 @@ const TaskSummary = ({ task, task_idx, tasks, setTasks }) => {
                   style={{ width: "auto" }}
                   value={task.progression}
                   onChange={(e) => {
-                    setTasks(
+                    handleTasksChange(
                       tasks.map((t, i) => {
                         if (i !== task_idx) return t;
                         else return { ...t, progression: e.target.value };
@@ -119,7 +119,7 @@ const TaskSummary = ({ task, task_idx, tasks, setTasks }) => {
               style={{ width: "auto" }}
               value={task.engagement}
               onChange={(e) => {
-                setTasks(
+                handleTasksChange(
                   tasks.map((t, i) => {
                     if (i !== task_idx) return t;
                     else return { ...t, engagement: e.target.value };

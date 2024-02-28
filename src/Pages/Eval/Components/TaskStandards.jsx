@@ -8,14 +8,13 @@ const TaskStandards = ({
   task,
   task_idx,
   tasks,
-  setTasks,
+  handleTasksChange,
   standards,
   setStandards,
 }) => {
   const [showNewStandardPane, setShowNewStandardPane] = useState(false);
 
   const newStandardSelector = useRef(null);
-
   return (
     <>
       <div className='h5'>Standards</div>
@@ -31,18 +30,17 @@ const TaskStandards = ({
                         variant='danger'
                         className='ms-auto'
                         onClick={() => {
-                          setTasks(
-                            tasks.map((t, i) => {
-                              if (i !== task_idx) return t;
-                              else
-                                return {
-                                  ...t,
-                                  standards: t.standards.filter(
-                                    (s, j) => j !== standard_idx,
-                                  ),
-                                };
-                            }),
-                          );
+                          const newTasks = tasks.map((t, i) => {
+                            if (i !== task_idx) return t;
+                            else
+                              return {
+                                ...t,
+                                standards: t.standards.filter(
+                                  (s, j) => j !== standard_idx,
+                                ),
+                              };
+                          });
+                          handleTasksChange(newTasks);
                         }}
                       >
                         <i className='bi bi-trash-fill' />
@@ -63,26 +61,20 @@ const TaskStandards = ({
                           newStandardSelector={newStandardSelector}
                           setShowNewStandardPane={setShowNewStandardPane}
                           value={standard}
-                          valueSetter={(s) =>
-                            setTasks(
-                              tasks.map((t, i) => {
-                                if (i !== task_idx) return t;
-                                else {
-                                  return {
-                                    ...t,
-                                    standards: t.standards.map((s1, j) => {
-                                      if (j !== standard_idx) return s1;
-                                      else
-                                        return {
-                                          ...s,
-                                          progression: s1.progression,
-                                        };
-                                    }),
-                                  };
-                                }
-                              }),
-                            )
-                          }
+                          valueSetter={(s) => {
+                            const newTasks = tasks.map((t, i) => {
+                              if (i !== task_idx) return t;
+                              else
+                                return {
+                                  ...t,
+                                  standards: t.standards.map((s, j) => {
+                                    if (j !== standard_idx) return s;
+                                    else return s;
+                                  }),
+                                };
+                            });
+                            handleTasksChange(newTasks);
+                          }}
                           style={{
                             maxHeight: 350,
                             overflow: "scroll",
@@ -94,23 +86,22 @@ const TaskStandards = ({
                         style={{ width: "auto" }}
                         value={standard?.progression}
                         onChange={(e) => {
-                          setTasks(
-                            tasks.map((t, i) => {
-                              if (i !== task_idx) return t;
-                              else
-                                return {
-                                  ...t,
-                                  standards: t.standards.map((s, j) => {
-                                    if (j !== standard_idx) return s;
-                                    else
-                                      return {
-                                        ...s,
-                                        progression: e.target.value,
-                                      };
-                                  }),
-                                };
-                            }),
-                          );
+                          const newTasks = tasks.map((t, i) => {
+                            if (i !== task_idx) return t;
+                            else
+                              return {
+                                ...t,
+                                standards: t.standards.map((s, j) => {
+                                  if (j !== standard_idx) return s;
+                                  else
+                                    return {
+                                      ...s,
+                                      progression: e.target.value,
+                                    };
+                                }),
+                              };
+                          });
+                          handleTasksChange(newTasks);
                         }}
                       >
                         <option disabled value=''>
@@ -133,22 +124,21 @@ const TaskStandards = ({
           <Button
             variant='secondary'
             onClick={() => {
-              setTasks(
-                tasks.map((t, i) => {
-                  if (i !== task_idx) return t;
-                  else
-                    return {
-                      ...t,
-                      standards: [
-                        ...t.standards,
-                        {
-                          key: "",
-                          progression: "",
-                        },
-                      ],
-                    };
-                }),
-              );
+              const newTasks = tasks.map((t, i) => {
+                if (i !== task_idx) return t;
+                else
+                  return {
+                    ...t,
+                    standards: [
+                      ...t.standards,
+                      {
+                        key: "",
+                        progression: "",
+                      },
+                    ],
+                  };
+              });
+              handleTasksChange(newTasks);
             }}
           >
             Add Standard

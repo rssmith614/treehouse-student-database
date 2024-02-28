@@ -5,7 +5,7 @@ import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { db } from "../../../Services/firebase";
 
-const EvalHeader = ({ evaluation, setEvaluation }) => {
+const EvalHeader = ({ evaluation, handleEvalChange }) => {
   const [tutors, setTutors] = useState([]);
 
   const navigate = useNavigate();
@@ -27,15 +27,6 @@ const EvalHeader = ({ evaluation, setEvaluation }) => {
       unsubscribeTutors();
     };
   }, []);
-
-  useEffect(() => {
-    setEvaluation((prev) => {
-      return {
-        ...prev,
-        tutor_name: tutors.find((t) => t.id === prev.tutor_id)?.displayName,
-      };
-    });
-  }, [tutors, setEvaluation]);
 
   function tutorOptions() {
     return tutors.map((tutor) => {
@@ -69,12 +60,13 @@ const EvalHeader = ({ evaluation, setEvaluation }) => {
             className='form-control'
             value={evaluation?.tutor_id || ""}
             onChange={(e) => {
-              setEvaluation({
+              const newEval = {
                 ...evaluation,
                 tutor_id: e.target.value,
                 tutor_name: tutors.find((t) => t.id === e.target.value)
-                  .displayName,
-              });
+                  ?.displayName,
+              };
+              handleEvalChange(newEval);
             }}
           >
             <option disabled value=''>
@@ -91,9 +83,10 @@ const EvalHeader = ({ evaluation, setEvaluation }) => {
             className='form-control'
             type='date'
             value={evaluation?.date || ""}
-            onChange={(e) =>
-              setEvaluation({ ...evaluation, date: e.target.value })
-            }
+            onChange={(e) => {
+              const newEval = { ...evaluation, date: e.target.value };
+              handleEvalChange(newEval);
+            }}
           />
           <div className='invalid-feedback'>
             Please provide a date for the evaluation

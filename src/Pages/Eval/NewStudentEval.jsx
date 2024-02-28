@@ -34,33 +34,13 @@ const NewStudentEval = () => {
 
   const params = useParams();
 
-  const [evaluation, setEvaluation] = useState(
-    localStorage.getItem(`${params.studentid}_eval`)
-      ? JSON.parse(localStorage.getItem(`${params.studentid}_eval`))
-      : {
-          tutor_id: auth.currentUser.uid,
-          date: dayjs().format("YYYY-MM-DD"),
-          worksheet: "",
-          worksheet_completion: "",
-          next_session: "",
-        },
-  );
+  const [evaluation, setEvaluation] = useState({});
 
-  const [tasks, setTasks] = useState(
-    localStorage.getItem(`${params.studentid}_tasks`)
-      ? JSON.parse(localStorage.getItem(`${params.studentid}_tasks`))
-      : [
-          {
-            subject: "",
-            standards: [],
-            progression: "",
-            engagement: "",
-            comments: "",
-          },
-        ],
-  );
+  const [tasks, setTasks] = useState([]);
 
   const studentRef = useRef(doc(db, "students", params.studentid));
+
+  const hasCache = useRef(false);
 
   const navigate = useNavigate();
 
@@ -73,10 +53,12 @@ const NewStudentEval = () => {
     const unsubscribeStudents = onSnapshot(
       doc(db, "students", params.studentid),
       (doc) => {
-        setEvaluation({
-          ...evaluation,
-          student_name: doc.data().student_name,
-          student_id: doc.id,
+        setEvaluation((prev) => {
+          return {
+            ...prev,
+            student_name: doc.data().student_name,
+            student_id: doc.id,
+          };
         });
       },
     );
@@ -84,7 +66,46 @@ const NewStudentEval = () => {
     return () => {
       unsubscribeStudents();
     };
-  }, [params.studentid, evaluation]);
+  }, [params.studentid]);
+
+  useEffect(() => {
+    if (localStorage.getItem(`${params.studentid}_eval`)) {
+      setEvaluation(
+        JSON.parse(localStorage.getItem(`${params.studentid}_eval`)),
+      );
+      hasCache.current = true;
+    } else {
+      setEvaluation({
+        tutor_id: auth.currentUser.uid,
+        date: dayjs().format("YYYY-MM-DD"),
+        worksheet: "",
+        worksheet_completion: "",
+        next_session: "",
+      });
+    }
+
+    if (localStorage.getItem(`${params.studentid}_tasks`)) {
+      setTasks(JSON.parse(localStorage.getItem(`${params.studentid}_tasks`)));
+      hasCache.current = true;
+    } else {
+      setTasks([
+        {
+          subject: "",
+          standards: [],
+          progression: "",
+          engagement: "",
+          comments: "",
+        },
+      ]);
+    }
+
+    if (hasCache.current) {
+      addToast({
+        header: "Session Restored",
+        message: "Your previously started session evaluation has been restored",
+      });
+    }
+  }, [params.studentid]);
 
   useEffect(() => {
     const evalsQuery = query(
@@ -183,16 +204,15 @@ const NewStudentEval = () => {
     document.getElementById("flagForReview").classList.add("d-none");
   }, [tasks]);
 
-  useEffect(() => {
-    localStorage.setItem(
-      `${params.studentid}_eval`,
-      JSON.stringify(evaluation),
-    );
-  }, [evaluation, params.studentid]);
+  function handleEvalChange(newEval) {
+    setEvaluation(newEval);
+    localStorage.setItem(`${params.studentid}_eval`, JSON.stringify(newEval));
+  }
 
-  useEffect(() => {
-    localStorage.setItem(`${params.studentid}_tasks`, JSON.stringify(tasks));
-  }, [tasks, params.studentid]);
+  function handleTasksChange(newTasks) {
+    setTasks(newTasks);
+    localStorage.setItem(`${params.studentid}_tasks`, JSON.stringify(newTasks));
+  }
 
   function sumbitEval(e) {
     e.preventDefault();
@@ -381,27 +401,31 @@ const NewStudentEval = () => {
           )}
         </div>
         <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
-          <EvalHeader evaluation={evaluation} setEvaluation={setEvaluation} />
+          <EvalHeader
+            evaluation={evaluation}
+            handleEvalChange={handleEvalChange}
+          />
           <hr />
           <div className='d-flex flex-column'>
             <div className='h4'>Tasks</div>
             <Tasks
-              setTasks={setTasks}
+              handleTasksChange={handleTasksChange}
               tasks={tasks}
               standards={standards}
               setStandards={setStandards}
             />
           </div>
           <hr />
-          <EvalFooter evaluation={evaluation} setEvaluation={setEvaluation} />
+          <EvalFooter
+            evaluation={evaluation}
+            handleEvalChange={handleEvalChange}
+          />
         </div>
         <div className='d-flex'>
           <button
             type='button'
             className='btn btn-secondary m-3 me-auto'
             onClick={() => {
-              localStorage.removeItem(`${params.studentid}_eval`);
-              localStorage.removeItem(`${params.studentid}_tasks`);
               navigate(-1);
             }}
           >
@@ -416,40 +440,71 @@ const NewStudentEval = () => {
             Submit
           </button>
         </div>
-        <div id='flagForReview' className='mx-3 ms-auto'>
-          <OverlayTrigger
-            placement='left'
-            overlay={
-              <Popover>
-                <Popover.Header>Flag for Review</Popover.Header>
-                <Popover.Body>
-                  Select this option if you would like an administrator to
-                  review this evaluation and discuss the session with you and/or
-                  the student's parent
-                </Popover.Body>
-              </Popover>
-            }
-          >
-            <i className='bi bi-question-square mx-3'></i>
-          </OverlayTrigger>
-          <Button
-            variant='danger'
-            className=''
-            onClick={(e) => {
-              e.preventDefault();
-              if (e.target.classList.contains("btn-danger")) {
-                e.target.classList.remove("btn-danger");
-                e.target.classList.add("btn-outline-danger");
-                e.target.innerHTML = "Flagged for Admin Review";
-              } else {
-                e.target.classList.remove("btn-outline-danger");
-                e.target.classList.add("btn-danger");
-                e.target.innerHTML = "Flag for Admin Review?";
+        <div className='d-flex'>
+          {hasCache.current && (
+            <Button
+              variant='secondary'
+              className='m-3'
+              onClick={() => {
+                localStorage.removeItem(`${params.studentid}_eval`);
+                localStorage.removeItem(`${params.studentid}_tasks`);
+                setEvaluation({
+                  tutor_id: auth.currentUser.uid,
+                  date: dayjs().format("YYYY-MM-DD"),
+                  worksheet: "",
+                  worksheet_completion: "",
+                  next_session: "",
+                });
+                setTasks([
+                  {
+                    subject: "",
+                    standards: [],
+                    progression: "",
+                    engagement: "",
+                    comments: "",
+                  },
+                ]);
+                hasCache.current = false;
+              }}
+            >
+              Clear Saved Data
+            </Button>
+          )}
+          <div id='flagForReview' className='mx-3 ms-auto'>
+            <OverlayTrigger
+              placement='left'
+              overlay={
+                <Popover>
+                  <Popover.Header>Flag for Review</Popover.Header>
+                  <Popover.Body>
+                    Select this option if you would like an administrator to
+                    review this evaluation and discuss the session with you
+                    and/or the student's parent
+                  </Popover.Body>
+                </Popover>
               }
-            }}
-          >
-            Flag for Admin Review?
-          </Button>
+            >
+              <i className='bi bi-question-square mx-3'></i>
+            </OverlayTrigger>
+            <Button
+              variant='danger'
+              className=''
+              onClick={(e) => {
+                e.preventDefault();
+                if (e.target.classList.contains("btn-danger")) {
+                  e.target.classList.remove("btn-danger");
+                  e.target.classList.add("btn-outline-danger");
+                  e.target.innerHTML = "Flagged for Admin Review";
+                } else {
+                  e.target.classList.remove("btn-outline-danger");
+                  e.target.classList.add("btn-danger");
+                  e.target.innerHTML = "Flag for Admin Review?";
+                }
+              }}
+            >
+              Flag for Admin Review?
+            </Button>
+          </div>
         </div>
       </div>
       <Modal show={showNotes} onHide={() => setShowNotes(false)}>
