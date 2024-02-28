@@ -70,11 +70,7 @@ const StudentGrades = ({ student }) => {
         document.getElementById(`subject-${index}`).classList.add("is-invalid");
         clean = false;
       }
-      if (
-        grade.grade === "" ||
-        parseFloat(grade.grade) < 0 ||
-        parseFloat(grade.grade) > 100
-      ) {
+      if (grade.grade === "") {
         document.getElementById(`grade-${index}`).classList.add("is-invalid");
         document
           .getElementById(`grade-${index}`)
@@ -141,11 +137,7 @@ const StudentGrades = ({ student }) => {
         document.getElementById(`subject-${index}`).classList.add("is-invalid");
         clean = false;
       }
-      if (
-        grade.grade === "" ||
-        parseFloat(grade.grade) < 0 ||
-        parseFloat(grade.grade) > 100
-      ) {
+      if (grade.grade === "") {
         document.getElementById(`grade-${index}`).classList.add("is-invalid");
         document
           .getElementById(`grade-${index}`)
@@ -208,14 +200,16 @@ const StudentGrades = ({ student }) => {
             }
           }}
         >
-          <td>{dayjs(grade.date).format("MMMM DD, YYYY")}</td>
-          <td>{grade.tutor_name}</td>
+          <td className='align-middle'>
+            {dayjs(grade.date).format("MMMM DD, YYYY")}
+          </td>
+          <td className='align-middle'>{grade.tutor_name}</td>
           <td>
             <ul className='list-group'>
               {grade.grades.map((grade, index) => {
                 return (
                   <li key={index} className='list-group-item'>
-                    <strong>{grade.subject}</strong> - {grade.grade}
+                    <strong>{grade.subject}</strong> - {grade.grade}%
                     <br />
                     {grade.comments}
                   </li>
@@ -262,7 +256,7 @@ const StudentGrades = ({ student }) => {
                     {grades.map((grade, index) => {
                       return (
                         <tr key={index}>
-                          <td className='align-middle'>
+                          <td className='align-middle text-center'>
                             <Button
                               variant='danger'
                               size='sm'
@@ -398,7 +392,7 @@ const StudentGrades = ({ student }) => {
                     {selectedGrade.grades.map((grade, index) => {
                       return (
                         <tr key={index}>
-                          <td className='align-middle'>
+                          <td className='align-middle text-center'>
                             <Button
                               variant='danger'
                               size='sm'
