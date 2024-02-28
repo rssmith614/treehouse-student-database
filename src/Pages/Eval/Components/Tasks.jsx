@@ -5,13 +5,13 @@ import TaskSummary from "./TaskSummary";
 
 const Tasks = ({
   tasks,
-  setTasks,
+  handleTasksChange,
   standards,
   setStandards,
   setTasksToDelete,
 }) => {
   function addTask() {
-    setTasks([
+    handleTasksChange([
       ...tasks,
       {
         subject: "",
@@ -33,7 +33,8 @@ const Tasks = ({
             variant='danger'
             className='ms-auto'
             onClick={() => {
-              setTasks(tasks.filter((t, i) => i !== task_idx));
+              const newTasks = tasks.filter((t, i) => i !== task_idx);
+              handleTasksChange(newTasks);
               if (setTasksToDelete)
                 setTasksToDelete((prev) => [...prev, task.id]);
             }}
@@ -48,7 +49,7 @@ const Tasks = ({
               task={task}
               task_idx={task_idx}
               tasks={tasks}
-              setTasks={setTasks}
+              handleTasksChange={handleTasksChange}
             />
           </div>
           <div className='vr mx-3' />
@@ -57,7 +58,7 @@ const Tasks = ({
               task={task}
               task_idx={task_idx}
               tasks={tasks}
-              setTasks={setTasks}
+              handleTasksChange={handleTasksChange}
               standards={standards}
               setStandards={setStandards}
             />

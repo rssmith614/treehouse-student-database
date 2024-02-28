@@ -1,6 +1,6 @@
 import { Form, OverlayTrigger, Popover } from "react-bootstrap";
 
-const EvalFooter = ({ evaluation, setEvaluation }) => {
+const EvalFooter = ({ evaluation, handleEvalChange }) => {
   return (
     <div className='row my-3'>
       <div className='col'>
@@ -32,13 +32,12 @@ const EvalFooter = ({ evaluation, setEvaluation }) => {
           id='worksheet_completion'
           className='form-control'
           type='text'
-          value={evaluation.worksheet_completion}
-          onChange={(e) =>
-            setEvaluation({
-              ...evaluation,
-              worksheet_completion: e.target.value,
-            })
-          }
+          value={evaluation?.worksheet_completion || ""}
+          onChange={(e) => {
+            const newEval = { ...evaluation };
+            newEval.worksheet_completion = e.target.value;
+            handleEvalChange(newEval);
+          }}
         />
       </div>
       <div className='col'>
@@ -66,12 +65,11 @@ const EvalFooter = ({ evaluation, setEvaluation }) => {
         <textarea
           id='next_session'
           className='form-control'
-          value={evaluation.next_session}
+          value={evaluation?.next_session || ""}
           onChange={(e) => {
-            setEvaluation({
-              ...evaluation,
-              next_session: e.target.value,
-            });
+            const newEval = { ...evaluation };
+            newEval.next_session = e.target.value;
+            handleEvalChange(newEval);
             e.target.style.height = "auto";
             e.target.style.height = `${e.target.scrollHeight}px`;
           }}

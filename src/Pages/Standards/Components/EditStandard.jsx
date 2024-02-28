@@ -28,6 +28,8 @@ const EditStandard = ({
       "Saving <span class='spinner-border spinner-border-sm' />";
     document.getElementById("submitChanges").setAttribute("disabled", true);
 
+    let imageURL = "";
+
     if (imageType === "file") {
       const imageUpload = document.getElementById("image").files[0];
       if (imageUpload) {
@@ -37,15 +39,16 @@ const EditStandard = ({
           "standards/" + selectedStandard.id + "/" + imageUpload.name,
         );
 
-        await uploadBytes(imageRef, imageUpload).then((snapshot) => {
-          setImage(getDownloadURL(snapshot.ref));
+        await uploadBytes(imageRef, imageUpload).then(async (snapshot) => {
+          const downloadURL = await getDownloadURL(snapshot.ref);
+          imageURL = downloadURL;
         });
       }
     } else {
-      setImage(document.getElementById("image").value);
+      imageURL = document.getElementById("image").value;
     }
 
-    debugger;
+    let questionImageURL = "";
 
     if (questionImageType === "file") {
       const questionImageUpload =
@@ -57,13 +60,14 @@ const EditStandard = ({
         );
 
         await uploadBytes(questionImageRef, questionImageUpload).then(
-          (snapshot) => {
-            setQuestionImage(getDownloadURL(snapshot.ref));
+          async (snapshot) => {
+            const downloadURL = await getDownloadURL(snapshot.ref);
+            questionImageURL = downloadURL;
           },
         );
       }
     } else {
-      setQuestionImage(document.getElementById("question_image").value);
+      questionImageURL = document.getElementById("question_image").value;
     }
 
     let newStandard = {
@@ -72,10 +76,10 @@ const EditStandard = ({
       category: document.getElementById("category").value,
       sub_category: document.getElementById("sub_category").value,
       description: document.getElementById("description").value,
-      image: image,
+      image: imageURL,
       question: document.getElementById("question").value,
       answer: document.getElementById("answer").value,
-      question_image: questionImage,
+      question_image: questionImageURL,
     };
 
     updateDoc(doc(db, "standards", selectedStandard.id), newStandard)
