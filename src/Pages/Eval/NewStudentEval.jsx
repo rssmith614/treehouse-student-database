@@ -44,6 +44,28 @@ const NewStudentEval = () => {
 
   const navigate = useNavigate();
 
+  // used to reset the form and ensure clean data is always submitted
+  // in the event of unexpected behavior
+  const blankEval = {
+    student_id: params.studentid,
+    student_name: "",
+    tutor_id: auth.currentUser.uid,
+    tutor_name: "",
+    date: dayjs().format("YYYY-MM-DD"),
+    worksheet: "",
+    worksheet_completion: "",
+    next_session: "",
+    owner: auth.currentUser.uid,
+  };
+
+  const blankTask = {
+    subject: "",
+    standards: [],
+    progression: "",
+    engagement: "",
+    comments: "",
+  };
+
   // scroll to top on load
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -326,10 +348,6 @@ const NewStudentEval = () => {
       uploadBytes(worksheetRef, worksheetUpload).then(() =>
         addDoc(collection(db, "evaluations"), {
           ...evaluation,
-          tutor_id: evaluation.tutor_id || "",
-          tutor_name: evaluation.tutor_name || "",
-          student_id: evaluation.student_id || "",
-          student_name: evaluation.student_name || "",
           owner: auth.currentUser.uid,
           worksheet: worksheetRef.fullPath,
           flagged:
@@ -339,6 +357,7 @@ const NewStudentEval = () => {
             !document
               .getElementById("flagForReview")
               .classList.contains("d-none"),
+          ...blankEval,
         })
           .then((doc) => {
             tasks.forEach((t) =>
@@ -348,6 +367,7 @@ const NewStudentEval = () => {
                 standards: t.standards.map((s) => {
                   return { id: s.id, progression: s.progression };
                 }),
+                ...blankTask,
               }),
             );
             addToast({
@@ -472,22 +492,15 @@ const NewStudentEval = () => {
                 localStorage.removeItem(`${params.studentid}_eval`);
                 localStorage.removeItem(`${params.studentid}_tasks`);
                 setEvaluation({
-                  tutor_id: auth.currentUser.uid,
-                  date: dayjs().format("YYYY-MM-DD"),
-                  worksheet: "",
-                  worksheet_completion: "",
-                  next_session: "",
+                  ...blankEval,
+                  student_name: evaluation.student_name,
                 });
-                setTasks([
-                  {
-                    subject: "",
-                    standards: [],
-                    progression: "",
-                    engagement: "",
-                    comments: "",
-                  },
-                ]);
+                setTasks([blankTask]);
                 hasCache.current = false;
+                addToast({
+                  header: "Session Cleared",
+                  message: "Your session evaluation has been cleared",
+                });
               }}
             >
               Clear Saved Data
