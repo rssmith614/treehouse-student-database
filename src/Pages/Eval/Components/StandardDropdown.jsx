@@ -84,17 +84,19 @@ const StandardDropdown = React.forwardRef(
                   </Popover>
                 }
               >
-                <div key={standard.id}>
+                <div
+                  key={standard.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    valueSetter(standard);
+                  }}
+                >
                   <Form.Check
                     type={"radio"}
-                    checked={
-                      value === undefined ? false : value.id === standard.id
-                    }
+                    checked={value.id === standard.id}
                     label={standard.key}
                     className='mx-3 my-2 w-auto'
-                    onChange={(e) => {
-                      valueSetter(standard);
-                    }}
+                    onChange={() => {}}
                   />
                 </div>
               </OverlayTrigger>
