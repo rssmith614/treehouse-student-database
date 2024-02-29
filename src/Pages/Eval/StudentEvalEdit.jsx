@@ -318,7 +318,13 @@ const StudentEvalEdit = () => {
     let tutorName =
       tutors.find((t) => t.id === selectedTutor)?.data().displayName || "";
 
-    let evalUpload = { ...evaluation };
+    let evalUpload = {
+      ...evaluation,
+      tutor_id: evaluation.tutor_id || "",
+      tutor_name: evaluation.tutor_name || "",
+      student_id: evaluation.student_id || "",
+      student_name: evaluation.student_name || "",
+    };
 
     evalUpload.tutor_id = selectedTutor;
     evalUpload.tutor_name = tutorName;

@@ -326,6 +326,10 @@ const NewStudentEval = () => {
       uploadBytes(worksheetRef, worksheetUpload).then(() =>
         addDoc(collection(db, "evaluations"), {
           ...evaluation,
+          tutor_id: evaluation.tutor_id || "",
+          tutor_name: evaluation.tutor_name || "",
+          student_id: evaluation.student_id || "",
+          student_name: evaluation.student_name || "",
           owner: auth.currentUser.uid,
           worksheet: worksheetRef.fullPath,
           flagged:
@@ -363,6 +367,10 @@ const NewStudentEval = () => {
     } else {
       addDoc(collection(db, "evaluations"), {
         ...evaluation,
+        tutor_id: evaluation.tutor_id || "",
+        tutor_name: evaluation.tutor_name || "",
+        student_id: evaluation.student_id || "",
+        student_name: evaluation.student_name || "",
         owner: auth.currentUser.uid,
         worksheet: worksheetURL,
         flagged: document
