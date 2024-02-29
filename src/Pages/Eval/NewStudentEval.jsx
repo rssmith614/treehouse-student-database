@@ -69,6 +69,19 @@ const NewStudentEval = () => {
   }, [params.studentid]);
 
   useEffect(() => {
+    if (evaluation.tutor_id) {
+      getDoc(doc(db, "tutors", evaluation.tutor_id)).then((tutor) => {
+        setEvaluation((prev) => {
+          return {
+            ...prev,
+            tutor_name: tutor.data().displayName,
+          };
+        });
+      });
+    }
+  }, [evaluation.tutor_id]);
+
+  useEffect(() => {
     if (localStorage.getItem(`${params.studentid}_eval`)) {
       setEvaluation(
         JSON.parse(localStorage.getItem(`${params.studentid}_eval`)),
@@ -77,6 +90,7 @@ const NewStudentEval = () => {
     } else {
       setEvaluation({
         tutor_id: auth.currentUser.uid,
+        tutor_name: "",
         date: dayjs().format("YYYY-MM-DD"),
         worksheet: "",
         worksheet_completion: "",
