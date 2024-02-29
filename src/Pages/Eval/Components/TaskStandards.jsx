@@ -14,7 +14,18 @@ const TaskStandards = ({
 }) => {
   const [showNewStandardPane, setShowNewStandardPane] = useState(false);
 
-  const newStandardSelector = useRef(null);
+  const newStandardSelector = useRef((standardToAdd) => {
+    const newTasks = tasks.map((t, i) => {
+      if (i !== task_idx) return t;
+      else
+        return {
+          ...t,
+          standards: [...t.standards, standardToAdd],
+        };
+    });
+
+    handleTasksChange(newTasks);
+  });
   return (
     <>
       <div className='h5'>Standards</div>
@@ -61,7 +72,7 @@ const TaskStandards = ({
                           newStandardSelector={newStandardSelector}
                           setShowNewStandardPane={setShowNewStandardPane}
                           value={standard}
-                          valueSetter={(s) => {
+                          valueSetter={(selection) => {
                             const newTasks = tasks.map((t, i) => {
                               if (i !== task_idx) return t;
                               else
@@ -69,7 +80,8 @@ const TaskStandards = ({
                                   ...t,
                                   standards: t.standards.map((s, j) => {
                                     if (j !== standard_idx) return s;
-                                    else return s;
+                                    else
+                                      return { ...selection, progression: "" };
                                   }),
                                 };
                             });
@@ -156,7 +168,6 @@ const TaskStandards = ({
           setStandards={setStandards}
           close={() => {
             setShowNewStandardPane(false);
-            newStandardSelector.current = null;
           }}
           standardSelector={newStandardSelector.current}
         />
