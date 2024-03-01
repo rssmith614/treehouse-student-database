@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../Services/firebase";
-import { Dropdown, Form, Table } from "react-bootstrap";
+import { Dropdown, Table } from "react-bootstrap";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -21,10 +21,9 @@ const grades = {
 
 function AssessmentsOfStudent({ student, setSelectedAssessment }) {
   const [assessments, setAssessments] = useState([]);
-  const [tutors, setTutors] = useState([]);
 
   const [dateSort, setDateSort] = useState("desc");
-  const [gradeFilter, setGradeFilter] = useState([]);
+  // const [gradeFilter, setGradeFilter] = useState([]);
   // const [categoryFilter, setCategoryFilter] = useState([]);
   const [issuedByFilter, setIssuedByFilter] = useState("");
 

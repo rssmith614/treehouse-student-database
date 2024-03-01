@@ -8,7 +8,6 @@ import { Can } from "../../Services/can";
 import dayjs from "dayjs";
 import { Dropdown, InputGroup, Table, Form, Button } from "react-bootstrap";
 import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
-import ComboTableHeader from "../../Components/ComboTableHeader";
 import FilterTableHeader from "../../Components/FilterTableHeader";
 import SortTableHeader from "../../Components/SortTableHeader";
 
