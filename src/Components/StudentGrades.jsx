@@ -559,7 +559,7 @@ const StudentGrades = ({ student }) => {
               const url = window.URL.createObjectURL(blob);
               const a = document.createElement("a");
               a.href = url;
-              a.download = "grades.csv";
+              a.download = `grades_export_${student.student_name}_${dayjs().format("YYYY-MM-DD")}.csv`;
               a.click();
               window.URL.revokeObjectURL(url);
             }}
