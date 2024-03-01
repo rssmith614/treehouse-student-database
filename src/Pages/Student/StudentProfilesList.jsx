@@ -7,6 +7,10 @@ import React, { useEffect, useState } from "react";
 import { Can } from "../../Services/can";
 import dayjs from "dayjs";
 import { Dropdown, InputGroup, Table, Form, Button } from "react-bootstrap";
+import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
+import ComboTableHeader from "../../Components/ComboTableHeader";
+import FilterTableHeader from "../../Components/FilterTableHeader";
+import SortTableHeader from "../../Components/SortTableHeader";
 
 const StudentProfilesList = () => {
   const [students, setStudents] = useState(null);
@@ -240,70 +244,6 @@ const StudentProfilesList = () => {
     }
   }
 
-  const DropdownTableHeaderToggle = React.forwardRef(
-    ({ children, onClick }, ref) => (
-      <div
-        className='d-flex'
-        ref={ref}
-        onClick={(e) => {
-          e.preventDefault();
-          onClick(e);
-        }}
-      >
-        {children}
-      </div>
-    ),
-  );
-
-  const FilterTableHeader = React.forwardRef(
-    (
-      { style, className, "aria-labelledby": labeledBy, value, valueSetter },
-      ref,
-    ) => (
-      <div
-        ref={ref}
-        style={style}
-        className={className}
-        aria-labelledby={labeledBy}
-      >
-        <div className='dropdown-item'>
-          <InputGroup>
-            <Form.Control
-              autoFocus
-              type='text'
-              placeholder='Search'
-              value={value}
-              onChange={(e) => valueSetter(e.target.value)}
-            />
-            <i
-              className='bi bi-x-lg input-group-text'
-              style={{ cursor: "pointer" }}
-              onClick={() => valueSetter("")}
-            />
-          </InputGroup>
-        </div>
-      </div>
-    ),
-  );
-
-  const ComboTableHeader = React.forwardRef(
-    ({ style, className, "aria-labelledby": labeledBy }, ref) => (
-      <div
-        ref={ref}
-        style={style}
-        className={className}
-        aria-labelledby={labeledBy}
-      >
-        <Dropdown.Item onClick={() => setTableSort("name_asc")}>
-          A - Z
-        </Dropdown.Item>
-        <Dropdown.Item onClick={() => setTableSort("name_desc")}>
-          Z - A
-        </Dropdown.Item>
-      </div>
-    ),
-  );
-
   const listTable = (
     <Table striped hover>
       <thead>
@@ -313,7 +253,7 @@ const StudentProfilesList = () => {
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Student Name {filterIcon("name")}
               </Dropdown.Toggle>
-              <Dropdown.Menu as={ComboTableHeader} />
+              <Dropdown.Menu as={SortTableHeader} sortSetter={setTableSort} />
             </Dropdown>
           </th>
           <th style={{ cursor: "pointer" }}>

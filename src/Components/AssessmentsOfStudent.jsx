@@ -4,6 +4,8 @@ import { Dropdown, Form, Table } from "react-bootstrap";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import DropdownTableHeaderToggle from "./DropdownTableHeaderToggle";
+import FilterTableHeader from "./FilterTableHeader";
 
 const grades = {
   K: "Kindergarten",
@@ -23,8 +25,8 @@ function AssessmentsOfStudent({ student, setSelectedAssessment }) {
 
   const [dateSort, setDateSort] = useState("desc");
   const [gradeFilter, setGradeFilter] = useState([]);
-  const [categoryFilter, setCategoryFilter] = useState([]);
-  const [issuedByFilter, setIssuedByFilter] = useState([]);
+  // const [categoryFilter, setCategoryFilter] = useState([]);
+  const [issuedByFilter, setIssuedByFilter] = useState("");
 
   const navigate = useNavigate();
 
@@ -33,18 +35,6 @@ function AssessmentsOfStudent({ student, setSelectedAssessment }) {
       collection(db, "student_assessments"),
       where("student_id", "==", student.id),
     ];
-
-    if (gradeFilter.length > 0) {
-      queryPredicates.push(where("grade", "in", gradeFilter));
-    }
-
-    if (categoryFilter.length > 0) {
-      queryPredicates.push(where("category", "in", categoryFilter));
-    }
-
-    if (issuedByFilter.length > 0) {
-      queryPredicates.push(where("issued_by", "in", issuedByFilter));
-    }
 
     const unsubscribe = onSnapshot(
       query.apply(null, queryPredicates),
@@ -58,23 +48,23 @@ function AssessmentsOfStudent({ student, setSelectedAssessment }) {
       },
     );
 
-    const unsubscribeTutors = onSnapshot(
-      collection(db, "tutors"),
-      (snapshot) => {
-        const newTutors = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        }));
+    // const unsubscribeTutors = onSnapshot(
+    //   collection(db, "tutors"),
+    //   (snapshot) => {
+    //     const newTutors = snapshot.docs.map((doc) => ({
+    //       ...doc.data(),
+    //       id: doc.id,
+    //     }));
 
-        setTutors(newTutors);
-      },
-    );
+    //     setTutors(newTutors);
+    //   },
+    // );
 
     return () => {
       unsubscribe();
-      unsubscribeTutors();
+      // unsubscribeTutors();
     };
-  }, [student, gradeFilter, categoryFilter, issuedByFilter]);
+  }, [student]);
 
   function filterIcon(column) {
     switch (column) {
@@ -84,10 +74,10 @@ function AssessmentsOfStudent({ student, setSelectedAssessment }) {
           return <i className='bi bi-sort-down ms-auto' />;
         else return <i className='bi bi-filter ms-auto' />;
 
-      case "gradeAndCat":
-        if (gradeFilter.length > 0 || categoryFilter.length > 0)
-          return <i className='bi bi-funnel-fill ms-auto' />;
-        else return <i className='bi bi-funnel ms-auto' />;
+      // case "gradeAndCat":
+      //   if (gradeFilter.length > 0 || categoryFilter.length > 0)
+      //     return <i className='bi bi-funnel-fill ms-auto' />;
+      //   else return <i className='bi bi-funnel ms-auto' />;
 
       case "issuer":
         if (issuedByFilter.length > 0)
@@ -99,32 +89,23 @@ function AssessmentsOfStudent({ student, setSelectedAssessment }) {
     }
   }
 
-  const DropdownTableHeaderToggle = React.forwardRef(
-    ({ children, onClick }, ref) => (
-      <div
-        className='d-flex'
-        ref={ref}
-        onClick={(e) => {
-          e.preventDefault();
-          onClick(e);
-        }}
-      >
-        {children}
-      </div>
-    ),
-  );
-
-  const tableData = assessments.sort((a, b) => {
-    if (dateSort === "asc") return dayjs(a.date).diff(dayjs(b.date));
-    else if (dateSort === "desc") return dayjs(b.date).diff(dayjs(a.date));
-    else return 0;
-  });
+  const tableData = assessments
+    .sort((a, b) => {
+      if (dateSort === "asc") return dayjs(a.date).diff(dayjs(b.date));
+      else if (dateSort === "desc") return dayjs(b.date).diff(dayjs(a.date));
+      else return 0;
+    })
+    .filter((assessment) => {
+      return assessment.issued_by_name
+        .toLowerCase()
+        .includes(issuedByFilter.toLowerCase());
+    });
 
   return (
     <Table striped hover>
       <thead>
         <tr>
-          <th className='w-25'>
+          <th className='w-25' style={{ cursor: "pointer" }}>
             <Dropdown variant='' drop='up'>
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Date {filterIcon("date")}
@@ -140,7 +121,8 @@ function AssessmentsOfStudent({ student, setSelectedAssessment }) {
             </Dropdown>
           </th>
           <th>
-            <Dropdown variant='' drop='up'>
+            Assessment
+            {/* <Dropdown variant='' drop='up'>
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Assessment {filterIcon("gradeAndCat")}
               </Dropdown.Toggle>
@@ -203,36 +185,18 @@ function AssessmentsOfStudent({ student, setSelectedAssessment }) {
                   />
                 </Dropdown.Item>
               </Dropdown.Menu>
-            </Dropdown>
+            </Dropdown> */}
           </th>
-          <th>
-            <Dropdown variant='' drop='up'>
+          <th style={{ cursor: "pointer" }}>
+            <Dropdown variant='' drop='up' autoClose='outside'>
               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
                 Issued By {filterIcon("issuer")}
               </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item onClick={() => setIssuedByFilter([])}>
-                  All Tutors
-                </Dropdown.Item>
-                {tutors.map((tutor) => (
-                  <Dropdown.Item key={tutor.id}>
-                    <Form.Check
-                      type='checkbox'
-                      label={`${tutor.displayName}`}
-                      checked={issuedByFilter.includes(tutor.id)}
-                      onChange={() => {
-                        if (issuedByFilter.includes(tutor.id)) {
-                          setIssuedByFilter(
-                            issuedByFilter.filter((t) => t !== tutor.id),
-                          );
-                        } else {
-                          setIssuedByFilter([...issuedByFilter, tutor.id]);
-                        }
-                      }}
-                    />
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
+              <Dropdown.Menu
+                as={FilterTableHeader}
+                value={issuedByFilter}
+                valueSetter={setIssuedByFilter}
+              />
             </Dropdown>
           </th>
         </tr>

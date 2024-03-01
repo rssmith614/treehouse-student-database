@@ -23,6 +23,8 @@ import {
   Button,
   Pagination,
 } from "react-bootstrap";
+import DropdownTableHeaderToggle from "./DropdownTableHeaderToggle";
+import FilterTableHeader from "./FilterTableHeader";
 
 const EvalsTable = ({ filterBy, id, _limit }) => {
   const [evals, setEvals] = useState([]);
@@ -287,59 +289,6 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
   }
 
   if (loading) return <div className='spinner-border align-self-center' />;
-
-  const DropdownTableHeaderToggle = React.forwardRef(
-    ({ children, onClick }, ref) => (
-      <div
-        className='d-flex'
-        ref={ref}
-        onClick={(e) => {
-          e.preventDefault();
-          onClick(e);
-        }}
-      >
-        {children}
-      </div>
-    ),
-  );
-
-  const FilterTableHeader = React.forwardRef(
-    (
-      {
-        children,
-        style,
-        className,
-        "aria-labelledby": labeledBy,
-        value,
-        valueSetter,
-      },
-      ref,
-    ) => (
-      <div
-        ref={ref}
-        style={style}
-        className={className}
-        aria-labelledby={labeledBy}
-      >
-        <Dropdown.Item>
-          <InputGroup>
-            <Form.Control
-              autoFocus
-              type='text'
-              placeholder='Search'
-              value={value}
-              onChange={(e) => valueSetter(e.target.value)}
-            />
-            <i
-              className='bi bi-x-lg input-group-text'
-              style={{ cursor: "pointer" }}
-              onClick={() => valueSetter("")}
-            />
-          </InputGroup>
-        </Dropdown.Item>
-      </div>
-    ),
-  );
 
   const PageNavigation = () => {
     return (
