@@ -228,7 +228,7 @@ const TutorProfilesList = () => {
   return (
     <div className='d-flex flex-column m-3'>
       <div className='d-flex display-1'>Tutors</div>
-      <div className='d-flex card pt-3 px-3 m-3 bg-light-subtle'>
+      <div className='d-flex card pt-3 px-3 bg-light-subtle'>
         {loading ? (
           <div className='spinner-border d-flex align-self-center' />
         ) : (
