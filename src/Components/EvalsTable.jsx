@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { Dropdown, Table, Button, Pagination } from "react-bootstrap";
 import DropdownTableHeaderToggle from "./DropdownTableHeaderToggle";
 import FilterTableHeader from "./FilterTableHeader";
+import PaginatedTable from "./PaginatedTable";
 
 const EvalsTable = ({ filterBy, id, _limit }) => {
   const [evals, setEvals] = useState([]);
@@ -242,20 +243,20 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
   };
 
   function evalList() {
-    if (_limit) {
-      return tableData.map((evaluation) => {
-        if (
-          tableData.indexOf(evaluation) >= cursorIndex &&
-          tableData.indexOf(evaluation) < cursorIndex + _limit
-        )
-          return <EvalRow key={evaluation.id} evaluation={evaluation} />;
-        else return null;
-      });
-    } else {
-      return tableData.map((evaluation) => {
-        return <EvalRow key={evaluation.id} evaluation={evaluation} />;
-      });
-    }
+    // if (_limit) {
+    //   return tableData.map((evaluation) => {
+    //     if (
+    //       tableData.indexOf(evaluation) >= cursorIndex &&
+    //       tableData.indexOf(evaluation) < cursorIndex + _limit
+    //     )
+    //       return <EvalRow key={evaluation.id} evaluation={evaluation} />;
+    //     else return null;
+    //   });
+    // } else {
+    return tableData.map((evaluation) => {
+      return <EvalRow key={evaluation.id} evaluation={evaluation} />;
+    });
+    // }
   }
 
   function filterIcon(column) {
@@ -327,103 +328,178 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
   };
 
   return (
-    <div>
-      <PageNavigation />
-      {_limit ? (
-        <div className='text-secondary'>
-          Showing {cursorIndex + 1} -{" "}
-          {Math.min(cursorIndex + _limit, tableData.length)} of{" "}
-          {tableData.length}{" "}
-          {tableData.length < evals.length ? (
-            <>
-              Filtered Results
-              <Button
-                variant='link'
-                className='mb-1'
-                style={{ "--bs-btn-padding-y": "0rem" }}
-                onClick={() => {
-                  setStudentFilter("");
-                  setTutorFilter("");
-                }}
-              >
-                Clear Filters
-              </Button>
-            </>
-          ) : null}
-        </div>
-      ) : null}
-      <Table striped hover style={{ tableLayout: "fixed" }}>
-        <colgroup>
-          <col style={{ width: "20%" }} />
-          <col style={{ width: "30%" }} />
-          <col style={{ width: "40%" }} />
-          <col style={{ width: "10%" }} />
-        </colgroup>
-        <thead>
-          <tr>
-            <th className='' style={{ cursor: "pointer" }}>
-              <Dropdown variant='' drop='up'>
-                <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                  Date {filterIcon("date")}
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <Dropdown.Item onClick={() => setTableSort("date_desc")}>
-                    Newer First
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => setTableSort("date_asc")}>
-                    Older First
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </th>
-            {filterBy === "tutor" ? (
-              <th className='' style={{ cursor: "pointer" }}>
-                <Dropdown autoClose='outside' drop='up'>
-                  <Dropdown.Toggle
-                    as={DropdownTableHeaderToggle}
-                    id='student-filter'
-                  >
-                    Student {filterIcon("student")}
-                  </Dropdown.Toggle>
+    // <div>
+    //   <PageNavigation />
+    //   {_limit ? (
+    //     <div className='text-secondary'>
+    //       Showing {cursorIndex + 1} -{" "}
+    //       {Math.min(cursorIndex + _limit, tableData.length)} of{" "}
+    //       {tableData.length}{" "}
+    //       {tableData.length < evals.length ? (
+    //         <>
+    //           Filtered Results
+    //           <Button
+    //             variant='link'
+    //             className='mb-1'
+    //             style={{ "--bs-btn-padding-y": "0rem" }}
+    //             onClick={() => {
+    //               setStudentFilter("");
+    //               setTutorFilter("");
+    //             }}
+    //           >
+    //             Clear Filters
+    //           </Button>
+    //         </>
+    //       ) : null}
+    //     </div>
+    //   ) : null}
+    //   <Table striped hover style={{ tableLayout: "fixed" }}>
+    //     {/* <colgroup>
+    //       <col style={{ width: "20%" }} />
+    //       <col style={{ width: "30%" }} />
+    //       <col style={{ width: "40%" }} />
+    //       <col style={{ width: "10%" }} />
+    //     </colgroup> */}
+    //     <thead>
+    //       <tr>
+    //         <th className='' style={{ cursor: "pointer" }}>
+    //           <Dropdown variant='' drop='up'>
+    //             <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+    //               Date {filterIcon("date")}
+    //             </Dropdown.Toggle>
+    //             <Dropdown.Menu>
+    //               <Dropdown.Item onClick={() => setTableSort("date_desc")}>
+    //                 Newer First
+    //               </Dropdown.Item>
+    //               <Dropdown.Item onClick={() => setTableSort("date_asc")}>
+    //                 Older First
+    //               </Dropdown.Item>
+    //             </Dropdown.Menu>
+    //           </Dropdown>
+    //         </th>
+    //         {filterBy === "tutor" ? (
+    //           <th className='' style={{ cursor: "pointer" }}>
+    //             <Dropdown autoClose='outside' drop='up'>
+    //               <Dropdown.Toggle
+    //                 as={DropdownTableHeaderToggle}
+    //                 id='student-filter'
+    //               >
+    //                 Student {filterIcon("student")}
+    //               </Dropdown.Toggle>
 
-                  <Dropdown.Menu
-                    as={FilterTableHeader}
-                    value={studentFilter}
-                    valueSetter={setStudentFilter}
-                  />
+    //               <Dropdown.Menu
+    //                 as={FilterTableHeader}
+    //                 value={studentFilter}
+    //                 valueSetter={setStudentFilter}
+    //               />
+    //             </Dropdown>
+    //           </th>
+    //         ) : (
+    //           <th className='' style={{ cursor: "pointer" }}>
+    //             <Dropdown autoClose='outside' drop='up'>
+    //               <Dropdown.Toggle
+    //                 as={DropdownTableHeaderToggle}
+    //                 id='tutor-filter'
+    //               >
+    //                 Tutor {filterIcon("tutor")}
+    //               </Dropdown.Toggle>
+
+    //               <Dropdown.Menu
+    //                 as={FilterTableHeader}
+    //                 value={tutorFilter}
+    //                 valueSetter={setTutorFilter}
+    //               />
+    //             </Dropdown>
+    //           </th>
+    //         )}
+    //         <th>Tasks</th>
+    //         <th></th>
+    //       </tr>
+    //     </thead>
+    //     <tbody>{evalList()}</tbody>
+    //   </Table>
+    //   {/* <Container>
+    //     <Row xs={{ cols: 'auto' }}>
+    //       {evalList()}
+    //     </Row>
+    //   </Container> */}
+    //   {_limit ? <PageNavigation /> : null}
+    // </div>
+    <PaginatedTable
+      records={evalList()}
+      pageLimit={_limit}
+      header={
+        <>
+          <colgroup>
+            <col style={{ width: "20%" }} />
+            <col style={{ width: "30%" }} />
+            <col style={{ width: "40%" }} />
+            <col style={{ width: "10%" }} />
+          </colgroup>
+          <thead>
+            <tr>
+              <th className='' style={{ cursor: "pointer" }}>
+                <Dropdown variant='' drop='up'>
+                  <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                    Date {filterIcon("date")}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={() => setTableSort("date_desc")}>
+                      Newer First
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => setTableSort("date_asc")}>
+                      Older First
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
                 </Dropdown>
               </th>
-            ) : (
-              <th className='' style={{ cursor: "pointer" }}>
-                <Dropdown autoClose='outside' drop='up'>
-                  <Dropdown.Toggle
-                    as={DropdownTableHeaderToggle}
-                    id='tutor-filter'
-                  >
-                    Tutor {filterIcon("tutor")}
-                  </Dropdown.Toggle>
+              {filterBy === "tutor" ? (
+                <th className='' style={{ cursor: "pointer" }}>
+                  <Dropdown autoClose='outside' drop='up'>
+                    <Dropdown.Toggle
+                      as={DropdownTableHeaderToggle}
+                      id='student-filter'
+                    >
+                      Student {filterIcon("student")}
+                    </Dropdown.Toggle>
 
-                  <Dropdown.Menu
-                    as={FilterTableHeader}
-                    value={tutorFilter}
-                    valueSetter={setTutorFilter}
-                  />
-                </Dropdown>
-              </th>
-            )}
-            <th>Tasks</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>{evalList()}</tbody>
-      </Table>
-      {/* <Container>
-        <Row xs={{ cols: 'auto' }}>
-          {evalList()}
-        </Row>
-      </Container> */}
-      {_limit ? <PageNavigation /> : null}
-    </div>
+                    <Dropdown.Menu
+                      as={FilterTableHeader}
+                      value={studentFilter}
+                      valueSetter={setStudentFilter}
+                    />
+                  </Dropdown>
+                </th>
+              ) : (
+                <th className='' style={{ cursor: "pointer" }}>
+                  <Dropdown autoClose='outside' drop='up'>
+                    <Dropdown.Toggle
+                      as={DropdownTableHeaderToggle}
+                      id='tutor-filter'
+                    >
+                      Tutor {filterIcon("tutor")}
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu
+                      as={FilterTableHeader}
+                      value={tutorFilter}
+                      valueSetter={setTutorFilter}
+                    />
+                  </Dropdown>
+                </th>
+              )}
+              <th>Tasks</th>
+              <th></th>
+            </tr>
+          </thead>
+        </>
+      }
+      filtered={studentFilter !== "" || tutorFilter !== ""}
+      clearFilters={() => {
+        setStudentFilter("");
+        setTutorFilter("");
+      }}
+    />
   );
 };
 
