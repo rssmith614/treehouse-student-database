@@ -12,7 +12,7 @@ const FilterTableHeader = React.forwardRef(
       className={className}
       aria-labelledby={labeledBy}
     >
-      <Dropdown.Item>
+      <div className='dropdown-item'>
         <InputGroup>
           <Form.Control
             autoFocus
@@ -27,7 +27,7 @@ const FilterTableHeader = React.forwardRef(
             onClick={() => valueSetter("")}
           />
         </InputGroup>
-      </Dropdown.Item>
+      </div>
     </div>
   ),
 );

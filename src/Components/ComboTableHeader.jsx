@@ -20,7 +20,7 @@ const ComboTableHeader = React.forwardRef(
       className={className}
       aria-labelledby={labeledBy}
     >
-      <Dropdown.Item>
+      <div className='dropdown-item'>
         <InputGroup>
           <Form.Control
             autoFocus
@@ -35,7 +35,7 @@ const ComboTableHeader = React.forwardRef(
             onClick={() => valueSetter("")}
           />
         </InputGroup>
-      </Dropdown.Item>
+      </div>
       <Dropdown.Item onClick={() => sortSetter("name_asc")}>
         A - Z
       </Dropdown.Item>
