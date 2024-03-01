@@ -1,4 +1,4 @@
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
 
 import { useNavigate } from "react-router-dom";
 
@@ -41,6 +41,9 @@ const StudentProfilesList = () => {
   }
 
   function csvExport() {
+    if (!window.confirm("Please confirm you want to export all student data."))
+      return;
+
     let csvString = "data:text/csv;charset=utf-8,";
     csvString +=
       "Student Name,Student School,Student Grade,Student DOB,Student Source,Preferred Tutor,Parent Name,Parent Phone,Medical Conditions,Emergency Contacts,Other Info\n";
@@ -134,6 +137,40 @@ const StudentProfilesList = () => {
           <td>{dayjs(studentData.student_dob).format("MMMM DD, YYYY")}</td>
         </tr>
       );
+    });
+  }
+
+  async function gradesExport() {
+    if (
+      !window.confirm("Please confirm you want to export all student grades.")
+    )
+      return;
+
+    getDocs(collection(db, "grades")).then((querySnapshot) => {
+      let csvString = "data:text/csv;charset=utf-8,";
+      csvString += "Student Name,Reported By,Date,Subject,Grade,Comments\n";
+      querySnapshot.docs.forEach((result) => {
+        let student_name = students
+          .find((student) => student.id === result.data().student_id)
+          .data().student_name;
+        result.data().grades.forEach((grade) => {
+          csvString += `"${student_name}",`;
+          csvString += `"${result.data().tutor_name}",`;
+          csvString += `"${dayjs(result.data().date).format("MMMM DD, YYYY")}",`;
+          csvString += `"${grade.subject}",`;
+          csvString += `"${grade.grade}",`;
+          csvString += `"${grade.comments}",\n`;
+        });
+      });
+      const encodedUri = encodeURI(csvString);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute(
+        "download",
+        `grades_export_${dayjs().format("YYYY-MM-DD")}.csv`,
+      );
+      document.body.appendChild(link); // Required for FF
+      link.click();
     });
   }
 
@@ -374,14 +411,19 @@ const StudentProfilesList = () => {
           listTable
         )}
       </div>
-      <div className='d-flex'>
+      <div className='d-flex justify-content-start'>
         <Can I='export' on='students'>
-          <Button
-            className='my-3 me-auto'
-            variant='secondary'
-            onClick={csvExport}
-          >
+          <Button className='my-3 me-3' variant='secondary' onClick={csvExport}>
             Export Student Data as CSV
+          </Button>
+        </Can>
+        <Can I='export' on='grades'>
+          <Button
+            className='my-3 me-3'
+            variant='secondary'
+            onClick={gradesExport}
+          >
+            Export Student Grade Data as CSV
           </Button>
         </Can>
         <Can do='add' on='students'>
