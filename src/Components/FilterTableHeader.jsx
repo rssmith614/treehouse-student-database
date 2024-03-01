@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, InputGroup, Dropdown } from "react-bootstrap";
+import { Form, InputGroup } from "react-bootstrap";
 
 const FilterTableHeader = React.forwardRef(
   (
