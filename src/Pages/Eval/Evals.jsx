@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { db } from "../../Services/firebase";
 import React, { useEffect, useState } from "react";
-import { Dropdown, InputGroup, Table, Form, Button } from "react-bootstrap";
+import { Dropdown, InputGroup, Form, Button } from "react-bootstrap";
 import FilterTableHeader from "../../Components/FilterTableHeader";
 import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
 import SortTableHeader from "../../Components/SortTableHeader";

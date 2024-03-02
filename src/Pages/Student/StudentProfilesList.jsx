@@ -6,7 +6,7 @@ import { db } from "../../Services/firebase";
 import React, { useEffect, useState } from "react";
 import { Can } from "../../Services/can";
 import dayjs from "dayjs";
-import { Dropdown, InputGroup, Table, Form, Button } from "react-bootstrap";
+import { Dropdown, InputGroup, Form, Button } from "react-bootstrap";
 import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
 import FilterTableHeader from "../../Components/FilterTableHeader";
 import SortTableHeader from "../../Components/SortTableHeader";
@@ -243,87 +243,6 @@ const StudentProfilesList = () => {
         return <i className='bi bi-filter ms-auto' />;
     }
   }
-
-  const listTable = (
-    <Table striped hover>
-      <thead>
-        <tr>
-          <th style={{ cursor: "pointer" }}>
-            <Dropdown drop='up' autoClose='outside'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                Student Name {filterIcon("name")}
-              </Dropdown.Toggle>
-              <Dropdown.Menu as={SortTableHeader} sortSetter={setTableSort} />
-            </Dropdown>
-          </th>
-          <th style={{ cursor: "pointer" }}>
-            <Dropdown drop='up' autoClose='outside'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                Preferred Tutor {filterIcon("tutor")}
-              </Dropdown.Toggle>
-              <Dropdown.Menu
-                as={FilterTableHeader}
-                value={tutorFilter}
-                valueSetter={setTutorFilter}
-              />
-            </Dropdown>
-          </th>
-          <th style={{ cursor: "pointer" }}>
-            <Dropdown drop='up' autoClose='outside'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                Student School {filterIcon("school")}
-              </Dropdown.Toggle>
-              <Dropdown.Menu
-                as={FilterTableHeader}
-                value={schoolFilter}
-                valueSetter={setSchoolFilter}
-              />
-            </Dropdown>
-          </th>
-          <th style={{ cursor: "pointer" }}>
-            <Dropdown drop='up' autoClose='outside'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                Student Source {filterIcon("source")}
-              </Dropdown.Toggle>
-              <Dropdown.Menu
-                as={FilterTableHeader}
-                value={sourceFilter}
-                valueSetter={setSourceFilter}
-              />
-            </Dropdown>
-          </th>
-          <th style={{ cursor: "pointer" }}>
-            <Dropdown drop='up' autoClose='outside'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                Grade {filterIcon("grade")}
-              </Dropdown.Toggle>
-              <Dropdown.Menu
-                as={FilterTableHeader}
-                value={gradeFilter}
-                valueSetter={setGradeFilter}
-              />
-            </Dropdown>
-          </th>
-          <th style={{ cursor: "pointer" }}>
-            <Dropdown drop='up'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                Date of Birth {filterIcon("dob")}
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item onClick={() => setTableSort("dob_desc")}>
-                  Descending
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => setTableSort("dob_asc")}>
-                  Ascending
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          </th>
-        </tr>
-      </thead>
-      <tbody>{studentList()}</tbody>
-    </Table>
-  );
 
   return (
     <div className='p-3 d-flex flex-column'>
