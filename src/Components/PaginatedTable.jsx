@@ -8,7 +8,7 @@ const PageNavigation = ({
   setCursorIndex,
 }) => {
   return (
-    <Pagination>
+    <Pagination className='align-self-end'>
       <Pagination.First onClick={() => setCursorIndex(0)} />
       <Pagination.Prev
         onClick={() => setCursorIndex(Math.max(cursorIndex - pageLimit, 0))}
@@ -53,14 +53,8 @@ const PaginatedTable = ({
   const [cursorIndex, setCursorIndex] = useState(0);
 
   return (
-    <div>
-      <PageNavigation
-        numRecords={records.length}
-        pageLimit={pageLimit}
-        cursorIndex={cursorIndex}
-        setCursorIndex={setCursorIndex}
-      />
-      <div className='text-secondary'>
+    <div className='d-flex flex-column'>
+      <div className='text-secondary align-self-start'>
         Showing {cursorIndex + 1} -{" "}
         {Math.min(cursorIndex + pageLimit, records.length)} of {records.length}{" "}
         {filtered ? (

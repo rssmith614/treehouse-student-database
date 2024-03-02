@@ -8,6 +8,7 @@ import { Dropdown, InputGroup, Table, Form, Button } from "react-bootstrap";
 import FilterTableHeader from "../../Components/FilterTableHeader";
 import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
 import SortTableHeader from "../../Components/SortTableHeader";
+import PaginatedTable from "../../Components/PaginatedTable";
 
 const Evals = () => {
   const [students, setStudents] = useState(null);
@@ -124,36 +125,6 @@ const Evals = () => {
     }
   }
 
-  const listTable = (
-    <Table striped hover>
-      <thead>
-        <tr>
-          <th style={{ cursor: "pointer" }}>
-            <Dropdown drop='up' autoClose='outside'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                Student Name {filterIcon("name")}
-              </Dropdown.Toggle>
-              <Dropdown.Menu as={SortTableHeader} sortSetter={setTableSort} />
-            </Dropdown>
-          </th>
-          <th style={{ cursor: "pointer" }}>
-            <Dropdown drop='up' autoClose='outside'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                Preferred Tutor {filterIcon("tutor")}
-              </Dropdown.Toggle>
-              <Dropdown.Menu
-                as={FilterTableHeader}
-                value={tutorFilter}
-                valueSetter={setTutorFilter}
-              />
-            </Dropdown>
-          </th>
-        </tr>
-      </thead>
-      <tbody>{studentList()}</tbody>
-    </Table>
-  );
-
   return (
     <div className='p-3 d-flex flex-column'>
       <div className='display-1 d-flex'>View All Session Evaluations</div>
@@ -178,7 +149,45 @@ const Evals = () => {
         {loading ? (
           <div className='spinner-border d-flex align-self-center' />
         ) : (
-          listTable
+          // listTable
+          <PaginatedTable
+            records={studentList()}
+            pageLimit={10}
+            header={
+              <thead>
+                <tr>
+                  <th style={{ cursor: "pointer" }}>
+                    <Dropdown drop='up' autoClose='outside'>
+                      <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                        Student Name {filterIcon("name")}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu
+                        as={SortTableHeader}
+                        sortSetter={setTableSort}
+                      />
+                    </Dropdown>
+                  </th>
+                  <th style={{ cursor: "pointer" }}>
+                    <Dropdown drop='up' autoClose='outside'>
+                      <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                        Preferred Tutor {filterIcon("tutor")}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu
+                        as={FilterTableHeader}
+                        value={tutorFilter}
+                        valueSetter={setTutorFilter}
+                      />
+                    </Dropdown>
+                  </th>
+                </tr>
+              </thead>
+            }
+            filtered={nameFilter !== "" || tutorFilter !== ""}
+            clearFilters={() => {
+              setNameFilter("");
+              setTutorFilter("");
+            }}
+          />
         )}
       </div>
     </div>

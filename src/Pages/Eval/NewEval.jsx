@@ -8,6 +8,7 @@ import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggl
 import FilterTableHeader from "../../Components/FilterTableHeader";
 import SortTableHeader from "../../Components/SortTableHeader";
 import { db } from "../../Services/firebase";
+import PaginatedTable from "../../Components/PaginatedTable";
 
 const NewEval = () => {
   const [students, setStudents] = useState(null);
@@ -124,36 +125,6 @@ const NewEval = () => {
     }
   }
 
-  const listTable = (
-    <table className='table table-striped table-hover'>
-      <thead>
-        <tr>
-          <th style={{ cursor: "pointer" }}>
-            <Dropdown drop='up' autoClose='outside'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                Student Name {filterIcon("name")}
-              </Dropdown.Toggle>
-              <Dropdown.Menu as={SortTableHeader} sortSetter={setTableSort} />
-            </Dropdown>
-          </th>
-          <th style={{ cursor: "pointer" }}>
-            <Dropdown drop='up' autoClose='outside'>
-              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                Preferred Tutor {filterIcon("tutor")}
-              </Dropdown.Toggle>
-              <Dropdown.Menu
-                as={FilterTableHeader}
-                value={tutorFilter}
-                valueSetter={setTutorFilter}
-              />
-            </Dropdown>
-          </th>
-        </tr>
-      </thead>
-      <tbody>{studentList()}</tbody>
-    </table>
-  );
-
   return (
     <div className='p-3 d-flex flex-column'>
       <div className='display-1 d-flex'>Record a New Session Evaluation</div>
@@ -178,7 +149,45 @@ const NewEval = () => {
         {loading ? (
           <div className='spinner-border d-flex align-self-center' />
         ) : (
-          listTable
+          // listTable
+          <PaginatedTable
+            records={studentList()}
+            pageLimit={10}
+            header={
+              <thead>
+                <tr>
+                  <th style={{ cursor: "pointer" }}>
+                    <Dropdown drop='up' autoClose='outside'>
+                      <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                        Student Name {filterIcon("name")}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu
+                        as={SortTableHeader}
+                        sortSetter={setTableSort}
+                      />
+                    </Dropdown>
+                  </th>
+                  <th style={{ cursor: "pointer" }}>
+                    <Dropdown drop='up' autoClose='outside'>
+                      <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                        Preferred Tutor {filterIcon("tutor")}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu
+                        as={FilterTableHeader}
+                        value={tutorFilter}
+                        valueSetter={setTutorFilter}
+                      />
+                    </Dropdown>
+                  </th>
+                </tr>
+              </thead>
+            }
+            filtered={nameFilter !== "" || tutorFilter !== ""}
+            clearFilters={() => {
+              setNameFilter("");
+              setTutorFilter("");
+            }}
+          />
         )}
       </div>
     </div>
