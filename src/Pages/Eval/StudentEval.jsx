@@ -24,6 +24,7 @@ import {
 import { Eval } from "../../Services/defineAbility";
 import { ToastContext } from "../../Services/toast";
 import { useAbility } from "@casl/react";
+import dayjs from "dayjs";
 
 const progressions = {
   1: "1 - Far Below Expectations",
@@ -278,7 +279,7 @@ const StudentEval = () => {
               Date
             </label>
             <div id='date' className=''>
-              {evaluation.date}
+              {dayjs(evaluation.date).format("MMMM DD, YYYY")}
             </div>
           </div>
         </div>
