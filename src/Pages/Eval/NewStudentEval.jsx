@@ -50,13 +50,13 @@ const NewStudentEval = () => {
   const blankEval = {
     student_id: params.studentid,
     student_name: "",
-    tutor_id: auth.currentUser.uid,
+    tutor_id: auth.currentUser?.uid || "",
     tutor_name: "",
     date: dayjs().format("YYYY-MM-DD"),
     worksheet: "",
     worksheet_completion: "",
     next_session: "",
-    owner: auth.currentUser.uid,
+    owner: auth.currentUser?.uid || "",
   };
 
   const blankTask = {
@@ -112,7 +112,7 @@ const NewStudentEval = () => {
       hasCache.current = true;
     } else {
       setEvaluation({
-        tutor_id: auth.currentUser.uid,
+        tutor_id: auth.currentUser?.uid || "",
         tutor_name: "",
         date: dayjs().format("YYYY-MM-DD"),
         worksheet: "",
