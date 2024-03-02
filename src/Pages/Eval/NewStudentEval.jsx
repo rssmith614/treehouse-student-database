@@ -27,7 +27,8 @@ const NewStudentEval = () => {
 
   // const [loading, setLoading] = useState(true);
 
-  const [notes, setNotes] = useState({});
+  const [notes, setNotes] = useState([]);
+  const [notesIndex, setNotesIndex] = useState(0);
   const [showNotes, setShowNotes] = useState(false);
 
   const addToast = useContext(ToastContext);
@@ -153,12 +154,23 @@ const NewStudentEval = () => {
     );
 
     const unsubscribeEvals = onSnapshot(evalsQuery, (evalsSnapshot) => {
-      setNotes({
-        tutor: evalsSnapshot.docs[0]?.data()?.tutor_name,
-        date: evalsSnapshot.docs[0]?.data()?.date,
-        notes: evalsSnapshot.docs[0]?.data()?.next_session,
-        id: evalsSnapshot.docs[0]?.id,
+      // setNotes({
+      //   tutor: evalsSnapshot.docs[0]?.data()?.tutor_name,
+      //   date: evalsSnapshot.docs[0]?.data()?.date,
+      //   notes: evalsSnapshot.docs[0]?.data()?.next_session,
+      //   id: evalsSnapshot.docs[0]?.id,
+      // });
+
+      const notesArray = evalsSnapshot.docs.map((e) => {
+        return {
+          tutor: e.data().tutor_name,
+          date: e.data().date,
+          notes: e.data().next_session,
+          id: e.id,
+        };
       });
+
+      setNotes(notesArray);
 
       const fetchTasksPromises = evalsSnapshot.docs.map(async (evaluation) => {
         return getDocs(collection(evaluation.ref, "tasks")).then(
@@ -428,7 +440,7 @@ const NewStudentEval = () => {
       <div className='p-3 d-flex flex-column'>
         <div className='d-flex'>
           <h1 className='display-1'>New Session Evaluation</h1>
-          {notes.notes && (
+          {notes[0] && (
             <Button
               variant=''
               className='w-25 ms-auto'
@@ -437,7 +449,7 @@ const NewStudentEval = () => {
               <Card className='shadow' style={{ cursor: "pointer" }}>
                 <Card.Header>Last Session's Notes</Card.Header>
                 <Card.Body>
-                  <div className='text-truncate'>{notes.notes}</div>
+                  <div className='text-truncate'>{notes[0].notes}</div>
                 </Card.Body>
               </Card>
             </Button>
@@ -543,45 +555,72 @@ const NewStudentEval = () => {
           </div>
         </div>
       </div>
-      <Modal show={showNotes} onHide={() => setShowNotes(false)}>
-        <Modal.Header>
-          <Modal.Title>
-            For {evaluation.student_name}'s Next Session
-          </Modal.Title>
-          <Button
-            variant='secondary'
-            onClick={() => setShowNotes(false)}
-            style={{ "--bs-bg-opacity": "0" }}
-          >
-            <i className='bi bi-x-lg' />
-          </Button>
-        </Modal.Header>
-        <Modal.Body>
-          <div className='d-flex flex-column'>
-            <div className='d-flex'>
-              <div className='d-flex flex-column'>
-                <div className='h6'>{notes.tutor}</div>
-                <div className='text-secondary'>
-                  {dayjs(notes.date).format("MMMM DD, YYYY")}
+      <div className='d-flex'>
+        <Modal show={showNotes} onHide={() => setShowNotes(false)}>
+          <Modal.Header>
+            <Modal.Title>{evaluation.student_name}</Modal.Title>
+            <Button
+              variant='secondary'
+              onClick={() => setShowNotes(false)}
+              style={{ "--bs-bg-opacity": "0" }}
+            >
+              <i className='bi bi-x-lg' />
+            </Button>
+          </Modal.Header>
+          <Modal.Body>
+            <div className='d-flex flex-column'>
+              <div className='d-flex'>
+                <div className='d-flex flex-column'>
+                  <div className='h6'>{notes[notesIndex]?.tutor}</div>
+                  <div className='text-secondary'>
+                    {dayjs(notes[notesIndex]?.date).format("MMMM DD, YYYY")}
+                  </div>
+                </div>
+                <div className='ms-auto align-self-center'>
+                  <Button
+                    variant='primary'
+                    size='sm'
+                    onClick={() => navigate(`/eval/${notes[notesIndex]?.id}`)}
+                  >
+                    View Evaluation{" "}
+                    <i className='ms-auto ps-1 bi bi-box-arrow-up-right'></i>
+                  </Button>
                 </div>
               </div>
-              <div className='ms-auto align-self-center'>
-                <Button
-                  variant='secondary'
-                  size='sm'
-                  onClick={() => navigate(`/eval/${notes.id}`)}
-                >
-                  Previous Evaluation{" "}
-                  <i className='ms-auto ps-1 bi bi-box-arrow-up-right'></i>
-                </Button>
-              </div>
+              <hr />
+              <div className='h5'>Next Session Notes</div>
+              <div className=''>{notes[notesIndex]?.notes}</div>
             </div>
-            <hr />
-            <div className='h5'>Notes</div>
-            <div className=''>{notes.notes}</div>
-          </div>
-        </Modal.Body>
-      </Modal>
+          </Modal.Body>
+          <Modal.Footer className='d-flex'>
+            <Button
+              variant='secondary'
+              size='sm'
+              className='me-auto'
+              disabled={notesIndex >= notes.length - 1}
+              onClick={() => {
+                setNotesIndex(notesIndex + 1);
+              }}
+            >
+              <i className='bi bi-arrow-left' />
+            </Button>
+            <div className='text-secondary align-self-center'>
+              {notes.length - notesIndex} / {notes.length}
+            </div>
+            <Button
+              variant='secondary'
+              size='sm'
+              className='ms-auto'
+              disabled={notesIndex <= 0}
+              onClick={() => {
+                setNotesIndex(notesIndex - 1);
+              }}
+            >
+              <i className='bi bi-arrow-right' />
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
     </>
   );
 };
