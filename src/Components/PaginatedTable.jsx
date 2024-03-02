@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Pagination, Table } from "react-bootstrap";
 
 const PageNavigation = ({
@@ -51,6 +51,11 @@ const PaginatedTable = ({
   clearFilters,
 }) => {
   const [cursorIndex, setCursorIndex] = useState(0);
+
+  useEffect(() => {
+    if (cursorIndex >= records.length) setCursorIndex(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [records.length]);
 
   return (
     <div className='d-flex flex-column'>
