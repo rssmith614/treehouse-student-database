@@ -58,8 +58,9 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
       Promise.all(
         res.docs.map(async (evaluation) => {
           return Promise.all(
-            (await getDocs(collection(evaluation.ref, "tasks"))).docs.map(
-              async (task) => {
+            (await getDocs(collection(evaluation.ref, "tasks"))).docs
+              .sort((a, b) => a.data().idx - b.data().idx || 0)
+              .map(async (task) => {
                 if (task.data().standard) {
                   if (task.data().standard === "") {
                     await updateDoc(task.ref, {
@@ -89,8 +90,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
                 } else {
                   return task.data().comments;
                 }
-              },
-            ),
+              }),
           ).then((compiledTasks) => {
             return {
               ...evaluation.data(),
