@@ -119,18 +119,7 @@ const StudentEval = () => {
           }),
         ).then(() => {
           compiledTasks.sort((a, b) => {
-            let a_standard = a.standards[0]?.key || "0.0.0";
-            let b_standard = b.standards[0]?.key || "0.0.0";
-            return (
-              a_standard
-                .split(".")[1]
-                .localeCompare(b_standard.split(".")[1]) ||
-              a_standard.split(".")[2] - b_standard.split(".")[2] ||
-              a_standard
-                .split(".")[2]
-                .localeCompare(b_standard.split(".")[2]) ||
-              a_standard.localeCompare(b_standard)
-            );
+            return a.idx - b.idx || 0;
           });
           setTasks(compiledTasks);
           setLoading(false);

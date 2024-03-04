@@ -154,13 +154,6 @@ const NewStudentEval = () => {
     );
 
     const unsubscribeEvals = onSnapshot(evalsQuery, (evalsSnapshot) => {
-      // setNotes({
-      //   tutor: evalsSnapshot.docs[0]?.data()?.tutor_name,
-      //   date: evalsSnapshot.docs[0]?.data()?.date,
-      //   notes: evalsSnapshot.docs[0]?.data()?.next_session,
-      //   id: evalsSnapshot.docs[0]?.id,
-      // });
-
       const notesArray = evalsSnapshot.docs.map((e) => {
         return {
           tutor: e.data().tutor_name,
@@ -372,9 +365,10 @@ const NewStudentEval = () => {
           ...blankEval,
         })
           .then((doc) => {
-            tasks.forEach((t) =>
+            tasks.forEach((t, task_idx) =>
               addDoc(collection(doc, "tasks"), {
                 ...t,
+                idx: task_idx,
                 progression: t.standards.length === 0 ? t.progression : null,
                 standards: t.standards.map((s) => {
                   return { id: s.id, progression: s.progression };
@@ -410,9 +404,10 @@ const NewStudentEval = () => {
           .classList.contains("btn-outline-danger"),
       })
         .then((d) => {
-          tasks.forEach((t) => {
+          tasks.forEach((t, task_idx) => {
             addDoc(collection(d, "tasks"), {
               ...t,
+              idx: task_idx,
               progression: t.standards.length === 0 ? t.progression : null,
               standards: t.standards.map((s) => {
                 return { id: s.id, progression: s.progression };
