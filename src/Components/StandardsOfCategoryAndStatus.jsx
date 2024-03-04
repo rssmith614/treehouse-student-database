@@ -8,7 +8,6 @@ import {
   OverlayTrigger,
   Popover,
   Row,
-  Spinner,
 } from "react-bootstrap";
 import {
   collection,
@@ -291,7 +290,36 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
         </Card.Header>
         <Card.Body className='d-flex flex-column'>
           {loading ? (
-            <Spinner className='align-self-center' />
+            <>
+              <Card className='p-3 my-3 mw-0 placeholder-wave'>
+                <div className='h4 placeholder m-3 col-2 bg-primary' />
+                <Container>
+                  <Row xs={{ cols: "auto" }}>
+                    {[
+                      ...Array(Math.floor(Math.random() * (12 - 4) + 4)).fill(
+                        0,
+                      ),
+                    ].map((_, index) => (
+                      <div className='placeholder m-3 col-1' key={index} />
+                    ))}
+                  </Row>
+                </Container>
+              </Card>
+              <Card className='p-3 my-3 mw-0 placeholder-wave'>
+                <div className='h4 placeholder m-3 col-2 bg-primary' />
+                <Container>
+                  <Row xs={{ cols: "auto" }}>
+                    {[
+                      ...Array(Math.floor(Math.random() * (12 - 4) + 4)).fill(
+                        0,
+                      ),
+                    ].map((_, index) => (
+                      <div className='placeholder m-3 col-1' key={index} />
+                    ))}
+                  </Row>
+                </Container>
+              </Card>
+            </>
           ) : (
             listedStandards
           )}

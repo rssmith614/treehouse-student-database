@@ -6,7 +6,7 @@ import { db } from "../../Services/firebase";
 import React, { useEffect, useState } from "react";
 import { Can } from "../../Services/can";
 import dayjs from "dayjs";
-import { Dropdown, InputGroup, Form, Button } from "react-bootstrap";
+import { Dropdown, InputGroup, Form, Button, Table } from "react-bootstrap";
 import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
 import FilterTableHeader from "../../Components/FilterTableHeader";
 import SortTableHeader from "../../Components/SortTableHeader";
@@ -244,6 +244,29 @@ const StudentProfilesList = () => {
     }
   }
 
+  const loadingTable = (
+    <div className='placeholder-wave'>
+      <div className='placeholder placeholder-lg mb-2 col-1' />
+      <Table striped>
+        <thead>
+          <tr>
+            <th className='placeholder w-100' style={{ height: "3rem" }}></th>
+          </tr>
+        </thead>
+        <tbody>
+          {[...Array(10)].map((_, i) => (
+            <tr key={i}>
+              <td
+                className='placeholder w-100 placeholder-lg'
+                style={{ height: "2.8rem" }}
+              />
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </div>
+  );
+
   return (
     <div className='p-3 d-flex flex-column'>
       <div className='display-1 d-flex flex-row'>Students</div>
@@ -265,7 +288,7 @@ const StudentProfilesList = () => {
           />
         </InputGroup>
         {loading ? (
-          <div className='spinner-border d-flex align-self-center' />
+          loadingTable
         ) : (
           // listTable
           <PaginatedTable
