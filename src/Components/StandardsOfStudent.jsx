@@ -128,7 +128,31 @@ const StandardsOfStudent = ({
     }
   }
 
-  if (loading) return <div className='d-flex justify-content-center' />;
+  if (loading)
+    return (
+      <>
+        <Card className='p-3 my-3 mw-0 placeholder-wave'>
+          <div className='h4 placeholder m-3 col-2 bg-primary' />
+          <Container>
+            <Row xs={{ cols: "auto" }}>
+              {[...Array(5).fill(0)].map((_, index) => (
+                <div className='placeholder m-3 col-1' key={index} />
+              ))}
+            </Row>
+          </Container>
+        </Card>
+        <Card className='p-3 my-3 mw-0 placeholder-wave'>
+          <div className='h4 placeholder m-3 col-2 bg-primary' />
+          <Container>
+            <Row xs={{ cols: "auto" }}>
+              {[...Array(12).fill(0)].map((_, index) => (
+                <div className='placeholder m-3 col-1' key={index} />
+              ))}
+            </Row>
+          </Container>
+        </Card>
+      </>
+    );
 
   return Object.entries(groupedStandards)
     .sort((a, b) => a[0].localeCompare(b[0]))

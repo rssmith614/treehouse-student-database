@@ -99,7 +99,7 @@ const StudentProfile = () => {
       </div>
       <Tab.Content className='card-body'>
         <Tab.Pane eventKey='about'>
-          <About student={student} />
+          <About student={student} loading={loading} />
         </Tab.Pane>
         <Tab.Pane eventKey='evals'>
           <div className='d-flex flex-column'>
@@ -109,7 +109,7 @@ const StudentProfile = () => {
               _limit={10}
             />
             <button
-              className='btn btn-primary m-3 align-self-end'
+              className='btn btn-primary my-3 align-self-end'
               onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}
             >
               New Session Eval
@@ -149,11 +149,7 @@ const StudentProfile = () => {
       </h1>
       <div className='d-flex '>
         <div className='d-flex m-3 card bg-light-subtle flex-fill'>
-          {loading ? (
-            <div className='spinner-border align-self-center' />
-          ) : (
-            innerContent
-          )}
+          {innerContent}
         </div>
       </div>
       <Button

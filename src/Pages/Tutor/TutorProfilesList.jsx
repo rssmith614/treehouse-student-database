@@ -3,7 +3,7 @@ import { db } from "../../Services/firebase";
 
 import Avatar from "boring-avatars";
 import { collection, onSnapshot } from "firebase/firestore";
-import { Card, Dropdown } from "react-bootstrap";
+import { Card, Dropdown, Table } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import ComboTableHeader from "../../Components/ComboTableHeader";
 import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
@@ -225,15 +225,33 @@ const TutorProfilesList = () => {
     </Card>
   );
 
+  const loadingTable = (
+    <div className='placeholder-wave'>
+      <Table striped>
+        <thead>
+          <tr>
+            <th className='placeholder w-100' style={{ height: "3rem" }}></th>
+          </tr>
+        </thead>
+        <tbody>
+          {[...Array(10)].map((_, i) => (
+            <tr key={i}>
+              <td
+                className='placeholder w-100 placeholder-lg'
+                style={{ height: "4.8rem" }}
+              />
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </div>
+  );
+
   return (
     <div className='d-flex flex-column m-3'>
       <div className='d-flex display-1'>Tutors</div>
       <div className='d-flex card pt-3 px-3 bg-light-subtle'>
-        {loading ? (
-          <div className='spinner-border d-flex align-self-center' />
-        ) : (
-          listTable
-        )}
+        {loading ? loadingTable : listTable}
       </div>
       {tutors.filter((tutor) => {
         return tutor.data().clearance === "pending";

@@ -22,7 +22,6 @@ import Avatar from "boring-avatars";
 
 const TutorProfileEdit = () => {
   const [tutor, setTutor] = useState({});
-  const [loading, setLoading] = useState(true);
 
   const [selectedClearance, setSelectedClearance] = useState("");
 
@@ -40,8 +39,6 @@ const TutorProfileEdit = () => {
       setTutor(doc.data());
       if (doc.data()?.clearance === "pending") setSelectedClearance("");
       else setSelectedClearance(doc.data()?.clearance || "");
-
-      setLoading(false);
     });
 
     return () => unsubscribeTutor();
@@ -265,11 +262,7 @@ const TutorProfileEdit = () => {
       <form onSubmit={handleSubmit}>
         <div className='d-flex flex-row justify-content-center'>
           <div className='d-flex flex-fill m-3 pt-3 px-3 card bg-light-subtle justify-content-center'>
-            {loading ? (
-              <div className='spinner-border align-self-center' />
-            ) : (
-              innerContent
-            )}
+            {innerContent}
           </div>
         </div>
         <div className='d-flex'>

@@ -1,13 +1,45 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card, Row, Col, Button } from "react-bootstrap";
 import Avatar from "boring-avatars";
 import { capitalize } from "lodash";
 import { Can } from "../../../Services/can";
 import { Tutor } from "../../../Services/defineAbility";
 import { useNavigate } from "react-router-dom";
+import { deleteDoc, doc, onSnapshot } from "firebase/firestore";
+import { db } from "../../../Services/firebase";
 
-const About = ({ tutor, denyAccess }) => {
+const About = ({ tutorid }) => {
+  const [tutor, setTutor] = useState({});
+
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
+
+  const tutorDocRef = useRef(doc(db, "tutors", tutorid));
+
+  useEffect(() => {
+    const unsubscribeTutor = onSnapshot(tutorDocRef.current, (doc) => {
+      setTutor({ id: doc.id, ...doc.data() });
+      setLoading(false);
+      document
+        .getElementById("about-cardbody")
+        .classList.remove("placeholder-wave");
+    });
+
+    return () => unsubscribeTutor();
+  }, [tutorid]);
+
+  async function denyAccess() {
+    if (
+      !window.confirm(
+        `You are about to DENY access to ${tutor.displayName}. Are you sure you want to do this?`,
+      )
+    ) {
+      return;
+    }
+
+    await deleteDoc(tutorDocRef.current).then(() => navigate("/tutors"));
+  }
 
   let tutorInstance = new Tutor(tutor);
 
@@ -16,7 +48,10 @@ const About = ({ tutor, denyAccess }) => {
       <Card.Header>
         <div className='h3 pt-1'>About</div>
       </Card.Header>
-      <Card.Body className='d-flex flex-column justify-content-between'>
+      <Card.Body
+        className='d-flex flex-column justify-content-between placeholder-wave'
+        id='about-cardbody'
+      >
         <div className='d-flex flex-column p-3'>
           <Row>
             <Col className='col-md-auto'>
@@ -31,32 +66,52 @@ const About = ({ tutor, denyAccess }) => {
               </Card>
             </Col>
             <Col>
-              <div className='display-4 pt-3'>{tutor?.displayName}</div>
+              {loading ? (
+                <div className='placeholder display-4 col-6 mt-4' />
+              ) : (
+                <div className='display-4 pt-3'>{tutor?.displayName}</div>
+              )}
             </Col>
           </Row>
           <Row xs={{ cols: "auto" }}>
             <Col>
               <div className='d-flex flex-column p-3'>
                 <div className='h3'>Email</div>
-                <div>{tutor?.email}</div>
+                {loading ? (
+                  <div className='placeholder' />
+                ) : (
+                  <div>{tutor?.email}</div>
+                )}
               </div>
             </Col>
             <Col>
               <div className='d-flex flex-column p-3'>
                 <div className='h3'>Role</div>
-                <div>{capitalize(tutor?.clearance)}</div>
+                {loading ? (
+                  <div className='placeholder' />
+                ) : (
+                  <div>{capitalize(tutor?.clearance)}</div>
+                )}
               </div>
             </Col>
             <Col>
               <div className='d-flex flex-column p-3'>
                 <div className='h3'>Preferred Student Ages</div>
-                <div>{tutor?.preferredAges || ""}</div>
+                {loading ? (
+                  <div className='placeholder' />
+                ) : (
+                  <div>{tutor?.preferredAges || ""}</div>
+                )}
               </div>
             </Col>
             <Col>
               <div className='d-flex flex-column p-3'>
                 <div className='h3'>Preferred Subjects</div>
-                <div>{tutor?.preferredSubjects || ""}</div>
+                {loading ? (
+                  <div className='placeholder' />
+                ) : (
+                  <div>{tutor?.preferredSubjects || ""}</div>
+                )}
               </div>
             </Col>
           </Row>

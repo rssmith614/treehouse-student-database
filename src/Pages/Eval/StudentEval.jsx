@@ -276,7 +276,21 @@ const StudentEval = () => {
         <div className='h5 text-decoration-underline'>Tasks</div>
         <Container>
           {loading ? (
-            <div className='d-flex align-self-center spinner-border' key={0} />
+            <Card className='placeholder-wave w-50'>
+              <Card.Header>
+                <div className='placeholder col-1' />
+              </Card.Header>
+              <Card.Body>
+                <div className='placeholder col-2 h5' />
+                <Card className='bg-light-subtle'>
+                  <Card.Body>
+                    <div className='placeholder col-6' />
+                    <hr />
+                    <div className='placeholder col-12' />
+                  </Card.Body>
+                </Card>
+              </Card.Body>
+            </Card>
           ) : (
             <Row xs={{ cols: "auto" }}>{tasksList}</Row>
           )}

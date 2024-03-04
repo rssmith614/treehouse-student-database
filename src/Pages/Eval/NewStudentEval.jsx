@@ -25,7 +25,7 @@ import Tasks from "./Components/Tasks";
 const NewStudentEval = () => {
   const [standards, setStandards] = useState([]);
 
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const [notes, setNotes] = useState([]);
   const [notesIndex, setNotesIndex] = useState(0);
@@ -83,6 +83,7 @@ const NewStudentEval = () => {
             student_id: doc.id,
           };
         });
+        setLoading(false);
       },
     );
 
@@ -454,6 +455,7 @@ const NewStudentEval = () => {
           <EvalHeader
             evaluation={evaluation}
             handleEvalChange={handleEvalChange}
+            loading={loading}
           />
           <hr />
           <div className='d-flex flex-column'>

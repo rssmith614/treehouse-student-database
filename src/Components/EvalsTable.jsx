@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 
 import { db } from "../Services/firebase";
 import { useNavigate } from "react-router-dom";
-import { Dropdown, Button } from "react-bootstrap";
+import { Dropdown, Button, Table } from "react-bootstrap";
 import DropdownTableHeaderToggle from "./DropdownTableHeaderToggle";
 import FilterTableHeader from "./FilterTableHeader";
 import PaginatedTable from "./PaginatedTable";
@@ -243,20 +243,9 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
   };
 
   function evalList() {
-    // if (_limit) {
-    //   return tableData.map((evaluation) => {
-    //     if (
-    //       tableData.indexOf(evaluation) >= cursorIndex &&
-    //       tableData.indexOf(evaluation) < cursorIndex + _limit
-    //     )
-    //       return <EvalRow key={evaluation.id} evaluation={evaluation} />;
-    //     else return null;
-    //   });
-    // } else {
     return tableData.map((evaluation) => {
       return <EvalRow key={evaluation.id} evaluation={evaluation} />;
     });
-    // }
   }
 
   function filterIcon(column) {
@@ -282,7 +271,29 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
     }
   }
 
-  if (loading) return <div className='spinner-border align-self-center' />;
+  if (loading)
+    return (
+      <div className='placeholder-wave'>
+        <div className='placeholder placeholder-lg mb-2 col-1' />
+        <Table striped>
+          <thead>
+            <tr>
+              <th className='placeholder w-100' style={{ height: "3rem" }}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...Array(_limit || 10)].map((_, i) => (
+              <tr key={i}>
+                <td
+                  className='placeholder w-100 placeholder-lg'
+                  style={{ height: "2.8rem" }}
+                />
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
+    );
 
   return (
     <PaginatedTable
