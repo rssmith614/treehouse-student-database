@@ -83,6 +83,7 @@ const NewStudentEval = () => {
             student_id: doc.id,
           };
         });
+        setLoading(false);
       },
     );
 
