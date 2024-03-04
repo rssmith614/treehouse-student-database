@@ -5,7 +5,7 @@ import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { db } from "../../../Services/firebase";
 
-const EvalHeader = ({ evaluation, handleEvalChange }) => {
+const EvalHeader = ({ evaluation, handleEvalChange, loading }) => {
   const [tutors, setTutors] = useState([]);
 
   const navigate = useNavigate();
@@ -40,18 +40,24 @@ const EvalHeader = ({ evaluation, handleEvalChange }) => {
 
   return (
     <>
-      <Button
-        variant='link'
-        className='me-auto'
-        size='lg'
-        style={{
-          "--bs-btn-padding-x": "0rem",
-          "--bs-btn-padding-y": "0rem",
-        }}
-        onClick={() => navigate(`/students/${evaluation.student_id}`)}
-      >
-        <div className='h3'>{evaluation.student_name}</div>
-      </Button>
+      {loading ? (
+        <div className='placeholder-wave'>
+          <div className='placeholder h3 bg-primary py-3 col-1' />
+        </div>
+      ) : (
+        <Button
+          variant='link'
+          className='me-auto'
+          size='lg'
+          style={{
+            "--bs-btn-padding-x": "0rem",
+            "--bs-btn-padding-y": "0rem",
+          }}
+          onClick={() => navigate(`/students/${evaluation.student_id}`)}
+        >
+          <div className='h3'>{evaluation.student_name}</div>
+        </Button>
+      )}
       <div className='row my-3'>
         <div className='col'>
           <label className='form-label h5'>Tutor</label>
