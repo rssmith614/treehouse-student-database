@@ -32,6 +32,7 @@ const NewStudentEval = () => {
   const [showNotes, setShowNotes] = useState(false);
 
   const [gradesReminderMessage, setGradesReminderMessage] = useState("");
+  const [mayShowGradesReminder, setMayShowGradesReminder] = useState(false);
   const [showGradesReminder, setShowGradesReminder] = useState(false);
 
   const addToast = useContext(ToastContext);
@@ -96,7 +97,23 @@ const NewStudentEval = () => {
   }, [params.studentid]);
 
   useEffect(() => {
-    if (!evaluation.student_id || !evaluation.student_name) return;
+    getDoc(studentRef.current).then((student) => {
+      if (parseInt(student.data().student_grade) >= 6) {
+        setMayShowGradesReminder(true);
+      } else {
+        setMayShowGradesReminder(false);
+      }
+    });
+  }, [studentRef]);
+
+  useEffect(() => {
+    if (
+      !evaluation.student_id ||
+      !evaluation.student_name ||
+      !mayShowGradesReminder
+    )
+      return;
+
     const unsubscribeGrades = onSnapshot(
       query(
         collection(db, "grades"),
@@ -127,7 +144,7 @@ const NewStudentEval = () => {
     return () => {
       unsubscribeGrades();
     };
-  }, [evaluation.student_id, evaluation.student_name]);
+  }, [evaluation.student_id, evaluation.student_name, mayShowGradesReminder]);
 
   useEffect(() => {
     if (evaluation.tutor_id) {
