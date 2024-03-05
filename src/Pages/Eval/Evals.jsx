@@ -35,6 +35,8 @@ const Evals = () => {
       },
     );
 
+    document.getElementById("search-student").focus();
+
     return () => unsubscribeStudents();
   }, []);
 
@@ -155,12 +157,14 @@ const Evals = () => {
       <div className='d-flex pt-3 px-3 card bg-light-subtle'>
         <InputGroup className='w-25 mb-3'>
           <Form.Control
+            id='search-student'
             type='text'
             placeholder='Search Student'
             value={nameFilter}
             onChange={(e) => {
               setNameFilter(e.target.value);
             }}
+            autoFocus
           />
           <Button
             variant='secondary'
