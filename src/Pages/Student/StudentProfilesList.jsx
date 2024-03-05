@@ -279,6 +279,7 @@ const StudentProfilesList = () => {
             onChange={(e) => {
               setNameFilter(e.target.value);
             }}
+            autoFocus
           />
           <Button
             variant='secondary'
