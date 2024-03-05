@@ -31,6 +31,9 @@ const NewStudentEval = () => {
   const [notesIndex, setNotesIndex] = useState(0);
   const [showNotes, setShowNotes] = useState(false);
 
+  const [gradesReminderMessage, setGradesReminderMessage] = useState("");
+  const [showGradesReminder, setShowGradesReminder] = useState(false);
+
   const addToast = useContext(ToastContext);
 
   const params = useParams();
@@ -91,6 +94,40 @@ const NewStudentEval = () => {
       unsubscribeStudents();
     };
   }, [params.studentid]);
+
+  useEffect(() => {
+    if (!evaluation.student_id || !evaluation.student_name) return;
+    const unsubscribeGrades = onSnapshot(
+      query(
+        collection(db, "grades"),
+        where("student_id", "==", evaluation.student_id),
+        orderBy("date", "desc"),
+        limit(1),
+      ),
+      (gradesSnapshot) => {
+        if (gradesSnapshot.docs.length > 0) {
+          const grade = gradesSnapshot.docs[0].data();
+          if (dayjs(grade.date).isBefore(dayjs().subtract(2, "week"))) {
+            setGradesReminderMessage(
+              `${evaluation.student_name} has not had their class grades updated since ${dayjs(
+                grade.date,
+              ).format("MMMM DD, YYYY")}.`,
+            );
+            setShowGradesReminder(true);
+          }
+        } else {
+          setGradesReminderMessage(
+            `${evaluation.student_name} has not had their class grades entered yet.`,
+          );
+          setShowGradesReminder(true);
+        }
+      },
+    );
+
+    return () => {
+      unsubscribeGrades();
+    };
+  }, [evaluation.student_id, evaluation.student_name]);
 
   useEffect(() => {
     if (evaluation.tutor_id) {
@@ -614,6 +651,50 @@ const NewStudentEval = () => {
               }}
             >
               <i className='bi bi-arrow-right' />
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        <Modal
+          show={showGradesReminder}
+          onHide={() => setShowGradesReminder(false)}
+        >
+          <Modal.Header>
+            <Modal.Title>Grades Reminder</Modal.Title>
+            <Button
+              variant='secondary'
+              onClick={() => setShowGradesReminder(false)}
+              style={{ "--bs-bg-opacity": "0" }}
+            >
+              <i className='bi bi-x-lg' />
+            </Button>
+          </Modal.Header>
+          <Modal.Body>
+            <div className='d-flex flex-column'>
+              <div>{gradesReminderMessage}</div>
+              <hr />
+              <div>
+                Please make sure to update their grades before they leave.
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer className='d-flex'>
+            <Button
+              variant='secondary'
+              size='sm'
+              className='me-auto'
+              onClick={() => setShowGradesReminder(false)}
+            >
+              I'll do it later
+            </Button>
+            <Button
+              variant='primary'
+              size='sm'
+              onClick={() => {
+                localStorage.setItem("student_tab", "grades");
+                navigate(`/students/${params.studentid}`);
+              }}
+            >
+              Take me there now
             </Button>
           </Modal.Footer>
         </Modal>
