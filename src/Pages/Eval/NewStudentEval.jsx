@@ -724,26 +724,25 @@ const NewStudentEval = () => {
               </Collapse>
             </div>
           </Modal.Body>
-          <Modal.Footer className='d-flex flex-column'>
-            <div className='d-flex flex-row w-100 justify-content-between'>
-              <Button
-                variant='secondary'
-                size='sm'
-                onClick={() => setShowGradesReminder(false)}
-              >
-                I'll do it later
-              </Button>
-              <Button
-                variant='primary'
-                size='sm'
-                onClick={() => {
-                  localStorage.setItem("student_tab", "grades");
-                  navigate(`/students/${params.studentid}`);
-                }}
-              >
-                Take me there now
-              </Button>
-            </div>
+          <Modal.Footer className='d-flex'>
+            <Button
+              variant='secondary'
+              size='sm'
+              className='me-auto'
+              onClick={() => setShowGradesReminder(false)}
+            >
+              I'll do it later
+            </Button>
+            <Button
+              variant='primary'
+              size='sm'
+              onClick={() => {
+                localStorage.setItem("student_tab", "grades");
+                navigate(`/students/${params.studentid}`);
+              }}
+            >
+              Take me there now
+            </Button>
           </Modal.Footer>
         </Modal>
       </div>
