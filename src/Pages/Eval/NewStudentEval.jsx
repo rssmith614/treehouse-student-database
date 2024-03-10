@@ -15,7 +15,14 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import dayjs from "dayjs";
 import { ref, uploadBytes } from "firebase/storage";
-import { Button, Card, Modal, OverlayTrigger, Popover } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Collapse,
+  Modal,
+  OverlayTrigger,
+  Popover,
+} from "react-bootstrap";
 import { auth, db, storage } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
 import EvalFooter from "./Components/EvalFooter";
@@ -32,8 +39,11 @@ const NewStudentEval = () => {
   const [showNotes, setShowNotes] = useState(false);
 
   const [gradesReminderMessage, setGradesReminderMessage] = useState("");
-  const [mayShowGradesReminder, setMayShowGradesReminder] = useState(false);
+  const [studentOverElementary, setStudentOverElementary] = useState(false);
   const [showGradesReminder, setShowGradesReminder] = useState(false);
+
+  const [gradesTooltip, setGradesTooltip] = useState("");
+  const [showGradesTooltip, setShowGradesTooltip] = useState(false);
 
   const addToast = useContext(ToastContext);
 
@@ -99,20 +109,15 @@ const NewStudentEval = () => {
   useEffect(() => {
     getDoc(studentRef.current).then((student) => {
       if (parseInt(student.data().student_grade) >= 6) {
-        setMayShowGradesReminder(true);
+        setStudentOverElementary(true);
       } else {
-        setMayShowGradesReminder(false);
+        setStudentOverElementary(false);
       }
     });
   }, [studentRef]);
 
   useEffect(() => {
-    if (
-      !evaluation.student_id ||
-      !evaluation.student_name ||
-      !mayShowGradesReminder
-    )
-      return;
+    if (!evaluation.student_id || !evaluation.student_name) return;
 
     const unsubscribeGrades = onSnapshot(
       query(
@@ -130,13 +135,21 @@ const NewStudentEval = () => {
                 grade.date,
               ).format("MMMM DD, YYYY")}.`,
             );
+            setGradesTooltip(
+              `We keep track of student progress and performance by recording their class grades every two weeks.`,
+            );
             setShowGradesReminder(true);
           }
         } else {
-          setGradesReminderMessage(
-            `${evaluation.student_name} has not had their class grades entered yet.`,
-          );
-          setShowGradesReminder(true);
+          if (studentOverElementary) {
+            setGradesReminderMessage(
+              `${evaluation.student_name} has not had their class grades entered yet.`,
+            );
+            setGradesTooltip(
+              "Students in 6th grade and above are expected to have their class grades entered regularly.",
+            );
+            setShowGradesReminder(true);
+          }
         }
       },
     );
@@ -144,7 +157,7 @@ const NewStudentEval = () => {
     return () => {
       unsubscribeGrades();
     };
-  }, [evaluation.student_id, evaluation.student_name, mayShowGradesReminder]);
+  }, [evaluation.student_id, evaluation.student_name, studentOverElementary]);
 
   useEffect(() => {
     if (evaluation.tutor_id) {
@@ -692,27 +705,45 @@ const NewStudentEval = () => {
               <div>
                 Please make sure to update their grades before they leave.
               </div>
+              <Button
+                variant='link'
+                size='sm'
+                className='me-auto link-secondary fst-italic'
+                style={{ "--bs-btn-padding-x": "0rem" }}
+                onClick={() => setShowGradesTooltip(!showGradesTooltip)}
+              >
+                Why am I seeing this?
+              </Button>
+              <Collapse in={showGradesTooltip}>
+                <div>
+                  {gradesTooltip}
+                  <br />
+                  If you believe this is a mistake or need an exception, please
+                  contact an administrator.
+                </div>
+              </Collapse>
             </div>
           </Modal.Body>
-          <Modal.Footer className='d-flex'>
-            <Button
-              variant='secondary'
-              size='sm'
-              className='me-auto'
-              onClick={() => setShowGradesReminder(false)}
-            >
-              I'll do it later
-            </Button>
-            <Button
-              variant='primary'
-              size='sm'
-              onClick={() => {
-                localStorage.setItem("student_tab", "grades");
-                navigate(`/students/${params.studentid}`);
-              }}
-            >
-              Take me there now
-            </Button>
+          <Modal.Footer className='d-flex flex-column'>
+            <div className='d-flex flex-row w-100 justify-content-between'>
+              <Button
+                variant='secondary'
+                size='sm'
+                onClick={() => setShowGradesReminder(false)}
+              >
+                I'll do it later
+              </Button>
+              <Button
+                variant='primary'
+                size='sm'
+                onClick={() => {
+                  localStorage.setItem("student_tab", "grades");
+                  navigate(`/students/${params.studentid}`);
+                }}
+              >
+                Take me there now
+              </Button>
+            </div>
           </Modal.Footer>
         </Modal>
       </div>
