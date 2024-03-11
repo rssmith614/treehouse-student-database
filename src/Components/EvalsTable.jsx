@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 
 import { db } from "../Services/firebase";
 import { useNavigate } from "react-router-dom";
-import { Dropdown, Button, Table } from "react-bootstrap";
+import { Dropdown, Button, Table, Collapse } from "react-bootstrap";
 import DropdownTableHeaderToggle from "./DropdownTableHeaderToggle";
 import FilterTableHeader from "./FilterTableHeader";
 import PaginatedTable from "./PaginatedTable";
@@ -162,7 +162,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
   const EvalRow = ({ evaluation }) => {
     const [expanded, setExpanded] = useState(false);
 
-    return expanded ? (
+    return (
       <tr
         key={evaluation.id}
         onClick={() => navigate(`/eval/${evaluation.id}`)}
@@ -177,15 +177,30 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
             : evaluation.tutor_name}
         </td>
         <td className='align-middle'>
-          <ul className='list-group'>
-            {evaluation.tasks.map((t, i) => {
-              return (
-                <li key={i} className='text-break list-group-item'>
-                  {t}
-                </li>
-              );
-            })}
-          </ul>
+          <Collapse in={!expanded}>
+            <ul className='list-group'>
+              <li className='d-flex list-group-item justify-content-between align-items-center'>
+                <span className='text-truncate pe-3'>
+                  {evaluation.tasks[0]}
+                </span>
+                <span className='badge text-bg-primary'>
+                  {evaluation.tasks.length} Task
+                  {evaluation.tasks.length > 1 ? "s" : ""}
+                </span>
+              </li>
+            </ul>
+          </Collapse>
+          <Collapse in={expanded}>
+            <ul className='list-group'>
+              {evaluation.tasks.map((t, i) => {
+                return (
+                  <li key={i} className='text-break list-group-item'>
+                    {t}
+                  </li>
+                );
+              })}
+            </ul>
+          </Collapse>
         </td>
         <td className='text-center'>
           <Button
@@ -193,49 +208,10 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
             variant='secondary'
             onClick={(e) => {
               e.stopPropagation();
-              setExpanded(false);
+              setExpanded(!expanded);
             }}
           >
-            Show Less
-          </Button>
-        </td>
-      </tr>
-    ) : (
-      <tr
-        key={evaluation.id}
-        onClick={() => navigate(`/eval/${evaluation.id}`)}
-        style={{ cursor: "pointer" }}
-      >
-        <td className='align-middle'>
-          {dayjs(evaluation.date).format("MMMM DD, YYYY")}
-        </td>
-        <td className='align-middle'>
-          {filterBy === "tutor"
-            ? evaluation.student_name
-            : evaluation.tutor_name}
-        </td>
-        <td className='align-middle'>
-          <ul className='list-group'>
-            <li className='d-flex justify-content-between align-items-center'>
-              <span className='text-truncate pe-3'>{evaluation.tasks[0]}</span>
-              <span className='badge text-bg-primary'>
-                {evaluation.tasks.length} Task
-                {evaluation.tasks.length > 1 ? "s" : ""}
-              </span>
-            </li>
-          </ul>
-        </td>
-        <td className='text-center'>
-          <Button
-            className='ms-auto btn-sm mt-1'
-            variant='secondary'
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpanded(true);
-            }}
-          >
-            Show More
-            <br />
+            {expanded ? "Show Less" : "Show More"}
           </Button>
         </td>
       </tr>
