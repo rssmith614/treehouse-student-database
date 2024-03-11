@@ -166,6 +166,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
       <tr
         key={evaluation.id}
         onClick={() => navigate(`/eval/${evaluation.id}`)}
+        style={{ cursor: "pointer" }}
       >
         <td className='align-middle'>
           {dayjs(evaluation.date).format("MMMM DD, YYYY")}
