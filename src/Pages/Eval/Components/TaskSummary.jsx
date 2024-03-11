@@ -1,4 +1,4 @@
-import { Form, OverlayTrigger, Popover } from "react-bootstrap";
+import { Collapse, Form, OverlayTrigger, Popover } from "react-bootstrap";
 
 const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
   return (
@@ -49,8 +49,8 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
               Please provide a brief summary for this task
             </div>
           </div>
-          {task.standards.length === 0 ? (
-            <>
+          <Collapse in={task.standards.length === 0}>
+            <div>
               <hr />
               <div className='d-flex flex-column'>
                 <div className='h5 d-flex'>
@@ -94,8 +94,8 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
                   Please set a progression for this task
                 </div>
               </div>
-            </>
-          ) : null}
+            </div>
+          </Collapse>
           <hr />
           <div className='d-flex flex-column'>
             <div className='h5 d-flex'>

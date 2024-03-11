@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Card, Collapse, Container } from "react-bootstrap";
 import TaskStandards from "./TaskStandards";
 import TaskSummary from "./TaskSummary";
@@ -30,9 +30,32 @@ const Tasks = ({
           <Card.Header className='d-flex'>
             <div className='h5 align-self-end'>Task {task_idx + 1}</div>
             <Button
+              variant='link'
+              className='ms-auto'
+              disabled={task.standards.length > 0}
+              onClick={() => {
+                const newTasks = tasks.map((t, i) => {
+                  if (i !== task_idx) return t;
+                  else
+                    return {
+                      ...t,
+                      standards: [
+                        ...t.standards,
+                        {
+                          key: "",
+                          progression: "",
+                        },
+                      ],
+                    };
+                });
+                handleTasksChange(newTasks);
+              }}
+            >
+              Add CC Standards
+            </Button>
+            <Button
               type='button'
               variant='danger'
-              className='ms-auto'
               onClick={() => {
                 const newTasks = tasks.filter((t, i) => i !== task_idx);
                 handleTasksChange(newTasks);
@@ -53,17 +76,23 @@ const Tasks = ({
                 handleTasksChange={handleTasksChange}
               />
             </div>
-            <div className='vr mx-3' />
-            <div className='d-flex flex-column'>
-              <TaskStandards
-                task={task}
-                task_idx={task_idx}
-                tasks={tasks}
-                handleTasksChange={handleTasksChange}
-                standards={standards}
-                setStandards={setStandards}
-              />
-            </div>
+            <Collapse in={task.standards.length > 0} dimension={"width"} appear>
+              <div>
+                <div className='d-flex'>
+                  <div className='vr mx-3' />
+                  <div className='d-flex flex-column'>
+                    <TaskStandards
+                      task={task}
+                      task_idx={task_idx}
+                      tasks={tasks}
+                      handleTasksChange={handleTasksChange}
+                      standards={standards}
+                      setStandards={setStandards}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Collapse>
           </Card.Body>
         </Card>
       </Collapse>
