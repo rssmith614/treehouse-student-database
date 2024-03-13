@@ -79,6 +79,22 @@ const StudentGrades = ({ student }) => {
           };
         }),
       });
+    } else {
+      setFocusedGradeEntry({
+        date: dayjs().format("YYYY-MM-DD"),
+        student_id: student,
+        tutor_id: auth.currentUser.uid,
+        tutor_name: (
+          await getDoc(doc(db, "tutors", auth.currentUser.uid))
+        ).data().displayName,
+        grades: [
+          {
+            subject: "",
+            grade: "",
+            comments: "",
+          },
+        ],
+      });
     }
 
     setShow(true);
