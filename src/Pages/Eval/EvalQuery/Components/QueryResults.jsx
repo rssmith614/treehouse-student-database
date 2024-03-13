@@ -68,7 +68,7 @@ const QueryResults = ({ results }) => {
           onClick={() => navigate(`/eval/${evaluation.id}`)}
           style={{ cursor: "pointer" }}
         >
-          <td>{dayjs(evaluation.date).format("MMMM DD, YYYY")}</td>
+          <td>{dayjs(evaluation.date).format("MMMM D, YYYY")}</td>
           <td>{evaluation.student_name}</td>
           <td>{evaluation.tutor_name}</td>
           <td>{evaluation.tasksCount}</td>

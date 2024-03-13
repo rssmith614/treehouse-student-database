@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Can } from "../../../Services/can";
 import { Table } from "react-bootstrap";
+import dayjs from "dayjs";
 
 const About = ({ student, loading }) => {
   const navigate = useNavigate();
@@ -26,7 +27,9 @@ const About = ({ student, loading }) => {
           {loading ? (
             <div className='placeholder' />
           ) : (
-            <div className='d-flex'>{student.student_dob}</div>
+            <div className='d-flex'>
+              {dayjs(student.student_dob).format("MMMM D, YYYY")}
+            </div>
           )}
         </div>
         <div className='d-flex p-3 flex-column flex-fill'>

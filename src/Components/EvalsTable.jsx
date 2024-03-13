@@ -169,7 +169,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
         style={{ cursor: "pointer" }}
       >
         <td className='align-middle'>
-          {dayjs(evaluation.date).format("MMMM DD, YYYY")}
+          {dayjs(evaluation.date).format("MMMM D, YYYY")}
         </td>
         <td className='align-middle'>
           {filterBy === "tutor"

@@ -9,7 +9,7 @@ const StudentGradesDetail = ({ gradeEntry, setEdit }) => {
       <div className='d-flex mb-3 row'>
         <div className='d-flex flex-column col'>
           <h5>Date Recorded</h5>
-          <p>{dayjs(gradeEntry.date).format("MMMM DD, YYYY")}</p>
+          <p>{dayjs(gradeEntry.date).format("MMMM D, YYYY")}</p>
         </div>
         <div className='d-flex flex-column ms-3 col'>
           <h5>Recorded By</h5>

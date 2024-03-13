@@ -57,7 +57,7 @@ const StudentProfilesList = () => {
       csvString += `"${studentData.student_name}",`;
       csvString += `"${studentData.student_school}",`;
       csvString += `"${studentData.student_grade}",`;
-      csvString += `"${dayjs(studentData.student_dob).format("MMMM DD, YYYY")}",`;
+      csvString += `"${dayjs(studentData.student_dob).format("MMMM D, YYYY")}",`;
       csvString += `"${studentData.student_source}",`;
       csvString += `"${studentData.preferred_tutor_name}",`;
       csvString += `"${studentData.parent_name}",`;
@@ -138,7 +138,7 @@ const StudentProfilesList = () => {
           <td>{studentData.student_school}</td>
           <td>{studentData.student_source}</td>
           <td>{studentData.student_grade}</td>
-          <td>{dayjs(studentData.student_dob).format("MMMM DD, YYYY")}</td>
+          <td>{dayjs(studentData.student_dob).format("MMMM D, YYYY")}</td>
         </tr>
       );
     });
@@ -160,7 +160,7 @@ const StudentProfilesList = () => {
         result.data().grades.forEach((grade) => {
           csvString += `"${student_name}",`;
           csvString += `"${result.data().tutor_name}",`;
-          csvString += `"${dayjs(result.data().date).format("MMMM DD, YYYY")}",`;
+          csvString += `"${dayjs(result.data().date).format("MMMM D, YYYY")}",`;
           csvString += `"${grade.subject}",`;
           csvString += `"${grade.grade}",`;
           csvString += `"${grade.comments}",\n`;

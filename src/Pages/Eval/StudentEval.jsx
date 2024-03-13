@@ -268,7 +268,7 @@ const StudentEval = () => {
               Date
             </label>
             <div id='date' className=''>
-              {dayjs(evaluation.date).format("MMMM DD, YYYY")}
+              {dayjs(evaluation.date).format("MMMM D, YYYY")}
             </div>
           </div>
         </div>

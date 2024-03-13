@@ -209,7 +209,7 @@ function AssessmentsOfStudent({ student, setSelectedAssessment }) {
               navigate(`/assessments/${assessment.id}`);
             }}
           >
-            <td>{dayjs(assessment.date).format("MMMM DD, YYYY")}</td>
+            <td>{dayjs(assessment.date).format("MMMM D, YYYY")}</td>
             <td>
               {grades[assessment.grade]} {assessment.category}
             </td>
