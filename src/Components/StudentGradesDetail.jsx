@@ -1,5 +1,7 @@
 import dayjs from "dayjs";
 import { Button, Card, Table } from "react-bootstrap";
+import { Grade } from "../Services/defineAbility";
+import { Can } from "../Services/can";
 
 const StudentGradesDetail = ({ gradeEntry, setEdit }) => {
   return (
@@ -48,15 +50,17 @@ const StudentGradesDetail = ({ gradeEntry, setEdit }) => {
         </Card>
       </div>
       <div className='d-flex'>
-        <Button
-          variant='info'
-          className='ms-auto'
-          onClick={() => {
-            setEdit(true);
-          }}
-        >
-          Make Changes to this Record
-        </Button>
+        <Can I='edit' this={new Grade(gradeEntry)}>
+          <Button
+            variant='info'
+            className='ms-auto'
+            onClick={() => {
+              setEdit(true);
+            }}
+          >
+            Make Changes to this Record
+          </Button>
+        </Can>
       </div>
     </div>
   );

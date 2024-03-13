@@ -1,20 +1,16 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { auth, db } from "../Services/firebase";
 import {
-  addDoc,
   collection,
-  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
   query,
-  updateDoc,
   where,
 } from "firebase/firestore";
-import { Button, Card, InputGroup, Offcanvas, Table } from "react-bootstrap";
+import { Button, Offcanvas } from "react-bootstrap";
 import dayjs from "dayjs";
-import { ToastContext } from "../Services/toast";
-import { AbilityContext, Can } from "../Services/can";
+import { Can } from "../Services/can";
 import { Grade } from "../Services/defineAbility";
 import PaginatedTable from "./PaginatedTable";
 import StudentGradesEdit from "./StudentGradesEdit";
@@ -26,10 +22,6 @@ const StudentGrades = ({ student }) => {
 
   const [show, setShow] = useState(false);
   const [edit, setEdit] = useState(false);
-
-  const addToast = useContext(ToastContext);
-
-  const ability = useContext(AbilityContext);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -97,22 +89,15 @@ const StudentGrades = ({ student }) => {
     .sort((a, b) => {
       return dayjs(b.date).diff(dayjs(a.date));
     })
-    .map((grade) => {
+    .map((grade, histIndex) => {
       return (
         <tr
           key={grade.id}
           style={{ cursor: "pointer" }}
           onClick={(e) => {
             e.preventDefault();
-            if (ability.can("edit", new Grade(grade))) {
-              setFocusedGradeEntry(grade);
-              setShow(true);
-            } else {
-              addToast({
-                header: "Unauthorized",
-                message: "You are not authorized to edit this record",
-              });
-            }
+            setFocusedGradeEntry(grade);
+            setShow(true);
           }}
         >
           <td className='align-middle'>
@@ -121,12 +106,31 @@ const StudentGrades = ({ student }) => {
           <td className='align-middle'>{grade.tutor_name}</td>
           <td>
             <ul className='list-group'>
-              {grade.grades.map((grade, index) => {
+              {grade.grades.map((currGrade, index) => {
+                let trend = "";
+                for (let i = histIndex; i < gradesHistory.length - 1; i++) {
+                  let prevGrade = gradesHistory[i + 1].grades.find(
+                    (g) => g.subject === currGrade.subject,
+                  );
+                  if (prevGrade) {
+                    if (
+                      parseFloat(currGrade.grade) > parseFloat(prevGrade.grade)
+                    ) {
+                      trend = "bi-chevron-up text-success";
+                    } else if (
+                      parseFloat(currGrade.grade) < parseFloat(prevGrade.grade)
+                    ) {
+                      trend = "bi-chevron-down text-danger";
+                    }
+                    break;
+                  }
+                }
                 return (
                   <li key={index} className='list-group-item'>
-                    <strong>{grade.subject}</strong> - {grade.grade}%
+                    <strong>{currGrade.subject}</strong> - {currGrade.grade}%{" "}
+                    <i className={`bi ${trend}`} />
                     <br />
-                    {grade.comments}
+                    {currGrade.comments}
                   </li>
                 );
               })}
