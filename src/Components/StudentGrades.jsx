@@ -1,40 +1,27 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { auth, db } from "../Services/firebase";
 import {
-  addDoc,
   collection,
-  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
   query,
-  updateDoc,
   where,
 } from "firebase/firestore";
-import { Button, Card, InputGroup, Offcanvas, Table } from "react-bootstrap";
+import { Button, Offcanvas } from "react-bootstrap";
 import dayjs from "dayjs";
-import { ToastContext } from "../Services/toast";
-import { AbilityContext, Can } from "../Services/can";
+import { Can } from "../Services/can";
 import { Grade } from "../Services/defineAbility";
+import PaginatedTable from "./PaginatedTable";
+import StudentGradesEdit from "./StudentGradesEdit";
+import StudentGradesDetail from "./StudentGradesDetail";
 
 const StudentGrades = ({ student }) => {
   const [gradesHistory, setGradesHistory] = useState([]);
-  const [grades, setGrades] = useState([
-    {
-      subject: "",
-      grade: "",
-      comments: "",
-    },
-  ]);
+  const [focusedGradeEntry, setFocusedGradeEntry] = useState({});
 
-  const [selectedGrade, setSelectedGrade] = useState({});
-
-  const [showNew, setShowNew] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
-
-  const addToast = useContext(ToastContext);
-
-  const ability = useContext(AbilityContext);
+  const [show, setShow] = useState(false);
+  const [edit, setEdit] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -51,153 +38,66 @@ const StudentGrades = ({ student }) => {
     return () => unsubscribe();
   }, [student]);
 
-  async function submitNew() {
-    document.getElementById("submit").setAttribute("disabled", "true");
-    document.getElementById("submit").innerHTML =
-      "Submit <span class='spinner-border spinner-border-sm'></span>";
+  function exportCSV(e) {
+    e.preventDefault();
 
-    const elements = document.getElementsByClassName("is-invalid");
-    if (elements.length > 0) {
-      Array.from(elements).forEach((el) => {
-        el.classList.remove("is-invalid");
-      });
-    }
-
-    let clean = true;
-
-    grades.forEach((grade, index) => {
-      if (grade.subject === "") {
-        document.getElementById(`subject-${index}`).classList.add("is-invalid");
-        clean = false;
-      }
-      if (grade.grade === "") {
-        document.getElementById(`grade-${index}`).classList.add("is-invalid");
-        document
-          .getElementById(`grade-${index}`)
-          .parentElement.classList.add("is-invalid");
-        clean = false;
-      }
-      if (parseFloat(grade.grade) < 80 && grade.comments === "") {
-        document
-          .getElementById(`comments-${index}`)
-          .classList.add("is-invalid");
-        clean = false;
-      }
-    });
-
-    if (!clean) {
-      document.getElementById("submit").removeAttribute("disabled");
-      document.getElementById("submit").innerText = "Submit";
-      return;
-    }
-
-    const date = document.getElementById("date").value;
-    const tutor_id = auth.currentUser.uid;
-    const tutor_name = (await getDoc(doc(db, "tutors", tutor_id))).data()
-      .displayName;
-
-    addDoc(collection(db, "grades"), {
-      date,
-      tutor_id,
-      tutor_name,
-      student_id: student,
-      grades,
-    }).then(() => {
-      setShowNew(false);
-      setGrades([
-        {
-          subject: "",
-          grade: "",
-          comments: "",
-        },
-      ]);
-      addToast({
-        header: "Grades recorded",
-        message: "Grades have been recorded",
-      });
-    });
+    const csv = [
+      "Date,Recorded By,Subject,Grade,Comments",
+      ...gradesHistory.map((grade) => {
+        return grade.grades
+          .map((g) => {
+            return `"${dayjs(grade.date).format("MMMM DD, YYYY")}","${grade.tutor_name}","${g.subject}","${g.grade}","${g.comments}"`;
+          })
+          .join("\n");
+      }),
+    ].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `grades_export_${student.student_name}_${dayjs().format("YYYY-MM-DD")}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
   }
 
-  async function submitEdit() {
-    document.getElementById("submit").setAttribute("disabled", "true");
-    document.getElementById("submit").innerHTML =
-      "Submit <span class='spinner-border spinner-border-sm' />";
+  async function newGrades(e) {
+    e.preventDefault();
 
-    const elements = document.getElementsByClassName("is-invalid");
-    if (elements.length > 0) {
-      Array.from(elements).forEach((el) => {
-        el.classList.remove("is-invalid");
+    if (gradesHistory.length > 0) {
+      setFocusedGradeEntry({
+        date: dayjs().format("YYYY-MM-DD"),
+        student_id: student,
+        tutor_id: auth.currentUser.uid,
+        tutor_name: (
+          await getDoc(doc(db, "tutors", auth.currentUser.uid))
+        ).data().displayName,
+        grades: gradesHistory[0].grades.map((grade) => {
+          return {
+            subject: grade.subject,
+            grade: "",
+            comments: "",
+          };
+        }),
       });
     }
 
-    let clean = true;
-
-    selectedGrade.grades.forEach((grade, index) => {
-      if (grade.subject === "") {
-        document.getElementById(`subject-${index}`).classList.add("is-invalid");
-        clean = false;
-      }
-      if (grade.grade === "") {
-        document.getElementById(`grade-${index}`).classList.add("is-invalid");
-        document
-          .getElementById(`grade-${index}`)
-          .parentElement.classList.add("is-invalid");
-        clean = false;
-      }
-      if (parseFloat(grade.grade) < 80 && grade.comments === "") {
-        document
-          .getElementById(`comments-${index}`)
-          .classList.add("is-invalid");
-        clean = false;
-      }
-    });
-
-    if (!clean) {
-      document.getElementById("submit").removeAttribute("disabled");
-      document.getElementById("submit").innerText = "Submit";
-      return;
-    }
-
-    const date = document.getElementById("date").value;
-    const tutor_id = auth.currentUser.uid;
-    const tutor_name = (await getDoc(doc(db, "tutors", tutor_id))).data()
-      .displayName;
-
-    updateDoc(doc(db, "grades", selectedGrade.id), {
-      date,
-      tutor_id,
-      tutor_name,
-      grades: selectedGrade.grades,
-    }).then(() => {
-      setShowEdit(false);
-      addToast({
-        header: "Grades recorded",
-        message: "Grades have been updated",
-      });
-      setSelectedGrade({});
-    });
+    setShow(true);
+    setEdit(true);
   }
 
   const gradesList = gradesHistory
     .sort((a, b) => {
       return dayjs(b.date).diff(dayjs(a.date));
     })
-    .map((grade) => {
+    .map((grade, histIndex) => {
       return (
         <tr
           key={grade.id}
           style={{ cursor: "pointer" }}
           onClick={(e) => {
             e.preventDefault();
-            if (ability.can("edit", new Grade(grade))) {
-              setSelectedGrade(grade);
-              setShowEdit(true);
-            } else {
-              addToast({
-                header: "Unauthorized",
-                message: "You are not authorized to edit this record",
-              });
-            }
+            setFocusedGradeEntry(grade);
+            setShow(true);
           }}
         >
           <td className='align-middle'>
@@ -206,12 +106,31 @@ const StudentGrades = ({ student }) => {
           <td className='align-middle'>{grade.tutor_name}</td>
           <td>
             <ul className='list-group'>
-              {grade.grades.map((grade, index) => {
+              {grade.grades.map((currGrade, index) => {
+                let trend = "";
+                for (let i = histIndex; i < gradesHistory.length - 1; i++) {
+                  let prevGrade = gradesHistory[i + 1].grades.find(
+                    (g) => g.subject === currGrade.subject,
+                  );
+                  if (prevGrade) {
+                    if (
+                      parseFloat(currGrade.grade) > parseFloat(prevGrade.grade)
+                    ) {
+                      trend = "bi-chevron-up text-success";
+                    } else if (
+                      parseFloat(currGrade.grade) < parseFloat(prevGrade.grade)
+                    ) {
+                      trend = "bi-chevron-down text-danger";
+                    }
+                    break;
+                  }
+                }
                 return (
                   <li key={index} className='list-group-item'>
-                    <strong>{grade.subject}</strong> - {grade.grade}%
+                    <strong>{currGrade.subject}</strong> - {currGrade.grade}%{" "}
+                    <i className={`bi ${trend}`} />
                     <br />
-                    {grade.comments}
+                    {currGrade.comments}
                   </li>
                 );
               })}
@@ -221,371 +140,70 @@ const StudentGrades = ({ student }) => {
       );
     });
 
-  const NewGradeOffcanvas = () => {
-    return (
-      <>
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Record Grades</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <div className='mb-3'>
-            <label htmlFor='date' className='form-label'>
-              Date
-            </label>
-            <input
-              type='date'
-              className='form-control'
-              id='date'
-              defaultValue={dayjs().format("YYYY-MM-DD")}
-            />
-          </div>
-          <div className='mb-3'>
-            <Card className='bg-light-subtle'>
-              <Card.Body>
-                <Card.Title>Grades</Card.Title>
-                <Table>
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th>Subject</th>
-                      <th>Grade</th>
-                      <th>Comments</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {grades.map((grade, index) => {
-                      return (
-                        <tr key={index}>
-                          <td className='align-middle text-center'>
-                            <Button
-                              variant='danger'
-                              size='sm'
-                              onClick={() =>
-                                setGrades(grades.filter((_, i) => i !== index))
-                              }
-                              disabled={grades.length === 1}
-                            >
-                              <i className='bi bi-trash-fill'></i>
-                            </Button>
-                          </td>
-                          <td className='align-middle'>
-                            <input
-                              id={`subject-${index}`}
-                              className='form-control'
-                              type='text'
-                              value={grade.subject}
-                              onChange={(e) => {
-                                const newGrades = [...grades];
-                                newGrades[index].subject = e.target.value;
-                                setGrades(newGrades);
-                              }}
-                            />
-                            <div className='invalid-feedback'>
-                              Please specify a subject
-                            </div>
-                          </td>
-                          <td className='align-middle'>
-                            <InputGroup>
-                              <input
-                                id={`grade-${index}`}
-                                className='form-control'
-                                type='number'
-                                min={0}
-                                max={100}
-                                value={grade.grade}
-                                onChange={(e) => {
-                                  const newGrades = [...grades];
-                                  newGrades[index].grade = e.target.value;
-                                  setGrades(newGrades);
-                                }}
-                              />
-                              <InputGroup.Text>%</InputGroup.Text>
-                            </InputGroup>
-                            <div className='invalid-feedback'>
-                              Please specify a valid grade
-                            </div>
-                          </td>
-                          <td className='align-middle'>
-                            <textarea
-                              id={`comments-${index}`}
-                              className='form-control'
-                              value={grade.comments}
-                              onChange={(e) => {
-                                const newGrades = [...grades];
-                                newGrades[index].comments = e.target.value;
-                                setGrades(newGrades);
-                              }}
-                            />
-                            <div className='invalid-feedback'>
-                              Please comment on this grade
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </Table>
-                <Button
-                  variant='secondary'
-                  onClick={() =>
-                    setGrades([
-                      ...grades,
-                      { subject: "", grade: "", comments: "" },
-                    ])
-                  }
-                >
-                  Add Another
-                </Button>
-              </Card.Body>
-            </Card>
-          </div>
-          <Button
-            id='submit'
-            variant='primary'
-            type='submit'
-            onClick={submitNew}
-          >
-            Submit
-          </Button>
-        </Offcanvas.Body>
-      </>
-    );
-  };
-
-  const EditGradeOffcanvas = () => {
-    if (
-      Object.keys(selectedGrade).length === 0 &&
-      selectedGrade.constructor === Object
-    )
-      return null;
-    return (
-      <>
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Edit Grades</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <div className='mb-3'>
-            <label htmlFor='date' className='form-label'>
-              Date
-            </label>
-            <input
-              type='date'
-              className='form-control'
-              id='date'
-              defaultValue={dayjs(selectedGrade.date).format("YYYY-MM-DD")}
-            />
-          </div>
-          <div className='mb-3'>
-            <Card className='bg-light-subtle'>
-              <Card.Body>
-                <Card.Title>Grades</Card.Title>
-                <Table>
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th>Subject</th>
-                      <th>Grade</th>
-                      <th>Comments</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedGrade.grades.map((grade, index) => {
-                      return (
-                        <tr key={index}>
-                          <td className='align-middle text-center'>
-                            <Button
-                              variant='danger'
-                              size='sm'
-                              onClick={() =>
-                                setSelectedGrade({
-                                  ...selectedGrade,
-                                  grades: selectedGrade.grades.filter(
-                                    (_, i) => i !== index,
-                                  ),
-                                })
-                              }
-                              disabled={selectedGrade.grades.length === 1}
-                            >
-                              <i className='bi bi-trash-fill'></i>
-                            </Button>
-                          </td>
-                          <td className='align-middle'>
-                            <input
-                              id={`subject-${index}`}
-                              className='form-control'
-                              type='text'
-                              value={grade.subject}
-                              onChange={(e) => {
-                                const newGrades = [...selectedGrade.grades];
-                                newGrades[index].subject = e.target.value;
-                                setSelectedGrade({
-                                  ...selectedGrade,
-                                  grades: newGrades,
-                                });
-                              }}
-                            />
-                            <div className='invalid-feedback'>
-                              Please specify a subject
-                            </div>
-                          </td>
-                          <td className='align-middle'>
-                            <InputGroup>
-                              <input
-                                id={`grade-${index}`}
-                                className='form-control'
-                                type='number'
-                                min={0}
-                                max={100}
-                                value={grade.grade}
-                                onChange={(e) => {
-                                  const newGrades = [...selectedGrade.grades];
-                                  newGrades[index].grade = e.target.value;
-                                  setSelectedGrade({
-                                    ...selectedGrade,
-                                    grades: newGrades,
-                                  });
-                                }}
-                              />
-                              <InputGroup.Text>%</InputGroup.Text>
-                            </InputGroup>
-                            <div className='invalid-feedback'>
-                              Please specify a valid grade
-                            </div>
-                          </td>
-                          <td>
-                            <textarea
-                              id={`comments-${index}`}
-                              className='form-control'
-                              value={grade.comments}
-                              onChange={(e) => {
-                                const newGrades = [...selectedGrade.grades];
-                                newGrades[index].comments = e.target.value;
-                                setSelectedGrade({
-                                  ...selectedGrade,
-                                  grades: newGrades,
-                                });
-                              }}
-                            />
-                            <div className='invalid-feedback'>
-                              Please comment on this grade
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </Table>
-                <Button
-                  variant='secondary'
-                  onClick={() =>
-                    setSelectedGrade({
-                      ...selectedGrade,
-                      grades: [
-                        ...selectedGrade.grades,
-                        { subject: "", grade: "", comments: "" },
-                      ],
-                    })
-                  }
-                >
-                  Add Another
-                </Button>
-              </Card.Body>
-            </Card>
-          </div>
-          <div className='d-flex'>
-            <Button
-              id='submit'
-              variant='primary'
-              type='submit'
-              onClick={submitEdit}
-            >
-              Submit
-            </Button>
-            <Button
-              variant='danger'
-              className='ms-auto'
-              onClick={() => {
-                if (
-                  window.confirm("Are you sure you want to delete this record?")
-                ) {
-                  deleteDoc(doc(db, "grades", selectedGrade.id)).then(() => {
-                    addToast({
-                      header: "Grades deleted",
-                      message: "Selected grades have been deleted",
-                    });
-                    setShowEdit(false);
-                  });
-                  setSelectedGrade({});
-                }
-              }}
-            >
-              Delete
-            </Button>
-          </div>
-        </Offcanvas.Body>
-      </>
-    );
-  };
-
   return (
     <div className='d-flex flex-column'>
-      <Table striped hover>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Recorded By</th>
-            <th className='w-50'>Grades</th>
-          </tr>
-        </thead>
-        <tbody>{gradesList}</tbody>
-      </Table>
+      <PaginatedTable
+        records={gradesList}
+        pageLimit={10}
+        header={
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Recorded By</th>
+              <th className='w-50'>Grades</th>
+            </tr>
+          </thead>
+        }
+      />
 
       <div className='d-flex'>
         <Can I='export' on={Grade}>
-          <Button
-            variant='secondary'
-            onClick={() => {
-              const csv = [
-                "Date,Recorded By,Subject,Grade,Comments",
-                ...gradesHistory.map((grade) => {
-                  return grade.grades
-                    .map((g) => {
-                      return `"${dayjs(grade.date).format("MMMM DD, YYYY")}","${grade.tutor_name}","${g.subject}","${g.grade}","${g.comments}"`;
-                    })
-                    .join("\n");
-                }),
-              ].join("\n");
-              const blob = new Blob([csv], { type: "text/csv" });
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = `grades_export_${student.student_name}_${dayjs().format("YYYY-MM-DD")}.csv`;
-              a.click();
-              window.URL.revokeObjectURL(url);
-            }}
-          >
+          <Button variant='secondary' onClick={exportCSV}>
             Export Grades as CSV
           </Button>
         </Can>
-        <Button
-          variant='primary'
-          className='ms-auto'
-          onClick={() => setShowNew(true)}
-        >
+        <Button variant='primary' className='ms-auto' onClick={newGrades}>
           Record Grades
         </Button>
       </div>
 
       <Offcanvas
-        show={showNew || showEdit}
-        onHide={() => {
-          setShowNew(false);
-          setShowEdit(false);
+        show={show}
+        onHide={() => setShow(false)}
+        onExited={() => {
+          setFocusedGradeEntry({});
+          setEdit(false);
         }}
         placement='end'
         className='w-75'
       >
-        {showNew ? NewGradeOffcanvas() : EditGradeOffcanvas()}
+        {edit ? (
+          <>
+            <Offcanvas.Header closeButton>
+              <Offcanvas.Title>Record Grades</Offcanvas.Title>
+            </Offcanvas.Header>
+            <Offcanvas.Body>
+              <StudentGradesEdit
+                gradeEntry={focusedGradeEntry}
+                setGradeEntry={setFocusedGradeEntry}
+                setEdit={setEdit}
+                setShow={setShow}
+              />
+            </Offcanvas.Body>
+          </>
+        ) : (
+          <>
+            <Offcanvas.Header closeButton>
+              <Offcanvas.Title>View Grades</Offcanvas.Title>
+            </Offcanvas.Header>
+            <Offcanvas.Body>
+              <StudentGradesDetail
+                gradeEntry={focusedGradeEntry}
+                setEdit={setEdit}
+              />
+            </Offcanvas.Body>
+          </>
+        )}
       </Offcanvas>
     </div>
   );
