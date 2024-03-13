@@ -69,7 +69,7 @@ const StudentGradesEdit = ({ gradeEntry, setGradeEntry, setEdit, setShow }) => {
         setEdit(false);
         addToast({
           header: "Grades recorded",
-          message: "This record have been updated",
+          message: "This record has been updated",
         });
       });
     } else {

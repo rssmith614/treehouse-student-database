@@ -133,7 +133,7 @@ const NewStudentEval = () => {
             setGradesReminderMessage(
               `${evaluation.student_name} has not had their class grades updated since ${dayjs(
                 grade.date,
-              ).format("MMMM DD, YYYY")}.`,
+              ).format("MMMM D, YYYY")}.`,
             );
             setGradesTooltip(
               `We keep track of student progress and performance by recording their class grades every two weeks.`,
@@ -637,7 +637,7 @@ const NewStudentEval = () => {
                 <div className='d-flex flex-column'>
                   <div className='h6'>{notes[notesIndex]?.tutor}</div>
                   <div className='text-secondary'>
-                    {dayjs(notes[notesIndex]?.date).format("MMMM DD, YYYY")}
+                    {dayjs(notes[notesIndex]?.date).format("MMMM D, YYYY")}
                   </div>
                 </div>
                 <div className='ms-auto align-self-center'>

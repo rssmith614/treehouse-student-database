@@ -46,7 +46,7 @@ const StudentGrades = ({ student }) => {
       ...gradesHistory.map((grade) => {
         return grade.grades
           .map((g) => {
-            return `"${dayjs(grade.date).format("MMMM DD, YYYY")}","${grade.tutor_name}","${g.subject}","${g.grade}","${g.comments}"`;
+            return `"${dayjs(grade.date).format("MMMM D, YYYY")}","${grade.tutor_name}","${g.subject}","${g.grade}","${g.comments}"`;
           })
           .join("\n");
       }),
@@ -117,7 +117,7 @@ const StudentGrades = ({ student }) => {
           }}
         >
           <td className='align-middle'>
-            {dayjs(grade.date).format("MMMM DD, YYYY")}
+            {dayjs(grade.date).format("MMMM D, YYYY")}
           </td>
           <td className='align-middle'>{grade.tutor_name}</td>
           <td>
@@ -132,20 +132,41 @@ const StudentGrades = ({ student }) => {
                     if (
                       parseFloat(currGrade.grade) > parseFloat(prevGrade.grade)
                     ) {
-                      trend = "bi-chevron-up text-success";
+                      if (
+                        parseFloat(currGrade.grade) -
+                          parseFloat(prevGrade.grade) >=
+                        10
+                      ) {
+                        trend = "bi-chevron-double-up text-success";
+                      } else {
+                        trend = "bi-chevron-up text-success";
+                      }
                     } else if (
                       parseFloat(currGrade.grade) < parseFloat(prevGrade.grade)
                     ) {
-                      trend = "bi-chevron-down text-danger";
+                      if (
+                        parseFloat(prevGrade.grade) -
+                          parseFloat(currGrade.grade) >=
+                        10
+                      ) {
+                        trend = "bi-chevron-double-down text-danger";
+                      } else {
+                        trend = "bi-chevron-down text-danger";
+                      }
                     }
                     break;
                   }
                 }
                 return (
                   <li key={index} className='list-group-item'>
-                    <strong>{currGrade.subject}</strong> - {currGrade.grade}%{" "}
-                    <i className={`bi ${trend}`} />
-                    <br />
+                    <div className='d-flex'>
+                      <div>
+                        <strong>{currGrade.subject}</strong> - {currGrade.grade}
+                        %{" "}
+                      </div>
+                      <i className={`bi ${trend} ms-2`} />
+                    </div>
+
                     {currGrade.comments}
                   </li>
                 );
@@ -160,7 +181,7 @@ const StudentGrades = ({ student }) => {
     <div className='d-flex flex-column'>
       <PaginatedTable
         records={gradesList}
-        pageLimit={10}
+        pageLimit={5}
         header={
           <thead>
             <tr>
