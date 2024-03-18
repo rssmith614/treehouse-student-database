@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  Nav,
-  OverlayTrigger,
-  Popover,
-  Row,
-} from "react-bootstrap";
+import { Button, Card, Col, Container, Nav, Row } from "react-bootstrap";
 import {
   collection,
   getDocs,
@@ -17,6 +8,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../Services/firebase";
+import StandardInfo from "../Pages/Standards/Components/StandardInfo";
 
 const grades = [
   "Kindergarten",
@@ -34,11 +26,11 @@ const categories = ["Math", "Reading"];
 const StandardsOfCategoryAndStatus = ({ student }) => {
   const [loading, setLoading] = useState(true);
   const [subcategories, setSubcategories] = useState({});
-  // const [selectedStandard, setSelectedStandard] = useState(null);
+
+  const [show, setShow] = useState(false);
+  const [selectedStandard, setSelectedStandard] = useState({});
 
   const [standardAverages, setStandardAverages] = useState({});
-
-  // const [show, setShow] = useState(false);
 
   const [grade, setGrade] = useState(localStorage.getItem("grade") || "K");
   const [category, setCategory] = useState(
@@ -168,27 +160,17 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
     );
   });
 
-  // useEffect(() => {
-  //   if (selectedStandard) {
-  //     setShow(true);
-  //   }
-  // }, [selectedStandard]);
-
   function color(standard) {
     let temp = standardAverages[standard.id];
     if (temp === undefined) {
       return "text-body";
-    }
-    if (temp >= 3) {
+    } else if (temp >= 3.5) {
       return "text-success";
-    }
-    if (temp >= 2) {
+    } else if (temp >= 2.5) {
       return "text-primary";
-    }
-    if (temp >= 1) {
+    } else if (temp >= 1.5) {
       return "text-warning";
-    }
-    if (temp >= 0) {
+    } else if (temp >= 0) {
       return "text-danger";
     }
     return "text-secondary";
@@ -230,7 +212,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
                 .map((standard, i) => {
                   return (
                     <Col key={i}>
-                      <OverlayTrigger
+                      {/* <OverlayTrigger
                         placement='right'
                         flip={true}
                         trigger={["hover", "focus", "click"]}
@@ -256,16 +238,26 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
                             </Popover.Body>
                           </Popover>
                         }
-                      >
-                        <button
-                          className={`btn btn-link ${color(standard)}
+                      > */}
+                      <button
+                        className={`btn btn-link ${color(standard)}
                         link-underline link-underline-opacity-0 link-underline-opacity-0-hover`}
-                          style={{ cursor: "pointer" }}
-                          // onClick={() => setSelectedStandard(standard)}
-                        >
-                          {standard.key}
-                        </button>
-                      </OverlayTrigger>
+                        style={{ cursor: "pointer" }}
+                        onClick={() => {
+                          let standardToShow = standard;
+                          if (standardAverages[standard.id] !== undefined) {
+                            standardToShow = {
+                              ...standard,
+                              progression: standardAverages[standard.id],
+                            };
+                          }
+                          setSelectedStandard(standardToShow);
+                          setShow(true);
+                        }}
+                      >
+                        {standard.key}
+                      </button>
+                      {/* </OverlayTrigger> */}
                     </Col>
                   );
                 })}
@@ -325,29 +317,13 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
           )}
         </Card.Body>
       </Card>
-      {/* <Offcanvas
+      <StandardInfo
         show={show}
-        onHide={() => setShow(false)}
-        onExited={() => setSelectedStandard(null)}
-        placement='end'
-      >
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Standard {selectedStandard?.key}</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <Card>
-            <Card.Body>
-              <div className='text-decoration-underline'>Description</div>
-              {selectedStandard?.description}
-              <hr />
-              <div className='text-decoration-underline'>
-                Average Progression
-              </div>
-              {standardAverages[selectedStandard?.id]}
-            </Card.Body>
-          </Card>
-        </Offcanvas.Body>
-      </Offcanvas> */}
+        setShow={setShow}
+        close={() => setShow(false)}
+        selectedStandard={selectedStandard}
+        setSelectedStandard={setSelectedStandard}
+      />
     </div>
   );
 };

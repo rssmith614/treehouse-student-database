@@ -3,6 +3,8 @@ import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { useEffect, useState } from "react";
 import EditStandard from "./Components/EditStandard";
 import StandardInfo from "./Components/StandardInfo";
+import { Can } from "../../Services/can";
+import { Standard } from "../../Services/defineAbility";
 
 const grades = [
   "Kindergarten",
@@ -110,6 +112,22 @@ const StandardsList = () => {
           />
         </Card.Body>
       </Card>
+      <Can I='create' a={Standard}>
+        <Button
+          variant='secondary'
+          className='mt-3 ms-auto'
+          onClick={() => {
+            setSelectedStandard({
+              grade: grade,
+              category: category,
+            });
+            setShow(true);
+            setEdit(true);
+          }}
+        >
+          Add New Standard
+        </Button>
+      </Can>
       {edit ? (
         <EditStandard
           selectedStandard={selectedStandard}
