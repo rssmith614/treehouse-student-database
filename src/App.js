@@ -35,7 +35,7 @@ import DocSubmissionToast from "./Components/DocSumbissionToast";
 import { ToastContext } from "./Services/toast";
 import EvalQuery from "./Pages/Eval/EvalQuery/EvalQuery";
 import StandardsList from "./Pages/Standards/StandardsList";
-import { Toast, ToastBody, ToastHeader } from "react-bootstrap";
+import { Col, Container, Row, Toast, ToastBody, ToastHeader } from "react-bootstrap";
 import AssessmentsList from "./Pages/Assessments/AssessmentsList";
 import AssessmentEdit from "./Pages/Assessments/AssessmentEdit";
 import NewStudentAssessment from "./Pages/Assessments/NewStudentAssessment";
@@ -134,7 +134,12 @@ function App() {
     <AbilityContext.Provider value={defineAbilityFor(userProfile)}>
       <ToastContext.Provider value={addToast}>
         <Router>
+          <Container fluid>
+            <Row className="flex-nowrap">
+              <Col className='col-md-3 col-xl-2 px-0'>
           <Navbar userProfile={userProfile} />
+          </Col>
+            <Col>
           <Routes>
             <Route path='/' element={<Navigate to='/login' />} />
             <Route
@@ -188,6 +193,9 @@ function App() {
               element={<StudentAssessmentEdit />}
             />
           </Routes>
+          </Col>
+          </Row>
+          </Container>
           <Footer />
         </Router>
         <DocSubmissionToast toasts={toastElements} />
