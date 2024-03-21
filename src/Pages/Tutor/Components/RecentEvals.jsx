@@ -5,7 +5,10 @@ const RecentEvals = ({ tutorid }) => {
   return (
     <Card className='bg-light-subtle m-3'>
       <Card.Header>
-        <div className='h3 pt-1'>Evaluations</div>
+        <div className='h3 pt-1'>
+          <i className='bi bi-journal-text pe-2' />
+          Recent Evaluations
+        </div>
       </Card.Header>
       <Card.Body>
         <div className='d-flex flex-column'>

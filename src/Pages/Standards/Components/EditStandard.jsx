@@ -150,50 +150,57 @@ const EditStandard = ({
             />
 
             <Form.Label className='pt-3'>Image</Form.Label>
-            <Form.Select
-              value={imageType}
-              onChange={(e) => {
-                setImageType(e.target.value);
-              }}
-            >
-              <option value='link'>Link To Image</option>
-              <option value='file'>Upload Image</option>
-            </Form.Select>
-            {imageType === "link" ? (
-              <Form.Control
-                id='image'
-                type='text'
-                placeholder='https://example.image.com'
-                defaultValue={selectedStandard.image}
-                onBlur={(e) => setImage(e.target.value)}
-              />
-            ) : (
-              <Form.Control
-                id='image'
-                type='file'
-                onChange={(e) =>
-                  setImage(URL.createObjectURL(e.target.files[0]))
-                }
-              />
-            )}
-            {image !== "" ? (
-              <>
-                <Card className='mt-3'>
-                  <Card.Header>Image Preview</Card.Header>
-                  <Card.Img src={image} />
-                </Card>
-                <Button
-                  variant='secondary'
-                  onClick={() => {
-                    setImage("");
-                    document.getElementById("image").value = "";
+            <div className='d-flex'>
+              {image !== "" ? (
+                <div className='d-flex flex-column'>
+                  <Card className='mt-3'>
+                    <Card.Header>Image Preview</Card.Header>
+                    <Card.Body>
+                      <img src={image} style={{ maxHeight: "250px" }} />
+                    </Card.Body>
+                  </Card>
+                  <Button
+                    variant='secondary'
+                    onClick={() => {
+                      setImage("");
+                      document.getElementById("image").value = "";
+                    }}
+                    className='mt-3'
+                  >
+                    Remove Image
+                  </Button>
+                </div>
+              ) : null}
+              <div className='d-flex flex-column w-100 mt-3 mx-3 justify-content-center'>
+                <Form.Select
+                  value={imageType}
+                  className='mb-3'
+                  onChange={(e) => {
+                    setImageType(e.target.value);
                   }}
-                  className='mt-3'
                 >
-                  Remove Image
-                </Button>
-              </>
-            ) : null}
+                  <option value='link'>Link To Image</option>
+                  <option value='file'>Upload Image</option>
+                </Form.Select>
+                {imageType === "link" ? (
+                  <Form.Control
+                    id='image'
+                    type='text'
+                    placeholder='https://example.image.com'
+                    defaultValue={selectedStandard.image}
+                    onBlur={(e) => setImage(e.target.value)}
+                  />
+                ) : (
+                  <Form.Control
+                    id='image'
+                    type='file'
+                    onChange={(e) =>
+                      setImage(URL.createObjectURL(e.target.files[0]))
+                    }
+                  />
+                )}
+              </div>
+            </div>
 
             <hr />
 
@@ -216,51 +223,57 @@ const EditStandard = ({
             />
 
             <Form.Label className='pt-3'>Question Image</Form.Label>
-            <Form.Select
-              value={questionImageType}
-              onChange={(e) => {
-                setQuestionImageType(e.target.value);
-              }}
-            >
-              <option value='link'>Link To Image</option>
-              <option value='file'>Upload Image</option>
-            </Form.Select>
 
-            {questionImageType === "link" ? (
-              <Form.Control
-                id='question_image'
-                type='text'
-                placeholder='https://example.image.com'
-                defaultValue={selectedStandard.question_image}
-                onBlur={(e) => setQuestionImage(e.target.value)}
-              />
-            ) : (
-              <Form.Control
-                id='question_image'
-                type='file'
-                onChange={(e) =>
-                  setQuestionImage(URL.createObjectURL(e.target.files[0]))
-                }
-              />
-            )}
-            {questionImage !== "" ? (
-              <>
-                <Card className='mt-3'>
-                  <Card.Header>Image Preview</Card.Header>
-                  <Card.Img src={questionImage} />
-                </Card>
-                <Button
-                  variant='secondary'
-                  onClick={() => {
-                    setQuestionImage("");
-                    document.getElementById("question_image").value = "";
+            <div className='d-flex w-100'>
+              {questionImage !== "" ? (
+                <div className='d-flex flex-column'>
+                  <Card className='mt-3'>
+                    <Card.Header>Image Preview</Card.Header>
+                    <Card.Body>
+                      <img src={questionImage} style={{ maxHeight: "250px" }} />
+                    </Card.Body>
+                  </Card>
+                  <Button
+                    variant='secondary'
+                    onClick={() => {
+                      setQuestionImage("");
+                      document.getElementById("question_image").value = "";
+                    }}
+                    className='mt-3'
+                  >
+                    Remove Image
+                  </Button>
+                </div>
+              ) : null}
+              <div className='d-flex flex-column justify-content-center w-100 mx-3'>
+                <Form.Select
+                  value={questionImageType}
+                  onChange={(e) => {
+                    setQuestionImageType(e.target.value);
                   }}
-                  className='mt-3'
                 >
-                  Remove Image
-                </Button>
-              </>
-            ) : null}
+                  <option value='link'>Link To Image</option>
+                  <option value='file'>Upload Image</option>
+                </Form.Select>
+                {questionImageType === "link" ? (
+                  <Form.Control
+                    id='question_image'
+                    type='text'
+                    placeholder='https://example.image.com'
+                    defaultValue={selectedStandard.question_image}
+                    onBlur={(e) => setQuestionImage(e.target.value)}
+                  />
+                ) : (
+                  <Form.Control
+                    id='question_image'
+                    type='file'
+                    onChange={(e) =>
+                      setQuestionImage(URL.createObjectURL(e.target.files[0]))
+                    }
+                  />
+                )}
+              </div>
+            </div>
 
             <div className='d-flex'>
               <Button
