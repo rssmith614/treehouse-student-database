@@ -72,7 +72,7 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
                 <Form.Select
                   id={`${task_idx}_progression`}
                   style={{ width: "auto" }}
-                  value={task.progression}
+                  value={task.progression ?? ""}
                   onChange={(e) => {
                     handleTasksChange(
                       tasks.map((t, i) => {
