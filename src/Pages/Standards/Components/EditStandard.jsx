@@ -301,50 +301,61 @@ const EditStandard = ({
                   />
 
                   <Form.Label className='pt-3'>Image</Form.Label>
-                  <Form.Select
-                    value={imageType}
-                    onChange={(e) => {
-                      setImageType(e.target.value);
-                    }}
-                  >
-                    <option value='link'>Link To Image</option>
-                    <option value='file'>Upload Image</option>
-                  </Form.Select>
-                  {imageType === "link" ? (
-                    <Form.Control
-                      id='image'
-                      type='text'
-                      placeholder='https://example.image.com'
-                      defaultValue={selectedStandard.image}
-                      onBlur={(e) => setImage(e.target.value)}
-                    />
-                  ) : (
-                    <Form.Control
-                      id='image'
-                      type='file'
-                      onChange={(e) =>
-                        setImage(URL.createObjectURL(e.target.files[0]))
-                      }
-                    />
-                  )}
-                  {image !== "" ? (
-                    <>
-                      <Card className='mt-3'>
-                        <Card.Header>Image Preview</Card.Header>
-                        <Card.Img src={image} />
-                      </Card>
-                      <Button
-                        variant='secondary'
-                        onClick={() => {
-                          setImage("");
-                          document.getElementById("image").value = "";
+                  <div className='d-flex'>
+                    {image !== "" ? (
+                      <div className='d-flex flex-column'>
+                        <Card className=''>
+                          <Card.Header>Image Preview</Card.Header>
+                          <Card.Body>
+                            <img
+                              src={image}
+                              alt={selectedStandard.description}
+                              style={{ maxHeight: "250px" }}
+                            />
+                          </Card.Body>
+                        </Card>
+                        <Button
+                          variant='secondary'
+                          onClick={() => {
+                            setImage("");
+                            document.getElementById("image").value = "";
+                          }}
+                          className='mt-3'
+                        >
+                          Remove Image
+                        </Button>
+                      </div>
+                    ) : null}
+                    <div className='d-flex flex-column w-100 mx-3 justify-content-center'>
+                      <Form.Select
+                        value={imageType}
+                        className='mb-3'
+                        onChange={(e) => {
+                          setImageType(e.target.value);
                         }}
-                        className='mt-3'
                       >
-                        Remove Image
-                      </Button>
-                    </>
-                  ) : null}
+                        <option value='link'>Link To Image</option>
+                        <option value='file'>Upload Image</option>
+                      </Form.Select>
+                      {imageType === "link" ? (
+                        <Form.Control
+                          id='image'
+                          type='text'
+                          placeholder='https://example.image.com'
+                          defaultValue={selectedStandard.image}
+                          onBlur={(e) => setImage(e.target.value)}
+                        />
+                      ) : (
+                        <Form.Control
+                          id='image'
+                          type='file'
+                          onChange={(e) =>
+                            setImage(URL.createObjectURL(e.target.files[0]))
+                          }
+                        />
+                      )}
+                    </div>
+                  </div>
                 </Card.Body>
               </Card>
 
@@ -357,9 +368,12 @@ const EditStandard = ({
                 <Card.Body className='d-flex'>
                   <Card className='w-50'>
                     <Card.Header>Prerequisites</Card.Header>
-                    <Card.Body>
-                      <ul className='list-group mb-3'>{prerequisitesList}</ul>
+                    <Card.Body className='d-flex flex-column'>
+                      {prerequisites.length > 0 && (
+                        <ul className='list-group mb-3'>{prerequisitesList}</ul>
+                      )}
                       <Button
+                        className='mt-auto'
                         variant='secondary'
                         onClick={() => {
                           standards.current = "pre";
@@ -372,9 +386,14 @@ const EditStandard = ({
                   </Card>
                   <Card className='w-50 ms-3'>
                     <Card.Header>Postrequisites</Card.Header>
-                    <Card.Body>
-                      <ul className='list-group mb-3'>{postrequisitesList}</ul>
+                    <Card.Body className='d-flex flex-column'>
+                      {postrequisites.length > 0 && (
+                        <ul className='list-group mb-3'>
+                          {postrequisitesList}
+                        </ul>
+                      )}
                       <Button
+                        className='mt-auto'
                         variant='secondary'
                         onClick={() => {
                           standards.current = "post";
@@ -411,51 +430,64 @@ const EditStandard = ({
                   />
 
                   <Form.Label className='pt-3'>Question Image</Form.Label>
-                  <Form.Select
-                    value={questionImageType}
-                    onChange={(e) => {
-                      setQuestionImageType(e.target.value);
-                    }}
-                  >
-                    <option value='link'>Link To Image</option>
-                    <option value='file'>Upload Image</option>
-                  </Form.Select>
 
-                  {questionImageType === "link" ? (
-                    <Form.Control
-                      id='question_image'
-                      type='text'
-                      placeholder='https://example.image.com'
-                      defaultValue={selectedStandard.question_image}
-                      onBlur={(e) => setQuestionImage(e.target.value)}
-                    />
-                  ) : (
-                    <Form.Control
-                      id='question_image'
-                      type='file'
-                      onChange={(e) =>
-                        setQuestionImage(URL.createObjectURL(e.target.files[0]))
-                      }
-                    />
-                  )}
-                  {questionImage !== "" ? (
-                    <>
-                      <Card className='mt-3'>
-                        <Card.Header>Image Preview</Card.Header>
-                        <Card.Img src={questionImage} />
-                      </Card>
-                      <Button
-                        variant='secondary'
-                        onClick={() => {
-                          setQuestionImage("");
-                          document.getElementById("question_image").value = "";
+                  <div className='d-flex w-100 justify-content-center'>
+                    {questionImage !== "" ? (
+                      <div className='d-flex flex-column'>
+                        <Card className='mt-3'>
+                          <Card.Header>Image Preview</Card.Header>
+                          <Card.Body>
+                            <img
+                              src={questionImage}
+                              alt={selectedStandard.question}
+                              style={{ maxHeight: "250px" }}
+                            />
+                          </Card.Body>{" "}
+                        </Card>
+                        <Button
+                          variant='secondary'
+                          onClick={() => {
+                            setQuestionImage("");
+                            document.getElementById("question_image").value =
+                              "";
+                          }}
+                          className='mt-3'
+                        >
+                          Remove Image
+                        </Button>
+                      </div>
+                    ) : null}
+                    <div className='d-flex flex-column w-100 px-3 align-self-center'>
+                      <Form.Select
+                        value={questionImageType}
+                        onChange={(e) => {
+                          setQuestionImageType(e.target.value);
                         }}
-                        className='mt-3'
                       >
-                        Remove Image
-                      </Button>
-                    </>
-                  ) : null}
+                        <option value='link'>Link To Image</option>
+                        <option value='file'>Upload Image</option>
+                      </Form.Select>
+                      {questionImageType === "link" ? (
+                        <Form.Control
+                          id='question_image'
+                          type='text'
+                          placeholder='https://example.image.com'
+                          defaultValue={selectedStandard.question_image}
+                          onBlur={(e) => setQuestionImage(e.target.value)}
+                        />
+                      ) : (
+                        <Form.Control
+                          id='question_image'
+                          type='file'
+                          onChange={(e) =>
+                            setQuestionImage(
+                              URL.createObjectURL(e.target.files[0]),
+                            )
+                          }
+                        />
+                      )}
+                    </div>
+                  </div>
                 </Card.Body>
               </Card>
 

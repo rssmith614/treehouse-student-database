@@ -3,12 +3,7 @@ import { auth } from "../Services/firebase";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Can } from "../Services/can";
 import { useEffect, useState } from "react";
-import {
-  Container,
-  Navbar as BsNavbar,
-  Nav,
-  NavDropdown,
-} from "react-bootstrap";
+import { Navbar as BsNavbar, Nav, Dropdown } from "react-bootstrap";
 
 // import treehouseLogo from "../images/Treehouse-Logo-New.svg";
 // import blueTreehouseLogo from "../images/Treehouse-Logo-New-Blue.svg";
@@ -18,6 +13,8 @@ const Navbar = ({ userProfile }) => {
   const { pathname } = useLocation();
 
   const [userName, setUserName] = useState("");
+
+  const [shownSubMenu, setShownSubMenu] = useState("");
 
   useEffect(() => {
     if (userProfile) setUserName(userProfile.data().displayName);
@@ -35,106 +32,147 @@ const Navbar = ({ userProfile }) => {
   if (pathname === "/login") return <></>;
 
   return (
-    <BsNavbar className='bg-body-tertiary sticky-top' expand='lg'>
-      <Container fluid>
-        <BsNavbar.Brand
-          aria-expanded='false'
-          onClick={() => navigate(`/tutor/${userProfile.id}`)}
-          style={{ cursor: "pointer" }}
-        >
-          {/* {document.documentElement.getAttribute("data-bs-theme") === "dark" ? (
-            <img
-              src={treehouseLogo}
-              alt='Treehouse Logo'
-              className='d-inline-block align-text-top'
-              style={{ height: 24 }}
-            />
-          ) : (
-            <img
-              src={blueTreehouseLogo}
-              alt='Treehouse Logo'
-              className='d-inline-block align-text-top'
-              style={{ height: 24 }}
-            />
-          )} */}
-          Welcome, {userName}
-        </BsNavbar.Brand>
-        <BsNavbar.Toggle
-          aria-controls='navbarNavAltMarkup'
-          aria-expanded='false'
-          aria-label='Toggle navigation'
-        />
-        <BsNavbar.Collapse id='navbarNavAltMarkup'>
-          <Nav>
+    <BsNavbar className='bg-body-tertiary'>
+      <BsNavbar.Brand
+        aria-expanded='false'
+        className='text-wrap ps-3'
+        onClick={() => navigate(`/tutor/${userProfile.id}`)}
+        style={{ cursor: "pointer" }}
+      >
+        Welcome, {userName}
+      </BsNavbar.Brand>
+      <BsNavbar.Toggle
+        aria-controls='navbarNavAltMarkup'
+        aria-expanded='false'
+        aria-label='Toggle navigation'
+      />
+      <BsNavbar.Collapse
+        id='navbarNavAltMarkup'
+        className='justify-content-start'
+      >
+        <Nav className='w-100'>
+          <Nav.Link
+            className='d-flex align-items-center'
+            onClick={() => navigate("/students")}
+            style={{ cursor: "pointer" }}
+          >
+            <i className='bi bi-people-fill pe-2 fs-4' />
+            Students
+          </Nav.Link>
+
+          <Can I='read' on='Tutor'>
             <Nav.Link
-              onClick={() => navigate("/students")}
+              className='d-flex align-items-center'
+              onClick={() => navigate("/tutors")}
               style={{ cursor: "pointer" }}
             >
-              Students
+              <i className='bi bi-person-lines-fill pe-2 fs-4' />
+              Tutors
             </Nav.Link>
+          </Can>
 
-            <Can I='read' on='Tutor'>
-              <Nav.Link
-                onClick={() => navigate("/tutors")}
-                style={{ cursor: "pointer" }}
+          <Dropdown
+            show={shownSubMenu === "evals"}
+            onToggle={(e) => setShownSubMenu(e ? "evals" : "")}
+          >
+            <Dropdown.Toggle
+              as={Nav.Link}
+              className='d-flex align-items-center'
+              style={{ cursor: "pointer" }}
+            >
+              <i className='bi bi-journal-text pe-2 fs-4' />
+              Evaluations
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item
+                onClick={() => navigate(`/evals`)}
+                className='d-flex'
               >
-                Tutors
-              </Nav.Link>
-            </Can>
-
-            <NavDropdown title='Evaluations'>
-              <NavDropdown.Item onClick={() => navigate(`/evals`)}>
-                Past Evaluations
-              </NavDropdown.Item>
-              <NavDropdown.Item onClick={() => navigate(`/eval/new`)}>
-                New Session Evaluation
-              </NavDropdown.Item>
+                <i className='bi bi-journal-text pe-2 fs-6' />
+                <span className='align-self-center'>Past Evaluations</span>
+              </Dropdown.Item>
+              <Dropdown.Item
+                onClick={() => navigate(`/eval/new`)}
+                className='d-flex'
+              >
+                <i className='bi bi-journal-plus pe-2 fs-6' />
+                <span className='align-self-center'>New Evaluation</span>
+              </Dropdown.Item>
               <Can I='query' on='evals'>
-                <NavDropdown.Item onClick={() => navigate(`/eval/query`)}>
-                  Find Evals
-                </NavDropdown.Item>
+                <Dropdown.Item
+                  onClick={() => navigate(`/eval/query`)}
+                  className='d-flex'
+                >
+                  <i className='bi bi-search pe-2 fs-6' />
+                  <span className='align-self-center'>Query Evals</span>
+                </Dropdown.Item>
               </Can>
               <Can I='review' on='evals'>
-                <NavDropdown.Item onClick={() => navigate(`/evals/review`)}>
-                  Review Evals
-                </NavDropdown.Item>
+                <Dropdown.Item
+                  onClick={() => navigate(`/evals/review`)}
+                  className='d-flex'
+                >
+                  <i className='bi bi-journal-check pe-2 fs-6' />
+                  <span className='align-self-center'>Pending Review</span>
+                </Dropdown.Item>
               </Can>
-            </NavDropdown>
+            </Dropdown.Menu>
+          </Dropdown>
 
+          <Nav.Link
+            className='d-flex align-items-center'
+            onClick={() => navigate("/standards")}
+            style={{ cursor: "pointer" }}
+          >
+            <i className='bi bi-card-list pe-2 fs-4' />
+            Standards
+          </Nav.Link>
+
+          <Can I='manage' on='assessments'>
             <Nav.Link
-              onClick={() => navigate("/standards")}
+              className='d-flex align-items-center'
+              onClick={() => navigate("/assessments")}
               style={{ cursor: "pointer" }}
             >
-              Standards
+              <i className='bi bi-clipboard-data pe-2 fs-4' />
+              Assessments
             </Nav.Link>
+          </Can>
 
-            <Can I='manage' on='assessments'>
-              <Nav.Link
-                onClick={() => navigate("/assessments")}
-                style={{ cursor: "pointer" }}
-              >
-                Assessments
-              </Nav.Link>
-            </Can>
-
-            <NavDropdown title='Options'>
-              <NavDropdown.Item
+          <Dropdown
+            show={shownSubMenu === "options"}
+            onToggle={(e) => setShownSubMenu(e ? "options" : "")}
+          >
+            <Dropdown.Toggle
+              as={Nav.Link}
+              className='d-flex align-items-center'
+              style={{ cursor: "pointer" }}
+            >
+              <i className='bi bi-gear-fill pe-2 fs-4' />
+              Options
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item
                 onClick={() => navigate(`/tutor/${userProfile.id}`)}
+                className='d-flex'
               >
-                View Tutor Profile
-              </NavDropdown.Item>
-              <NavDropdown.Item
+                <i className='bi bi-person-circle pe-2 fs-6' />
+                <span className='align-self-center'>Profile</span>
+              </Dropdown.Item>
+              <Dropdown.Item
                 onClick={() => {
                   signOut(auth);
                   navigate("/login");
                 }}
+                className='d-flex'
               >
-                Log Out
-              </NavDropdown.Item>
-            </NavDropdown>
-          </Nav>
-        </BsNavbar.Collapse>
-      </Container>
+                <i className='bi bi-box-arrow-right pe-2 fs-6' />
+                <span className='align-self-center'>Logout</span>
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </Nav>
+      </BsNavbar.Collapse>
     </BsNavbar>
   );
 };

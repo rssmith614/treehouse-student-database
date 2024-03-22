@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Card, Col, Modal, Row } from "react-bootstrap";
+import { Button, Card, Col, Collapse, Modal, Row } from "react-bootstrap";
 import { AbilityContext } from "../../../Services/can";
 import { Standard } from "../../../Services/defineAbility";
 import { doc, getDoc } from "firebase/firestore";
@@ -167,8 +167,9 @@ const StandardInfo = ({
             </div>
           </Card.Body>
         </Card>
-        {selectedStandard?.question ? (
-          <>
+        {/* {selectedStandard?.question ? ( */}
+        <Collapse in={(selectedStandard?.question ?? "") !== ""}>
+          <div>
             <hr />
             <p className='fst-italic text-decoration-underline'>
               Example Question
@@ -192,8 +193,9 @@ const StandardInfo = ({
                 </div>
               </Card.Body>
             </Card>
-          </>
-        ) : null}
+          </div>
+        </Collapse>
+        {/* ) : null} */}
         <div className='d-flex'>
           {addSelection ? (
             <Button

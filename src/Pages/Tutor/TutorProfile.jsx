@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import About from "./Components/About";
 import RecentEvals from "./Components/RecentEvals";
 import RecentStudents from "./Components/RecentStudents";
+import { Col, Row } from "react-bootstrap";
 
 const TutorProfile = () => {
   const params = useParams();
@@ -10,11 +11,14 @@ const TutorProfile = () => {
   return (
     <div className='p-3 d-flex flex-column'>
       <h1 className='d-flex display-1'>Tutor Profile</h1>
-      <div className='d-flex flex-row justify-content-center'>
-        <About tutorid={params.tutorid} />
-
-        <RecentStudents tutorid={params.tutorid} />
-      </div>
+      <Row className='justify-content-center'>
+        <Col className='col-md-8'>
+          <About tutorid={params.tutorid} />
+        </Col>
+        <Col className='col-md-4'>
+          <RecentStudents tutorid={params.tutorid} />
+        </Col>
+      </Row>
       <RecentEvals tutorid={params.tutorid} />
     </div>
   );
