@@ -253,22 +253,24 @@ const StudentAssessmentEdit = () => {
               No Questions found for the selected Assessment
             </div>
           )}
-          <div className='d-flex justify-content-end'>
-            <Button
-              variant='danger'
-              type='button'
-              className='m-3'
-              onClick={handleDelete}
-            >
-              Delete
-            </Button>
-            <Button variant='primary' onClick={handleSubmit}>
-              Submit
-            </Button>
-          </div>
           {/* </Form> */}
         </Card.Body>
       </Card>
+      <div className='d-flex'>
+        <Button
+          variant='secondary'
+          className='m-3'
+          onClick={() => navigate(-1)}
+        >
+          Cancel
+        </Button>
+        <Button variant='danger' className='m-3 ms-auto' onClick={handleDelete}>
+          Delete
+        </Button>
+        <Button variant='primary' className='m-3' onClick={handleSubmit}>
+          Submit
+        </Button>
+      </div>
     </div>
   );
 };

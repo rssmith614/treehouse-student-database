@@ -64,9 +64,9 @@ const AssessmentsList = () => {
               )
               .map((amtGroup, i) => {
                 return (
-                  <Col key={i}>
+                  <Col key={i} xs={12}>
                     <Card className='p-3 my-3' key={i}>
-                      <h5>{grades[amtGroup[0]]}</h5>
+                      <h3 className='text-primary'>{grades[amtGroup[0]]}</h3>
                       <Container>
                         <Row xs={{ cols: "auto" }}>
                           {amtGroup[1]
@@ -97,6 +97,9 @@ const AssessmentsList = () => {
           </Row>
         </Container>
       </Card>
+      <Button variant='primary' className='mt-3 ms-auto'>
+        Add New Assessment
+      </Button>
     </div>
   );
 };

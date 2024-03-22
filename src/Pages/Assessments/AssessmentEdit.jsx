@@ -69,9 +69,12 @@ const AssessmentEdit = () => {
       if (res.data().file === "" || res.data().file === undefined) return;
 
       assessmentFileRef.current = ref(storage, res.data().file);
-      getDownloadURL(assessmentFileRef.current).then((url) =>
-        setAssessmentFile(url),
-      );
+      getDownloadURL(assessmentFileRef.current)
+        .then((url) => setAssessmentFile(url))
+        .catch((err) => {
+          console.error(err);
+          setAssessmentFile("");
+        });
     });
   }, [params.assessmentid]);
 
@@ -420,6 +423,11 @@ const AssessmentEdit = () => {
             })}
           </tbody>
         </Table>
+      </Card>
+      <div className='d-flex mt-3'>
+        <Button variant='secondary' className='' onClick={() => navigate(-1)}>
+          Back
+        </Button>
         <Button
           id='save-q-changes'
           className='ms-auto'
@@ -427,8 +435,13 @@ const AssessmentEdit = () => {
         >
           Save Changes
         </Button>
-      </Card>
-      <Offcanvas show={show} onHide={() => setShow(false)} placement='end'>
+      </div>
+      <Offcanvas
+        show={show}
+        onHide={() => setShow(false)}
+        placement='end'
+        className='w-75'
+      >
         <Offcanvas.Header>
           <Offcanvas.Title>
             New Assessment File for {grades[assessment.grade]}{" "}
