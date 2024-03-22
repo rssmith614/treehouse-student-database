@@ -116,16 +116,18 @@ const StandardsOfStudent = ({
 
     switch (standard.status) {
       case "1":
-        return res + "link-danger";
+        res += "link-danger";
       case "2":
-        return res + "link-warning";
+        res += "link-warning";
       case "3":
-        return res + "link-primary";
+        res += "link-primary";
       case "4":
-        return res + "link-success";
+        res += "link-success";
       default:
-        return res + "link-body-emphasis";
+        res += "link-body-emphasis";
     }
+
+    return res;
   }
 
   if (loading)

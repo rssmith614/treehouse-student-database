@@ -146,7 +146,7 @@ const NewStudentEval = () => {
               `${evaluation.student_name} has not had their class grades entered yet.`,
             );
             setGradesTooltip(
-              "Students in 6th grade and above are expected to have their class grades entered regularly.",
+              "Students in 6th grade and above are expected to have their class grades entered regularly to track progress and performance.",
             );
             setShowGradesReminder(true);
           }

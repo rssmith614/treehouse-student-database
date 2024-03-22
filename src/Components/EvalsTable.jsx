@@ -211,7 +211,17 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
               setExpanded(!expanded);
             }}
           >
-            {expanded ? "Show Less" : "Show More"}
+            {expanded ? (
+              <div className='d-flex'>
+                <span className='me-1'>Less</span>
+                <i className='bi bi-chevron-up' />
+              </div>
+            ) : (
+              <div className='d-flex'>
+                <span className='me-1'>More</span>
+                <i className='bi bi-chevron-down' />
+              </div>
+            )}
           </Button>
         </td>
       </tr>

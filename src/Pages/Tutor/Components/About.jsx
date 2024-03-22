@@ -15,9 +15,11 @@ const About = ({ tutorid }) => {
 
   const navigate = useNavigate();
 
-  const tutorDocRef = useRef(doc(db, "tutors", tutorid));
+  const tutorDocRef = useRef();
 
   useEffect(() => {
+    tutorDocRef.current = doc(db, "tutors", tutorid);
+
     const unsubscribeTutor = onSnapshot(tutorDocRef.current, (doc) => {
       setTutor({ id: doc.id, ...doc.data() });
       setLoading(false);
@@ -46,7 +48,10 @@ const About = ({ tutorid }) => {
   return (
     <Card className='d-flex flex-fill bg-light-subtle justify-content-center m-3'>
       <Card.Header>
-        <div className='h3 pt-1'>About</div>
+        <div className='h3 pt-1'>
+          <i className='bi bi-info-circle-fill pe-2' />
+          About
+        </div>
       </Card.Header>
       <Card.Body
         className='d-flex flex-column justify-content-between placeholder-wave'
@@ -133,6 +138,7 @@ const About = ({ tutorid }) => {
               onClick={() => navigate(`/tutor/edit/${tutor.id}`)}
             >
               Make Changes
+              <i className='bi bi-pencil-fill ps-2' />
             </button>
           </Can>
         </div>

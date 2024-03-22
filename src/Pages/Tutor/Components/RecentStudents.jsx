@@ -52,9 +52,13 @@ const RecentStudents = ({ tutorid }) => {
 
   if (loading) {
     return (
-      <Card className='bg-light-subtle m-3 mw-0'>
+      <Card className='bg-light-subtle m-3 flex-fill'>
         <Card.Header>
-          <div className='h3 pt-1'>New Evaluation - Recent Students</div>
+          <div className='h3 pt-1'>
+            <i className='bi bi-journal-plus pe-2' />
+            New Evaluation
+          </div>
+          <div className='h5'>Recent Students</div>
         </Card.Header>
         <Card.Body>
           <Container className='d-flex justify-content-center'>
@@ -81,9 +85,13 @@ const RecentStudents = ({ tutorid }) => {
   }
 
   return (
-    <Card className='bg-light-subtle m-3 mw-0'>
+    <Card className='bg-light-subtle m-3 flex-fill'>
       <Card.Header>
-        <div className='h3 pt-1'>New Evaluation - Recent Students</div>
+        <div className='h3 pt-1'>
+          <i className='bi bi-journal-plus pe-2' />
+          New Evaluation
+        </div>
+        <div className='h5'>Recent Students</div>
       </Card.Header>
       <Card.Body>
         <Container className='d-flex justify-content-center'>
@@ -115,6 +123,7 @@ const RecentStudents = ({ tutorid }) => {
               </ul>
               <Button onClick={() => navigate("/eval/new")}>
                 Find another Student
+                <i className='bi bi-arrow-right ms-2' />
               </Button>
             </div>
           )}

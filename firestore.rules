@@ -53,7 +53,7 @@ service cloud.firestore {
 
     match /standards/{standard} {
       allow read: if request.auth != null;
-      allow update: if request.auth != null && isAdmin(request.auth.uid);
+      allow write: if request.auth != null && isAdmin(request.auth.uid);
     }
     
     match /assessments/{assessment} {
