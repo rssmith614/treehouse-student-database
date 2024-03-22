@@ -32,7 +32,7 @@ const Navbar = ({ userProfile }) => {
   if (pathname === "/login") return <></>;
 
   return (
-    <BsNavbar className='bg-body-tertiary'>
+    <BsNavbar className='bg-body-tertiary' sticky='top'>
       <BsNavbar.Brand
         aria-expanded='false'
         className='text-wrap ps-3'
