@@ -12,10 +12,10 @@ const TutorProfile = () => {
     <div className='p-3 d-flex flex-column'>
       <h1 className='d-flex display-1'>Tutor Profile</h1>
       <Row className='justify-content-center'>
-        <Col className='col-md-8'>
+        <Col className='col-md-8 d-flex'>
           <About tutorid={params.tutorid} />
         </Col>
-        <Col className='col-md-4'>
+        <Col className='col-md-4 d-flex'>
           <RecentStudents tutorid={params.tutorid} />
         </Col>
       </Row>
