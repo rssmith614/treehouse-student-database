@@ -206,7 +206,7 @@ const StandardInfo = ({
                 setShow(false);
               }}
             >
-              Add to Task
+              Add
             </Button>
           ) : null}
           {!addSelection &&

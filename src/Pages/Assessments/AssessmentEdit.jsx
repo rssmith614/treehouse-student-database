@@ -11,9 +11,19 @@ import {
 import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { db, storage } from "../../Services/firebase";
-import { Button, Card, Fade, Modal, Tab, Table, Tabs } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Fade,
+  InputGroup,
+  Modal,
+  Tab,
+  Table,
+  Tabs,
+} from "react-bootstrap";
 import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 import { ToastContext } from "../../Services/toast";
+import PickStandard from "../Standards/Components/PickStandard";
 
 const csv = require("csvtojson");
 
@@ -43,6 +53,9 @@ const AssessmentEdit = () => {
   const [updatingFile, setUpdatingFile] = useState(false);
 
   const [answerKeyTab, setAnswerKeyTab] = useState("manual-entry");
+
+  const [showStandardSelector, setShowStandardSelector] = useState(false);
+  const standardSelector = useRef();
 
   const assessmentFileRef = useRef();
 
@@ -128,6 +141,7 @@ const AssessmentEdit = () => {
       }
 
       setShow(true);
+      setShowFileUpload(false);
     } else {
       window.alert("Please select a file first");
       document.getElementById("save-new-file").removeAttribute("disabled");
@@ -517,19 +531,38 @@ const AssessmentEdit = () => {
                     />
                   </td>
                   <td className='align-middle'>
-                    <input
-                      className='form-control'
-                      value={q.standard}
-                      onChange={(e) => {
-                        setQuestions(
-                          questions.map((item) => {
-                            if (item.num !== q.num) return item;
-                            else return { ...item, standard: e.target.value };
-                          }),
-                        );
-                        setQuestionsDirty(true);
-                      }}
-                    />
+                    <InputGroup>
+                      <input
+                        className='form-control'
+                        value={q.standard}
+                        onChange={(e) => {
+                          setQuestions(
+                            questions.map((item) => {
+                              if (item.num !== q.num) return item;
+                              else return { ...item, standard: e.target.value };
+                            }),
+                          );
+                          setQuestionsDirty(true);
+                        }}
+                      />
+                      <Button
+                        variant='secondary'
+                        onClick={() => {
+                          standardSelector.current = (standard) => {
+                            setQuestions(
+                              questions.map((item) => {
+                                if (item.num !== q.num) return item;
+                                else return { ...item, standard: standard.key };
+                              }),
+                            );
+                            setQuestionsDirty(true);
+                          };
+                          setShowStandardSelector(true);
+                        }}
+                      >
+                        <i className='bi bi-box-arrow-up-right'></i>
+                      </Button>
+                    </InputGroup>
                   </td>
                 </tr>
               );
@@ -637,6 +670,17 @@ const AssessmentEdit = () => {
             </Tab>
           </Tabs>
         </Modal.Body>
+      </Modal>
+      <Modal
+        show={showStandardSelector}
+        onHide={() => setShowStandardSelector(false)}
+        centered
+        size='lg'
+      >
+        <PickStandard
+          close={() => setShowStandardSelector(false)}
+          standardSelector={standardSelector.current}
+        />
       </Modal>
     </div>
   );
