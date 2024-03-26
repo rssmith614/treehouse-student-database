@@ -19,6 +19,7 @@ import {
   Button,
   Card,
   Collapse,
+  Container,
   Modal,
   OverlayTrigger,
   Popover,
@@ -28,9 +29,15 @@ import { ToastContext } from "../../Services/toast";
 import EvalFooter from "./Components/EvalFooter";
 import EvalHeader from "./Components/EvalHeader";
 import Tasks from "./Components/Tasks";
+import StandardInfo from "../Standards/Components/StandardInfo";
 
 const NewStudentEval = () => {
   const [standards, setStandards] = useState([]);
+  const [standardAverages, setStandardAverages] = useState({});
+  const [standardSuggestions, setStandardSuggestions] = useState([]);
+
+  const [showStandardInfo, setShowStandardInfo] = useState(false);
+  const [selectedStandard, setSelectedStandard] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -221,7 +228,7 @@ const NewStudentEval = () => {
       limit(5),
     );
 
-    const unsubscribeEvals = onSnapshot(evalsQuery, (evalsSnapshot) => {
+    const unsubscribeRecentEvals = onSnapshot(evalsQuery, (evalsSnapshot) => {
       const notesArray = evalsSnapshot.docs.map((e) => {
         return {
           tutor: e.data().tutor_name,
@@ -282,7 +289,7 @@ const NewStudentEval = () => {
     });
 
     return () => {
-      unsubscribeEvals();
+      unsubscribeRecentEvals();
     };
   }, [params.studentid]);
 
@@ -313,6 +320,98 @@ const NewStudentEval = () => {
 
     document.getElementById("flagForReview").classList.add("d-none");
   }, [tasks]);
+
+  useEffect(() => {
+    const unsubscribeEvaluations = onSnapshot(
+      query(
+        collection(db, "evaluations"),
+        where("student_id", "==", params.studentid),
+      ),
+      (res) => {
+        const evaluations = res.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        const standardProgression = {};
+
+        const evaluationPromises = evaluations.map(async (evaluation) => {
+          const evaluationRef = collection(
+            db,
+            "evaluations",
+            evaluation.id,
+            "tasks",
+          );
+          return getDocs(evaluationRef).then((tasksSnapshot) => {
+            tasksSnapshot.forEach((taskDoc) => {
+              const standards = taskDoc.data().standards;
+              if (!standards) return;
+              standards.forEach((standard) => {
+                if (!standardProgression[standard?.id || standard]) {
+                  standardProgression[standard?.id || standard] = [];
+                }
+                standardProgression[standard?.id || standard].push(
+                  standard?.progression || taskDoc.data().progression,
+                );
+              });
+            });
+          });
+        });
+
+        Promise.all(evaluationPromises).then(() => {
+          const averageProgression = {};
+          Object.keys(standardProgression).forEach((standard) => {
+            const progressions = standardProgression[standard];
+            const sum = progressions.reduce(
+              (total, progression) => total + parseInt(progression),
+              0,
+            );
+            const average = sum / progressions.length;
+            averageProgression[standard] = average.toFixed(2);
+          });
+
+          // console.log(averageProgression);
+          setStandardAverages(averageProgression);
+        });
+      },
+    );
+
+    return () => {
+      unsubscribeEvaluations();
+    };
+  }, [params.studentid]);
+
+  useEffect(() => {
+    let suggestions = [];
+    let suggestionPromises = [];
+    standards.forEach((standard) => {
+      if (parseFloat(standardAverages[standard.id]) < 3.5) {
+        suggestions.push({
+          ...standard,
+          progression: standardAverages[standard.id],
+        });
+      } else {
+        standard.postrequisites.forEach((postreq) => {
+          if (
+            !(postreq in standardAverages) ||
+            standardAverages[postreq] < 3.5
+          ) {
+            suggestionPromises.push(getDoc(doc(db, "standards", postreq)));
+          }
+        });
+      }
+    });
+
+    Promise.all(suggestionPromises)
+      .then((standards) => {
+        let postReqSuggestions = standards.map((s) => {
+          return { ...s.data(), id: s.id, progression: undefined };
+        });
+        suggestions = suggestions.concat(postReqSuggestions);
+      })
+      .then(() => {
+        setStandardSuggestions(suggestions);
+      });
+  }, [standardAverages, standards]);
 
   function handleEvalChange(newEval) {
     setEvaluation(newEval);
@@ -620,9 +719,14 @@ const NewStudentEval = () => {
         </div>
       </div>
       <div className='d-flex'>
-        <Modal show={showNotes} onHide={() => setShowNotes(false)}>
+        <Modal
+          show={showNotes}
+          onHide={() => setShowNotes(false)}
+          centered
+          size='lg'
+        >
           <Modal.Header>
-            <Modal.Title>{evaluation.student_name}</Modal.Title>
+            <Modal.Title>For Today's Session</Modal.Title>
             <Button
               variant='secondary'
               onClick={() => setShowNotes(false)}
@@ -632,57 +736,132 @@ const NewStudentEval = () => {
             </Button>
           </Modal.Header>
           <Modal.Body>
-            <div className='d-flex flex-column'>
-              <div className='d-flex'>
-                <div className='d-flex flex-column'>
-                  <div className='h6'>{notes[notesIndex]?.tutor}</div>
-                  <div className='text-secondary'>
-                    {dayjs(notes[notesIndex]?.date).format("MMMM D, YYYY")}
+            <Card className='d-flex flex-column bg-light-subtle'>
+              <Card.Header>
+                <div className='h4'>Previous Session Notes</div>
+                <Card.Subtitle className='text-secondary'>
+                  {evaluation.student_name}
+                </Card.Subtitle>
+              </Card.Header>
+              <Card.Body>
+                <div className='d-flex'>
+                  <div className='d-flex flex-column'>
+                    <div className='h6'>{notes[notesIndex]?.tutor}</div>
+                    <div className='text-secondary'>
+                      {dayjs(notes[notesIndex]?.date).format("MMMM D, YYYY")}
+                    </div>
+                  </div>
+                  <div className='ms-auto align-self-center'>
+                    <Button
+                      variant='primary'
+                      size='sm'
+                      onClick={() => navigate(`/eval/${notes[notesIndex]?.id}`)}
+                    >
+                      View Evaluation{" "}
+                      <i className='ms-auto ps-1 bi bi-box-arrow-up-right'></i>
+                    </Button>
                   </div>
                 </div>
-                <div className='ms-auto align-self-center'>
-                  <Button
-                    variant='primary'
-                    size='sm'
-                    onClick={() => navigate(`/eval/${notes[notesIndex]?.id}`)}
-                  >
-                    View Evaluation{" "}
-                    <i className='ms-auto ps-1 bi bi-box-arrow-up-right'></i>
-                  </Button>
+                <hr />
+                <div className=''>{notes[notesIndex]?.notes}</div>
+              </Card.Body>
+              <Card.Footer className='d-flex'>
+                <Button
+                  variant='primary'
+                  size='sm'
+                  className='me-auto'
+                  disabled={notesIndex >= notes.length - 1}
+                  onClick={() => {
+                    setNotesIndex(notesIndex + 1);
+                  }}
+                >
+                  <i className='bi bi-arrow-left' />
+                </Button>
+                <div className='text-secondary align-self-center'>
+                  {notes.length - notesIndex} / {notes.length}
                 </div>
+                <Button
+                  variant='primary'
+                  size='sm'
+                  className='ms-auto'
+                  disabled={notesIndex <= 0}
+                  onClick={() => {
+                    setNotesIndex(notesIndex - 1);
+                  }}
+                >
+                  <i className='bi bi-arrow-right' />
+                </Button>
+              </Card.Footer>
+            </Card>
+            {standardSuggestions.length > 0 && (
+              <div className='w-100'>
+                <hr />
+                <Card className='d-flex flex-column bg-light-subtle'>
+                  <Card.Header>
+                    <div className='h4'>Standards</div>
+                    <Card.Subtitle className='text-secondary'>
+                      Suggestions for {evaluation.student_name}
+                    </Card.Subtitle>
+                  </Card.Header>
+                  <Card.Body>
+                    <Container>
+                      <div className='row justify-content-between'>
+                        {standardSuggestions.filter((s) => s.progression)
+                          .length > 0 && (
+                          <Card className='col-6'>
+                            <Card.Body>
+                              <h4>Needs Work</h4>
+                              <div className='d-flex flex-wrap'>
+                                {standardSuggestions
+                                  .filter((s) => s.progression)
+                                  .map((standard) => (
+                                    <Button
+                                      variant='link'
+                                      key={standard.id}
+                                      onClick={() => {
+                                        setSelectedStandard(standard);
+                                        setShowStandardInfo(true);
+                                      }}
+                                    >
+                                      {standard.key}
+                                    </Button>
+                                  ))}
+                              </div>
+                            </Card.Body>
+                          </Card>
+                        )}
+                        {standardSuggestions.filter(
+                          (s) => s.progression === undefined,
+                        ).length > 0 && (
+                          <Card className='col-6'>
+                            <Card.Body>
+                              <h4>Move On</h4>
+                              <div className='d-flex flex-wrap'>
+                                {standardSuggestions
+                                  .filter((s) => s.progression === undefined)
+                                  .map((standard) => (
+                                    <Button
+                                      variant='link'
+                                      key={standard.id}
+                                      onClick={() => {
+                                        setSelectedStandard(standard);
+                                        setShowStandardInfo(true);
+                                      }}
+                                    >
+                                      {standard.key}
+                                    </Button>
+                                  ))}
+                              </div>
+                            </Card.Body>
+                          </Card>
+                        )}
+                      </div>
+                    </Container>
+                  </Card.Body>
+                </Card>
               </div>
-              <hr />
-              <div className='h5'>Next Session Notes</div>
-              <div className=''>{notes[notesIndex]?.notes}</div>
-            </div>
+            )}
           </Modal.Body>
-          <Modal.Footer className='d-flex'>
-            <Button
-              variant='secondary'
-              size='sm'
-              className='me-auto'
-              disabled={notesIndex >= notes.length - 1}
-              onClick={() => {
-                setNotesIndex(notesIndex + 1);
-              }}
-            >
-              <i className='bi bi-arrow-left' />
-            </Button>
-            <div className='text-secondary align-self-center'>
-              {notes.length - notesIndex} / {notes.length}
-            </div>
-            <Button
-              variant='secondary'
-              size='sm'
-              className='ms-auto'
-              disabled={notesIndex <= 0}
-              onClick={() => {
-                setNotesIndex(notesIndex - 1);
-              }}
-            >
-              <i className='bi bi-arrow-right' />
-            </Button>
-          </Modal.Footer>
         </Modal>
         <Modal
           show={showGradesReminder}
@@ -745,6 +924,16 @@ const NewStudentEval = () => {
             </Button>
           </Modal.Footer>
         </Modal>
+        <StandardInfo
+          show={showStandardInfo}
+          setShow={setShowStandardInfo}
+          close={() => {
+            setShowStandardInfo(false);
+            setSelectedStandard(false);
+          }}
+          selectedStandard={selectedStandard}
+          setSelectedStandard={setSelectedStandard}
+        />
       </div>
     </>
   );
