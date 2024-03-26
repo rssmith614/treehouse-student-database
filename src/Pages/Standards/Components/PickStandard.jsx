@@ -39,13 +39,15 @@ const PickStandard = ({ standards, setStandards, close, standardSelector }) => {
   function addStandard(standardToAdd) {
     standardSelector(standardToAdd);
 
-    if (!standards.find((s) => s.id === standardToAdd.id)) {
-      setStandards([...standards, standardToAdd]);
+    if (standards) {
+      if (!standards.find((s) => s.id === standardToAdd.id)) {
+        setStandards([...standards, standardToAdd]);
+      }
+      addToast({
+        header: "Standard Added",
+        message: `Standard ${standardToAdd.key} has been selected`,
+      });
     }
-    addToast({
-      header: "Standard Added",
-      message: `Standard ${standardToAdd.key} has been selected`,
-    });
     close();
   }
 
@@ -88,7 +90,7 @@ const PickStandard = ({ standards, setStandards, close, standardSelector }) => {
   return (
     <>
       <div className='d-flex flex-column p-3'>
-        <div className='display-1'>Add Standard to Graph</div>
+        <div className='display-1'>Add Standard</div>
         <Card className='bg-light-subtle'>
           <Card.Header>
             <Nav variant='underline' activeKey={grade}>

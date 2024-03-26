@@ -94,7 +94,7 @@ const NewStudentAssessment = () => {
       (amt) => amt.category === selectedCategory,
     );
 
-    if (newAssessment.questions !== undefined) {
+    if (newAssessment?.questions !== undefined) {
       newAssessment.questions = Object.entries(newAssessment.questions).reduce(
         (newq, q) => {
           return { ...newq, [q[0]]: { ...q[1], score: 0, student_answer: "" } };
@@ -365,14 +365,17 @@ const NewStudentAssessment = () => {
               Select a grade and category to view the assessment
             </div>
           )}
-          <div className='d-flex justify-content-end'>
-            <Button variant='primary' onClick={handleSubmit}>
-              Submit
-            </Button>
-          </div>
           {/* </Form> */}
         </Card.Body>
       </Card>
+      <div className='d-flex justify-content-between p-3'>
+        <Button variant='secondary' onClick={() => navigate(-1)}>
+          Cancel
+        </Button>
+        <Button variant='primary' onClick={handleSubmit}>
+          Submit
+        </Button>
+      </div>
     </div>
   );
 };

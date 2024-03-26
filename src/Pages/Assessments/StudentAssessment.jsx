@@ -40,16 +40,22 @@ const StudentAssessment = () => {
           id: snapshot.id,
         });
         if (snapshot.data().file !== "") {
-          getDownloadURL(ref(storage, snapshot.data().file)).then((url) => {
-            setBlankFileURL(url);
-          });
+          getDownloadURL(ref(storage, snapshot.data().file))
+            .then((url) => {
+              setBlankFileURL(url);
+            })
+            .catch((error) => {
+              console.error("Error getting file URL: ", error);
+            });
         }
         if (snapshot.data().completed_file !== "") {
-          getDownloadURL(ref(storage, snapshot.data().completed_file)).then(
-            (url) => {
+          getDownloadURL(ref(storage, snapshot.data().completed_file))
+            .then((url) => {
               setCompletedFileURL(url);
-            },
-          );
+            })
+            .catch((error) => {
+              console.error("Error getting completed file URL: ", error);
+            });
         }
       },
     );
@@ -180,15 +186,26 @@ const StudentAssessment = () => {
           </Table>
         </Row>
       </div>
-      <Can I='edit' this={amtInstance}>
+      <div className='d-flex'>
         <Button
-          variant='info'
-          className='m-3 ms-auto'
-          onClick={() => navigate(`/assessments/student/edit/${assessment.id}`)}
+          variant='secondary'
+          className='m-3'
+          onClick={() => navigate(-1)}
         >
-          Make Changes
+          Back
         </Button>
-      </Can>
+        <Can I='edit' this={amtInstance}>
+          <Button
+            variant='info'
+            className='m-3 ms-auto'
+            onClick={() =>
+              navigate(`/assessments/student/edit/${assessment.id}`)
+            }
+          >
+            Make Changes
+          </Button>
+        </Can>
+      </div>
     </div>
   );
 };
