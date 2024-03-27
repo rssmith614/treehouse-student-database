@@ -94,6 +94,17 @@ const StandardInfo = ({
             </span>
           </div>
         )}
+        {selectedStandard?.parent && (
+          <div className='h4'>
+            Because you mastered{" "}
+            <Button
+              variant='link'
+              onClick={() => setSelectedStandard(selectedStandard.parent)}
+            >
+              {selectedStandard.parent.key}
+            </Button>
+          </div>
+        )}
         <p className='fst-italic text-decoration-underline'>Description</p>
         <Card className='bg-light-subtle'>
           <Card.Body>

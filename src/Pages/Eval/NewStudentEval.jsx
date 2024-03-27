@@ -23,6 +23,7 @@ import {
   Modal,
   OverlayTrigger,
   Popover,
+  Row,
 } from "react-bootstrap";
 import { auth, db, storage } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
@@ -35,6 +36,7 @@ const NewStudentEval = () => {
   const [standards, setStandards] = useState([]);
   const [standardAverages, setStandardAverages] = useState({});
   const [standardSuggestions, setStandardSuggestions] = useState([]);
+  const [standardOptions, setStandardOptions] = useState([]);
 
   const [showStandardInfo, setShowStandardInfo] = useState(false);
   const [selectedStandard, setSelectedStandard] = useState(null);
@@ -260,6 +262,7 @@ const NewStudentEval = () => {
                     return {
                       ...sdata.data(),
                       id: sdata.id,
+                      asof: evaluation.data().date,
                     };
                   });
                 }) || [];
@@ -382,6 +385,7 @@ const NewStudentEval = () => {
 
   useEffect(() => {
     let suggestions = [];
+    let postreqmap = {};
     let suggestionPromises = [];
     standards.forEach((standard) => {
       if (parseFloat(standardAverages[standard.id]) < 3.5) {
@@ -390,12 +394,13 @@ const NewStudentEval = () => {
           progression: standardAverages[standard.id],
         });
       } else {
-        standard.postrequisites.forEach((postreq) => {
-          if (
-            !(postreq in standardAverages) ||
-            standardAverages[postreq] < 3.5
-          ) {
+        standard.postrequisites?.forEach((postreq) => {
+          if (!(postreq in standardAverages)) {
             suggestionPromises.push(getDoc(doc(db, "standards", postreq)));
+            postreqmap[postreq] = {
+              ...standard,
+              progression: standardAverages[standard.id],
+            };
           }
         });
       }
@@ -404,11 +409,17 @@ const NewStudentEval = () => {
     Promise.all(suggestionPromises)
       .then((standards) => {
         let postReqSuggestions = standards.map((s) => {
-          return { ...s.data(), id: s.id, progression: undefined };
+          return {
+            ...s.data(),
+            id: s.id,
+            progression: undefined,
+            parent: postreqmap[s.id],
+          };
         });
         suggestions = suggestions.concat(postReqSuggestions);
       })
       .then(() => {
+        setStandardOptions(suggestions);
         setStandardSuggestions(suggestions);
       });
   }, [standardAverages, standards]);
@@ -597,6 +608,21 @@ const NewStudentEval = () => {
     }
   }
 
+  function color(progression) {
+    const parsed = parseFloat(progression);
+    let color;
+    if (parsed >= 3.5) {
+      color = "success";
+    } else if (parsed >= 2.5) {
+      color = "primary";
+    } else if (parsed >= 1.5) {
+      color = "warning";
+    } else {
+      color = "danger";
+    }
+    return color;
+  }
+
   return (
     <>
       <div className='p-3 d-flex flex-column'>
@@ -629,8 +655,8 @@ const NewStudentEval = () => {
             <Tasks
               handleTasksChange={handleTasksChange}
               tasks={tasks}
-              standards={standards}
-              setStandards={setStandards}
+              standards={standardOptions}
+              setStandards={setStandardOptions}
             />
           </div>
           <hr />
@@ -739,7 +765,7 @@ const NewStudentEval = () => {
             <Card className='d-flex flex-column bg-light-subtle'>
               <Card.Header>
                 <div className='h4'>Previous Session Notes</div>
-                <Card.Subtitle className='text-secondary'>
+                <Card.Subtitle className='text-muted'>
                   {evaluation.student_name}
                 </Card.Subtitle>
               </Card.Header>
@@ -747,7 +773,7 @@ const NewStudentEval = () => {
                 <div className='d-flex'>
                   <div className='d-flex flex-column'>
                     <div className='h6'>{notes[notesIndex]?.tutor}</div>
-                    <div className='text-secondary'>
+                    <div className='text-muted'>
                       {dayjs(notes[notesIndex]?.date).format("MMMM D, YYYY")}
                     </div>
                   </div>
@@ -777,7 +803,7 @@ const NewStudentEval = () => {
                 >
                   <i className='bi bi-arrow-left' />
                 </Button>
-                <div className='text-secondary align-self-center'>
+                <div className='text-muted align-self-center'>
                   {notes.length - notesIndex} / {notes.length}
                 </div>
                 <Button
@@ -799,32 +825,74 @@ const NewStudentEval = () => {
                 <Card className='d-flex flex-column bg-light-subtle'>
                   <Card.Header>
                     <div className='h4'>Standards</div>
-                    <Card.Subtitle className='text-secondary'>
+                    <Card.Subtitle className='text-muted'>
                       Suggestions for {evaluation.student_name}
                     </Card.Subtitle>
                   </Card.Header>
                   <Card.Body>
                     <Container>
-                      <div className='row justify-content-between'>
+                      <div className='row cols-auto justify-content-between'>
                         {standardSuggestions.filter((s) => s.progression)
                           .length > 0 && (
-                          <Card className='col-6'>
+                          <Card className='col'>
                             <Card.Body>
-                              <h4>Needs Work</h4>
+                              <div className='d-flex justify-content-between'>
+                                <h4>Needs Work</h4>
+                                <OverlayTrigger
+                                  placement='top'
+                                  overlay={
+                                    <Popover>
+                                      <Popover.Header>
+                                        Needs Work
+                                      </Popover.Header>
+                                      <Popover.Body>
+                                        These standards have an average
+                                        progression below 3.5 and have been
+                                        worked on recently.
+                                      </Popover.Body>
+                                    </Popover>
+                                  }
+                                >
+                                  <i className='bi bi-question-square'></i>
+                                </OverlayTrigger>
+                              </div>
                               <div className='d-flex flex-wrap'>
                                 {standardSuggestions
                                   .filter((s) => s.progression)
                                   .map((standard) => (
-                                    <Button
-                                      variant='link'
+                                    <Card
+                                      className='bg-light-subtle w-100 m-1'
                                       key={standard.id}
-                                      onClick={() => {
-                                        setSelectedStandard(standard);
-                                        setShowStandardInfo(true);
-                                      }}
                                     >
-                                      {standard.key}
-                                    </Button>
+                                      <Card.Body>
+                                        <div className='d-flex justify-content-between align-items-center'>
+                                          <Button
+                                            variant='link'
+                                            onClick={() => {
+                                              setSelectedStandard(standard);
+                                              setShowStandardInfo(true);
+                                            }}
+                                            style={{
+                                              "--bs-btn-padding-x": "0",
+                                              "--bs-btn-padding-y": "0",
+                                            }}
+                                          >
+                                            {standard.key}
+                                          </Button>
+                                          <div
+                                            className={`badge bg-${color(standard.progression)}`}
+                                          >
+                                            {standard.progression}
+                                          </div>
+                                        </div>
+                                        <div className='text-muted'>
+                                          As of{" "}
+                                          {dayjs(standard.asof).format(
+                                            "MMMM D, YYYY",
+                                          )}
+                                        </div>
+                                      </Card.Body>
+                                    </Card>
                                   ))}
                               </div>
                             </Card.Body>
@@ -833,23 +901,81 @@ const NewStudentEval = () => {
                         {standardSuggestions.filter(
                           (s) => s.progression === undefined,
                         ).length > 0 && (
-                          <Card className='col-6'>
+                          <Card className='col'>
                             <Card.Body>
-                              <h4>Move On</h4>
+                              <div className='d-flex justify-content-between'>
+                                <h4>Move On</h4>
+                                <OverlayTrigger
+                                  placement='top'
+                                  overlay={
+                                    <Popover>
+                                      <Popover.Header>Move On</Popover.Header>
+                                      <Popover.Body>
+                                        These suggestions are based on standards
+                                        that have been mastered recently.
+                                      </Popover.Body>
+                                    </Popover>
+                                  }
+                                >
+                                  <i className='bi bi-question-square'></i>
+                                </OverlayTrigger>
+                              </div>
                               <div className='d-flex flex-wrap'>
                                 {standardSuggestions
                                   .filter((s) => s.progression === undefined)
                                   .map((standard) => (
-                                    <Button
-                                      variant='link'
+                                    <Card
+                                      className='bg-light-subtle w-100 m-1'
                                       key={standard.id}
-                                      onClick={() => {
-                                        setSelectedStandard(standard);
-                                        setShowStandardInfo(true);
-                                      }}
                                     >
-                                      {standard.key}
-                                    </Button>
+                                      <Card.Body className='d-flex justify-content-between align-items-center'>
+                                        <div className='d-flex flex-column'>
+                                          <div className='d-flex justify-content-between align-items-center'>
+                                            <Button
+                                              variant='link'
+                                              onClick={() => {
+                                                setSelectedStandard(
+                                                  standard.parent,
+                                                );
+                                                setShowStandardInfo(true);
+                                              }}
+                                              style={{
+                                                "--bs-btn-padding-x": "0",
+                                                "--bs-btn-padding-y": "0",
+                                              }}
+                                            >
+                                              {standard.parent.key}
+                                            </Button>
+                                            <span
+                                              className={`badge bg-${color(standard.parent.progression)}`}
+                                            >
+                                              {standard.parent.progression}
+                                            </span>
+                                          </div>
+                                          <div className='text-muted'>
+                                            As of{" "}
+                                            {dayjs(standard.parent.asof).format(
+                                              "MMMM D, YYYY",
+                                            )}
+                                          </div>
+                                        </div>
+                                        <i className='bi bi-arrow-right fs-2'></i>
+                                        <Button
+                                          variant='link'
+                                          className=''
+                                          onClick={() => {
+                                            setSelectedStandard(standard);
+                                            setShowStandardInfo(true);
+                                          }}
+                                          style={{
+                                            "--bs-btn-padding-x": "0",
+                                            "--bs-btn-padding-y": "0",
+                                          }}
+                                        >
+                                          {standard.key}
+                                        </Button>
+                                      </Card.Body>
+                                    </Card>
                                   ))}
                               </div>
                             </Card.Body>
@@ -924,17 +1050,17 @@ const NewStudentEval = () => {
             </Button>
           </Modal.Footer>
         </Modal>
-        <StandardInfo
-          show={showStandardInfo}
-          setShow={setShowStandardInfo}
-          close={() => {
-            setShowStandardInfo(false);
-            setSelectedStandard(false);
-          }}
-          selectedStandard={selectedStandard}
-          setSelectedStandard={setSelectedStandard}
-        />
       </div>
+      <StandardInfo
+        show={showStandardInfo}
+        setShow={setShowStandardInfo}
+        close={() => {
+          setShowStandardInfo(false);
+          setSelectedStandard(false);
+        }}
+        selectedStandard={selectedStandard}
+        setSelectedStandard={setSelectedStandard}
+      />
     </>
   );
 };
