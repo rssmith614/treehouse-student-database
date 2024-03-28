@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import React from "react";
 import { useState } from "react";
 import { Button, Form, OverlayTrigger, Popover } from "react-bootstrap";
@@ -111,11 +112,20 @@ const StandardDropdown = React.forwardRef(
                       </div>
                       <div className='mb-1'>{standard.description}</div>
                       {standard.progression && (
-                        <span
-                          className={`badge bg-${color(standard.progression)}`}
-                        >
-                          {standard.progression} - {label(standard.progression)}
-                        </span>
+                        <div>
+                          <div className='text-decoration-underline'>
+                            Average Progression
+                          </div>
+                          <span
+                            className={`badge bg-${color(standard.progression)}`}
+                          >
+                            {standard.progression} -{" "}
+                            {label(standard.progression)}
+                          </span>
+                          <div className='text-muted'>
+                            As of {dayjs(standard.asof).format("MMMM D, YYYY")}
+                          </div>
+                        </div>
                       )}
                       {standard.parent && (
                         <span className='badge bg-secondary me-2'>
