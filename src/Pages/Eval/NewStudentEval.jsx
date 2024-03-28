@@ -836,14 +836,12 @@ const NewStudentEval = () => {
                           <Card className='col'>
                             <Card.Body>
                               <div className='d-flex justify-content-between'>
-                                <h4>Needs Work</h4>
+                                <h4>To Review</h4>
                                 <OverlayTrigger
                                   placement='top'
                                   overlay={
                                     <Popover>
-                                      <Popover.Header>
-                                        Needs Work
-                                      </Popover.Header>
+                                      <Popover.Header>To Review</Popover.Header>
                                       <Popover.Body>
                                         These standards have an average
                                         progression below 3.5 and have been
@@ -903,12 +901,12 @@ const NewStudentEval = () => {
                           <Card className='col'>
                             <Card.Body>
                               <div className='d-flex justify-content-between'>
-                                <h4>Move On</h4>
+                                <h4>Up Next</h4>
                                 <OverlayTrigger
                                   placement='top'
                                   overlay={
                                     <Popover>
-                                      <Popover.Header>Move On</Popover.Header>
+                                      <Popover.Header>Up Next</Popover.Header>
                                       <Popover.Body>
                                         These suggestions are based on standards
                                         that have been mastered recently.

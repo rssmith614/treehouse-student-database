@@ -55,6 +55,8 @@ const StandardDropdown = React.forwardRef(
       standards,
       newStandardSelector,
       setShowNewStandardPane,
+      setSelectedStandard,
+      setShowStandardInfo,
     },
     ref,
   ) => {
@@ -132,6 +134,8 @@ const StandardDropdown = React.forwardRef(
                           Because you mastered {standard.parent.key}
                         </span>
                       )}
+                      <hr />
+                      <div className='text-muted'>Right Click to see more</div>
                     </Popover.Body>
                   </Popover>
                 }
@@ -141,6 +145,12 @@ const StandardDropdown = React.forwardRef(
                   onClick={(e) => {
                     e.stopPropagation();
                     valueSetter(standard);
+                  }}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    setSelectedStandard(standard);
+                    setShowStandardInfo(true);
+                    return false;
                   }}
                 >
                   <Form.Check
