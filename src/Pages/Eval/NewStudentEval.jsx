@@ -23,7 +23,6 @@ import {
   Modal,
   OverlayTrigger,
   Popover,
-  Row,
 } from "react-bootstrap";
 import { auth, db, storage } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
@@ -614,7 +613,7 @@ const NewStudentEval = () => {
     if (parsed >= 3.5) {
       color = "success";
     } else if (parsed >= 2.5) {
-      color = "primary";
+      color = "primary text-dark ";
     } else if (parsed >= 1.5) {
       color = "warning";
     } else {

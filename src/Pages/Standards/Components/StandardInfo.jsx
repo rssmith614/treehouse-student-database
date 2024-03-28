@@ -46,7 +46,7 @@ const StandardInfo = ({
     if (parsed >= 3.5) {
       color = "success";
     } else if (parsed >= 2.5) {
-      color = "primary";
+      color = "primary text-dark ";
     } else if (parsed >= 1.5) {
       color = "warning";
     } else {
