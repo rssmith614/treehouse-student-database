@@ -19,14 +19,6 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
       window.MathJax.texReset();
       window.MathJax.typesetClear();
       window.MathJax.typesetPromise();
-    }
-  }, [showTypesettingTip]);
-
-  useEffect(() => {
-    if (typeof window.MathJax !== "undefined") {
-      window.MathJax.texReset();
-      window.MathJax.typesetClear();
-      window.MathJax.typesetPromise();
 
       if (
         window.MathJax.startup.document.getMathItemsWithin(document.body)
@@ -35,7 +27,7 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
         setShowPreview(true);
       }
     }
-  }, [task.comments]);
+  }, [task.comments, showTypesettingTip]);
 
   return (
     <>
