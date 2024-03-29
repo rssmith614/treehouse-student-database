@@ -1,13 +1,59 @@
-import { Collapse, Form, OverlayTrigger, Popover } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Card,
+  Collapse,
+  Form,
+  Modal,
+  OverlayTrigger,
+  Popover,
+} from "react-bootstrap";
 
 const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
+  const [showPreview, setShowPreview] = useState(false);
+
+  const [showTypesettingTip, setShowTypesettingTip] = useState(false);
+
+  useEffect(() => {
+    if (typeof window.MathJax !== "undefined") {
+      window.MathJax.texReset();
+      window.MathJax.typesetClear();
+      window.MathJax.typesetPromise();
+    }
+  }, [showTypesettingTip]);
+
+  useEffect(() => {
+    if (typeof window.MathJax !== "undefined") {
+      window.MathJax.texReset();
+      window.MathJax.typesetClear();
+      window.MathJax.typesetPromise();
+
+      if (
+        window.MathJax.startup.document.getMathItemsWithin(document.body)
+          .length > 0
+      ) {
+        setShowPreview(true);
+      }
+    }
+  }, [task.comments]);
+
   return (
     <>
       <div className='h5 d-flex'>
-        Summary
+        <div className='align-middle'>Summary</div>
+        <Collapse in={true} dimension='width'>
+          <Button
+            size='sm'
+            className='ms-3 text-nowrap'
+            variant='secondary'
+            onClick={() => setShowPreview(!showPreview)}
+          >
+            {showPreview ? "Hide" : "Show"} Preview
+          </Button>
+        </Collapse>
         <OverlayTrigger
           placement='top'
-          className='ms-auto'
+          className='ms-auto align-middle'
           flip={true}
           overlay={
             <Popover>
@@ -49,6 +95,27 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
               Please provide a brief summary for this task
             </div>
           </div>
+          <Collapse in={showPreview}>
+            <div>
+              <Card className='mt-3 bg-light-subtle'>
+                <Card.Body>
+                  <div className='d-flex'>
+                    <div className='h6 text-decoration-underline'>Preview</div>
+                    <Button
+                      variant='link'
+                      className='ms-auto'
+                      onClick={() => {
+                        setShowTypesettingTip(true);
+                      }}
+                    >
+                      <i className='bi bi-question-square'></i>
+                    </Button>
+                  </div>
+                  <div>{task.comments}</div>
+                </Card.Body>
+              </Card>
+            </div>
+          </Collapse>
           <Collapse in={task.standards.length === 0}>
             <div>
               <hr />
@@ -141,6 +208,47 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
           </div>
         </div>
       </div>
+      <Modal
+        show={showTypesettingTip}
+        onHide={() => setShowTypesettingTip(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Typesetting Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Typesetting is the process of converting mathematical notation into
+            a format that can be displayed on a computer screen or printed.
+          </p>
+          <p>
+            To enable typesetting using AsciiMath, wrap your mathematical
+            notation in <code>`backticks`</code>.
+          </p>
+          <p>
+            <span className='text-decoration-underline'>Examples</span>
+            <br />
+            <code>`f(x) = x^2`</code> {`\`-> f(x) = x^2\``}
+            <br />
+            <br />
+            <code>{`\`1/2 + 2/3\``}</code> {`\`-> 1/2 + 2/3\``}
+            <br />
+            <br />
+            <code>{`\`sqrt 2\``}</code> {`\`-> sqrt 2\``}
+          </p>
+          <p>And many, many more...</p>
+          <p>
+            For more information, check out the{" "}
+            <a
+              href='https://asciimath.org/#syntax'
+              target='_blank'
+              rel='noreferrer'
+            >
+              AsciiMath Docs
+            </a>
+            .
+          </p>
+        </Modal.Body>
+      </Modal>
     </>
   );
 };

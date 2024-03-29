@@ -133,6 +133,14 @@ const StudentEval = () => {
     };
   }, [params.evalid]);
 
+  useEffect(() => {
+    if (typeof window?.MathJax !== "undefined") {
+      window.MathJax.texReset();
+      window.MathJax.typesetClear();
+      window.MathJax.typesetPromise();
+    }
+  }, [tasks]);
+
   const tasksList = tasks.map((task, task_idx) => {
     return (
       <Col className='d-flex w-100 flex-column' key={task_idx}>
