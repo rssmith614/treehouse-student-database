@@ -202,7 +202,10 @@ const NewStudentEval = () => {
       evaluation.tasks.forEach((task) => {
         task.standards.forEach((standard) => {
           if (!standards.includes(standard.id)) {
-            standards.push(standard.id);
+            standards.push({
+              id: standard.id,
+              asof: evaluation.date,
+            });
           }
         });
       });
@@ -210,12 +213,15 @@ const NewStudentEval = () => {
 
     Promise.all(
       standards.map(async (s) => {
-        return getDoc(doc(db, "standards", s)).then((standard) => {
-          return { ...standard.data(), id: standard.id };
+        return getDoc(doc(db, "standards", s.id)).then((standard) => {
+          return { ...standard.data(), id: standard.id, asof: s.asof };
         });
       }),
     ).then((standards) => {
-      setRecentStandards(standards);
+      let uniqueStandards = standards.filter((s, i) => {
+        return standards.findIndex((s2) => s2.id === s.id) === i;
+      });
+      setRecentStandards(uniqueStandards);
     });
   }, [recentEvals]);
 

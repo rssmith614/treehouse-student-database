@@ -112,7 +112,10 @@ const EvalNotes = ({ recentEvals, standardSuggestions }) => {
               </Button>
             </Card.Footer>
           </Card>
-          <EvalSuggestions standardSuggestions={standardSuggestions} />
+          <EvalSuggestions
+            standardSuggestions={standardSuggestions}
+            studentName={recentEvals[0]?.student_name}
+          />
         </Modal.Body>
       </Modal>
     </>

@@ -10,7 +10,7 @@ import {
 } from "react-bootstrap";
 import StandardInfo from "../../Standards/Components/StandardInfo";
 
-const EvalSuggestions = ({ standardSuggestions }) => {
+const EvalSuggestions = ({ standardSuggestions, studentName }) => {
   const [showStandardInfo, setShowStandardInfo] = useState(false);
   const [selectedStandard, setSelectedStandard] = useState(null);
 
@@ -38,7 +38,7 @@ const EvalSuggestions = ({ standardSuggestions }) => {
             <Card.Header>
               <div className='h4'>Standards</div>
               <Card.Subtitle className='text-muted'>
-                Suggestions for {""}
+                Suggestions for {studentName}
               </Card.Subtitle>
             </Card.Header>
             <Card.Body>
