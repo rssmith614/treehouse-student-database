@@ -78,7 +78,7 @@ const Tasks = ({
             </div>
             <Collapse in={task.standards.length > 0} dimension={"width"} appear>
               <div>
-                <div className='d-flex'>
+                <div className='d-flex h-100'>
                   <div className='vr mx-3' />
                   <div className='d-flex flex-column'>
                     <TaskStandards

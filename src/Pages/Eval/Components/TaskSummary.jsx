@@ -3,12 +3,10 @@ import {
   Button,
   ButtonGroup,
   Card,
-  Col,
   Collapse,
   Modal,
   OverlayTrigger,
   Popover,
-  Row,
 } from "react-bootstrap";
 
 const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
@@ -35,14 +33,13 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
     return (
       <div className='d-flex'>
         <div
-          className={task.standards.length > 0 ? "" : "pe-3"}
           style={{
             width: task.standards.length > 0 ? "0%" : "50%",
             overflow: "hidden",
-            transition: "width 0.5s",
+            transition: "width 0.35s",
           }}
         >
-          <div className='d-flex flex-column'>
+          <div className='d-flex flex-column pe-3'>
             <div className='h5 d-flex'>
               Progression
               <OverlayTrigger
@@ -63,6 +60,7 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
               {["1", "2", "3", "4"].map((prog) => (
                 <Button
                   key={prog}
+                  size='sm'
                   variant={
                     task.progression === prog ? "primary" : "outline-secondary"
                   }
@@ -85,10 +83,10 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
           </div>
         </div>
         <div
-          className={task.standards.length > 0 ? "" : "ps-3"}
+          className={"d-flex" + (task.standards.length > 0 ? "" : " ps-3")}
           style={{
             width: task.standards.length > 0 ? "100%" : "50%",
-            transition: "width 0.5s",
+            transition: "width 0.35s",
           }}
         >
           {Engagement()}
@@ -99,7 +97,7 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
 
   const Engagement = () => {
     return (
-      <div>
+      <div className='ms-auto flex-fill'>
         <div className='d-flex flex-column'>
           <div className='h5 d-flex'>
             Engagement
@@ -121,6 +119,7 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
             {["1", "2", "3", "4"].map((eng) => (
               <Button
                 key={eng}
+                size='sm'
                 variant={
                   task.engagement === eng ? "primary" : "outline-secondary"
                 }
@@ -229,10 +228,6 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
             </div>
           </Collapse>
           <hr />
-          {/* <Collapse in={task.standards.length > 0}>{Engagement()}</Collapse>
-          <Collapse in={task.standards.length === 0}>
-            {ProgressionEngagement()}
-          </Collapse> */}
           {ProgressionEngagement()}
         </div>
       </div>
