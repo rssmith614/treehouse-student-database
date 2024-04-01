@@ -162,6 +162,13 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
   const EvalRow = ({ evaluation }) => {
     const [expanded, setExpanded] = useState(false);
 
+    useEffect(() => {
+      if (typeof window.MathJax !== "undefined") {
+        window.MathJax.typesetClear();
+        window.MathJax.typesetPromise();
+      }
+    }, [evaluation]);
+
     return (
       <tr
         key={evaluation.id}

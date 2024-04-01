@@ -234,6 +234,11 @@ const StudentEvalEdit = () => {
   }
 
   function handleTasksChange(newTasks) {
+    // if( typeof window?.MathJax !== "undefined"){
+    //   window.MathJax.texReset();
+    //   window.MathJax.typesetClear();
+    //   window.MathJax.typesetPromise();
+    // }
     setTasks(newTasks);
     // localStorage.setItem(`${params.studentid}_tasks`, JSON.stringify(newTasks));
   }
