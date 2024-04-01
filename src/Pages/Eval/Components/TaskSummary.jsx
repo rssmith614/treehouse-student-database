@@ -5,8 +5,6 @@ import {
   Card,
   Col,
   Collapse,
-  Form,
-  InputGroup,
   Modal,
   OverlayTrigger,
   Popover,
@@ -35,8 +33,15 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
 
   const ProgressionEngagement = () => {
     return (
-      <Row>
-        <Col>
+      <div className='d-flex'>
+        <div
+          className={task.standards.length > 0 ? "" : "pe-3"}
+          style={{
+            width: task.standards.length > 0 ? "0%" : "50%",
+            overflow: "hidden",
+            transition: "width 0.5s",
+          }}
+        >
           <div className='d-flex flex-column'>
             <div className='h5 d-flex'>
               Progression
@@ -54,7 +59,7 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
                 <i className='bi bi-info-square ms-auto ps-2'></i>
               </OverlayTrigger>
             </div>
-            <ButtonGroup id={`${task_idx}_progression`}>
+            <ButtonGroup id={`${task_idx}_progression`} className='bg-body'>
               {["1", "2", "3", "4"].map((prog) => (
                 <Button
                   key={prog}
@@ -78,9 +83,17 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
               Please set a progression for this task
             </div>
           </div>
-        </Col>
-        <Col>{Engagement()}</Col>
-      </Row>
+        </div>
+        <div
+          className={task.standards.length > 0 ? "" : "ps-3"}
+          style={{
+            width: task.standards.length > 0 ? "100%" : "50%",
+            transition: "width 0.5s",
+          }}
+        >
+          {Engagement()}
+        </div>
+      </div>
     );
   };
 
@@ -104,7 +117,7 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
               <i className='bi bi-info-square ms-auto ps-2'></i>
             </OverlayTrigger>
           </div>
-          <ButtonGroup name={`${task_idx}_engagement`}>
+          <ButtonGroup name={`${task_idx}_engagement`} className='bg-body'>
             {["1", "2", "3", "4"].map((eng) => (
               <Button
                 key={eng}
@@ -216,10 +229,11 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
             </div>
           </Collapse>
           <hr />
-          <Collapse in={task.standards.length > 0}>{Engagement()}</Collapse>
+          {/* <Collapse in={task.standards.length > 0}>{Engagement()}</Collapse>
           <Collapse in={task.standards.length === 0}>
             {ProgressionEngagement()}
-          </Collapse>
+          </Collapse> */}
+          {ProgressionEngagement()}
         </div>
       </div>
       <Modal
