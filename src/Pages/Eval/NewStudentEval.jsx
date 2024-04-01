@@ -420,8 +420,8 @@ const NewStudentEval = () => {
       }
       if (t.engagement === "") {
         document
-          .getElementById(`${task_i}_engagement`)
-          .classList.add("is-invalid");
+          .getElementsByName(`${task_i}_engagement`)
+          .forEach((el) => el.classList.add("is-invalid"));
         clean = false;
       }
     });

@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import {
   Button,
+  ButtonGroup,
   Card,
+  Col,
   Collapse,
   Form,
+  InputGroup,
   Modal,
   OverlayTrigger,
   Popover,
+  Row,
 } from "react-bootstrap";
 
 const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
@@ -28,6 +32,105 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
       }
     }
   }, [task.comments, showTypesettingTip]);
+
+  const ProgressionEngagement = () => {
+    return (
+      <Row>
+        <Col>
+          <div className='d-flex flex-column'>
+            <div className='h5 d-flex'>
+              Progression
+              <OverlayTrigger
+                placement='top'
+                overlay={
+                  <Popover>
+                    <Popover.Header>Progression</Popover.Header>
+                    <Popover.Body>
+                      How well did the student understand the material?
+                    </Popover.Body>
+                  </Popover>
+                }
+              >
+                <i className='bi bi-info-square ms-auto ps-2'></i>
+              </OverlayTrigger>
+            </div>
+            <ButtonGroup id={`${task_idx}_progression`}>
+              {["1", "2", "3", "4"].map((prog) => (
+                <Button
+                  key={prog}
+                  variant={
+                    task.progression === prog ? "primary" : "outline-secondary"
+                  }
+                  onClick={() => {
+                    handleTasksChange(
+                      tasks.map((t, i) => {
+                        if (i !== task_idx) return t;
+                        else return { ...t, progression: prog };
+                      }),
+                    );
+                  }}
+                >
+                  {prog}
+                </Button>
+              ))}
+            </ButtonGroup>
+            <div className='invalid-feedback'>
+              Please set a progression for this task
+            </div>
+          </div>
+        </Col>
+        <Col>{Engagement()}</Col>
+      </Row>
+    );
+  };
+
+  const Engagement = () => {
+    return (
+      <div>
+        <div className='d-flex flex-column'>
+          <div className='h5 d-flex'>
+            Engagement
+            <OverlayTrigger
+              placement='top'
+              overlay={
+                <Popover>
+                  <Popover.Header>Engagement</Popover.Header>
+                  <Popover.Body>
+                    How well did the student work with the tutor?
+                  </Popover.Body>
+                </Popover>
+              }
+            >
+              <i className='bi bi-info-square ms-auto ps-2'></i>
+            </OverlayTrigger>
+          </div>
+          <ButtonGroup name={`${task_idx}_engagement`}>
+            {["1", "2", "3", "4"].map((eng) => (
+              <Button
+                key={eng}
+                variant={
+                  task.engagement === eng ? "primary" : "outline-secondary"
+                }
+                onClick={() => {
+                  handleTasksChange(
+                    tasks.map((t, i) => {
+                      if (i !== task_idx) return t;
+                      else return { ...t, engagement: eng };
+                    }),
+                  );
+                }}
+              >
+                {eng}
+              </Button>
+            ))}
+          </ButtonGroup>
+          <div className='invalid-feedback'>
+            Please set an engagement level for this task
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -81,6 +184,10 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
                 e.target.style.height = "auto";
                 e.target.style.height = `${e.target.scrollHeight}px`;
               }}
+              onMouseEnter={(e) => {
+                e.target.style.height = "auto";
+                e.target.style.height = `${e.target.scrollHeight}px`;
+              }}
               required
             />
             <div className='invalid-feedback'>
@@ -108,96 +215,11 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
               </Card>
             </div>
           </Collapse>
-          <Collapse in={task.standards.length === 0}>
-            <div>
-              <hr />
-              <div className='d-flex flex-column'>
-                <div className='h5 d-flex'>
-                  Progression
-                  <OverlayTrigger
-                    placement='top'
-                    overlay={
-                      <Popover>
-                        <Popover.Header>Progression</Popover.Header>
-                        <Popover.Body>
-                          How well did the student understand the material?
-                        </Popover.Body>
-                      </Popover>
-                    }
-                  >
-                    <i className='bi bi-info-square ms-auto ps-2'></i>
-                  </OverlayTrigger>
-                </div>
-                <Form.Select
-                  id={`${task_idx}_progression`}
-                  style={{ width: "auto" }}
-                  value={task.progression ?? ""}
-                  onChange={(e) => {
-                    handleTasksChange(
-                      tasks.map((t, i) => {
-                        if (i !== task_idx) return t;
-                        else return { ...t, progression: e.target.value };
-                      }),
-                    );
-                  }}
-                >
-                  <option disabled value=''>
-                    Select One
-                  </option>
-                  <option value='1'>1</option>
-                  <option value='2'>2</option>
-                  <option value='3'>3</option>
-                  <option value='4'>4</option>
-                </Form.Select>
-                <div className='invalid-feedback'>
-                  Please set a progression for this task
-                </div>
-              </div>
-            </div>
-          </Collapse>
           <hr />
-          <div className='d-flex flex-column'>
-            <div className='h5 d-flex'>
-              Engagement
-              <OverlayTrigger
-                placement='top'
-                overlay={
-                  <Popover>
-                    <Popover.Header>Engagement</Popover.Header>
-                    <Popover.Body>
-                      How well did the student work with the tutor?
-                    </Popover.Body>
-                  </Popover>
-                }
-              >
-                <i className='bi bi-info-square ms-auto ps-2'></i>
-              </OverlayTrigger>
-            </div>
-            <Form.Select
-              id={`${task_idx}_engagement`}
-              style={{ width: "auto" }}
-              value={task.engagement}
-              onChange={(e) => {
-                handleTasksChange(
-                  tasks.map((t, i) => {
-                    if (i !== task_idx) return t;
-                    else return { ...t, engagement: e.target.value };
-                  }),
-                );
-              }}
-            >
-              <option disabled value=''>
-                Select One
-              </option>
-              <option value='1'>1</option>
-              <option value='2'>2</option>
-              <option value='3'>3</option>
-              <option value='4'>4</option>
-            </Form.Select>
-            <div className='invalid-feedback'>
-              Please set an engagement level for this task
-            </div>
-          </div>
+          <Collapse in={task.standards.length > 0}>{Engagement()}</Collapse>
+          <Collapse in={task.standards.length === 0}>
+            {ProgressionEngagement()}
+          </Collapse>
         </div>
       </div>
       <Modal
