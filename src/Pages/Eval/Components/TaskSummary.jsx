@@ -9,7 +9,7 @@ import {
   Popover,
 } from "react-bootstrap";
 
-const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
+const TaskSummary = ({ task, task_idx, tasks, handleTasksChange, entered }) => {
   const [showPreview, setShowPreview] = useState(false);
 
   const [showTypesettingTip, setShowTypesettingTip] = useState(false);
@@ -22,12 +22,13 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
 
       if (
         window.MathJax.startup.document.getMathItemsWithin(document.body)
-          .length > 0
+          .length > 0 &&
+        entered
       ) {
         setShowPreview(true);
       }
     }
-  }, [task.comments, showTypesettingTip]);
+  }, [task.comments, showTypesettingTip, entered]);
 
   const ProgressionEngagement = () => {
     return (
@@ -206,7 +207,7 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange }) => {
               Please provide a brief summary for this task
             </div>
           </div>
-          <Collapse in={showPreview}>
+          <Collapse in={showPreview} appear>
             <div>
               <Card className='mt-3 bg-light-subtle'>
                 <Card.Body>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Card, Collapse, Container } from "react-bootstrap";
 import TaskStandards from "./TaskStandards";
 import TaskSummary from "./TaskSummary";
@@ -10,6 +10,8 @@ const Tasks = ({
   setStandards,
   setTasksToDelete,
 }) => {
+  const [entered, setEntered] = useState(false);
+
   function addTask() {
     handleTasksChange([
       ...tasks,
@@ -25,7 +27,12 @@ const Tasks = ({
 
   const tasksList = tasks.map((task, task_idx) => {
     return (
-      <Collapse in={true} key={task_idx} appear>
+      <Collapse
+        in={true}
+        key={task_idx}
+        appear
+        onEntered={() => setEntered(true)}
+      >
         <Card className='mb-3'>
           <Card.Header className='d-flex'>
             <div className='h5 align-self-end'>Task {task_idx + 1}</div>
@@ -74,6 +81,7 @@ const Tasks = ({
                 task_idx={task_idx}
                 tasks={tasks}
                 handleTasksChange={handleTasksChange}
+                entered={entered}
               />
             </div>
             <Collapse in={task.standards.length > 0} dimension={"width"} appear>
