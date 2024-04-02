@@ -9,9 +9,15 @@ import {
   Popover,
 } from "react-bootstrap";
 
-const TaskSummary = ({ task, task_idx, tasks, handleTasksChange, entered }) => {
-  const [showPreview, setShowPreview] = useState(false);
-
+const TaskSummary = ({
+  task,
+  task_idx,
+  tasks,
+  handleTasksChange,
+  entered,
+  showPreview,
+  setShowPreview,
+}) => {
   const [showTypesettingTip, setShowTypesettingTip] = useState(false);
 
   useEffect(() => {
@@ -28,7 +34,7 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange, entered }) => {
         setShowPreview(true);
       }
     }
-  }, [task.comments, showTypesettingTip, entered]);
+  }, [task.comments, entered, setShowPreview]);
 
   const ProgressionEngagement = () => {
     return (
@@ -149,16 +155,6 @@ const TaskSummary = ({ task, task_idx, tasks, handleTasksChange, entered }) => {
     <>
       <div className='h5 d-flex'>
         <div className='align-middle'>Summary</div>
-        <Collapse in={true} dimension='width'>
-          <Button
-            size='sm'
-            className='ms-3 text-nowrap'
-            variant='secondary'
-            onClick={() => setShowPreview(!showPreview)}
-          >
-            {showPreview ? "Hide" : "Show"} Preview
-          </Button>
-        </Collapse>
         <OverlayTrigger
           placement='top'
           className='ms-auto align-middle'
