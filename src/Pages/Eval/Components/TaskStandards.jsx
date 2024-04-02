@@ -10,6 +10,7 @@ import {
 import TrackStandard from "../../Standards/TrackStandard";
 import StandardDropdown from "./StandardDropdown";
 import StandardDropdownToggle from "./StandardDropdownToggle";
+import StandardInfo from "../../Standards/Components/StandardInfo";
 
 const TaskStandards = ({
   task,
@@ -20,6 +21,9 @@ const TaskStandards = ({
   setStandards,
 }) => {
   const [showNewStandardPane, setShowNewStandardPane] = useState(false);
+
+  const [showStandardInfo, setShowStandardInfo] = useState(false);
+  const [selectedStandard, setSelectedStandard] = useState({});
 
   const newStandardSelector = useRef((standardToAdd) => {
     const newTasks = tasks.map((t, i) => {
@@ -98,6 +102,8 @@ const TaskStandards = ({
                               });
                               handleTasksChange(newTasks);
                             }}
+                            setSelectedStandard={setSelectedStandard}
+                            setShowStandardInfo={setShowStandardInfo}
                             style={{
                               maxHeight: 350,
                               overflow: "scroll",
@@ -184,6 +190,12 @@ const TaskStandards = ({
           standardSelector={newStandardSelector.current}
         />
       </Offcanvas>
+      <StandardInfo
+        show={showStandardInfo}
+        setShow={setShowStandardInfo}
+        selectedStandard={selectedStandard}
+        setSelectedStandard={setSelectedStandard}
+      />
     </>
   );
 };

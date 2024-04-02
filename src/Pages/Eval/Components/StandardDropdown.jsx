@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import React from "react";
 import { useState } from "react";
 import { Button, Form, OverlayTrigger, Popover } from "react-bootstrap";
@@ -14,6 +15,36 @@ const grades = {
   8: "8th Grade",
 };
 
+function color(progression) {
+  const parsed = parseFloat(progression);
+  let color;
+  if (parsed >= 3.5) {
+    color = "success";
+  } else if (parsed >= 2.5) {
+    color = "primary text-dark ";
+  } else if (parsed >= 1.5) {
+    color = "warning";
+  } else {
+    color = "danger";
+  }
+  return color;
+}
+
+function label(progression) {
+  const parsed = parseFloat(progression);
+  let label;
+  if (parsed >= 3.5) {
+    label = "Exceeds Expectations";
+  } else if (parsed >= 2.5) {
+    label = "Meets Expectations";
+  } else if (parsed >= 1.5) {
+    label = "Below Expectations";
+  } else {
+    label = "Far Below Expectations";
+  }
+  return label;
+}
+
 const StandardDropdown = React.forwardRef(
   (
     {
@@ -24,6 +55,8 @@ const StandardDropdown = React.forwardRef(
       standards,
       newStandardSelector,
       setShowNewStandardPane,
+      setSelectedStandard,
+      setShowStandardInfo,
     },
     ref,
   ) => {
@@ -79,7 +112,30 @@ const StandardDropdown = React.forwardRef(
                       <div className='text-decoration-underline'>
                         Description
                       </div>
-                      {standard.description}
+                      <div className='mb-1'>{standard.description}</div>
+                      {standard.progression && (
+                        <div>
+                          <div className='text-decoration-underline'>
+                            Average Progression
+                          </div>
+                          <span
+                            className={`badge bg-${color(standard.progression)}`}
+                          >
+                            {standard.progression} -{" "}
+                            {label(standard.progression)}
+                          </span>
+                          <div className='text-muted'>
+                            As of {dayjs(standard.asof).format("MMMM D, YYYY")}
+                          </div>
+                        </div>
+                      )}
+                      {standard.parent && (
+                        <span className='badge bg-secondary me-2'>
+                          Because you mastered {standard.parent.key}
+                        </span>
+                      )}
+                      <hr />
+                      <div className='text-muted'>Right Click to see more</div>
                     </Popover.Body>
                   </Popover>
                 }
@@ -89,6 +145,12 @@ const StandardDropdown = React.forwardRef(
                   onClick={(e) => {
                     e.stopPropagation();
                     valueSetter(standard);
+                  }}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    setSelectedStandard(standard);
+                    setShowStandardInfo(true);
+                    return false;
                   }}
                 >
                   <Form.Check

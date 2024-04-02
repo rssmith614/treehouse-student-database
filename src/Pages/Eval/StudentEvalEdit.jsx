@@ -41,7 +41,12 @@ const StudentEvalEdit = () => {
   const [tasks, setTasks] = useState([]);
   const [tasksToDelete, setTasksToDelete] = useState([]); // [task_id, ...
 
-  const [standards, setStandards] = useState([]);
+  const [standardOptions, setStandardOptions] = useState([]);
+
+  const [recentEvals, setRecentEvals] = useState([]);
+  const [recentStandards, setRecentStandards] = useState([]);
+  const [standardAverages, setStandardAverages] = useState({});
+
   const [tutors, setTutors] = useState([]);
 
   const [selectedTutor, setSelectedTutor] = useState("");
@@ -139,66 +144,169 @@ const StudentEvalEdit = () => {
   }, []);
 
   useEffect(() => {
-    if (student === "") return;
-    const evalsQuery = query(
-      collection(db, "evaluations"),
-      where("student_id", "==", student),
-      orderBy("date", "desc"),
-      limit(5),
+    const unsubscribeRecentEvals = onSnapshot(
+      query(
+        collection(db, "evaluations"),
+        where("student_id", "==", student),
+        orderBy("date", "desc"),
+        limit(5),
+      ),
+      (evalsSnapshot) => {
+        const taskPromises = evalsSnapshot.docs.map(async (e) => {
+          return {
+            ...e.data(),
+            id: e.id,
+            tasks: await getDocs(collection(e.ref, "tasks")).then(
+              (taskSnapshot) => {
+                return taskSnapshot.docs.map((task) => {
+                  return {
+                    ...task.data(),
+                    id: task.id,
+                  };
+                });
+              },
+            ),
+          };
+        });
+
+        Promise.all(taskPromises).then((evals) => {
+          setRecentEvals(evals);
+        });
+      },
     );
 
-    const unsubscribeEvals = onSnapshot(evalsQuery, (evalsSnapshot) => {
-      const fetchTasksPromises = evalsSnapshot.docs.map(async (evaluation) => {
-        return getDocs(collection(evaluation.ref, "tasks")).then(
-          (tasksSnapshot) => {
-            const tasks = tasksSnapshot.docs.map((doc) => {
-              return {
-                ...doc.data(),
-                id: doc.id,
-              };
+    return () => {
+      unsubscribeRecentEvals();
+    };
+  }, [student]);
+
+  // get all standards from recent evaluations
+  useEffect(() => {
+    let standards = [];
+    recentEvals.forEach((evaluation) => {
+      evaluation.tasks.forEach((task) => {
+        task.standards.forEach((standard) => {
+          if (!standards.includes(standard.id)) {
+            standards.push({
+              id: standard.id,
+              asof: evaluation.date,
             });
-
-            const fetchStandardsPromises = tasks.map((task) => {
-              const standardsPromises =
-                task.standards?.map(async (standard) => {
-                  if (standard === "") return Promise.resolve(null);
-                  return getDoc(
-                    doc(db, "standards", standard?.id || standard),
-                  ).then((standard) => {
-                    return {
-                      ...standard.data(),
-                      id: standard.id,
-                    };
-                  });
-                }) || [];
-              return Promise.all(standardsPromises);
-            });
-
-            return Promise.all(fetchStandardsPromises);
-          },
-        );
-      });
-
-      Promise.all(fetchTasksPromises).then((standardsArray) => {
-        const flattenedStandards = standardsArray
-          .flat()
-          .flat()
-          .filter((s) => s !== null);
-        const uniqueStandards = flattenedStandards.reduce((acc, standard) => {
-          const existingStandard = acc.find((s) => s.key === standard.key);
-          if (!existingStandard) {
-            acc.push(standard);
           }
-          return acc;
-        }, []);
-        setStandards(uniqueStandards);
+        });
       });
     });
 
+    Promise.all(
+      standards.map(async (s) => {
+        return getDoc(doc(db, "standards", s.id)).then((standard) => {
+          return { ...standard.data(), id: standard.id, asof: s.asof };
+        });
+      }),
+    ).then((standards) => {
+      let uniqueStandards = standards.filter((s, i) => {
+        return standards.findIndex((s2) => s2.id === s.id) === i;
+      });
+      setRecentStandards(uniqueStandards);
+    });
+  }, [recentEvals]);
+
+  // calculate average progression for each standard across ALL evals
+  useEffect(() => {
+    const unsubscribeEvaluations = onSnapshot(
+      query(collection(db, "evaluations"), where("student_id", "==", student)),
+      (res) => {
+        const evaluations = res.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        const standardProgression = {};
+
+        const evaluationPromises = evaluations.map(async (evaluation) => {
+          const evaluationRef = collection(
+            db,
+            "evaluations",
+            evaluation.id,
+            "tasks",
+          );
+          return getDocs(evaluationRef).then((tasksSnapshot) => {
+            tasksSnapshot.forEach((taskDoc) => {
+              const standards = taskDoc.data().standards;
+              if (!standards) return;
+              standards.forEach((standard) => {
+                if (!standardProgression[standard?.id || standard]) {
+                  standardProgression[standard?.id || standard] = [];
+                }
+                standardProgression[standard?.id || standard].push(
+                  standard?.progression || taskDoc.data().progression,
+                );
+              });
+            });
+          });
+        });
+
+        Promise.all(evaluationPromises).then(() => {
+          const averageProgression = {};
+          Object.keys(standardProgression).forEach((standard) => {
+            const progressions = standardProgression[standard];
+            const sum = progressions.reduce(
+              (total, progression) => total + parseInt(progression),
+              0,
+            );
+            const average = sum / progressions.length;
+            averageProgression[standard] = average.toFixed(2);
+          });
+
+          // console.log(averageProgression);
+          setStandardAverages(averageProgression);
+        });
+      },
+    );
+
     return () => {
-      unsubscribeEvals();
+      unsubscribeEvaluations();
     };
   }, [student]);
+
+  // generate suggestions based on average progression and recent standards
+  useEffect(() => {
+    let suggestions = [];
+    let postreqmap = {};
+    let suggestionPromises = [];
+    recentStandards.forEach((standard) => {
+      if (parseFloat(standardAverages[standard.id]) < 3.5) {
+        suggestions.push({
+          ...standard,
+          progression: standardAverages[standard.id],
+        });
+      } else {
+        standard.postrequisites?.forEach((postreq) => {
+          if (!(postreq in standardAverages)) {
+            suggestionPromises.push(getDoc(doc(db, "standards", postreq)));
+            postreqmap[postreq] = {
+              ...standard,
+              progression: standardAverages[standard.id],
+            };
+          }
+        });
+      }
+    });
+
+    Promise.all(suggestionPromises)
+      .then((standards) => {
+        let postReqSuggestions = standards.map((s) => {
+          return {
+            ...s.data(),
+            id: s.id,
+            progression: undefined,
+            parent: postreqmap[s.id],
+          };
+        });
+        suggestions = suggestions.concat(postReqSuggestions);
+      })
+      .then(() => {
+        setStandardOptions(suggestions);
+      });
+  }, [standardAverages, recentStandards]);
 
   useEffect(() => {
     for (let i = 0; i < tasks.length; i++) {
@@ -484,8 +592,8 @@ const StudentEvalEdit = () => {
               <Tasks
                 handleTasksChange={handleTasksChange}
                 tasks={tasks}
-                standards={standards}
-                setStandards={setStandards}
+                standards={standardOptions}
+                setStandards={setStandardOptions}
                 setTasksToDelete={setTasksToDelete}
               />
               <hr />
@@ -586,8 +694,8 @@ const StudentEvalEdit = () => {
         style={{ width: "75%", overflow: "auto" }}
       >
         <TrackStandard
-          standards={standards}
-          setStandards={setStandards}
+          standards={standardOptions}
+          setStandards={setStandardOptions}
           close={() => {
             setShowNewStandardPane(false);
             newStandardSelector.current = null;

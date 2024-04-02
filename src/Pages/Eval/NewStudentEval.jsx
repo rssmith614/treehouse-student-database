@@ -15,35 +15,29 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import dayjs from "dayjs";
 import { ref, uploadBytes } from "firebase/storage";
-import {
-  Button,
-  Card,
-  Collapse,
-  Modal,
-  OverlayTrigger,
-  Popover,
-} from "react-bootstrap";
+import { Button, OverlayTrigger, Popover } from "react-bootstrap";
 import { auth, db, storage } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
 import EvalFooter from "./Components/EvalFooter";
 import EvalHeader from "./Components/EvalHeader";
 import Tasks from "./Components/Tasks";
+import StandardInfo from "../Standards/Components/StandardInfo";
+import EvalNotes from "./Components/EvalNotes";
+import GradesReminder from "./Components/GradesReminder";
 
 const NewStudentEval = () => {
-  const [standards, setStandards] = useState([]);
+  const [standardOptions, setStandardOptions] = useState([]);
+
+  const [recentStandards, setRecentStandards] = useState([]);
+  const [standardAverages, setStandardAverages] = useState({});
+  const [standardSuggestions, setStandardSuggestions] = useState([]);
+
+  const [showStandardInfo, setShowStandardInfo] = useState(false);
+  const [selectedStandard, setSelectedStandard] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
-  const [notes, setNotes] = useState([]);
-  const [notesIndex, setNotesIndex] = useState(0);
-  const [showNotes, setShowNotes] = useState(false);
-
-  const [gradesReminderMessage, setGradesReminderMessage] = useState("");
-  const [studentOverElementary, setStudentOverElementary] = useState(false);
-  const [showGradesReminder, setShowGradesReminder] = useState(false);
-
-  const [gradesTooltip, setGradesTooltip] = useState("");
-  const [showGradesTooltip, setShowGradesTooltip] = useState(false);
+  const [recentEvals, setRecentEvals] = useState([]);
 
   const addToast = useContext(ToastContext);
 
@@ -86,6 +80,7 @@ const NewStudentEval = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // prep eval with student data
   useEffect(() => {
     const unsubscribeStudents = onSnapshot(
       doc(db, "students", params.studentid),
@@ -106,59 +101,7 @@ const NewStudentEval = () => {
     };
   }, [params.studentid]);
 
-  useEffect(() => {
-    getDoc(studentRef.current).then((student) => {
-      if (parseInt(student.data().student_grade) >= 6) {
-        setStudentOverElementary(true);
-      } else {
-        setStudentOverElementary(false);
-      }
-    });
-  }, [studentRef]);
-
-  useEffect(() => {
-    if (!evaluation.student_id || !evaluation.student_name) return;
-
-    const unsubscribeGrades = onSnapshot(
-      query(
-        collection(db, "grades"),
-        where("student_id", "==", evaluation.student_id),
-        orderBy("date", "desc"),
-        limit(1),
-      ),
-      (gradesSnapshot) => {
-        if (gradesSnapshot.docs.length > 0) {
-          const grade = gradesSnapshot.docs[0].data();
-          if (dayjs(grade.date).isBefore(dayjs().subtract(2, "week"))) {
-            setGradesReminderMessage(
-              `${evaluation.student_name} has not had their class grades updated since ${dayjs(
-                grade.date,
-              ).format("MMMM D, YYYY")}.`,
-            );
-            setGradesTooltip(
-              `We keep track of student progress and performance by recording their class grades every two weeks.`,
-            );
-            setShowGradesReminder(true);
-          }
-        } else {
-          if (studentOverElementary) {
-            setGradesReminderMessage(
-              `${evaluation.student_name} has not had their class grades entered yet.`,
-            );
-            setGradesTooltip(
-              "Students in 6th grade and above are expected to have their class grades entered regularly to track progress and performance.",
-            );
-            setShowGradesReminder(true);
-          }
-        }
-      },
-    );
-
-    return () => {
-      unsubscribeGrades();
-    };
-  }, [evaluation.student_id, evaluation.student_name, studentOverElementary]);
-
+  // prep eval with tutor data
   useEffect(() => {
     if (evaluation.tutor_id) {
       getDoc(doc(db, "tutors", evaluation.tutor_id)).then((tutor) => {
@@ -172,6 +115,7 @@ const NewStudentEval = () => {
     }
   }, [evaluation.tutor_id]);
 
+  // load cached eval data
   useEffect(() => {
     if (localStorage.getItem(`${params.studentid}_eval`)) {
       setEvaluation(
@@ -213,79 +157,177 @@ const NewStudentEval = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.studentid]);
 
+  // load recent evals for notes
   useEffect(() => {
-    const evalsQuery = query(
-      collection(db, "evaluations"),
-      where("student_id", "==", params.studentid),
-      orderBy("date", "desc"),
-      limit(5),
+    const unsubscribeRecentEvals = onSnapshot(
+      query(
+        collection(db, "evaluations"),
+        where("student_id", "==", params.studentid),
+        orderBy("date", "desc"),
+        limit(5),
+      ),
+      (evalsSnapshot) => {
+        const taskPromises = evalsSnapshot.docs.map(async (e) => {
+          return {
+            ...e.data(),
+            id: e.id,
+            tasks: await getDocs(collection(e.ref, "tasks")).then(
+              (taskSnapshot) => {
+                return taskSnapshot.docs.map((task) => {
+                  return {
+                    ...task.data(),
+                    id: task.id,
+                  };
+                });
+              },
+            ),
+          };
+        });
+
+        Promise.all(taskPromises).then((evals) => {
+          setRecentEvals(evals);
+        });
+      },
     );
 
-    const unsubscribeEvals = onSnapshot(evalsQuery, (evalsSnapshot) => {
-      const notesArray = evalsSnapshot.docs.map((e) => {
-        return {
-          tutor: e.data().tutor_name,
-          date: e.data().date,
-          notes: e.data().next_session,
-          id: e.id,
-        };
-      });
-
-      setNotes(notesArray);
-
-      const fetchTasksPromises = evalsSnapshot.docs.map(async (evaluation) => {
-        return getDocs(collection(evaluation.ref, "tasks")).then(
-          (tasksSnapshot) => {
-            const tasks = tasksSnapshot.docs.map((doc) => {
-              return {
-                ...doc.data(),
-                id: doc.id,
-              };
-            });
-
-            const fetchStandardsPromises = tasks.map((task) => {
-              const standardsPromises =
-                task.standards?.map(async (standard) => {
-                  if (standard === "") return Promise.resolve(null);
-                  return getDoc(
-                    doc(db, "standards", standard?.id || standard),
-                  ).then((sdata) => {
-                    return {
-                      ...sdata.data(),
-                      id: sdata.id,
-                    };
-                  });
-                }) || [];
-              return Promise.all(standardsPromises);
-            });
-
-            return Promise.all(fetchStandardsPromises);
-          },
-        );
-      });
-
-      Promise.all(fetchTasksPromises).then((standardsArray) => {
-        const flattenedStandards = standardsArray
-          .flat()
-          .flat()
-          .filter((s) => s !== null);
-        const uniqueStandards = flattenedStandards.reduce((acc, standard) => {
-          const existingStandard = acc.find((s) => s.key === standard.key);
-          if (!existingStandard) {
-            acc.push(standard);
-          }
-          return acc;
-        }, []);
-        // console.log(uniqueStandards);
-        setStandards(uniqueStandards);
-      });
-    });
-
     return () => {
-      unsubscribeEvals();
+      unsubscribeRecentEvals();
     };
   }, [params.studentid]);
 
+  // get all standards from recent evaluations
+  useEffect(() => {
+    let standards = [];
+    recentEvals.forEach((evaluation) => {
+      evaluation.tasks.forEach((task) => {
+        task.standards.forEach((standard) => {
+          if (!standards.includes(standard.id)) {
+            standards.push({
+              id: standard.id,
+              asof: evaluation.date,
+            });
+          }
+        });
+      });
+    });
+
+    Promise.all(
+      standards.map(async (s) => {
+        return getDoc(doc(db, "standards", s.id)).then((standard) => {
+          return { ...standard.data(), id: standard.id, asof: s.asof };
+        });
+      }),
+    ).then((standards) => {
+      let uniqueStandards = standards.filter((s, i) => {
+        return standards.findIndex((s2) => s2.id === s.id) === i;
+      });
+      setRecentStandards(uniqueStandards);
+    });
+  }, [recentEvals]);
+
+  // calculate average progression for each standard across ALL evals
+  useEffect(() => {
+    const unsubscribeEvaluations = onSnapshot(
+      query(
+        collection(db, "evaluations"),
+        where("student_id", "==", params.studentid),
+      ),
+      (res) => {
+        const evaluations = res.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        const standardProgression = {};
+
+        const evaluationPromises = evaluations.map(async (evaluation) => {
+          const evaluationRef = collection(
+            db,
+            "evaluations",
+            evaluation.id,
+            "tasks",
+          );
+          return getDocs(evaluationRef).then((tasksSnapshot) => {
+            tasksSnapshot.forEach((taskDoc) => {
+              const standards = taskDoc.data().standards;
+              if (!standards) return;
+              standards.forEach((standard) => {
+                if (!standardProgression[standard?.id || standard]) {
+                  standardProgression[standard?.id || standard] = [];
+                }
+                standardProgression[standard?.id || standard].push(
+                  standard?.progression || taskDoc.data().progression,
+                );
+              });
+            });
+          });
+        });
+
+        Promise.all(evaluationPromises).then(() => {
+          const averageProgression = {};
+          Object.keys(standardProgression).forEach((standard) => {
+            const progressions = standardProgression[standard];
+            const sum = progressions.reduce(
+              (total, progression) => total + parseInt(progression),
+              0,
+            );
+            const average = sum / progressions.length;
+            averageProgression[standard] = average.toFixed(2);
+          });
+
+          // console.log(averageProgression);
+          setStandardAverages(averageProgression);
+        });
+      },
+    );
+
+    return () => {
+      unsubscribeEvaluations();
+    };
+  }, [params.studentid]);
+
+  // generate suggestions based on average progression and recent standards
+  useEffect(() => {
+    let suggestions = [];
+    let postreqmap = {};
+    let suggestionPromises = [];
+    recentStandards.forEach((standard) => {
+      if (parseFloat(standardAverages[standard.id]) < 3.5) {
+        suggestions.push({
+          ...standard,
+          progression: standardAverages[standard.id],
+        });
+      } else {
+        standard.postrequisites?.forEach((postreq) => {
+          if (!(postreq in standardAverages)) {
+            suggestionPromises.push(getDoc(doc(db, "standards", postreq)));
+            postreqmap[postreq] = {
+              ...standard,
+              progression: standardAverages[standard.id],
+            };
+          }
+        });
+      }
+    });
+
+    Promise.all(suggestionPromises)
+      .then((standards) => {
+        let postReqSuggestions = standards.map((s) => {
+          return {
+            ...s.data(),
+            id: s.id,
+            progression: undefined,
+            parent: postreqmap[s.id],
+          };
+        });
+        suggestions = suggestions.concat(postReqSuggestions);
+      })
+      .then(() => {
+        setStandardOptions(suggestions);
+        setStandardSuggestions(suggestions);
+      });
+  }, [standardAverages, recentStandards]);
+
+  // flag for review button
   useEffect(() => {
     for (let i = 0; i < tasks.length; i++) {
       if (
@@ -335,6 +377,8 @@ const NewStudentEval = () => {
     }
     let clean = true;
 
+    // validity checks
+
     if (!evaluation.tutor_id) {
       document.getElementById("tutor").classList.add("is-invalid");
       clean = false;
@@ -376,8 +420,8 @@ const NewStudentEval = () => {
       }
       if (t.engagement === "") {
         document
-          .getElementById(`${task_i}_engagement`)
-          .classList.add("is-invalid");
+          .getElementsByName(`${task_i}_engagement`)
+          .forEach((el) => el.classList.add("is-invalid"));
         clean = false;
       }
     });
@@ -503,20 +547,10 @@ const NewStudentEval = () => {
       <div className='p-3 d-flex flex-column'>
         <div className='d-flex'>
           <h1 className='display-1'>New Session Evaluation</h1>
-          {notes[0] && (
-            <Button
-              variant=''
-              className='w-25 ms-auto'
-              onClick={() => setShowNotes(true)}
-            >
-              <Card className='shadow' style={{ cursor: "pointer" }}>
-                <Card.Header>Last Session's Notes</Card.Header>
-                <Card.Body>
-                  <div className='text-truncate'>{notes[0].notes}</div>
-                </Card.Body>
-              </Card>
-            </Button>
-          )}
+          <EvalNotes
+            recentEvals={recentEvals}
+            standardSuggestions={standardSuggestions}
+          />
         </div>
         <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
           <EvalHeader
@@ -530,8 +564,8 @@ const NewStudentEval = () => {
             <Tasks
               handleTasksChange={handleTasksChange}
               tasks={tasks}
-              standards={standards}
-              setStandards={setStandards}
+              standards={standardOptions}
+              setStandards={setStandardOptions}
             />
           </div>
           <hr />
@@ -619,133 +653,17 @@ const NewStudentEval = () => {
           </div>
         </div>
       </div>
-      <div className='d-flex'>
-        <Modal show={showNotes} onHide={() => setShowNotes(false)}>
-          <Modal.Header>
-            <Modal.Title>{evaluation.student_name}</Modal.Title>
-            <Button
-              variant='secondary'
-              onClick={() => setShowNotes(false)}
-              style={{ "--bs-bg-opacity": "0" }}
-            >
-              <i className='bi bi-x-lg' />
-            </Button>
-          </Modal.Header>
-          <Modal.Body>
-            <div className='d-flex flex-column'>
-              <div className='d-flex'>
-                <div className='d-flex flex-column'>
-                  <div className='h6'>{notes[notesIndex]?.tutor}</div>
-                  <div className='text-secondary'>
-                    {dayjs(notes[notesIndex]?.date).format("MMMM D, YYYY")}
-                  </div>
-                </div>
-                <div className='ms-auto align-self-center'>
-                  <Button
-                    variant='primary'
-                    size='sm'
-                    onClick={() => navigate(`/eval/${notes[notesIndex]?.id}`)}
-                  >
-                    View Evaluation{" "}
-                    <i className='ms-auto ps-1 bi bi-box-arrow-up-right'></i>
-                  </Button>
-                </div>
-              </div>
-              <hr />
-              <div className='h5'>Next Session Notes</div>
-              <div className=''>{notes[notesIndex]?.notes}</div>
-            </div>
-          </Modal.Body>
-          <Modal.Footer className='d-flex'>
-            <Button
-              variant='secondary'
-              size='sm'
-              className='me-auto'
-              disabled={notesIndex >= notes.length - 1}
-              onClick={() => {
-                setNotesIndex(notesIndex + 1);
-              }}
-            >
-              <i className='bi bi-arrow-left' />
-            </Button>
-            <div className='text-secondary align-self-center'>
-              {notes.length - notesIndex} / {notes.length}
-            </div>
-            <Button
-              variant='secondary'
-              size='sm'
-              className='ms-auto'
-              disabled={notesIndex <= 0}
-              onClick={() => {
-                setNotesIndex(notesIndex - 1);
-              }}
-            >
-              <i className='bi bi-arrow-right' />
-            </Button>
-          </Modal.Footer>
-        </Modal>
-        <Modal
-          show={showGradesReminder}
-          onHide={() => setShowGradesReminder(false)}
-        >
-          <Modal.Header>
-            <Modal.Title>Grades Reminder</Modal.Title>
-            <Button
-              variant='secondary'
-              onClick={() => setShowGradesReminder(false)}
-              style={{ "--bs-bg-opacity": "0" }}
-            >
-              <i className='bi bi-x-lg' />
-            </Button>
-          </Modal.Header>
-          <Modal.Body>
-            <div className='d-flex flex-column'>
-              <div>{gradesReminderMessage}</div>
-              <hr />
-              <div>
-                Please make sure to update their grades before they leave.
-              </div>
-              <Button
-                variant='link'
-                size='sm'
-                className='me-auto link-secondary fst-italic'
-                style={{ "--bs-btn-padding-x": "0rem" }}
-                onClick={() => setShowGradesTooltip(!showGradesTooltip)}
-              >
-                Why am I seeing this?
-              </Button>
-              <Collapse in={showGradesTooltip}>
-                <div>
-                  {gradesTooltip}
-                  <br />
-                  If you believe this is a mistake or need an exception, please
-                  contact an administrator.
-                </div>
-              </Collapse>
-            </div>
-          </Modal.Body>
-          <Modal.Footer className='d-flex'>
-            <Button
-              variant='secondary'
-              size='sm'
-              className='me-auto'
-              onClick={() => setShowGradesReminder(false)}
-            >
-              I'll do it later
-            </Button>
-            <Button
-              variant='primary'
-              size='sm'
-              onClick={() => {
-                localStorage.setItem("student_tab", "grades");
-                navigate(`/students/${params.studentid}`);
-              }}
-            >
-              Take me there now
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </div>
+      <GradesReminder studentid={params.studentid} />
+      <StandardInfo
+        show={showStandardInfo}
+        setShow={setShowStandardInfo}
+        close={() => {
+          setShowStandardInfo(false);
+          setSelectedStandard(false);
+        }}
+        selectedStandard={selectedStandard}
+        setSelectedStandard={setSelectedStandard}
+      />
     </>
   );
 };

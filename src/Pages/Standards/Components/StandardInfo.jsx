@@ -46,7 +46,7 @@ const StandardInfo = ({
     if (parsed >= 3.5) {
       color = "success";
     } else if (parsed >= 2.5) {
-      color = "primary";
+      color = "primary text-dark ";
     } else if (parsed >= 1.5) {
       color = "warning";
     } else {
@@ -92,6 +92,17 @@ const StandardInfo = ({
               {selectedStandard?.progression} -{" "}
               {label(selectedStandard.progression)}
             </span>
+          </div>
+        )}
+        {selectedStandard?.parent && (
+          <div className='h4'>
+            Because you mastered{" "}
+            <Button
+              variant='link'
+              onClick={() => setSelectedStandard(selectedStandard.parent)}
+            >
+              {selectedStandard.parent.key}
+            </Button>
           </div>
         )}
         <p className='fst-italic text-decoration-underline'>Description</p>
