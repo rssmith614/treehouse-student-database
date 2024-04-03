@@ -8,6 +8,7 @@ import {
   OverlayTrigger,
   Popover,
 } from "react-bootstrap";
+import useDebounce from "../../../Services/debounce";
 
 const TaskSummary = ({
   task,
@@ -20,6 +21,8 @@ const TaskSummary = ({
 }) => {
   const [showTypesettingTip, setShowTypesettingTip] = useState(false);
 
+  const [loadingPreview, setLoadingPreview] = useState(false);
+
   useEffect(() => {
     if (typeof window.MathJax !== "undefined") {
       window.MathJax.texReset();
@@ -29,20 +32,34 @@ const TaskSummary = ({
   }, [showTypesettingTip]);
 
   useEffect(() => {
+    if (
+      window.MathJax.startup.document.getMathItemsWithin(
+        document.getElementById(`${task_idx}_comments_preview`),
+      ).length > 0 &&
+      entered
+    ) {
+      setShowPreview(true);
+    }
+  }, [entered, setShowPreview, task_idx]);
+
+  const handleTypeset = useDebounce(() => {
     if (typeof window.MathJax !== "undefined") {
       window.MathJax.texReset();
       window.MathJax.typesetClear();
-      window.MathJax.typesetPromise();
-
-      if (
-        window.MathJax.startup.document.getMathItemsWithin(document.body)
-          .length > 0 &&
-        entered
-      ) {
-        setShowPreview(true);
-      }
+      window.MathJax.typesetPromise().then(() => {
+        setLoadingPreview(false);
+      });
     }
-  }, [task.comments, entered, setShowPreview]);
+
+    if (
+      window.MathJax.startup.document.getMathItemsWithin(
+        document.getElementById(`${task_idx}_comments_preview`),
+      ).length > 0 &&
+      entered
+    ) {
+      setShowPreview(true);
+    }
+  }, 500);
 
   const ProgressionEngagement = () => {
     return (
@@ -198,6 +215,8 @@ const TaskSummary = ({
                     else return { ...t, comments: e.target.value };
                   }),
                 );
+                setLoadingPreview(true);
+                handleTypeset();
                 e.target.style.height = "auto";
                 e.target.style.height = `${e.target.scrollHeight}px`;
               }}
@@ -217,6 +236,16 @@ const TaskSummary = ({
                 <Card.Body>
                   <div className='d-flex'>
                     <div className='h6 text-decoration-underline'>Preview</div>
+                    <span className='ps-2'>
+                      {loadingPreview && (
+                        <span
+                          className='spinner-border spinner-border-sm align-top'
+                          role='status'
+                        >
+                          <span className='visually-hidden'>Loading...</span>
+                        </span>
+                      )}
+                    </span>
                     <Button
                       variant='link'
                       className='ms-auto'
@@ -227,7 +256,14 @@ const TaskSummary = ({
                       <i className='bi bi-question-square'></i>
                     </Button>
                   </div>
-                  <div>{task.comments}</div>
+                  <div
+                    id={`${task_idx}_comments_preview`}
+                    className='placeholder-glow word-wrap text-break'
+                  >
+                    <div className={loadingPreview ? "" : ""}>
+                      {task.comments}
+                    </div>
+                  </div>
                 </Card.Body>
               </Card>
             </div>
