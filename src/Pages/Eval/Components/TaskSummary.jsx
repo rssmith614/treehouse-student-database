@@ -8,6 +8,7 @@ import {
   OverlayTrigger,
   Popover,
 } from "react-bootstrap";
+import useDebounce from "../../../Services/debounce";
 
 const TaskSummary = ({
   task,
@@ -29,20 +30,32 @@ const TaskSummary = ({
   }, [showTypesettingTip]);
 
   useEffect(() => {
+    if (
+      window.MathJax.startup.document.getMathItemsWithin(
+        document.getElementById(`${task_idx}_comments_preview`),
+      ).length > 0 &&
+      entered
+    ) {
+      setShowPreview(true);
+    }
+  }, [entered, setShowPreview, task_idx]);
+
+  const handleTypeset = useDebounce(() => {
     if (typeof window.MathJax !== "undefined") {
       window.MathJax.texReset();
       window.MathJax.typesetClear();
       window.MathJax.typesetPromise();
-
-      if (
-        window.MathJax.startup.document.getMathItemsWithin(document.body)
-          .length > 0 &&
-        entered
-      ) {
-        setShowPreview(true);
-      }
     }
-  }, [task.comments, entered, setShowPreview]);
+
+    if (
+      window.MathJax.startup.document.getMathItemsWithin(
+        document.getElementById(`${task_idx}_comments_preview`),
+      ).length > 0 &&
+      entered
+    ) {
+      setShowPreview(true);
+    }
+  }, 500);
 
   const ProgressionEngagement = () => {
     return (
@@ -198,6 +211,7 @@ const TaskSummary = ({
                     else return { ...t, comments: e.target.value };
                   }),
                 );
+                handleTypeset();
                 e.target.style.height = "auto";
                 e.target.style.height = `${e.target.scrollHeight}px`;
               }}
@@ -227,7 +241,7 @@ const TaskSummary = ({
                       <i className='bi bi-question-square'></i>
                     </Button>
                   </div>
-                  <div>{task.comments}</div>
+                  <div id={`${task_idx}_comments_preview`}>{task.comments}</div>
                 </Card.Body>
               </Card>
             </div>
