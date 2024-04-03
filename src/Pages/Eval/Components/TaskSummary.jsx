@@ -21,6 +21,8 @@ const TaskSummary = ({
 }) => {
   const [showTypesettingTip, setShowTypesettingTip] = useState(false);
 
+  const [loadingPreview, setLoadingPreview] = useState(false);
+
   useEffect(() => {
     if (typeof window.MathJax !== "undefined") {
       window.MathJax.texReset();
@@ -44,7 +46,9 @@ const TaskSummary = ({
     if (typeof window.MathJax !== "undefined") {
       window.MathJax.texReset();
       window.MathJax.typesetClear();
-      window.MathJax.typesetPromise();
+      window.MathJax.typesetPromise().then(() => {
+        setLoadingPreview(false);
+      });
     }
 
     if (
@@ -211,6 +215,7 @@ const TaskSummary = ({
                     else return { ...t, comments: e.target.value };
                   }),
                 );
+                setLoadingPreview(true);
                 handleTypeset();
                 e.target.style.height = "auto";
                 e.target.style.height = `${e.target.scrollHeight}px`;
@@ -231,6 +236,16 @@ const TaskSummary = ({
                 <Card.Body>
                   <div className='d-flex'>
                     <div className='h6 text-decoration-underline'>Preview</div>
+                    <span className='ps-2'>
+                      {loadingPreview && (
+                        <span
+                          className='spinner-border spinner-border-sm align-top'
+                          role='status'
+                        >
+                          <span className='visually-hidden'>Loading...</span>
+                        </span>
+                      )}
+                    </span>
                     <Button
                       variant='link'
                       className='ms-auto'
@@ -241,7 +256,14 @@ const TaskSummary = ({
                       <i className='bi bi-question-square'></i>
                     </Button>
                   </div>
-                  <div id={`${task_idx}_comments_preview`}>{task.comments}</div>
+                  <div
+                    id={`${task_idx}_comments_preview`}
+                    className='placeholder-glow word-wrap text-break'
+                  >
+                    <div className={loadingPreview ? "" : ""}>
+                      {task.comments}
+                    </div>
+                  </div>
                 </Card.Body>
               </Card>
             </div>
