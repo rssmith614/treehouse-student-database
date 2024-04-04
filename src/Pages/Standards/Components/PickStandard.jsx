@@ -29,8 +29,6 @@ const PickStandard = ({ standards, setStandards, close, standardSelector }) => {
 
   const [show, setShow] = useState(false);
 
-  const addToast = useContext(ToastContext);
-
   useEffect(() => {
     localStorage.setItem("grade", grade);
     localStorage.setItem("category", category);
@@ -38,16 +36,6 @@ const PickStandard = ({ standards, setStandards, close, standardSelector }) => {
 
   function addStandard(standardToAdd) {
     standardSelector(standardToAdd);
-
-    if (standards) {
-      if (!standards.find((s) => s.id === standardToAdd.id)) {
-        setStandards([...standards, standardToAdd]);
-      }
-      addToast({
-        header: "Standard Added",
-        message: `Standard ${standardToAdd.key} has been selected`,
-      });
-    }
     close();
   }
 

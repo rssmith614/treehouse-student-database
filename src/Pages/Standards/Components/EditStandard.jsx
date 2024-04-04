@@ -53,19 +53,32 @@ const EditStandard = () => {
     );
   }, [params.standardid]);
 
-  function setStandards(newStandards) {
-    standards.current === "pre"
-      ? setPrerequisites(newStandards)
-      : setPostrequisites(newStandards);
-  }
-
-  const newStandardSelector = useRef((standardToAdd) => {
-    const newStandards = [
-      ...(standards.current === "pre" ? prerequisites : postrequisites),
-      standardToAdd,
-    ];
-    setStandards(newStandards);
-  });
+  const newStandardSelector = (standardToAdd) => {
+    if (
+      (standards.current === "pre" &&
+        !prerequisites.find((prereq) => prereq.id === standardToAdd?.id)) ||
+      (standards.current === "post" &&
+        !postrequisites.find((postreq) => postreq.id === standardToAdd?.id))
+    ) {
+      if (standardToAdd.id === selectedStandard?.id) {
+        addToast({
+          header: "Error",
+          message:
+            "Cannot add a standard as a prerequisite or postrequisite of itself",
+        });
+      } else {
+        if (standards.current === "pre") {
+          setPrerequisites((prev) => [...prev, standardToAdd]);
+        } else {
+          setPostrequisites((prev) => [...prev, standardToAdd]);
+        }
+        addToast({
+          header: "Standard Added",
+          message: `Standard ${standardToAdd.key} has been selected`,
+        });
+      }
+    }
+  };
 
   const addToast = useContext(ToastContext);
 
@@ -574,14 +587,10 @@ const EditStandard = () => {
         style={{ overflow: "auto" }}
       >
         <PickStandard
-          standards={
-            standards.current === "pre" ? prerequisites : postrequisites
-          }
-          setStandards={setStandards}
           close={() => {
             setShowNewStandardPane(false);
           }}
-          standardSelector={newStandardSelector.current}
+          standardSelector={newStandardSelector}
         />
       </Modal>
     </div>
