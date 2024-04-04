@@ -1,10 +1,10 @@
 import { Button, Card, Form, InputGroup, Nav } from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { useEffect, useState } from "react";
-import EditStandard from "./Components/EditStandard";
 import StandardInfo from "./Components/StandardInfo";
 import { Can } from "../../Services/can";
 import { Standard } from "../../Services/defineAbility";
+import { useNavigate } from "react-router-dom";
 
 const grades = [
   "Kindergarten",
@@ -30,6 +30,8 @@ const StandardsList = () => {
   const [show, setShow] = useState(false);
 
   const [edit, setEdit] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     localStorage.setItem("grade", grade);
@@ -128,23 +130,13 @@ const StandardsList = () => {
           Add New Standard
         </Button>
       </Can>
-      {edit ? (
-        <EditStandard
-          selectedStandard={selectedStandard}
-          setSelectedStandard={setSelectedStandard}
-          setEdit={setEdit}
-          setShow={setShow}
-          show={show}
-        />
-      ) : (
-        <StandardInfo
-          selectedStandard={selectedStandard}
-          setSelectedStandard={setSelectedStandard}
-          show={show}
-          setShow={setShow}
-          setEdit={setEdit}
-        />
-      )}
+      <StandardInfo
+        selectedStandard={selectedStandard}
+        setSelectedStandard={setSelectedStandard}
+        show={show}
+        setShow={setShow}
+        setEdit={setEdit}
+      />
     </div>
   );
 };

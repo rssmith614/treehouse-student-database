@@ -43,6 +43,7 @@ import StudentAssessment from "./Pages/Assessments/StudentAssessment";
 import StudentAssessmentEdit from "./Pages/Assessments/StudentAssessmentEdit";
 import EvalsPendingReview from "./Pages/Eval/EvalsPendingReview";
 import Footer from "./Components/Footer";
+import EditStandard from "./Pages/Standards/Components/EditStandard";
 
 function App() {
   // THEME MANAGEMENT
@@ -169,6 +170,7 @@ function App() {
             <Route path='/tutor/edit/:tutorid' element={<TutorProfileEdit />} />
 
             <Route path='/standards' element={<StandardsList />} />
+            <Route path='/standard/edit/:standardid' element={<EditStandard />} />
 
             <Route path='/assessments' element={<AssessmentsList />} />
             <Route
