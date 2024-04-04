@@ -43,6 +43,9 @@ const EditStandard = () => {
   useEffect(() => {
     getDoc(doc(collection(db, "standards"), params.standardid)).then(
       (standard) => {
+        if (!standard.exists()) {
+          return;
+        }
         setSelectedStandard({ ...standard.data(), id: standard.id });
         setImage(standard.data().image || "");
         setQuestionImage(standard.data().question_image || "");
