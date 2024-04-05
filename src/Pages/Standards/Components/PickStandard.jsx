@@ -1,6 +1,5 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Card, InputGroup, Nav, Form } from "react-bootstrap";
-import { ToastContext } from "../../../Services/toast";
 import StandardsOfCategory from "../../../Components/StandardsOfCategory";
 import StandardInfo from "./StandardInfo";
 
@@ -17,7 +16,7 @@ const grades = [
 ];
 const categories = ["Math", "Reading"];
 
-const PickStandard = ({ standards, setStandards, close, standardSelector }) => {
+const PickStandard = ({ close, standardSelector }) => {
   const [selectedStandard, setSelectedStandard] = useState(null);
 
   const [standardFilter, setStandardFilter] = useState("");
@@ -29,8 +28,6 @@ const PickStandard = ({ standards, setStandards, close, standardSelector }) => {
 
   const [show, setShow] = useState(false);
 
-  const addToast = useContext(ToastContext);
-
   useEffect(() => {
     localStorage.setItem("grade", grade);
     localStorage.setItem("category", category);
@@ -38,16 +35,6 @@ const PickStandard = ({ standards, setStandards, close, standardSelector }) => {
 
   function addStandard(standardToAdd) {
     standardSelector(standardToAdd);
-
-    if (standards) {
-      if (!standards.find((s) => s.id === standardToAdd.id)) {
-        setStandards([...standards, standardToAdd]);
-      }
-      addToast({
-        header: "Standard Added",
-        message: `Standard ${standardToAdd.key} has been selected`,
-      });
-    }
     close();
   }
 

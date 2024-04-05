@@ -4,6 +4,7 @@ import { AbilityContext } from "../../../Services/can";
 import { Standard } from "../../../Services/defineAbility";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
+import { useNavigate } from "react-router-dom";
 
 const StandardInfo = ({
   selectedStandard,
@@ -17,6 +18,8 @@ const StandardInfo = ({
 
   const [compiledPreReqs, setCompiledPreReqs] = useState([]);
   const [compiledPostReqs, setCompiledPostReqs] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     Promise.all(
@@ -228,7 +231,7 @@ const StandardInfo = ({
               className='mt-3 ms-auto'
               id='editStandard'
               onClick={() => {
-                setEdit(true);
+                navigate(`/standard/edit/${selectedStandard.id}`);
               }}
             >
               Edit
