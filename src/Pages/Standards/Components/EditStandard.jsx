@@ -72,11 +72,12 @@ const EditStandard = () => {
         } else {
           setPostrequisites((prev) => [...prev, standardToAdd]);
         }
-        addToast({
-          header: "Standard Added",
-          message: `Standard ${standardToAdd.key} has been selected`,
-        });
       }
+    } else {
+      addToast({
+        header: "Error",
+        message: "Standard already in the list",
+      });
     }
   };
 

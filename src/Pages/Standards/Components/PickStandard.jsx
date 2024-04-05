@@ -16,7 +16,7 @@ const grades = [
 ];
 const categories = ["Math", "Reading"];
 
-const PickStandard = ({ standards, setStandards, close, standardSelector }) => {
+const PickStandard = ({ close, standardSelector }) => {
   const [selectedStandard, setSelectedStandard] = useState(null);
 
   const [standardFilter, setStandardFilter] = useState("");
