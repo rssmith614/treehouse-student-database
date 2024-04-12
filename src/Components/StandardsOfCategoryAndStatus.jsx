@@ -77,7 +77,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
         collection(db, "evaluations"),
         where("student_id", "==", student.id),
       ),
-      (res) => {
+      async (res) => {
         const evaluations = res.docs.map((doc) => ({
           ...doc.data(),
           id: doc.id,
@@ -103,6 +103,24 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
                   standard?.progression || taskDoc.data().progression,
                 );
               });
+            });
+          });
+        });
+
+        await getDocs(
+          query(
+            collection(db, "student_assessments"),
+            where("student_id", "==", student.id),
+          ),
+        ).then((res) => {
+          res.docs.forEach((doc) => {
+            const assessment = doc.data();
+            Object.values(assessment.questions).forEach((question) => {
+              if (!question.standard) return;
+              if (!standardProgression[question.standard]) {
+                standardProgression[question.standard] = [];
+              }
+              standardProgression[question.standard].push(question.score);
             });
           });
         });

@@ -7,10 +7,12 @@ import {
   Form,
   Offcanvas,
 } from "react-bootstrap";
-import TrackStandard from "../../Standards/TrackStandard";
-import StandardDropdown from "./StandardDropdown";
-import StandardDropdownToggle from "./StandardDropdownToggle";
-import StandardInfo from "../../Standards/Components/StandardInfo";
+import TrackStandard from "../../../Standards/TrackStandard";
+import {
+  StandardDropdownMenu,
+  StandardDropdownToggle,
+} from "./StandardDropdown";
+import StandardInfo from "../../../Standards/Components/StandardInfo";
 
 const TaskStandards = ({
   task,
@@ -79,7 +81,7 @@ const TaskStandards = ({
                             selected={standard}
                           />
                           <Dropdown.Menu
-                            as={StandardDropdown}
+                            as={StandardDropdownMenu}
                             standards={standards}
                             newStandardSelector={newStandardSelector}
                             setShowNewStandardPane={setShowNewStandardPane}
