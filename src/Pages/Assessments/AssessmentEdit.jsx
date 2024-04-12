@@ -419,7 +419,7 @@ const AssessmentEdit = () => {
           <Card className='col-6'>
             <Card.Body className='d-flex flex-column justify-content-between'>
               <div className='h5'>Current File</div>
-              {assessment.file === "" || !assessment.file ? (
+              {(assessmentFile ?? "") === "" ? (
                 <div>No file</div>
               ) : (
                 <div>
@@ -441,7 +441,7 @@ const AssessmentEdit = () => {
                 }}
                 disabled={showFileUpload}
               >
-                {assessment.file ? "Replace" : "Upload New"} Assessment File
+                {assessmentFile ? "Replace" : "Upload New"} Assessment File
               </Button>
             </Card.Body>
           </Card>
