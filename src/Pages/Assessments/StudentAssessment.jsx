@@ -43,6 +43,7 @@ const StudentAssessment = () => {
 
         await Promise.all(
           Object.keys(snapshot.data().questions).map(async (key) => {
+            if ((snapshot.data().questions[key].standard ?? "") === "") return;
             return getDoc(
               doc(db, "standards", snapshot.data().questions[key].standard),
             ).then((doc) => {
@@ -107,12 +108,16 @@ const StudentAssessment = () => {
             <td>{question.student_answer}</td>
             <td>{question.score}</td>
             <td>
-              <Button
-                variant='link'
-                onClick={() => setSelectedStandard(question.standard)}
-              >
-                {question.standard?.key}
-              </Button>
+              {(question.standard?.key ?? "") === "" ? (
+                <div className='text-muted'>No Standard</div>
+              ) : (
+                <Button
+                  variant='link'
+                  onClick={() => setSelectedStandard(question.standard)}
+                >
+                  {question.standard?.key}
+                </Button>
+              )}
             </td>
           </tr>
         );
