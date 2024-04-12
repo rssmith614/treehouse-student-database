@@ -74,7 +74,7 @@ const StudentAssessmentEdit = () => {
         ...assessment,
         issued_by: selectedTutor,
         issued_by_name: tutors.find((t) => t.id === selectedTutor).displayName,
-        date: e.target.date.value,
+        date: document.getElementById("date").value,
       },
       { merge: true },
     ).then(() => {
@@ -82,7 +82,7 @@ const StudentAssessmentEdit = () => {
         header: "Student Assessment Updated",
         message: "The student assessment has been updated successfully",
       });
-      navigate(`/assessments/${params.assessmentid}`);
+      navigate(-1);
     });
   }
 
@@ -154,9 +154,8 @@ const StudentAssessmentEdit = () => {
             }
           />
         </td>
-        <td>
-          <Form.Control
-            type='number'
+        <td className='align-middle'>
+          <Form.Select
             value={q.score}
             min={0}
             max={5}
@@ -175,7 +174,12 @@ const StudentAssessmentEdit = () => {
                 }, {}),
               })
             }
-          />
+          >
+            <option value={1}>1 - Far Below Expecatations</option>
+            <option value={2}>2 - Below Expectations</option>
+            <option value={3}>3 - Meets Expectations</option>
+            <option value={4}>4 - Exceeds Expectations</option>
+          </Form.Select>
         </td>
       </tr>
     ));
