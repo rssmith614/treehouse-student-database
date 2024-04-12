@@ -45,7 +45,63 @@ function label(progression) {
   return label;
 }
 
-const StandardDropdown = React.forwardRef(
+const StandardDropdownToggle = React.forwardRef(
+  ({ style, className, onClick, value, id_, selected }, ref) => (
+    <>
+      {selected.key !== "" ? (
+        <OverlayTrigger
+          placement='right'
+          flip={true}
+          key={id_}
+          overlay={
+            <Popover className=''>
+              <Popover.Header>
+                {selected.key} <br />
+                {`${grades[selected.grade]} ${selected.category}: ${
+                  selected.sub_category
+                }`}
+              </Popover.Header>
+              <Popover.Body>
+                <div className='text-decoration-underline'>Description</div>
+                {selected.description}
+              </Popover.Body>
+            </Popover>
+          }
+        >
+          <Form.Control
+            id={id_}
+            ref={ref}
+            style={{ ...style, cursor: "pointer" }}
+            className={className}
+            onClick={(e) => {
+              e.preventDefault();
+              onClick(e);
+            }}
+            value={value}
+            onChange={() => {}}
+            readOnly
+          ></Form.Control>
+        </OverlayTrigger>
+      ) : (
+        <Form.Control
+          id={id_}
+          ref={ref}
+          style={{ ...style, cursor: "pointer" }}
+          className={className}
+          onClick={(e) => {
+            e.preventDefault();
+            onClick(e);
+          }}
+          defaultValue={value}
+          readOnly
+        ></Form.Control>
+      )}
+      <div className='invalid-feedback'>Please select a standard</div>
+    </>
+  ),
+);
+
+const StandardDropdownMenu = React.forwardRef(
   (
     {
       style,
@@ -184,4 +240,4 @@ const StandardDropdown = React.forwardRef(
   },
 );
 
-export default StandardDropdown;
+export { StandardDropdownMenu, StandardDropdownToggle };

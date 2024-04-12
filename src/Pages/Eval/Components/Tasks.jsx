@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Container } from "react-bootstrap";
-import Task from "./Task";
+import Task from "../Task/Task";
 
 const Tasks = ({
   tasks,
@@ -47,6 +47,7 @@ const Tasks = ({
         onClick={addTask}
       >
         Add Task
+        <i className='bi bi-plus ps-2' />
       </Button>
     </>
   );
