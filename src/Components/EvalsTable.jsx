@@ -20,7 +20,7 @@ import DropdownTableHeaderToggle from "./DropdownTableHeaderToggle";
 import FilterTableHeader from "./FilterTableHeader";
 import PaginatedTable from "./PaginatedTable";
 
-const EvalsTable = ({ filterBy, id, _limit }) => {
+const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
   const [evals, setEvals] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [cursorIndex, setCursorIndex] = useState(0);
@@ -38,21 +38,19 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
   useEffect(() => {
     docRef.current = doc(db, filterBy, id);
 
-    let q;
+    let conditions = [
+      collection(db, "evaluations"),
+      where("draft", "==", draft),
+      orderBy("date", "desc"),
+    ];
 
     if (filterBy === "tutor") {
-      q = query(
-        collection(db, "evaluations"),
-        where("tutor_id", "==", id),
-        orderBy("date", "desc"),
-      );
+      conditions.push(where("tutor_id", "==", id));
     } else if (filterBy === "student") {
-      q = query(
-        collection(db, "evaluations"),
-        where("student_id", "==", id),
-        orderBy("date", "desc"),
-      );
+      conditions.push(where("student_id", "==", id));
     }
+
+    let q = query.apply(null, conditions);
 
     const unsubscribeEvals = onSnapshot(q, (res) => {
       Promise.all(
@@ -107,7 +105,7 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
     });
 
     return () => unsubscribeEvals();
-  }, [filterBy, id, _limit]);
+  }, [filterBy, id, _limit, draft]);
 
   useEffect(() => {
     let temp = evals.filter((evaluation) => {
@@ -115,7 +113,10 @@ const EvalsTable = ({ filterBy, id, _limit }) => {
         evaluation.student_name
           .toLowerCase()
           .includes(studentFilter.toLowerCase()) &&
-        evaluation.tutor_name.toLowerCase().includes(tutorFilter.toLowerCase())
+        evaluation.tutor_name
+          .toLowerCase()
+          .includes(tutorFilter.toLowerCase()) &&
+        !(evaluation.draft ?? false)
       );
     });
 

@@ -98,6 +98,13 @@ const Navbar = ({ userProfile }) => {
                 <i className='bi bi-journal-plus pe-2 fs-6' />
                 <span className='align-self-center'>New Evaluation</span>
               </Dropdown.Item>
+              <Dropdown.Item
+                onClick={() => navigate(`/evals/drafts`)}
+                className='d-flex'
+              >
+                <i className='bi bi-journal-x pe-2 fs-6' />
+                <span className='align-self-center'>Drafts</span>
+              </Dropdown.Item>
               <Can I='query' on='evals'>
                 <Dropdown.Item
                   onClick={() => navigate(`/eval/query`)}

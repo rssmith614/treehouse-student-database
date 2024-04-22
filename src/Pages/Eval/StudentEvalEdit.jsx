@@ -148,6 +148,7 @@ const StudentEvalEdit = () => {
       query(
         collection(db, "evaluations"),
         where("student_id", "==", student),
+        where("draft", "==", false), // only show completed evals
         orderBy("date", "desc"),
         limit(5),
       ),
@@ -213,7 +214,11 @@ const StudentEvalEdit = () => {
   // calculate average progression for each standard across ALL evals
   useEffect(() => {
     const unsubscribeEvaluations = onSnapshot(
-      query(collection(db, "evaluations"), where("student_id", "==", student)),
+      query(
+        collection(db, "evaluations"),
+        where("draft", "==", false),
+        where("student_id", "==", student),
+      ),
       (res) => {
         const evaluations = res.docs.map((doc) => ({
           ...doc.data(),
@@ -351,8 +356,13 @@ const StudentEvalEdit = () => {
     // localStorage.setItem(`${params.studentid}_tasks`, JSON.stringify(newTasks));
   }
 
-  async function sumbitEval(e) {
+  async function submitEval(e) {
     e.preventDefault();
+    let draft = false;
+    if (e.target.id === "saveDraft") {
+      draft = true;
+    }
+
     document.getElementById("submit").innerHtml =
       "Submit <span class='spinner-border spinner-border-sm' />";
     document.getElementById("submit").disabled = true;
@@ -408,7 +418,7 @@ const StudentEvalEdit = () => {
       clean = false;
     }
 
-    if (!clean) {
+    if (!clean && !draft) {
       document.getElementById("submit").innerHTML = "Submit";
       document.getElementById("submit").disabled = false;
       return;
@@ -426,6 +436,7 @@ const StudentEvalEdit = () => {
       tutor_name: evaluation.tutor_name || "",
       student_id: evaluation.student_id || "",
       student_name: evaluation.student_name || "",
+      draft: draft,
     };
 
     evalUpload.tutor_id = selectedTutor;
@@ -643,10 +654,18 @@ const StudentEvalEdit = () => {
           >
             Delete
           </Button>
+          <Button
+            variant='outline-primary'
+            className='m-3'
+            id='saveDraft'
+            onClick={submitEval}
+          >
+            Save Draft
+          </Button>
           <button
             id='submit'
             className='btn btn-primary m-3'
-            onClick={sumbitEval}
+            onClick={submitEval}
           >
             Submit
           </button>
