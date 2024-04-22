@@ -29,6 +29,7 @@ const RecentStudents = ({ tutorid }) => {
         query(
           collection(db, "evaluations"),
           where("tutor_id", "==", doc.id),
+          where("draft", "==", false),
           orderBy("date", "desc"),
         ),
       ).then((querySnapshot) => {

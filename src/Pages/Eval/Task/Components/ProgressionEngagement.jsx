@@ -73,7 +73,7 @@ const ProgressionEngagement = ({
               <i className='bi bi-info-square ms-auto ps-2'></i>
             </OverlayTrigger>
           </div>
-          <ButtonGroup name={`${task_idx}_engagement`} className='bg-body'>
+          <ButtonGroup id={`${task_idx}_engagement`} className='bg-body'>
             {["1", "2", "3", "4"].map((eng) => (
               <Button
                 key={eng}

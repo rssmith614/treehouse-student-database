@@ -145,6 +145,7 @@ const EvalQuery = () => {
     getDocs(
       query.apply(null, [
         collection(db, "evaluations"),
+        where("draft", "==", false),
         ...evalQueryConditions,
       ]),
     ).then(async (snapshot) => {
@@ -192,7 +193,12 @@ const EvalQuery = () => {
 
         return Promise.all(
           (
-            await getDocs(collection(db, "evaluations", evaluation.id, "tasks"))
+            await getDocs(
+              query(
+                collection(db, "evaluations", evaluation.id, "tasks"),
+                where("draft", "==", false),
+              ),
+            )
           ).docs.map(async (task) => {
             if (task.data().standards) {
               return {

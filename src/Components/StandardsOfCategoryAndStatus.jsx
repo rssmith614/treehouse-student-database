@@ -75,6 +75,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
     const unsubscribeEvaluations = onSnapshot(
       query(
         collection(db, "evaluations"),
+        where("draft", "==", false),
         where("student_id", "==", student.id),
       ),
       async (res) => {

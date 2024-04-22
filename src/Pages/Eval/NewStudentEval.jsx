@@ -38,6 +38,7 @@ const NewStudentEval = () => {
   const [loading, setLoading] = useState(true);
 
   const [recentEvals, setRecentEvals] = useState([]);
+  const [draft, setDraft] = useState();
 
   const addToast = useContext(ToastContext);
 
@@ -65,6 +66,8 @@ const NewStudentEval = () => {
     worksheet_completion: "",
     next_session: "",
     owner: auth.currentUser?.uid || "",
+    draft: false,
+    flagged: false,
   };
 
   const blankTask = {
@@ -115,6 +118,27 @@ const NewStudentEval = () => {
     }
   }, [evaluation.tutor_id]);
 
+  useEffect(() => {
+    const unsubscribeDrafts = onSnapshot(
+      query(
+        collection(db, "evaluations"),
+        where("student_id", "==", params.studentid),
+        where("draft", "==", true),
+        where("tutor_id", "==", auth.currentUser.uid),
+        limit(1),
+      ),
+      (snapshot) => {
+        if (snapshot.docs.length > 0) {
+          setDraft(snapshot.docs[0].id);
+        }
+      },
+    );
+
+    return () => {
+      unsubscribeDrafts();
+    };
+  }, [params.studentid]);
+
   // load cached eval data
   useEffect(() => {
     if (localStorage.getItem(`${params.studentid}_eval`)) {
@@ -163,6 +187,7 @@ const NewStudentEval = () => {
       query(
         collection(db, "evaluations"),
         where("student_id", "==", params.studentid),
+        where("draft", "==", false), // only show completed evals
         orderBy("date", "desc"),
         limit(5),
       ),
@@ -230,6 +255,7 @@ const NewStudentEval = () => {
     const unsubscribeEvaluations = onSnapshot(
       query(
         collection(db, "evaluations"),
+        where("draft", "==", false),
         where("student_id", "==", params.studentid),
       ),
       (res) => {
@@ -368,6 +394,10 @@ const NewStudentEval = () => {
 
   function sumbitEval(e) {
     e.preventDefault();
+    let draft = false;
+    if (e.target.id === "saveDraft") {
+      draft = true;
+    }
 
     const elements = document.getElementsByClassName("is-invalid");
     if (elements.length > 0) {
@@ -431,7 +461,7 @@ const NewStudentEval = () => {
       clean = false;
     }
 
-    if (!clean) return;
+    if (!clean && !draft) return;
 
     document.getElementById("submit").innerHTML =
       "Submit <span class='spinner-border spinner-border-sm' />";
@@ -467,6 +497,7 @@ const NewStudentEval = () => {
           ...evaluation,
           owner: auth.currentUser.uid,
           worksheet: worksheetRef.fullPath,
+          draft: draft,
           flagged:
             document
               .getElementById("flagForReview")
@@ -511,6 +542,7 @@ const NewStudentEval = () => {
         student_name: evaluation.student_name || "",
         owner: auth.currentUser.uid,
         worksheet: worksheetURL,
+        draft: draft,
         flagged: document
           .getElementById("flagForReview")
           .classList.contains("btn-outline-danger"),
@@ -557,6 +589,7 @@ const NewStudentEval = () => {
             evaluation={evaluation}
             handleEvalChange={handleEvalChange}
             loading={loading}
+            draft={draft}
           />
           <hr />
           <div className='d-flex flex-column'>
@@ -585,6 +618,14 @@ const NewStudentEval = () => {
             Back
           </button>
 
+          <Button
+            variant='outline-primary'
+            className='m-3'
+            id='saveDraft'
+            onClick={sumbitEval}
+          >
+            Save Draft
+          </Button>
           <button
             className='btn btn-primary m-3'
             id='submit'

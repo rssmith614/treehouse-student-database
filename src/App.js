@@ -44,6 +44,7 @@ import StudentAssessmentEdit from "./Pages/Assessments/StudentAssessmentEdit";
 import EvalsPendingReview from "./Pages/Eval/EvalsPendingReview";
 import Footer from "./Components/Footer";
 import EditStandard from "./Pages/Standards/Components/EditStandard";
+import EvalDrafts from "./Pages/Eval/EvalDrafts";
 
 function App() {
   // THEME MANAGEMENT
@@ -156,6 +157,7 @@ function App() {
             <Route path='/eval/edit/:evalid' element={<StudentEvalEdit />} />
             <Route path='/eval/query' element={<EvalQuery />} />
             <Route path='/evals/review' element={<EvalsPendingReview />} />
+            <Route path='/evals/drafts' element={<EvalDrafts />} />
 
             <Route path='/newstudent' element={<NewStudentPage />} />
             <Route path='/students' element={<StudentProfilesList />} />

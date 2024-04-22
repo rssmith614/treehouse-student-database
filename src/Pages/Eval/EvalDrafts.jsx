@@ -1,13 +1,13 @@
 import dayjs from "dayjs";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { Card, Dropdown, Table } from "react-bootstrap";
+import { Button, Card, Collapse, Dropdown, Table } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
 import FilterTableHeader from "../../Components/FilterTableHeader";
-import { db } from "../../Services/firebase";
+import { auth, db } from "../../Services/firebase";
 
-const EvalsPendingReview = () => {
+const EvalDrafts = () => {
   const [evals, setEvals] = useState([]);
 
   const [tableSort, setTableSort] = useState("date_desc");
@@ -22,8 +22,8 @@ const EvalsPendingReview = () => {
     const unsubscribeEvals = onSnapshot(
       query(
         collection(db, "evaluations"),
-        where("draft", "==", false),
-        where("flagged", "==", true),
+        where("draft", "==", true),
+        where("tutor_id", "==", auth.currentUser.uid),
       ),
       (snapshot) => {
         setEvals(snapshot.docs);
@@ -35,6 +35,56 @@ const EvalsPendingReview = () => {
       unsubscribeEvals();
     };
   }, []);
+
+  function handleDelete(id) {
+    console.log("Deleting", id);
+  }
+
+  const TableRow = ({ evaluation }) => {
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    const evalData = evaluation.data();
+    return (
+      <tr
+        className='align-middle'
+        style={{ cursor: "pointer" }}
+        onClick={() => navigate(`/eval/edit/${evaluation.id}`)}
+      >
+        <td>
+          <div className='d-flex'>
+            <Collapse in={showDeleteConfirm} dimension='width'>
+              <div>
+                <Button
+                  className='me-2'
+                  variant='outline-secondary'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowDeleteConfirm(false);
+                  }}
+                >
+                  <i className='bi bi-x-lg' />
+                </Button>
+              </div>
+            </Collapse>
+            <Button
+              variant='danger'
+              onClick={(e) => {
+                e.stopPropagation();
+                showDeleteConfirm
+                  ? handleDelete(evaluation.id)
+                  : setShowDeleteConfirm(true);
+              }}
+            >
+              <i className='bi bi-trash-fill' />
+            </Button>
+          </div>
+        </td>
+        <td>{dayjs(evalData.date).format("MMMM D, YYYY")}</td>
+        <td>{evalData.student_name}</td>
+        <td>{evalData.tutor_name}</td>
+      </tr>
+    );
+  };
 
   const pendingEvals = () => {
     const tableData = evals.filter((evaluation) => {
@@ -66,18 +116,7 @@ const EvalsPendingReview = () => {
     }
 
     return tableData.map((evaluation) => {
-      const evalData = evaluation.data();
-      return (
-        <tr
-          key={evaluation.id}
-          style={{ cursor: "pointer" }}
-          onClick={() => navigate(`/eval/${evaluation.id}`)}
-        >
-          <td>{evalData.date}</td>
-          <td>{evalData.student_name}</td>
-          <td>{evalData.tutor_name}</td>
-        </tr>
-      );
+      return <TableRow key={evaluation.id} evaluation={evaluation} />;
     });
   };
 
@@ -106,18 +145,20 @@ const EvalsPendingReview = () => {
 
   return (
     <div className='d-flex flex-column p-3'>
-      <div className='display-1'>Review Evals</div>
+      <div className='display-1'>Your Draft Evaluations</div>
+      <div className='h5'>
+        All unfinished evaluations that you have saved as drafts
+      </div>
       <Card className='bg-light-subtle p-3'>
         {loading ? (
           <div className='spinner-border align-self-center' />
         ) : evals.length === 0 ? (
-          <div className='text-center'>
-            No Evaluations pending review at this time.
-          </div>
+          <div className='text-center'>You have no drafts at this time.</div>
         ) : (
           <Table striped hover>
             <thead>
               <tr>
+                <th className='col-1'></th>
                 <th style={{ cursor: "pointer" }}>
                   <Dropdown autoClose='outside' drop='up'>
                     <Dropdown.Toggle as={DropdownTableHeaderToggle} id='date'>
@@ -170,4 +211,4 @@ const EvalsPendingReview = () => {
   );
 };
 
-export default EvalsPendingReview;
+export default EvalDrafts;
