@@ -1,11 +1,19 @@
 import dayjs from "dayjs";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, Card, Collapse, Dropdown, Table } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
 import FilterTableHeader from "../../Components/FilterTableHeader";
 import { auth, db } from "../../Services/firebase";
+import { ToastContext } from "../../Services/toast";
 
 const EvalDrafts = () => {
   const [evals, setEvals] = useState([]);
@@ -17,6 +25,8 @@ const EvalDrafts = () => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
+
+  const addToast = useContext(ToastContext);
 
   useEffect(() => {
     const unsubscribeEvals = onSnapshot(
@@ -37,7 +47,12 @@ const EvalDrafts = () => {
   }, []);
 
   function handleDelete(id) {
-    console.log("Deleting", id);
+    deleteDoc(doc(db, "evaluations", id)).then(() => {
+      addToast({
+        header: "Evaluation Deleted",
+        message: "The evaluation has been successfully deleted.",
+      });
+    });
   }
 
   const TableRow = ({ evaluation }) => {

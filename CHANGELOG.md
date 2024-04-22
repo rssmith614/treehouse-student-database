@@ -1,3 +1,8 @@
+## [1.5.1] - 2024-04-23
+
+### Fixed
+- Draft eval deletion implementation
+
 ## [1.5.0] - 2024-04-22
 
 ### Added

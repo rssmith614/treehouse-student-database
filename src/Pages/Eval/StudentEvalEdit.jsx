@@ -569,7 +569,8 @@ const StudentEvalEdit = () => {
 
       // delete evaluation
       await deleteDoc(evalRef.current).then(() => {
-        navigate(-2);
+        navigate(-1);
+        if (!evaluation.draft) navigate(-1); // if not a draft, need to go back twice to avoid eval page
         addToast({
           header: "Evaluation Deleted",
           message: `Session evaluation for ${evaluation?.student_name} has been deleted`,
