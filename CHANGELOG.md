@@ -1,7 +1,18 @@
+## [1.5.0] - 2024-04-22
+
+### Added
+- Ability to save unfinished evals as drafts ([#181](https://github.com/rssmith614/treehouse-student-database/issues/181))
+- Page for tutor to review their drafts
+- Button to load eval draft from new eval page (if a draft is present for that student)
+
+### Changed
+- Updated every record in Firestore to include a 'draft' field
+- All parts of the app now check draft field when querying for evals
+
 ## [1.4.7] - 2024-04-19
 
 ### Added
-- `CHANGELOG.md` file
+- `CHANGELOG.md` file ([#180](https://github.com/rssmith614/treehouse-student-database/issues/180))
 
 ## [1.4.6] - 2024-04-12
 
