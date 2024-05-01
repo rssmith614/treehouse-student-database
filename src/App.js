@@ -43,6 +43,8 @@ import StudentAssessment from "./Pages/Assessments/StudentAssessment";
 import StudentAssessmentEdit from "./Pages/Assessments/StudentAssessmentEdit";
 import EvalsPendingReview from "./Pages/Eval/EvalsPendingReview";
 import Footer from "./Components/Footer";
+import EditStandard from "./Pages/Standards/Components/EditStandard";
+import EvalDrafts from "./Pages/Eval/EvalDrafts";
 
 function App() {
   // THEME MANAGEMENT
@@ -134,68 +136,62 @@ function App() {
     <AbilityContext.Provider value={defineAbilityFor(userProfile)}>
       <ToastContext.Provider value={addToast}>
         <Router>
-          <Container fluid>
-            <Row className="flex-nowrap">
-              <Col className='col-md-3 col-xl-2 px-0'>
-                <Navbar userProfile={userProfile} />
-              </Col>
-              <Col>
-                <Routes>
-                  <Route path='/' element={<Navigate to='/login' />} />
-                  <Route
-                    path='/login'
-                    element={
-                      <Login
-                        userProfile={userProfile}
-                        setUserProfile={setUserProfile}
-                      />
-                    }
-                  />
+          <Navbar userProfile={userProfile} />
+          <Routes>
+            <Route path='/' element={<Navigate to='/login' />} />
+            <Route
+              path='/login'
+              element={
+                <Login
+                  userProfile={userProfile}
+                  setUserProfile={setUserProfile}
+                />
+              }
+            />
 
-                  <Route path='/evals' element={<Evals />} />
-                  <Route path='/eval/new' element={<NewEval />} />
-                  <Route path='/eval/new/:studentid' element={<NewStudentEval />} />
-                  <Route path='/eval/:evalid' element={<StudentEval />} />
-                  <Route path='/evals/:studentid' element={<StudentEvalsList />} />
-                  <Route path='/eval/edit/:evalid' element={<StudentEvalEdit />} />
-                  <Route path='/eval/query' element={<EvalQuery />} />
-                  <Route path='/evals/review' element={<EvalsPendingReview />} />
+            <Route path='/evals' element={<Evals />} />
+            <Route path='/eval/new' element={<NewEval />} />
+            <Route path='/eval/new/:studentid' element={<NewStudentEval />} />
+            <Route path='/eval/:evalid' element={<StudentEval />} />
+            <Route path='/evals/:studentid' element={<StudentEvalsList />} />
+            <Route path='/eval/edit/:evalid' element={<StudentEvalEdit />} />
+            <Route path='/eval/query' element={<EvalQuery />} />
+            <Route path='/evals/review' element={<EvalsPendingReview />} />
+            <Route path='/evals/drafts' element={<EvalDrafts />} />
 
-                  <Route path='/newstudent' element={<NewStudentPage />} />
-                  <Route path='/students' element={<StudentProfilesList />} />
-                  <Route path='/students/:studentid' element={<StudentProfile />} />
-                  <Route
-                    path='students/edit/:studentid'
-                    element={<StudentProfileEdit />}
-                  />
+            <Route path='/newstudent' element={<NewStudentPage />} />
+            <Route path='/students' element={<StudentProfilesList />} />
+            <Route path='/students/:studentid' element={<StudentProfile />} />
+            <Route
+              path='students/edit/:studentid'
+              element={<StudentProfileEdit />}
+            />
 
-                  <Route path='/tutors' element={<TutorProfilesList />} />
-                  <Route path='/tutor/:tutorid' element={<TutorProfile />} />
-                  <Route path='/tutor/edit/:tutorid' element={<TutorProfileEdit />} />
+            <Route path='/tutors' element={<TutorProfilesList />} />
+            <Route path='/tutor/:tutorid' element={<TutorProfile />} />
+            <Route path='/tutor/edit/:tutorid' element={<TutorProfileEdit />} />
 
-                  <Route path='/standards' element={<StandardsList />} />
+            <Route path='/standards' element={<StandardsList />} />
+            <Route path='/standard/edit/:standardid' element={<EditStandard />} />
 
-                  <Route path='/assessments' element={<AssessmentsList />} />
-                  <Route
-                    path='/assessments/edit/:assessmentid'
-                    element={<AssessmentEdit />}
-                  />
-                  <Route
-                    path='/assessments/new/:studentid'
-                    element={<NewStudentAssessment />}
-                  />
-                  <Route
-                    path='/assessments/:assessmentid'
-                    element={<StudentAssessment />}
-                  />
-                  <Route
-                    path='/assessments/student/edit/:assessmentid'
-                    element={<StudentAssessmentEdit />}
-                  />
-                </Routes>
-              </Col>
-            </Row>
-          </Container>
+            <Route path='/assessments' element={<AssessmentsList />} />
+            <Route
+              path='/assessments/edit/:assessmentid'
+              element={<AssessmentEdit />}
+            />
+            <Route
+              path='/assessments/new/:studentid'
+              element={<NewStudentAssessment />}
+            />
+            <Route
+              path='/assessments/:assessmentid'
+              element={<StudentAssessment />}
+            />
+            <Route
+              path='/assessments/student/edit/:assessmentid'
+              element={<StudentAssessmentEdit />}
+            />
+          </Routes>
           <Footer />
         </Router>
         <DocSubmissionToast toasts={toastElements} />

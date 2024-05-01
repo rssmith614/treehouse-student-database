@@ -133,13 +133,21 @@ const StudentEval = () => {
     };
   }, [params.evalid]);
 
+  useEffect(() => {
+    if (typeof window?.MathJax !== "undefined") {
+      window.MathJax.texReset();
+      window.MathJax.typesetClear();
+      window.MathJax.typesetPromise();
+    }
+  }, [tasks]);
+
   const tasksList = tasks.map((task, task_idx) => {
     return (
-      <Col className='d-flex flex-column' key={task_idx}>
+      <Col className='d-flex w-100 flex-column' key={task_idx}>
         <Card className='mb-3 flex-fill' key={task_idx}>
           <Card.Header>Task {task_idx + 1}</Card.Header>
           <Card.Body className='d-flex'>
-            <div className='d-flex flex-column mw-0'>
+            <div className='d-flex flex-column flex-fill'>
               <div className='h5 d-flex'>Summary</div>
               <div className='d-flex card bg-light-subtle'>
                 {/* <div className='card-header'>Comments</div> */}

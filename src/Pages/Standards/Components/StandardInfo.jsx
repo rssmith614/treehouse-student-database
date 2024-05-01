@@ -4,6 +4,7 @@ import { AbilityContext } from "../../../Services/can";
 import { Standard } from "../../../Services/defineAbility";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../Services/firebase";
+import { useNavigate } from "react-router-dom";
 
 const StandardInfo = ({
   selectedStandard,
@@ -17,6 +18,8 @@ const StandardInfo = ({
 
   const [compiledPreReqs, setCompiledPreReqs] = useState([]);
   const [compiledPostReqs, setCompiledPostReqs] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     Promise.all(
@@ -40,6 +43,36 @@ const StandardInfo = ({
     });
   }, [selectedStandard?.postrequisites]);
 
+  function color(progression) {
+    const parsed = parseFloat(progression);
+    let color;
+    if (parsed >= 3.5) {
+      color = "success";
+    } else if (parsed >= 2.5) {
+      color = "primary text-dark ";
+    } else if (parsed >= 1.5) {
+      color = "warning";
+    } else {
+      color = "danger";
+    }
+    return color;
+  }
+
+  function label(progression) {
+    const parsed = parseFloat(progression);
+    let label;
+    if (parsed >= 3.5) {
+      label = "Exceeds Expectations";
+    } else if (parsed >= 2.5) {
+      label = "Meets Expectations";
+    } else if (parsed >= 1.5) {
+      label = "Below Expectations";
+    } else {
+      label = "Far Below Expectations";
+    }
+    return label;
+  }
+
   return (
     <Modal
       show={show}
@@ -56,6 +89,25 @@ const StandardInfo = ({
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        {selectedStandard?.progression && (
+          <div className='h4'>
+            <span className={`badge bg-${color(selectedStandard.progression)}`}>
+              {selectedStandard?.progression} -{" "}
+              {label(selectedStandard.progression)}
+            </span>
+          </div>
+        )}
+        {selectedStandard?.parent && (
+          <div className='h4'>
+            Because you mastered{" "}
+            <Button
+              variant='link'
+              onClick={() => setSelectedStandard(selectedStandard.parent)}
+            >
+              {selectedStandard.parent.key}
+            </Button>
+          </div>
+        )}
         <p className='fst-italic text-decoration-underline'>Description</p>
         <Card className='bg-light-subtle'>
           <Card.Body>
@@ -168,17 +220,18 @@ const StandardInfo = ({
                 setShow(false);
               }}
             >
-              Add to Task
+              Add
             </Button>
           ) : null}
           {!addSelection &&
+          setEdit &&
           ability.can("edit", new Standard(selectedStandard)) ? (
             <Button
               variant='secondary'
               className='mt-3 ms-auto'
               id='editStandard'
               onClick={() => {
-                setEdit(true);
+                navigate(`/standard/edit/${selectedStandard.id}`);
               }}
             >
               Edit

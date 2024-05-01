@@ -5,7 +5,7 @@ import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { db } from "../../../Services/firebase";
 
-const EvalHeader = ({ evaluation, handleEvalChange, loading }) => {
+const EvalHeader = ({ evaluation, handleEvalChange, loading, draft }) => {
   const [tutors, setTutors] = useState([]);
 
   const navigate = useNavigate();
@@ -45,18 +45,28 @@ const EvalHeader = ({ evaluation, handleEvalChange, loading }) => {
           <div className='placeholder h3 bg-primary py-3 col-1' />
         </div>
       ) : (
-        <Button
-          variant='link'
-          className='me-auto'
-          size='lg'
-          style={{
-            "--bs-btn-padding-x": "0rem",
-            "--bs-btn-padding-y": "0rem",
-          }}
-          onClick={() => navigate(`/students/${evaluation.student_id}`)}
-        >
-          <div className='h3'>{evaluation.student_name}</div>
-        </Button>
+        <div className='d-flex'>
+          <Button
+            variant='link'
+            className='me-auto'
+            size='lg'
+            style={{
+              "--bs-btn-padding-x": "0rem",
+              "--bs-btn-padding-y": "0rem",
+            }}
+            onClick={() => navigate(`/students/${evaluation.student_id}`)}
+          >
+            <div className='h3'>{evaluation.student_name}</div>
+          </Button>
+          {draft && (
+            <Button
+              variant='secondary'
+              onClick={() => navigate(`/eval/edit/${draft}`)}
+            >
+              Load Draft
+            </Button>
+          )}
+        </div>
       )}
       <div className='row my-3'>
         <div className='col'>

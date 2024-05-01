@@ -15,9 +15,11 @@ const About = ({ tutorid }) => {
 
   const navigate = useNavigate();
 
-  const tutorDocRef = useRef(doc(db, "tutors", tutorid));
+  const tutorDocRef = useRef();
 
   useEffect(() => {
+    tutorDocRef.current = doc(db, "tutors", tutorid);
+
     const unsubscribeTutor = onSnapshot(tutorDocRef.current, (doc) => {
       setTutor({ id: doc.id, ...doc.data() });
       setLoading(false);

@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { auth, db, storage } from "../../Services/firebase";
 import dayjs from "dayjs";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import StandardInfo from "../Standards/Components/StandardInfo";
 
 const grades = {
   K: "Kindergarten",
@@ -94,7 +95,7 @@ const NewStudentAssessment = () => {
       (amt) => amt.category === selectedCategory,
     );
 
-    if (newAssessment.questions !== undefined) {
+    if (newAssessment?.questions !== undefined) {
       newAssessment.questions = Object.entries(newAssessment.questions).reduce(
         (newq, q) => {
           return { ...newq, [q[0]]: { ...q[1], score: 0, student_answer: "" } };
@@ -195,7 +196,7 @@ const NewStudentAssessment = () => {
       return;
 
     let questionsWithScores = Object.entries(selectedAssessment.questions).map(
-      (q) => ({ ...q[1], num: q[0], score: q[1].score || 0 }),
+      (q) => ({ ...q[1], num: q[0], score: q[1].score }),
     );
 
     let questionList = questionsWithScores.map((q) => (
@@ -225,12 +226,9 @@ const NewStudentAssessment = () => {
             }
           />
         </td>
-        <td>
-          <Form.Control
-            type='number'
-            value={q.score}
-            min={0}
-            max={5}
+        <td className='align-middle'>
+          <Form.Select
+            value={q.score || ""}
             onChange={(e) =>
               setSelectedAssessment({
                 ...selectedAssessment,
@@ -246,7 +244,15 @@ const NewStudentAssessment = () => {
                 }, {}),
               })
             }
-          />
+          >
+            <option disabled value=''>
+              Select One
+            </option>
+            <option value={1}>1 - Far Below Expectations</option>
+            <option value={2}>2 - Below Expectations</option>
+            <option value={3}>3 - Meets Expectations</option>
+            <option value={4}>4 - Exceeds Expectations</option>
+          </Form.Select>
         </td>
       </tr>
     ));
@@ -255,125 +261,131 @@ const NewStudentAssessment = () => {
   }
 
   return (
-    <div className='p-3'>
-      <div className='display-1'>New Student Assessment</div>
-      <Card className='bg-light-subtle m-3'>
-        <Card.Body>
-          {/* <Form onSubmit={handleSubmit}> */}
-          <div className='h3'>{student.student_name}</div>
-          <div className='row my-3'>
-            <div className='col'>
-              <label className='form-label h5'>Issuer</label>
-              <Form.Select
-                id='tutor'
-                className='form-control'
-                value={selectedTutor}
-                onChange={(e) => setSelectedTutor(e.target.value)}
-              >
-                <option disabled value=''>
-                  Select One
-                </option>
-                {tutorOptions()}
-              </Form.Select>
+    <>
+      <div className='p-3'>
+        <div className='display-1'>New Student Assessment</div>
+        <Card className='bg-light-subtle m-3'>
+          <Card.Body>
+            {/* <Form onSubmit={handleSubmit}> */}
+            <div className='h3'>{student.student_name}</div>
+            <div className='row my-3'>
+              <div className='col'>
+                <label className='form-label h5'>Issuer</label>
+                <Form.Select
+                  id='tutor'
+                  className='form-control'
+                  value={selectedTutor}
+                  onChange={(e) => setSelectedTutor(e.target.value)}
+                >
+                  <option disabled value=''>
+                    Select One
+                  </option>
+                  {tutorOptions()}
+                </Form.Select>
+              </div>
+              <div className='col'>
+                <label className='form-label h5'>Date</label>
+                <input
+                  id='date'
+                  className='form-control'
+                  type='date'
+                  defaultValue={dayjs().format("YYYY-MM-DD")}
+                />
+              </div>
             </div>
-            <div className='col'>
-              <label className='form-label h5'>Date</label>
-              <input
-                id='date'
-                className='form-control'
-                type='date'
-                defaultValue={dayjs().format("YYYY-MM-DD")}
-              />
-            </div>
-          </div>
-          <Form.Label className='h3'>Assessment</Form.Label>
-          <Row className='mb-3'>
-            <Col>
-              <Form.Label className='h5'>Grade</Form.Label>
-              <Form.Select
-                value={selectedGrade}
-                onChange={(e) => setSelectedGrade(e.target.value)}
-              >
-                <option disabled value=''>
-                  Select One
-                </option>
-                {gradeOptions()}
-              </Form.Select>
-            </Col>
-            <Col>
-              <Form.Label className='h5'>Category</Form.Label>
-              <Form.Select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                <option disabled value=''>
-                  Select One
-                </option>
-                {categoryOptions()}
-              </Form.Select>
-            </Col>
-          </Row>
-          <hr />
-          {selectedGrade !== "" && selectedCategory !== "" ? (
-            <>
-              {selectedAssessment?.file !== "" &&
-              selectedAssessment?.file !== undefined ? (
-                <Row>
-                  <Col className='d-flex flex-column justify-content-center'>
-                    <Button
-                      href={fileURL}
-                      className=''
-                      target='_blank'
-                      rel='noreferrer'
-                    >
-                      Download Blank Assessment
-                    </Button>
-                  </Col>
-                  <Col>
-                    <Form.Label className='h5'>
-                      Upload Completed Assessment
-                    </Form.Label>
-                    <input
-                      id='completed-amt-file'
-                      type='file'
-                      className='form-control'
-                      accept='application/pdf'
-                    />
-                  </Col>
-                </Row>
-              ) : (
-                <div className='h6 text-center'>
-                  No file for the selected assessment
-                </div>
-              )}
-              <div className='h3'>Questions</div>
-              <Table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Question</th>
-                    <th>Sample Answer</th>
-                    <th>Student's Answer</th>
-                    <th>Score</th>
-                  </tr>
-                </thead>
-                <tbody>{assessmentQuestions()}</tbody>
-              </Table>
-            </>
-          ) : (
-            <div className='h6 text-center'>
-              Select a grade and category to view the assessment
-            </div>
-          )}
-          <div className='d-flex justify-content-end'>
-            <Button variant='primary' onClick={handleSubmit}>
-              Submit
-            </Button>
-          </div>
-          {/* </Form> */}
-        </Card.Body>
-      </Card>
-    </div>
+            <Form.Label className='h3'>Assessment</Form.Label>
+            <Row className='mb-3'>
+              <Col>
+                <Form.Label className='h5'>Grade</Form.Label>
+                <Form.Select
+                  value={selectedGrade}
+                  onChange={(e) => setSelectedGrade(e.target.value)}
+                >
+                  <option disabled value=''>
+                    Select One
+                  </option>
+                  {gradeOptions()}
+                </Form.Select>
+              </Col>
+              <Col>
+                <Form.Label className='h5'>Category</Form.Label>
+                <Form.Select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                >
+                  <option disabled value=''>
+                    Select One
+                  </option>
+                  {categoryOptions()}
+                </Form.Select>
+              </Col>
+            </Row>
+            <hr />
+            {selectedGrade !== "" && selectedCategory !== "" ? (
+              <>
+                {selectedAssessment?.file !== "" &&
+                selectedAssessment?.file !== undefined ? (
+                  <Row>
+                    <Col className='d-flex flex-column justify-content-center'>
+                      <Button
+                        href={fileURL}
+                        className=''
+                        target='_blank'
+                        rel='noreferrer'
+                      >
+                        Download Blank Assessment
+                      </Button>
+                    </Col>
+                    <Col>
+                      <Form.Label className='h5'>
+                        Upload Completed Assessment
+                      </Form.Label>
+                      <input
+                        id='completed-amt-file'
+                        type='file'
+                        className='form-control'
+                        accept='application/pdf'
+                      />
+                    </Col>
+                  </Row>
+                ) : (
+                  <div className='h6 text-center'>
+                    No file for the selected assessment
+                  </div>
+                )}
+                <div className='h3'>Questions</div>
+                <Table striped>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Question</th>
+                      <th>Sample Answer</th>
+                      <th>Student's Answer</th>
+                      <th>Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>{assessmentQuestions()}</tbody>
+                </Table>
+              </>
+            ) : (
+              <div className='h6 text-center'>
+                Select a grade and category to view the assessment
+              </div>
+            )}
+            {/* </Form> */}
+          </Card.Body>
+        </Card>
+        <div className='d-flex justify-content-between p-3'>
+          <Button variant='secondary' onClick={() => navigate(-1)}>
+            Cancel
+          </Button>
+          <Button variant='primary' onClick={handleSubmit}>
+            Submit
+          </Button>
+        </div>
+      </div>
+      <StandardInfo />
+    </>
   );
 };
 
