@@ -617,7 +617,7 @@ const StudentEvalEdit = () => {
                 <hr />
                 <h5>Owner</h5>
                 <Form.Select
-                  className='w-25'
+                  className='w-auto'
                   value={evaluation.owner}
                   onChange={(e) => {
                     setEvaluation({ ...evaluation, owner: e.target.value });

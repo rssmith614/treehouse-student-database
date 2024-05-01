@@ -28,7 +28,7 @@ const EvalNotes = ({ recentEvals, standardSuggestions }) => {
     <>
       <Button
         variant=''
-        className='w-25 ms-auto'
+        className='w-100 ms-auto'
         onClick={() => setShowNotes(true)}
       >
         <Card className='shadow' style={{ cursor: "pointer" }}>
