@@ -586,7 +586,7 @@ const NewStudentEval = () => {
             />
           </Col>
         </Row>
-        <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
+        <div className='d-flex flex-fill card p-3 bg-light-subtle'>
           <EvalHeader
             evaluation={evaluation}
             handleEvalChange={handleEvalChange}

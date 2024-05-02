@@ -586,7 +586,7 @@ const StudentEvalEdit = () => {
     <>
       <div className='p-3 d-flex flex-column'>
         <h1 className='display-1'>Edit Session Evaluation</h1>
-        <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
+        <div className='d-flex flex-fill card p-3 bg-light-subtle'>
           {loading ? (
             <div className='d-flex justify-content-center align-items-center'>
               <Spinner animation='border' role='status'>

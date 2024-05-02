@@ -73,7 +73,7 @@ const Task = ({
             </Collapse>
           </MediaQuery>
           <MediaQuery maxWidth={991}>
-            <Row className='flex-column'>
+            <Row className='flex-column flex-fill'>
               <Col className='flex-column flex-fill'>
                 <TaskSummary
                   task={task}

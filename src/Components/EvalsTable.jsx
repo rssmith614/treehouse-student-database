@@ -19,6 +19,7 @@ import { Dropdown, Button, Table, Collapse } from "react-bootstrap";
 import DropdownTableHeaderToggle from "./DropdownTableHeaderToggle";
 import FilterTableHeader from "./FilterTableHeader";
 import PaginatedTable from "./PaginatedTable";
+import { useMediaQuery } from "react-responsive";
 
 const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
   const [evals, setEvals] = useState([]);
@@ -34,6 +35,8 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
   const docRef = useRef(doc(db, filterBy, id));
 
   const navigate = useNavigate();
+
+  const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
 
   useEffect(() => {
     docRef.current = doc(db, filterBy, id);
@@ -177,6 +180,9 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
         style={{ cursor: "pointer" }}
       >
         <td className='align-middle'>
+          {/* {isDesktop
+            ? dayjs(evaluation.date).format("MMMM D, YYYY")
+            : dayjs(evaluation.date).format("MM/DD/YY")} */}
           {dayjs(evaluation.date).format("MMMM D, YYYY")}
         </td>
         <td className='align-middle'>
@@ -184,54 +190,66 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
             ? evaluation.student_name
             : evaluation.tutor_name}
         </td>
-        <td className='align-middle'>
-          <Collapse in={!expanded}>
-            <ul className='list-group'>
-              <li className='d-flex list-group-item justify-content-between align-items-center'>
-                <span className='text-truncate pe-3'>
-                  {evaluation.tasks[0]}
-                </span>
-                <span className='badge text-bg-primary'>
-                  {evaluation.tasks.length} Task
-                  {evaluation.tasks.length > 1 ? "s" : ""}
-                </span>
-              </li>
-            </ul>
-          </Collapse>
-          <Collapse in={expanded}>
-            <ul className='list-group'>
-              {evaluation.tasks.map((t, i) => {
-                return (
-                  <li key={i} className='text-break list-group-item'>
-                    {t}
-                  </li>
-                );
-              })}
-            </ul>
-          </Collapse>
-        </td>
-        <td className='text-center'>
-          <Button
-            className='ms-auto btn-sm mt-1'
-            variant='secondary'
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpanded(!expanded);
-            }}
-          >
-            {expanded ? (
-              <div className='d-flex'>
-                <span className='me-1'>Less</span>
-                <i className='bi bi-chevron-up' />
-              </div>
-            ) : (
-              <div className='d-flex'>
-                <span className='me-1'>More</span>
-                <i className='bi bi-chevron-down' />
-              </div>
-            )}
-          </Button>
-        </td>
+        {isDesktop && (
+          <td className='align-middle'>
+            <Collapse in={!expanded}>
+              <ul className='list-group'>
+                <li className='d-flex list-group-item justify-content-between align-items-center'>
+                  <span className='text-truncate pe-3'>
+                    {evaluation.tasks[0]}
+                  </span>
+                  <span className='badge text-bg-primary'>
+                    {evaluation.tasks.length} Task
+                    {evaluation.tasks.length > 1 ? "s" : ""}
+                  </span>
+                </li>
+              </ul>
+            </Collapse>
+            <Collapse in={expanded}>
+              <ul className='list-group'>
+                {evaluation.tasks.map((t, i) => {
+                  return (
+                    <li key={i} className='text-break list-group-item'>
+                      {t}
+                    </li>
+                  );
+                })}
+              </ul>
+            </Collapse>
+          </td>
+        )}
+        {isDesktop && (
+          <td className='text-center'>
+            <Button
+              className='ms-auto btn-sm mt-1'
+              variant='secondary'
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded(!expanded);
+              }}
+            >
+              {expanded ? (
+                <div className='d-flex'>
+                  <span className='me-1'>Less</span>
+                  <i className='bi bi-chevron-up' />
+                </div>
+              ) : (
+                <div className='d-flex'>
+                  <span className='me-1'>More</span>
+                  <i className='bi bi-chevron-down' />
+                </div>
+              )}
+            </Button>
+          </td>
+        )}
+        {!isDesktop && (
+          <td className='text-center'>
+            <span className='badge text-bg-primary'>
+              {evaluation.tasks.length} Task
+              {evaluation.tasks.length > 1 ? "s" : ""}
+            </span>
+          </td>
+        )}
       </tr>
     );
   };
@@ -295,12 +313,20 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
       pageLimit={_limit}
       header={
         <>
-          <colgroup>
-            <col style={{ width: "20%" }} />
-            <col style={{ width: "30%" }} />
-            <col style={{ width: "40%" }} />
-            <col style={{ width: "10%" }} />
-          </colgroup>
+          {isDesktop ? (
+            <colgroup>
+              <col style={{ width: "20%" }} />
+              <col style={{ width: "30%" }} />
+              <col style={{ width: "40%" }} />
+              <col style={{ width: "10%" }} />
+            </colgroup>
+          ) : (
+            <colgroup>
+              <col style={{ width: "30%" }} />
+              <col style={{ width: "40%" }} />
+              <col style={{ width: "30%" }} />
+            </colgroup>
+          )}
           <thead>
             <tr>
               <th className='' style={{ cursor: "pointer" }}>
@@ -354,7 +380,7 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
                 </th>
               )}
               <th>Tasks</th>
-              <th></th>
+              {isDesktop && <th></th>}
             </tr>
           </thead>
         </>
