@@ -16,6 +16,8 @@ const Navbar = ({ userProfile }) => {
 
   const [shownSubMenu, setShownSubMenu] = useState("");
 
+  const [expanded, setExpanded] = useState(false);
+
   useEffect(() => {
     if (userProfile) setUserName(userProfile.data().displayName);
     else {
@@ -32,11 +34,19 @@ const Navbar = ({ userProfile }) => {
   if (pathname === "/login") return <></>;
 
   return (
-    <BsNavbar className='bg-body-tertiary' sticky='top' expand='lg'>
+    <BsNavbar
+      className='bg-body-tertiary'
+      sticky='top'
+      expand='lg'
+      expanded={expanded}
+    >
       <BsNavbar.Brand
         aria-expanded='false'
         className='text-wrap ps-3'
-        onClick={() => navigate(`/tutor/${userProfile.id}`)}
+        onClick={() => {
+          setExpanded(false);
+          navigate(`/tutor/${userProfile.id}`);
+        }}
         style={{ cursor: "pointer" }}
       >
         Welcome, {userName}
@@ -45,15 +55,19 @@ const Navbar = ({ userProfile }) => {
         aria-controls='navbarNavAltMarkup'
         aria-expanded='false'
         aria-label='Toggle navigation'
+        onClick={() => setExpanded(!expanded)}
       />
       <BsNavbar.Collapse
         id='navbarNavAltMarkup'
         className='justify-content-start'
       >
-        <Nav className=''>
+        <Nav className='px-3'>
           <Nav.Link
             className='d-flex align-items-center'
-            onClick={() => navigate("/students")}
+            onClick={() => {
+              setExpanded(false);
+              navigate("/students");
+            }}
             style={{ cursor: "pointer" }}
           >
             <i className='bi bi-people-fill pe-2 fs-4' />
@@ -63,7 +77,10 @@ const Navbar = ({ userProfile }) => {
           <Can I='read' on='Tutor'>
             <Nav.Link
               className='d-flex align-items-center'
-              onClick={() => navigate("/tutors")}
+              onClick={() => {
+                setExpanded(false);
+                navigate("/tutors");
+              }}
               style={{ cursor: "pointer" }}
             >
               <i className='bi bi-person-lines-fill pe-2 fs-4' />
@@ -85,21 +102,30 @@ const Navbar = ({ userProfile }) => {
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item
-                onClick={() => navigate(`/evals`)}
+                onClick={() => {
+                  setExpanded(false);
+                  navigate("/evals");
+                }}
                 className='d-flex'
               >
                 <i className='bi bi-journal-text pe-2 fs-6' />
                 <span className='align-self-center'>Past Evaluations</span>
               </Dropdown.Item>
               <Dropdown.Item
-                onClick={() => navigate(`/eval/new`)}
+                onClick={() => {
+                  setExpanded(false);
+                  navigate("/eval/new");
+                }}
                 className='d-flex'
               >
                 <i className='bi bi-journal-plus pe-2 fs-6' />
                 <span className='align-self-center'>New Evaluation</span>
               </Dropdown.Item>
               <Dropdown.Item
-                onClick={() => navigate(`/evals/drafts`)}
+                onClick={() => {
+                  setExpanded(false);
+                  navigate("/evals/drafts");
+                }}
                 className='d-flex'
               >
                 <i className='bi bi-journal-x pe-2 fs-6' />
@@ -107,7 +133,10 @@ const Navbar = ({ userProfile }) => {
               </Dropdown.Item>
               <Can I='query' on='evals'>
                 <Dropdown.Item
-                  onClick={() => navigate(`/eval/query`)}
+                  onClick={() => {
+                    setExpanded(false);
+                    navigate("/eval/query");
+                  }}
                   className='d-flex'
                 >
                   <i className='bi bi-search pe-2 fs-6' />
@@ -116,7 +145,10 @@ const Navbar = ({ userProfile }) => {
               </Can>
               <Can I='review' on='evals'>
                 <Dropdown.Item
-                  onClick={() => navigate(`/evals/review`)}
+                  onClick={() => {
+                    setExpanded(false);
+                    navigate("/evals/review");
+                  }}
                   className='d-flex'
                 >
                   <i className='bi bi-journal-check pe-2 fs-6' />
@@ -128,7 +160,10 @@ const Navbar = ({ userProfile }) => {
 
           <Nav.Link
             className='d-flex align-items-center'
-            onClick={() => navigate("/standards")}
+            onClick={() => {
+              setExpanded(false);
+              navigate("/standards");
+            }}
             style={{ cursor: "pointer" }}
           >
             <i className='bi bi-card-list pe-2 fs-4' />
@@ -138,7 +173,10 @@ const Navbar = ({ userProfile }) => {
           <Can I='manage' on='assessments'>
             <Nav.Link
               className='d-flex align-items-center'
-              onClick={() => navigate("/assessments")}
+              onClick={() => {
+                setExpanded(false);
+                navigate("/assessments");
+              }}
               style={{ cursor: "pointer" }}
             >
               <i className='bi bi-clipboard-data pe-2 fs-4' />
@@ -160,7 +198,10 @@ const Navbar = ({ userProfile }) => {
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item
-                onClick={() => navigate(`/tutor/${userProfile.id}`)}
+                onClick={() => {
+                  setExpanded(false);
+                  navigate(`/tutor/${userProfile.id}`);
+                }}
                 className='d-flex'
               >
                 <i className='bi bi-person-circle pe-2 fs-6' />
