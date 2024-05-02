@@ -5,7 +5,7 @@ import { Can } from "../Services/can";
 import { useEffect, useState } from "react";
 import { Navbar as BsNavbar, Nav, Dropdown } from "react-bootstrap";
 
-import treehouseLogo from "../images/Treehouse-Logo-New.svg";
+// import treehouseLogo from "../images/Treehouse-Logo-New.svg";
 // import blueTreehouseLogo from "../images/Treehouse-Logo-New-Blue.svg";
 
 const Navbar = ({ userProfile }) => {
@@ -55,6 +55,7 @@ const Navbar = ({ userProfile }) => {
         aria-controls='navbarNavAltMarkup'
         aria-expanded='false'
         aria-label='Toggle navigation'
+        className='me-3'
         onClick={() => setExpanded(!expanded)}
       />
       <BsNavbar.Collapse

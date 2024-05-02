@@ -1,11 +1,9 @@
 import {
   Button,
   ButtonGroup,
-  Col,
   Collapse,
   OverlayTrigger,
   Popover,
-  Row,
 } from "react-bootstrap";
 import { useMediaQuery } from "react-responsive";
 
