@@ -1,4 +1,9 @@
-## [1.5.1] - 2024-04-23
+## [1.6.0] - 2024-05-02
+
+### Added
+- Better support for mobile devices ([#60](https://github.com/rssmith614/treehouse-student-database/issues/60))
+
+## [1.5.1] - 2024-04-22
 
 ### Fixed
 - Draft eval deletion implementation
