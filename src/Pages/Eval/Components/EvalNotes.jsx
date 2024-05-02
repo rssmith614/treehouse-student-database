@@ -24,8 +24,10 @@ const EvalNotes = ({ recentEvals, standardSuggestions }) => {
     setNotes(notes);
   }, [recentEvals]);
 
+  if (recentEvals.length === 0) return null;
+
   return (
-    <>
+    <div className='pb-3'>
       <Button
         variant=''
         className='w-100 ms-auto'
@@ -118,7 +120,7 @@ const EvalNotes = ({ recentEvals, standardSuggestions }) => {
           />
         </Modal.Body>
       </Modal>
-    </>
+    </div>
   );
 };
 

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Can } from "../Services/can";
 import { useEffect, useState } from "react";
 import { Navbar as BsNavbar, Nav, Dropdown } from "react-bootstrap";
+import MediaQuery from "react-responsive";
 
 // import treehouseLogo from "../images/Treehouse-Logo-New.svg";
 // import blueTreehouseLogo from "../images/Treehouse-Logo-New-Blue.svg";
@@ -171,19 +172,21 @@ const Navbar = ({ userProfile }) => {
             Standards
           </Nav.Link>
 
-          <Can I='manage' on='assessments'>
-            <Nav.Link
-              className='d-flex align-items-center'
-              onClick={() => {
-                setExpanded(false);
-                navigate("/assessments");
-              }}
-              style={{ cursor: "pointer" }}
-            >
-              <i className='bi bi-clipboard-data pe-2 fs-4' />
-              Assessments
-            </Nav.Link>
-          </Can>
+          <MediaQuery minWidth={992}>
+            <Can I='manage' on='assessments'>
+              <Nav.Link
+                className='d-flex align-items-center'
+                onClick={() => {
+                  setExpanded(false);
+                  navigate("/assessments");
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                <i className='bi bi-clipboard-data pe-2 fs-4' />
+                Assessments
+              </Nav.Link>
+            </Can>
+          </MediaQuery>
 
           <Dropdown
             show={shownSubMenu === "options"}

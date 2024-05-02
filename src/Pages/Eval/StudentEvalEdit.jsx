@@ -25,6 +25,7 @@ import {
   Offcanvas,
   OverlayTrigger,
   Popover,
+  Row,
   Spinner,
 } from "react-bootstrap";
 import { Can } from "../../Services/can";
@@ -636,10 +637,10 @@ const StudentEvalEdit = () => {
             </>
           )}
         </div>
-        <div className='d-flex'>
+        <Row className='d-flex'>
           <button
             type='button'
-            className='btn btn-secondary m-3 me-auto'
+            className='btn btn-secondary m-3 col text-nowrap'
             onClick={() => {
               history.back();
             }}
@@ -649,7 +650,7 @@ const StudentEvalEdit = () => {
           <Button
             id='delete'
             variant='danger'
-            className='m-3 ms-auto'
+            className='m-3 col text-nowrap'
             type='button'
             onClick={handleDelete}
           >
@@ -657,7 +658,7 @@ const StudentEvalEdit = () => {
           </Button>
           <Button
             variant='outline-primary'
-            className='m-3'
+            className='m-3 col text-nowrap'
             id='saveDraft'
             onClick={submitEval}
           >
@@ -665,12 +666,12 @@ const StudentEvalEdit = () => {
           </Button>
           <button
             id='submit'
-            className='btn btn-primary m-3'
+            className='btn btn-primary m-3 col text-nowrap'
             onClick={submitEval}
           >
             Submit
           </button>
-        </div>
+        </Row>
         <div id='flagForReview' className='mx-3 ms-auto'>
           <OverlayTrigger
             placement='left'
