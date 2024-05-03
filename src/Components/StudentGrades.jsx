@@ -8,7 +8,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { Button, Modal, Table } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import dayjs from "dayjs";
 import { Can } from "../Services/can";
 import { Grade } from "../Services/defineAbility";
