@@ -1,6 +1,15 @@
 import dayjs from "dayjs";
 import { useContext, useState } from "react";
-import { Button, Card, InputGroup, Table } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  FormGroup,
+  InputGroup,
+  Row,
+  Table,
+} from "react-bootstrap";
 import { ToastContext } from "../Services/toast";
 import {
   addDoc,
@@ -10,11 +19,16 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../Services/firebase";
+import { useMediaQuery } from "react-responsive";
 
 const StudentGradesEdit = ({ gradeEntry, setGradeEntry, setEdit, setShow }) => {
-  const [grades, setGrades] = useState(gradeEntry.grades);
+  const [grades, setGrades] = useState(
+    gradeEntry.grades.map((g) => ({ ...g })),
+  );
 
   const addToast = useContext(ToastContext);
+
+  const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
 
   function submitEntry(e) {
     e.preventDefault();
@@ -120,90 +134,78 @@ const StudentGradesEdit = ({ gradeEntry, setGradeEntry, setEdit, setShow }) => {
         <Card className='bg-light-subtle'>
           <Card.Body>
             <Card.Title>Grades</Card.Title>
-            <Table striped>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Subject</th>
-                  <th>Grade</th>
-                  <th>Comments</th>
-                </tr>
-              </thead>
-              <tbody>
-                {grades.map((grade, index) => {
-                  return (
-                    <tr key={index}>
-                      <td className='align-middle text-center'>
-                        <Button
-                          variant='danger'
-                          size='sm'
-                          onClick={() =>
-                            setGrades((prev) =>
-                              prev.filter((_, i) => i !== index),
-                            )
-                          }
-                          disabled={grades.length === 1}
-                        >
-                          <i className='bi bi-trash-fill'></i>
-                        </Button>
-                      </td>
-                      <td className='align-middle'>
-                        <input
-                          id={`subject-${index}`}
-                          className='form-control'
-                          type='text'
-                          value={grade.subject}
-                          onChange={(e) => {
-                            const newGrades = [...grades];
-                            newGrades[index].subject = e.target.value;
-                            setGrades(newGrades);
-                          }}
-                        />
-                        <div className='invalid-feedback'>
-                          Please specify a subject
-                        </div>
-                      </td>
-                      <td className='align-middle'>
-                        <InputGroup>
-                          <input
-                            id={`grade-${index}`}
-                            className='form-control'
-                            type='number'
-                            min={0}
-                            max={100}
-                            value={grade.grade}
-                            onChange={(e) => {
-                              const newGrades = [...grades];
-                              newGrades[index].grade = e.target.value;
-                              setGrades(newGrades);
-                            }}
-                          />
-                          <InputGroup.Text>%</InputGroup.Text>
-                        </InputGroup>
-                        <div className='invalid-feedback'>
-                          Please specify a valid grade
-                        </div>
-                      </td>
-                      <td>
-                        <textarea
-                          id={`comments-${index}`}
-                          className='form-control'
-                          value={grade.comments}
-                          onChange={(e) => {
-                            const newGrades = [...grades];
-                            newGrades[index].comments = e.target.value;
-                            setGrades(newGrades);
-                          }}
-                        />
-                        <div className='invalid-feedback'>
-                          Please comment on this grade
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
+            {grades.map((grade, index) => {
+              return (
+                <Row key={index}>
+                  <Col xs={2} md={1} className='align-self-center'>
+                    <Button
+                      size={isDesktop ? "" : "sm"}
+                      variant='danger'
+                      onClick={() =>
+                        setGrades((prev) => {
+                          prev.splice(index, 1);
+                          return [...prev];
+                        })
+                      }
+                    >
+                      <i className='bi bi-trash-fill'></i>
+                    </Button>
+                  </Col>
+                  <Col xs={5} md={3} className='align-self-center'>
+                    <Form.Label>Subject</Form.Label>
+                    <Form.Control
+                      id={`subject-${index}`}
+                      type='text'
+                      value={grade.subject}
+                      onChange={(e) => {
+                        setGrades((prev) => {
+                          prev[index].subject = e.target.value;
+                          return [...prev];
+                        });
+                      }}
+                    />
+                  </Col>
+                  <Col xs={5} md={2} className='align-self-center'>
+                    <Form.Label>Grade</Form.Label>
+                    <InputGroup hasValidation>
+                      <Form.Control
+                        id={`grade-${index}`}
+                        type='text'
+                        value={grade.grade}
+                        onChange={(e) => {
+                          setGrades((prev) => {
+                            prev[index].grade = e.target.value;
+                            return [...prev];
+                          });
+                        }}
+                      />
+                      <InputGroup.Text>%</InputGroup.Text>
+                      <Form.Control.Feedback type='invalid'>
+                        Required
+                      </Form.Control.Feedback>
+                    </InputGroup>
+                  </Col>
+                  <Col xs={12} md={6}>
+                    <Form.Label className='pt-1'>Comments</Form.Label>
+                    <textarea
+                      id={`comments-${index}`}
+                      className='form-control'
+                      value={grade.comments}
+                      onChange={(e) => {
+                        setGrades((prev) => {
+                          prev[index].comments = e.target.value;
+                          return [...prev];
+                        });
+                      }}
+                    />
+                    <div className='invalid-feedback'>
+                      Required if grade is less than 80%
+                    </div>
+                  </Col>
+                  <hr className='my-3' />
+                </Row>
+              );
+            })}
             <Button
               variant='secondary'
               onClick={() =>

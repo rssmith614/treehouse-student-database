@@ -33,3 +33,7 @@ $body-tertiary-bg-dark:             shade-color($treehouse-blue, 10%);
 .test {
     height: 100vh;
 }
+
+html {
+    background-color: $body-bg-dark;
+}
