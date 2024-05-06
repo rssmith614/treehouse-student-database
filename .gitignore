@@ -33,6 +33,3 @@ testAnswerKey.csv
 
 firebase-export-*
 .firebase/
-
-# firebase tenancy control
-firebase-config.json
