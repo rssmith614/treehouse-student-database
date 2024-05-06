@@ -35,5 +35,4 @@ firebase-export-*
 .firebase/
 
 # firebase tenancy control
-firebase.json
 firebase-config.json

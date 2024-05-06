@@ -1,0 +1,68 @@
+{
+  "hosting": {
+    "site": "student-database-test",
+    "public": "build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "redirects": [
+      {
+        "source": "/",
+        "destination": "/login",
+        "type": 301
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "emulators": {
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true
+    },
+    "storage": {
+      "port": 9199
+    },
+    "singleProjectMode": true,
+    "auth": {
+      "port": 9099
+    },
+    "hosting": {
+      "port": 5002
+    },
+    "functions": {
+      "port": 5001
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "database": "test",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ]
+}
