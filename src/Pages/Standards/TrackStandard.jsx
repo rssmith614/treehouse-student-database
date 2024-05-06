@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Card, InputGroup, Nav, Form } from "react-bootstrap";
+import { Button, Card, InputGroup, Nav, Form, Row, Col } from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { ToastContext } from "../../Services/toast";
 import StandardInfo from "./Components/StandardInfo";
@@ -107,22 +107,26 @@ const TrackStandard = ({
             </Nav>
           </Card.Header>
           <Card.Body>
-            <InputGroup className='w-25 mb-3'>
-              <Form.Control
-                type='text'
-                placeholder={`Search ${grades.find((g) => g[0] === grade[0])} ${category}`}
-                value={standardFilter}
-                onChange={(e) => {
-                  setStandardFilter(e.target.value);
-                }}
-              />
-              <Button
-                variant='secondary'
-                className='bi bi-x-lg input-group-text'
-                style={{ cursor: "pointer" }}
-                onClick={() => setStandardFilter("")}
-              />
-            </InputGroup>
+            <Row>
+              <Col xs={12} md={3}>
+                <InputGroup className='mb-3'>
+                  <Form.Control
+                    type='text'
+                    placeholder={`Search ${grades.find((g) => g[0] === grade[0])} ${category}`}
+                    value={standardFilter}
+                    onChange={(e) => {
+                      setStandardFilter(e.target.value);
+                    }}
+                  />
+                  <Button
+                    variant='secondary'
+                    className='bi bi-x-lg input-group-text'
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setStandardFilter("")}
+                  />
+                </InputGroup>
+              </Col>
+            </Row>
             <StandardsOfCategory
               grade={grade}
               category={category}

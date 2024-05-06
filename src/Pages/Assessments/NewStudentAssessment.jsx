@@ -6,6 +6,7 @@ import { auth, db, storage } from "../../Services/firebase";
 import dayjs from "dayjs";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import StandardInfo from "../Standards/Components/StandardInfo";
+import { useMediaQuery } from "react-responsive";
 
 const grades = {
   K: "Kindergarten",
@@ -36,6 +37,8 @@ const NewStudentAssessment = () => {
   const params = useParams();
 
   const navigate = useNavigate();
+
+  const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
 
   // scroll to top on load
   useEffect(() => {
@@ -260,11 +263,32 @@ const NewStudentAssessment = () => {
     return questionList;
   }
 
+  if (!isDesktop) {
+    return (
+      <div className='p-3 d-flex flex-column'>
+        <div className='display-1'>New Student Assessment</div>
+        <Card className='bg-light-subtle'>
+          <Card.Body>
+            This page is not available on mobile devices. Please use a desktop
+            device to view this page.
+          </Card.Body>
+        </Card>
+        <Button
+          variant='secondary'
+          className='m-3'
+          onClick={() => navigate(-1)}
+        >
+          Back
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className='p-3'>
         <div className='display-1'>New Student Assessment</div>
-        <Card className='bg-light-subtle m-3'>
+        <Card className='bg-light-subtle'>
           <Card.Body>
             {/* <Form onSubmit={handleSubmit}> */}
             <div className='h3'>{student.student_name}</div>

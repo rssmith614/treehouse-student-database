@@ -25,6 +25,7 @@ import {
   Offcanvas,
   OverlayTrigger,
   Popover,
+  Row,
   Spinner,
 } from "react-bootstrap";
 import { Can } from "../../Services/can";
@@ -586,7 +587,7 @@ const StudentEvalEdit = () => {
     <>
       <div className='p-3 d-flex flex-column'>
         <h1 className='display-1'>Edit Session Evaluation</h1>
-        <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
+        <div className='d-flex flex-fill card p-3 bg-light-subtle'>
           {loading ? (
             <div className='d-flex justify-content-center align-items-center'>
               <Spinner animation='border' role='status'>
@@ -617,7 +618,7 @@ const StudentEvalEdit = () => {
                 <hr />
                 <h5>Owner</h5>
                 <Form.Select
-                  className='w-25'
+                  className='w-auto'
                   value={evaluation.owner}
                   onChange={(e) => {
                     setEvaluation({ ...evaluation, owner: e.target.value });
@@ -636,10 +637,10 @@ const StudentEvalEdit = () => {
             </>
           )}
         </div>
-        <div className='d-flex'>
+        <Row className='d-flex'>
           <button
             type='button'
-            className='btn btn-secondary m-3 me-auto'
+            className='btn btn-secondary m-3 col text-nowrap'
             onClick={() => {
               history.back();
             }}
@@ -649,7 +650,7 @@ const StudentEvalEdit = () => {
           <Button
             id='delete'
             variant='danger'
-            className='m-3 ms-auto'
+            className='m-3 col text-nowrap'
             type='button'
             onClick={handleDelete}
           >
@@ -657,7 +658,7 @@ const StudentEvalEdit = () => {
           </Button>
           <Button
             variant='outline-primary'
-            className='m-3'
+            className='m-3 col text-nowrap'
             id='saveDraft'
             onClick={submitEval}
           >
@@ -665,12 +666,12 @@ const StudentEvalEdit = () => {
           </Button>
           <button
             id='submit'
-            className='btn btn-primary m-3'
+            className='btn btn-primary m-3 col text-nowrap'
             onClick={submitEval}
           >
             Submit
           </button>
-        </div>
+        </Row>
         <div id='flagForReview' className='mx-3 ms-auto'>
           <OverlayTrigger
             placement='left'

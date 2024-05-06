@@ -1,4 +1,13 @@
-import { Button, Card, Form, InputGroup, Modal, Nav } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  InputGroup,
+  Modal,
+  Nav,
+  Row,
+} from "react-bootstrap";
 import StandardsOfCategory from "../../Components/StandardsOfCategory";
 import { useEffect, useState } from "react";
 import StandardInfo from "./Components/StandardInfo";
@@ -149,22 +158,26 @@ const StandardsList = () => {
           </Nav>
         </Card.Header>
         <Card.Body>
-          <InputGroup className='w-25 mb-3'>
-            <Form.Control
-              type='text'
-              placeholder={`Search ${grades.find((g) => g[0] === grade[0])} ${category}`}
-              value={standardFilter}
-              onChange={(e) => {
-                setStandardFilter(e.target.value);
-              }}
-            />
-            <Button
-              variant='secondary'
-              className='bi bi-x-lg input-group-text'
-              style={{ cursor: "pointer" }}
-              onClick={() => setStandardFilter("")}
-            />
-          </InputGroup>
+          <Row>
+            <Col xs={12} md={3}>
+              <InputGroup className='mb-3'>
+                <Form.Control
+                  type='text'
+                  placeholder={`Search ${grades.find((g) => g[0] === grade[0])} ${category}`}
+                  value={standardFilter}
+                  onChange={(e) => {
+                    setStandardFilter(e.target.value);
+                  }}
+                />
+                <Button
+                  variant='secondary'
+                  className='bi bi-x-lg input-group-text'
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setStandardFilter("")}
+                />
+              </InputGroup>
+            </Col>
+          </Row>
           <StandardsOfCategory
             grade={grade}
             category={category}

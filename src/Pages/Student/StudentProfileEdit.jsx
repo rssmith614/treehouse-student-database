@@ -14,6 +14,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContext } from "../../Services/toast";
 import dayjs from "dayjs";
+import { Col, Row } from "react-bootstrap";
 
 const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 
@@ -311,8 +312,8 @@ const StudentProfileEdit = () => {
 
   const innerForm = (
     <>
-      <div className='d-flex justify-content-start'>
-        <div className='d-flex p-3 flex-column flex-fill'>
+      <Row className='d-flex justify-content-start'>
+        <Col className='d-flex p-3 flex-column'>
           <div className='d-flex h5'>Birthday</div>
           <input
             type='date'
@@ -323,8 +324,8 @@ const StudentProfileEdit = () => {
               setStudent({ ...student, student_dob: e.target.value })
             }
           />
-        </div>
-        <div className='d-flex p-3 flex-column flex-fill'>
+        </Col>
+        <Col className='d-flex p-3 flex-column'>
           <div className='d-flex h5'>Grade</div>
           <input
             type='text'
@@ -335,8 +336,8 @@ const StudentProfileEdit = () => {
               setStudent({ ...student, student_grade: e.target.value })
             }
           />
-        </div>
-        <div className='d-flex p-3 flex-column flex-fill'>
+        </Col>
+        <Col className='d-flex p-3 flex-column'>
           <div className='d-flex h5'>School</div>
           <input
             type='text'
@@ -347,8 +348,8 @@ const StudentProfileEdit = () => {
               setStudent({ ...student, student_school: e.target.value })
             }
           />
-        </div>
-        <div className='d-flex p-3 flex-column flex-fill'>
+        </Col>
+        <Col className='d-flex p-3 flex-column'>
           <div className='d-flex h5'>Source</div>
           <input
             type='text'
@@ -359,11 +360,11 @@ const StudentProfileEdit = () => {
               setStudent({ ...student, student_source: e.target.value })
             }
           />
-        </div>
-      </div>
-      <div className='d-flex justify-content-start'>
-        <div className='d-flex p-3 flex-column flex-fill'>
-          <div className='d-flex h5'>Parent Name</div>
+        </Col>
+      </Row>
+      <Row className='d-flex justify-content-start'>
+        <Col className='d-flex p-3 flex-column'>
+          <div className='d-flex h5 text-nowrap'>Parent Name</div>
           <input
             type='text'
             id='parentName'
@@ -373,9 +374,9 @@ const StudentProfileEdit = () => {
               setStudent({ ...student, parent_name: e.target.value })
             }
           />
-        </div>
-        <div className='d-flex p-3 flex-column flex-fill'>
-          <div className='d-flex h5'>Parent Phone Number</div>
+        </Col>
+        <Col className='d-flex p-3 flex-column'>
+          <div className='d-flex h5 text-nowrap'>Parent Phone Number</div>
           <input
             type='tel'
             id='parentPhone'
@@ -385,10 +386,10 @@ const StudentProfileEdit = () => {
               setStudent({ ...student, parent_phone: e.target.value })
             }
           />
-        </div>
-      </div>
-      <div className='d-flex justify-content-start'>
-        <div className='d-flex p-3 flex-column flex-fill'>
+        </Col>
+      </Row>
+      <Row className='d-flex justify-content-start'>
+        <Col className='d-flex p-3 flex-column flex-fill'>
           <div className='d-flex h5'>Preferred Tutor</div>
           <select
             type='text'
@@ -402,41 +403,51 @@ const StudentProfileEdit = () => {
             </option>
             {tutorOptions()}
           </select>
-        </div>
-      </div>
-      <div className='d-flex p-3 flex-column flex-fill'>
-        <div className='d-flex h5'>Classes</div>
-        <textarea
-          className='d-flex form-control'
-          id='medicalConditions'
-          value={student.classes}
-          onChange={(e) => setStudent({ ...student, classes: e.target.value })}
-        />
-      </div>
-      <div className='d-flex justify-content-start'>
-        <div className='d-flex p-3 flex-column flex-fill'>
+        </Col>
+      </Row>
+      <Row className='d-flex'>
+        <Col className='p-3'>
+          <div className='d-flex h5'>Classes</div>
+          <textarea
+            className='d-flex form-control'
+            id='medicalConditions'
+            value={student.classes}
+            onChange={(e) =>
+              setStudent({ ...student, classes: e.target.value })
+            }
+          />
+        </Col>
+      </Row>
+      <Row className='d-flex justify-content-start'>
+        <Col className='d-flex p-3 flex-column' xs={12} md={6}>
           <div className='d-flex h5'>Medical Conditions</div>
           <textarea
             className='d-flex form-control'
             id='medicalConditions'
             value={student.medical_conditions}
-            onChange={(e) =>
-              setStudent({ ...student, medical_conditions: e.target.value })
-            }
+            onChange={(e) => {
+              setStudent({ ...student, medical_conditions: e.target.value });
+              e.target.style.height = "auto";
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
           />
-        </div>
-        <div className='d-flex p-3 flex-column flex-fill'>
+        </Col>
+        <Col className='d-flex p-3 flex-column' xs={12} md={6}>
           <div className='d-flex h5'>Other Info</div>
           <textarea
             className='d-flex form-control'
             id='extraInfo'
             value={student.other}
-            onChange={(e) => setStudent({ ...student, other: e.target.value })}
+            onChange={(e) => {
+              setStudent({ ...student, other: e.target.value });
+              e.target.style.height = "auto";
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
           />
-        </div>
-      </div>
+        </Col>
+      </Row>
       <div className='d-flex p-3 h5'>Emergency Contacts</div>
-      <div className='d-flex flex-column px-3'>
+      <div className='d-flex flex-column'>
         <table className='table table-striped'>
           <thead>
             <tr>
@@ -465,36 +476,36 @@ const StudentProfileEdit = () => {
         Edit Student - {student.student_name}
       </h1>
       <form onSubmit={updateStudent}>
-        <div className='d-flex p-3 m-3 card bg-light-subtle'>
+        <div className='d-flex p-3 card bg-light-subtle'>
           {loading ? (
             <div className='spinner-border align-self-center' />
           ) : (
             innerForm
           )}
         </div>
-        <div className='d-flex justify-content-end'>
+        <Row className='d-flex justify-content-end'>
           <button
             type='button'
-            className='btn btn-secondary m-3 me-auto'
+            className='btn btn-secondary m-3 col text-nowrap'
             onClick={() => navigate(-1)}
           >
             Back
           </button>
           <button
             type='button'
-            className='btn btn-danger m-3'
+            className='btn btn-danger m-3 col text-nowrap'
             onClick={studentRemoval}
           >
             Delete Student
           </button>
           <button
             type='submit'
-            className='btn btn-primary m-3'
+            className='btn btn-primary m-3 col text-nowrap'
             id='saveChanges'
           >
             Save Changes
           </button>
-        </div>
+        </Row>
       </form>
     </div>
   );
