@@ -109,7 +109,7 @@ const Login = ({ setUserProfile }) => {
             </Col>
             <Col>
               <div className='d-flex flex-column justify-content-evenly align-items-center text-center'>
-                <div className='display-1'>Treehouse Tutoring</div>
+                <div className='display-1'>TEST Tutoring</div>
                 <div className='h3'>Student Database</div>
                 <Button variant='primary' className='' onClick={handleSignIn}>
                   Sign In <i className='bi bi-google' />
