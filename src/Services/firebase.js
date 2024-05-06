@@ -13,30 +13,22 @@ import { connectStorageEmulator, getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCxcwcn9iAgiI1XhBgvivo_lA3Lf53mhw0",
-  authDomain: "student-database-2aa8d.firebaseapp.com",
-  databaseURL: "https://student-database-2aa8d-default-rtdb.firebaseio.com",
-  projectId: "student-database-2aa8d",
-  storageBucket: "student-database-2aa8d.appspot.com",
-  messagingSenderId: "272553516141",
-  appId: "1:272553516141:web:410a204b241f5f4d26f364",
-  measurementId: "G-ZQM9BZCXXD"
-};
+const firebaseConfig = require('./firebase-config.json');
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-const db = getFirestore(app);
+const db = getFirestore(app, firebaseConfig.databaseId);
 const auth = getAuth();
+auth.tenantId = firebaseConfig.tenantId;
 const storage = getStorage(app);
 // const functions = getFunctions(app);
 
 // eslint-disable-next-line no-restricted-globals
 if (location.hostname === 'localhost') {
-  connectFirestoreEmulator(db, 'localhost', 8080);
-  connectAuthEmulator(auth, 'http://localhost:9099');
-  connectStorageEmulator(storage, 'localhost', 9199);
+  // connectFirestoreEmulator(db, 'localhost', 8080);
+  // connectAuthEmulator(auth, 'http://localhost:9099');
+  // connectStorageEmulator(storage, 'localhost', 9199);
   // connectFunctionsEmulator(functions, 'localhost', 5001);
 }
 

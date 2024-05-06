@@ -32,3 +32,8 @@ Standards K-8.xlsx
 testAnswerKey.csv
 
 firebase-export-*
+.firebase/
+
+# firebase tenancy control
+firebase.json
+firebase-config.json

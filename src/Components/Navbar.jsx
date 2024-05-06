@@ -32,7 +32,19 @@ const Navbar = ({ userProfile }) => {
   if (pathname === "/login") return <></>;
 
   return (
-    <BsNavbar className='bg-body-tertiary' sticky='top'>
+    <BsNavbar
+      className='bg-body-tertiary'
+      sticky='top'
+      style={{
+        background: `repeating-linear-gradient(
+        45deg,
+        #000,
+        #000 10px,
+        #666600 10px,
+        #666600 20px
+      )`,
+      }}
+    >
       <BsNavbar.Brand
         aria-expanded='false'
         className='text-wrap ps-3'
