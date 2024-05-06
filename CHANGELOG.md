@@ -3,6 +3,14 @@
 ### Added
 - Better support for mobile devices ([#60](https://github.com/rssmith614/treehouse-student-database/issues/60))
 
+## [1.5.2] - 2024-05-06
+
+### Added
+- Students can now have topics assigned to them, and tutors can edit ([[#188](https://github.com/rssmith614/treehouse-student-database/issues/188)])
+
+### Changed
+- Typesetting tip modal is now its own component
+
 ## [1.5.1] - 2024-04-22
 
 ### Fixed
