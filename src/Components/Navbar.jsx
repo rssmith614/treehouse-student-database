@@ -42,7 +42,7 @@ const Navbar = ({ userProfile }) => {
       expanded={expanded}
       style={{
         background: `repeating-linear-gradient(
-        45deg,
+        135deg,
         #000,
         #000 10px,
         #666600 10px,
@@ -60,6 +60,8 @@ const Navbar = ({ userProfile }) => {
         style={{ cursor: "pointer" }}
       >
         Welcome, {userName}
+        <br />
+        <span className='text-danger bg-primary'>Test Site</span>
       </BsNavbar.Brand>
       <BsNavbar.Toggle
         aria-controls='navbarNavAltMarkup'
