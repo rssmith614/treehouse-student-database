@@ -13,7 +13,7 @@ import {
   where,
 } from "firebase/firestore";
 import { useContext, useEffect, useRef, useState } from "react";
-import { Button, Card, Collapse, Form, Modal } from "react-bootstrap";
+import { Button, Card, Col, Collapse, Form, Modal, Row } from "react-bootstrap";
 import { db, storage } from "../../../Services/firebase";
 import { ToastContext } from "../../../Services/toast";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -332,9 +332,9 @@ const EditStandard = () => {
                 />
 
                 <Form.Label className='pt-3'>Image</Form.Label>
-                <div className='d-flex'>
+                <Row className='justify-content-center'>
                   {image !== "" ? (
-                    <div className='d-flex flex-column'>
+                    <Col className='d-flex flex-column col-auto'>
                       <Card className=''>
                         <Card.Header>Image Preview</Card.Header>
                         <Card.Body>
@@ -355,9 +355,9 @@ const EditStandard = () => {
                       >
                         Remove Image
                       </Button>
-                    </div>
+                    </Col>
                   ) : null}
-                  <div className='d-flex flex-column w-100 mx-3 justify-content-center'>
+                  <Col className='d-flex flex-column mx-3 pt-3 justify-content-center'>
                     <Form.Select
                       value={imageType}
                       className='mb-3'
@@ -385,8 +385,8 @@ const EditStandard = () => {
                         }
                       />
                     )}
-                  </div>
-                </div>
+                  </Col>
+                </Row>
               </Card.Body>
             </Card>
 
@@ -396,43 +396,53 @@ const EditStandard = () => {
               <Card.Header>
                 <h3>Standard Relationships</h3>
               </Card.Header>
-              <Card.Body className='d-flex'>
-                <Card className='w-50 align-self-start'>
-                  <Card.Header>Prerequisites</Card.Header>
-                  <Card.Body className='d-flex flex-column'>
-                    {prerequisites.length > 0 && (
-                      <ul className='list-group mb-3'>{prerequisitesList}</ul>
-                    )}
-                    <Button
-                      // className='mt-auto'
-                      variant='secondary'
-                      onClick={() => {
-                        standards.current = "pre";
-                        setShowNewStandardPane(true);
-                      }}
-                    >
-                      Add Prerequisite
-                    </Button>
-                  </Card.Body>
-                </Card>
-                <Card className='w-50 ms-3 align-self-start'>
-                  <Card.Header>Postrequisites</Card.Header>
-                  <Card.Body className='d-flex flex-column'>
-                    {postrequisites.length > 0 && (
-                      <ul className='list-group mb-3'>{postrequisitesList}</ul>
-                    )}
-                    <Button
-                      // className='mt-auto'
-                      variant='secondary'
-                      onClick={() => {
-                        standards.current = "post";
-                        setShowNewStandardPane(true);
-                      }}
-                    >
-                      Add Postrequisite
-                    </Button>
-                  </Card.Body>
-                </Card>
+              <Card.Body className='d-flex justify-content-center'>
+                <Row className='w-100'>
+                  <Col xs={12} md={6}>
+                    <Card className='align-self-start'>
+                      <Card.Header>Prerequisites</Card.Header>
+                      <Card.Body className='d-flex flex-column'>
+                        {prerequisites.length > 0 && (
+                          <ul className='list-group mb-3'>
+                            {prerequisitesList}
+                          </ul>
+                        )}
+                        <Button
+                          // className='mt-auto'
+                          variant='secondary'
+                          onClick={() => {
+                            standards.current = "pre";
+                            setShowNewStandardPane(true);
+                          }}
+                        >
+                          Add Prerequisite
+                        </Button>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col xs={12} md={6}>
+                    <Card className='align-self-start'>
+                      <Card.Header>Postrequisites</Card.Header>
+                      <Card.Body className='d-flex flex-column'>
+                        {postrequisites.length > 0 && (
+                          <ul className='list-group mb-3'>
+                            {postrequisitesList}
+                          </ul>
+                        )}
+                        <Button
+                          // className='text-wrap'
+                          variant='secondary'
+                          onClick={() => {
+                            standards.current = "post";
+                            setShowNewStandardPane(true);
+                          }}
+                        >
+                          Add Postrequisite
+                        </Button>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
               </Card.Body>
             </Card>
             <hr />
@@ -460,9 +470,9 @@ const EditStandard = () => {
 
                 <Form.Label className='pt-3'>Question Image</Form.Label>
 
-                <div className='d-flex w-100 justify-content-center'>
+                <Row className='justify-content-center'>
                   {questionImage !== "" ? (
-                    <div className='d-flex flex-column'>
+                    <Col className='d-flex flex-column col-auto'>
                       <Card className='mt-3'>
                         <Card.Header>Image Preview</Card.Header>
                         <Card.Body>
@@ -483,9 +493,9 @@ const EditStandard = () => {
                       >
                         Remove Image
                       </Button>
-                    </div>
+                    </Col>
                   ) : null}
-                  <div className='d-flex flex-column w-100 px-3 align-self-center'>
+                  <Col className='d-flex flex-column w-100 mx-3 pt-3 align-self-center'>
                     <Form.Select
                       className='mb-3'
                       value={questionImageType}
@@ -515,8 +525,8 @@ const EditStandard = () => {
                         }
                       />
                     )}
-                  </div>
-                </div>
+                  </Col>
+                </Row>
               </Card.Body>
             </Card>
 
