@@ -3,8 +3,9 @@ import { Button, Card, Col, Collapse, Modal, Row } from "react-bootstrap";
 import { AbilityContext } from "../../../Services/can";
 import { Standard } from "../../../Services/defineAbility";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../../Services/firebase";
+import { db, storage } from "../../../Services/firebase";
 import { useNavigate } from "react-router-dom";
+import { getDownloadURL, ref } from "firebase/storage";
 
 const StandardInfo = ({
   selectedStandard,
@@ -18,6 +19,9 @@ const StandardInfo = ({
 
   const [compiledPreReqs, setCompiledPreReqs] = useState([]);
   const [compiledPostReqs, setCompiledPostReqs] = useState([]);
+
+  const [standardImageURL, setStandardImageURL] = useState("");
+  const [questionImageURL, setQuestionImageURL] = useState("");
 
   const navigate = useNavigate();
 
@@ -42,6 +46,28 @@ const StandardInfo = ({
       setCompiledPostReqs(standards);
     });
   }, [selectedStandard?.postrequisites]);
+
+  useEffect(() => {
+    if (/^standards\/.*/.test(selectedStandard?.image || "")) {
+      const standardImageRef = ref(storage, selectedStandard?.image);
+      getDownloadURL(standardImageRef).then((url) => {
+        setStandardImageURL(url);
+      });
+    } else {
+      setStandardImageURL(selectedStandard?.image);
+    }
+  }, [selectedStandard?.image]);
+
+  useEffect(() => {
+    if (/^standards\/.*/.test(selectedStandard?.question_image || "")) {
+      const questionImageRef = ref(storage, selectedStandard?.question_image);
+      questionImageRef.getDownloadURL().then((url) => {
+        setQuestionImageURL(url);
+      });
+    } else {
+      setQuestionImageURL(selectedStandard?.question_image);
+    }
+  }, [selectedStandard?.question_image]);
 
   function color(progression) {
     const parsed = parseFloat(progression);
@@ -112,10 +138,10 @@ const StandardInfo = ({
         <Card className='bg-light-subtle'>
           <Card.Body>
             <div className='d-flex'>
-              {selectedStandard?.image ? (
+              {standardImageURL ? (
                 <img
-                  src={selectedStandard?.image}
-                  alt={selectedStandard.description}
+                  src={standardImageURL}
+                  alt={selectedStandard?.description}
                   style={{ maxHeight: "250px" }}
                 />
               ) : null}
@@ -191,10 +217,10 @@ const StandardInfo = ({
             <Card className='p-3 bg-light-subtle'>
               <Card.Body>
                 <div className='d-flex'>
-                  {selectedStandard?.question_image ? (
+                  {questionImageURL ? (
                     <img
-                      src={selectedStandard?.question_image}
-                      alt={selectedStandard.question}
+                      src={questionImageURL}
+                      alt={selectedStandard?.question}
                       style={{ maxHeight: "250px" }}
                     />
                   ) : null}

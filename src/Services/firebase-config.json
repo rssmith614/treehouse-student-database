@@ -3,7 +3,7 @@
     "authDomain": "student-database-2aa8d.firebaseapp.com",
     "databaseURL": "https://student-database-2aa8d-default-rtdb.firebaseio.com",
     "projectId": "student-database-2aa8d",
-    "storageBucket": "student-database-2aa8d.appspot.com",
+    "storageBucket": "student-database-test",
     "messagingSenderId": "272553516141",
     "appId": "1:272553516141:web:410a204b241f5f4d26f364",
     "measurementId": "G-ZQM9BZCXXD",

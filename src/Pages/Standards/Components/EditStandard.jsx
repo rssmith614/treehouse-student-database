@@ -24,11 +24,9 @@ const EditStandard = () => {
   const [selectedStandard, setSelectedStandard] = useState();
 
   const [imageType, setImageType] = useState("link");
-  const [image, setImage] = useState(selectedStandard?.image || "");
+  const [image, setImage] = useState("");
   const [questionImageType, setQuestionImageType] = useState("link");
-  const [questionImage, setQuestionImage] = useState(
-    selectedStandard?.question_image || "",
-  );
+  const [questionImage, setQuestionImage] = useState("");
 
   const [prerequisites, setPrerequisites] = useState([]);
   const [postrequisites, setPostrequisites] = useState([]);
@@ -47,8 +45,27 @@ const EditStandard = () => {
           return;
         }
         setSelectedStandard({ ...standard.data(), id: standard.id });
-        setImage(standard.data().image || "");
-        setQuestionImage(standard.data().question_image || "");
+
+        if (/^standards\/.*/.test(standard.data()?.image || "")) {
+          const standardImageRef = ref(storage, standard.data()?.image || "");
+          getDownloadURL(standardImageRef).then((url) => {
+            setImage(url);
+          });
+        } else {
+          setImage(standard.data()?.image || "");
+        }
+
+        if (/^standards\/.*/.test(standard.data()?.question_image || "")) {
+          const questionImageRef = ref(
+            storage,
+            standard.data()?.question_image || "",
+          );
+          getDownloadURL(questionImageRef).then((url) => {
+            setQuestionImage(url);
+          });
+        } else {
+          setQuestionImage(standard.data()?.question_image || "");
+        }
       },
     );
   }, [params.standardid]);
@@ -124,7 +141,7 @@ const EditStandard = () => {
         );
 
         await uploadBytes(imageRef, imageUpload).then(async (snapshot) => {
-          const downloadURL = await getDownloadURL(snapshot.ref);
+          const downloadURL = snapshot.ref.fullPath;
           imageURL = downloadURL;
         });
       }
@@ -145,7 +162,7 @@ const EditStandard = () => {
 
         await uploadBytes(questionImageRef, questionImageUpload).then(
           async (snapshot) => {
-            const downloadURL = await getDownloadURL(snapshot.ref);
+            const downloadURL = snapshot.ref.fullPath;
             questionImageURL = downloadURL;
           },
         );
@@ -356,7 +373,7 @@ const EditStandard = () => {
                         id='image'
                         type='text'
                         placeholder='https://example.image.com'
-                        defaultValue={selectedStandard.image}
+                        defaultValue={image}
                         onBlur={(e) => setImage(e.target.value)}
                       />
                     ) : (
@@ -484,7 +501,7 @@ const EditStandard = () => {
                         id='question_image'
                         type='text'
                         placeholder='https://example.image.com'
-                        defaultValue={selectedStandard.question_image}
+                        defaultValue={questionImage}
                         onBlur={(e) => setQuestionImage(e.target.value)}
                       />
                     ) : (
