@@ -1,7 +1,12 @@
+## [1.7.0] - 2024-05-07
+
+### Added
+- Support for multiple tenants ([#187](https://github.com/rssmith614/treehouse-student-database/issues/187))
+
 ## [1.6.1] - 2024-05-07
 
 ### Added
-- Email login support for test user ([[#186](https://github.com/rssmith614/treehouse-student-database/issues/186)])
+- Email login support for test user ([#186](https://github.com/rssmith614/treehouse-student-database/issues/186))
 
 ## [1.6.0] - 2024-05-02
 
@@ -11,7 +16,7 @@
 ## [1.5.2] - 2024-05-06
 
 ### Added
-- Students can now have topics assigned to them, and tutors can edit ([[#188](https://github.com/rssmith614/treehouse-student-database/issues/188)])
+- Students can now have topics assigned to them, and tutors can edit ([#188](https://github.com/rssmith614/treehouse-student-database/issues/188))
 
 ### Changed
 - Typesetting tip modal is now its own component
