@@ -137,18 +137,20 @@ const StandardInfo = ({
         <p className='fst-italic text-decoration-underline'>Description</p>
         <Card className='bg-light-subtle'>
           <Card.Body>
-            <div className='d-flex'>
+            <Row>
               {standardImageURL ? (
-                <img
-                  src={standardImageURL}
-                  alt={selectedStandard?.description}
-                  style={{ maxHeight: "250px" }}
-                />
+                <Col>
+                  <img
+                    src={standardImageURL}
+                    alt={selectedStandard?.description}
+                    style={{ maxHeight: "250px" }}
+                  />
+                </Col>
               ) : null}
-              <div className='p-3'>
+              <Col className='p-3'>
                 <p>{selectedStandard ? selectedStandard.description : ""}</p>
-              </div>
-            </div>
+              </Col>
+            </Row>
             <div className='d-flex pt-3'>
               <div className='me-3 w-50'>
                 <p className='fst-italic text-decoration-underline'>
@@ -216,21 +218,23 @@ const StandardInfo = ({
             </p>
             <Card className='p-3 bg-light-subtle'>
               <Card.Body>
-                <div className='d-flex'>
+                <Row>
                   {questionImageURL ? (
-                    <img
-                      src={questionImageURL}
-                      alt={selectedStandard?.question}
-                      style={{ maxHeight: "250px" }}
-                    />
+                    <Col>
+                      <img
+                        src={questionImageURL}
+                        alt={selectedStandard?.question}
+                        style={{ maxHeight: "250px" }}
+                      />
+                    </Col>
                   ) : null}
-                  <div className='d-flex flex-column p-3'>
+                  <Col className='d-flex flex-column p-3'>
                     <div className='fw-bold py-1'>
                       {selectedStandard?.question}
                     </div>
                     <div>Sample Answer: {selectedStandard?.answer}</div>
-                  </div>
-                </div>
+                  </Col>
+                </Row>
               </Card.Body>
             </Card>
           </div>
