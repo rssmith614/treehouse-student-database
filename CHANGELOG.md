@@ -1,3 +1,8 @@
+## [1.6.1] - 2024-05-07
+
+### Added
+- Email login support for test user ([[#186](https://github.com/rssmith614/treehouse-student-database/issues/186)])
+
 ## [1.6.0] - 2024-05-02
 
 ### Added
