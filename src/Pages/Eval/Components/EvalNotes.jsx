@@ -24,6 +24,14 @@ const EvalNotes = ({ recentEvals, standardSuggestions, topics }) => {
     setNotes(notes);
   }, [recentEvals]);
 
+  useEffect(() => {
+    if (typeof window?.MathJax !== "undefined") {
+      window.MathJax.texReset();
+      window.MathJax.typesetClear();
+      window.MathJax.typesetPromise();
+    }
+  }, [showNotes]);
+
   return (
     <>
       <Button
