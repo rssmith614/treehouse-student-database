@@ -24,8 +24,6 @@ const EvalNotes = ({ recentEvals, standardSuggestions, topics }) => {
     setNotes(notes);
   }, [recentEvals]);
 
-  if (recentEvals.length === 0) return null;
-
   useEffect(() => {
     if (typeof window?.MathJax !== "undefined") {
       window.MathJax.texReset();
@@ -33,6 +31,8 @@ const EvalNotes = ({ recentEvals, standardSuggestions, topics }) => {
       window.MathJax.typesetPromise();
     }
   }, [showNotes]);
+
+  if (recentEvals.length === 0) return null;
 
   return (
     <div className='pb-3'>
