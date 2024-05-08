@@ -1,3 +1,10 @@
+## [1.5.4] - 2024-05-08
+
+### Fixed
+- Bug where topic suggestions weren't shown unless there were also Standard suggestions
+- Topic priority ordering when no priority was given
+- ASCIIMath typesetting in topics
+
 ## [1.5.3] - 2024-05-08
 
 ### Added
