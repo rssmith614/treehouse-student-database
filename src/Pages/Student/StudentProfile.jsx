@@ -1,4 +1,4 @@
-import { doc, onSnapshot } from "firebase/firestore";
+import { collection, doc, onSnapshot } from "firebase/firestore";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -40,7 +40,22 @@ const StudentProfile = () => {
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    const unsubscribeTopics = onSnapshot(
+      collection(db, "students", params.studentid, "topics"),
+      (topicDocs) => {
+        setStudent((prev) => ({
+          ...prev,
+          topics: topicDocs.docs.map((doc) => {
+            return { ...doc.data(), id: doc.id };
+          }),
+        }));
+      },
+    );
+
+    return () => {
+      unsubscribe();
+      unsubscribeTopics();
+    };
   }, [params.studentid]);
 
   useEffect(() => {
@@ -151,9 +166,24 @@ const StudentProfile = () => {
         <Tab.Pane eventKey='topics'>
           <StudentTopics
             student={studentRef.current}
+            // don't judge me
+            // you haven't been tested like I have
             topics={
-              student.topics ?? { topics: "", updateDate: "", updatedBy: "" }
+              student.topics
+                ? Array.isArray(student.topics)
+                  ? student.topics
+                  : [
+                      {
+                        topic: student.topics.topics,
+                        description: "",
+                        updateDate: student.topics.updateDate,
+                        updatedBy: student.topics.updatedBy,
+                        priority: "3",
+                      },
+                    ]
+                : []
             }
+            // few men have
           />
         </Tab.Pane>
       </Tab.Content>

@@ -32,6 +32,8 @@ const NewStudentEval = () => {
   const [standardAverages, setStandardAverages] = useState({});
   const [standardSuggestions, setStandardSuggestions] = useState([]);
 
+  const [topics, setTopics] = useState([]);
+
   const [showStandardInfo, setShowStandardInfo] = useState(false);
   const [selectedStandard, setSelectedStandard] = useState(null);
 
@@ -353,6 +355,24 @@ const NewStudentEval = () => {
       });
   }, [standardAverages, recentStandards]);
 
+  // compile topics from student profile
+  useEffect(() => {
+    const unsubscribeTopics = onSnapshot(
+      collection(db, "students", params.studentid, "topics"),
+      (topicDocs) => {
+        setTopics(
+          topicDocs.docs.map((doc) => {
+            return { ...doc.data(), id: doc.id };
+          }),
+        );
+      },
+    );
+
+    return () => {
+      unsubscribeTopics();
+    };
+  }, [params.studentid]);
+
   // flag for review button
   useEffect(() => {
     for (let i = 0; i < tasks.length; i++) {
@@ -583,6 +603,7 @@ const NewStudentEval = () => {
             <EvalNotes
               recentEvals={recentEvals}
               standardSuggestions={standardSuggestions}
+              topics={topics}
             />
           </Col>
         </Row>

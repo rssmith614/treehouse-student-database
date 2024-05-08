@@ -4,7 +4,7 @@ import { Button, Card, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import EvalSuggestions from "./EvalSuggestions";
 
-const EvalNotes = ({ recentEvals, standardSuggestions }) => {
+const EvalNotes = ({ recentEvals, standardSuggestions, topics }) => {
   const [notes, setNotes] = useState([]);
   const [notesIndex, setNotesIndex] = useState(0);
   const [showNotes, setShowNotes] = useState(false);
@@ -116,7 +116,9 @@ const EvalNotes = ({ recentEvals, standardSuggestions }) => {
           </Card>
           <EvalSuggestions
             standardSuggestions={standardSuggestions}
+            studentid={recentEvals[0]?.student_id}
             studentName={recentEvals[0]?.student_name}
+            topics={topics}
           />
         </Modal.Body>
       </Modal>

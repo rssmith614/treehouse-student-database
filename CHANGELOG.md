@@ -13,6 +13,14 @@
 ### Added
 - Better support for mobile devices ([#60](https://github.com/rssmith614/treehouse-student-database/issues/60))
 
+## [1.5.3] - 2024-05-08
+
+### Added
+- Topic suggestions on new eval page
+
+### Changed
+- Topics are now kept as list instead of a single text field
+
 ## [1.5.2] - 2024-05-06
 
 ### Added
