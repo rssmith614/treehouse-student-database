@@ -33,7 +33,7 @@ const StudentTopics = ({ student, topics }) => {
       window.MathJax.typesetClear();
       window.MathJax.typesetPromise();
     }
-  }, [showTypesettingTip]);
+  }, [showTypesettingTip, focusedTopic]);
 
   function publishTopic(t) {
     let { id, ...rest } = t;
@@ -90,18 +90,33 @@ const StudentTopics = ({ student, topics }) => {
             </InputGroup>
           </Card.Header>
           <Card.Body>
-            <Card className='bg-light-subtle p-3'>
-              <textarea
-                className='form-control'
-                value={newTopic.description}
-                onChange={(e) =>
-                  setNewTopic((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
-                placeholder='Enter a description...'
-              />
+            <Card className='bg-light-subtle'>
+              <Card.Body>
+                <textarea
+                  className='form-control'
+                  value={newTopic.description}
+                  onChange={(e) =>
+                    setNewTopic((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  placeholder='Enter a description...'
+                />
+                <div className='d-flex justify-content-end pt-1'>
+                  <Button
+                    className='p-0 pe-1'
+                    variant='link'
+                    onClick={() => {
+                      setFocusedTopic();
+                      setShowTypesettingTip(true);
+                    }}
+                  >
+                    ASCIIMath
+                  </Button>
+                  <span>is supported</span>
+                </div>
+              </Card.Body>
             </Card>
           </Card.Body>
           <Card.Footer className='d-flex'>
@@ -165,7 +180,7 @@ const StudentTopics = ({ student, topics }) => {
                   {topic.description === "" ? (
                     <div className='text-muted'>No description</div>
                   ) : (
-                    topic.description
+                    <div>{topic.description}</div>
                   )}
                 </Card>
               </div>
@@ -199,8 +214,10 @@ const StudentTopics = ({ student, topics }) => {
 
   const topicsList = topics
     .sort((a, b) => {
+      let priorityA = parseInt(a.priority) || 4;
+      let priorityB = parseInt(b.priority) || 4;
       return (
-        a.priority - b.priority || dayjs(b.updateDate).diff(dayjs(a.updateDate))
+        priorityA - priorityB || dayjs(b.updateDate).diff(dayjs(a.updateDate))
       );
     })
     .map((topic, topic_idx) => {

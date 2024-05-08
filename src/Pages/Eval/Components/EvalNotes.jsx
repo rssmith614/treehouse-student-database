@@ -26,6 +26,14 @@ const EvalNotes = ({ recentEvals, standardSuggestions, topics }) => {
 
   if (recentEvals.length === 0) return null;
 
+  useEffect(() => {
+    if (typeof window?.MathJax !== "undefined") {
+      window.MathJax.texReset();
+      window.MathJax.typesetClear();
+      window.MathJax.typesetPromise();
+    }
+  }, [showNotes]);
+
   return (
     <div className='pb-3'>
       <Button
