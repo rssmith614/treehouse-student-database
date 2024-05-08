@@ -1,12 +1,29 @@
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { Button, Card, OverlayTrigger, Popover } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Form,
+  InputGroup,
+  Modal,
+  OverlayTrigger,
+  Popover,
+  Row,
+} from "react-bootstrap";
 import { auth } from "../../../Services/firebase";
-import { updateDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import ASCIIMathTip from "../../../Components/ASCIIMathTip";
 
 const StudentTopics = ({ student, topics }) => {
-  const [editing, setEditing] = useState(false);
+  // const [editing, setEditing] = useState(false);
+
+  const [focusedTopic, setFocusedTopic] = useState();
 
   const [showTypesettingTip, setShowTypesettingTip] = useState(false);
 
@@ -16,126 +33,217 @@ const StudentTopics = ({ student, topics }) => {
       window.MathJax.typesetClear();
       window.MathJax.typesetPromise();
     }
-  }, [showTypesettingTip, editing]);
+  }, [showTypesettingTip]);
 
-  function updateTopics() {
-    let newTopics = {
-      topics: document.getElementById("topics").value,
-      updatedBy: auth.currentUser.displayName,
-      updateDate: dayjs().toISOString(),
-    };
-
-    updateDoc(student, { topics: newTopics }).then(() => {
-      setEditing(false);
-    });
+  function publishTopic(t) {
+    let { id, ...rest } = t;
+    if (id) {
+      updateDoc(doc(student, "topics", id), rest);
+    } else {
+      addDoc(collection(student, "topics"), rest);
+    }
+    setFocusedTopic();
   }
 
-  return (
-    <div>
-      <Card>
+  const EditTopic = ({ topic }) => {
+    const [newTopic, setNewTopic] = useState({ ...topic });
+
+    return (
+      <Modal
+        show={focusedTopic !== undefined}
+        onHide={() => setFocusedTopic()}
+        size='lg'
+        centered
+      >
+        <Card>
+          <Card.Header>
+            <div className='h3'>
+              {focusedTopic?.id ? "Edit Topic" : "Add New Topic"}
+            </div>
+            <InputGroup>
+              <input
+                id='topic'
+                type='text'
+                className='form-control'
+                value={newTopic.topic}
+                onChange={(e) =>
+                  setNewTopic((prev) => ({ ...prev, topic: e.target.value }))
+                }
+                placeholder='Enter a topic...'
+              />
+              <Form.Select
+                value={newTopic.priority}
+                onChange={(e) => {
+                  setNewTopic((prev) => ({
+                    ...prev,
+                    priority: e.target.value,
+                  }));
+                }}
+              >
+                <option value='' disabled>
+                  Priority...
+                </option>
+                <option value='1'>High</option>
+                <option value='2'>Medium</option>
+                <option value='3'>Low</option>
+              </Form.Select>
+            </InputGroup>
+          </Card.Header>
+          <Card.Body>
+            <Card className='bg-light-subtle p-3'>
+              <textarea
+                className='form-control'
+                value={newTopic.description}
+                onChange={(e) =>
+                  setNewTopic((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                placeholder='Enter a description...'
+              />
+            </Card>
+          </Card.Body>
+          <Card.Footer className='d-flex'>
+            {newTopic.id && (
+              <Button
+                variant='danger'
+                onClick={() => {
+                  setFocusedTopic();
+                  deleteDoc(doc(student, "topics", newTopic.id));
+                }}
+              >
+                Delete
+              </Button>
+            )}
+            <Button
+              className='ms-auto'
+              variant='primary'
+              onClick={() => {
+                if (!newTopic.topic) {
+                  document.getElementById("topic").classList.add("is-invalid");
+                  return;
+                }
+                publishTopic({
+                  ...newTopic,
+                  updateDate: dayjs().toISOString(),
+                  updatedBy: auth.currentUser.displayName,
+                });
+              }}
+            >
+              Save
+            </Button>
+          </Card.Footer>
+        </Card>
+      </Modal>
+    );
+  };
+
+  const Topic = ({ topic }) => {
+    return (
+      <Card className='mb-3'>
+        <Card.Header className='d-flex'>
+          <div className='h5'>{topic.topic}</div>
+          <div className='ms-auto'>
+            {topic.priority === "1" ? (
+              <div className='badge bg-danger'>High Priority</div>
+            ) : topic.priority === "2" ? (
+              <div className='badge bg-warning'>Medium Priority</div>
+            ) : topic.priority === "3" ? (
+              <div className='badge bg-success'>Low Priority</div>
+            ) : null}
+          </div>
+        </Card.Header>
         <Card.Body>
           <div className='d-flex flex-column'>
             <div className='d-flex'>
               <div className='flex-fill'>
-                {editing ? (
-                  <div className='d-flex flex-column'>
-                    <textarea
-                      id='topics'
-                      className='form-control'
-                      defaultValue={topics.topics}
-                      onChange={(e) => {
-                        e.target.style.height = "auto";
-                        e.target.style.height = `${e.target.scrollHeight}px`;
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.height = "auto";
-                        e.target.style.height = `${e.target.scrollHeight}px`;
-                      }}
-                    />
-                    <Button
-                      variant='link'
-                      className='text-muted align-self-end'
-                      onClick={() => {
-                        setShowTypesettingTip(true);
-                      }}
-                    >
-                      AsciiMath is Supported
-                    </Button>
-                  </div>
-                ) : (
-                  <div style={{ whiteSpace: "pre-wrap" }}>
-                    <div>
-                      {topics.topics === "" ? "None yet..." : topics.topics}
-                    </div>
-                    <OverlayTrigger
-                      placement='top'
-                      overlay={
-                        <Popover>
-                          <Popover.Header>Topics</Popover.Header>
-                          <Popover.Body>
-                            What topics is the student currently working on, or
-                            what should they work on in the future?
-                            <hr />
-                            <div className='text-decoration-underline'>
-                              Example
-                            </div>
-                            "Multiplication, Division, and Fractions"
-                          </Popover.Body>
-                        </Popover>
-                      }
-                    >
-                      <i className='bi bi-info-square position-absolute top-0 end-0 p-3'></i>
-                    </OverlayTrigger>
-                  </div>
-                )}
+                <Card
+                  className='bg-light-subtle p-3'
+                  style={{ whiteSpace: "pre-wrap" }}
+                >
+                  {topic.description === "" ? (
+                    <div className='text-muted'>No description</div>
+                  ) : (
+                    topic.description
+                  )}
+                </Card>
               </div>
             </div>
           </div>
         </Card.Body>
+        <Card.Footer>
+          <Row className=''>
+            <div className='text-muted col'>
+              Last updated{" "}
+              <span className='text-primary'>
+                {dayjs(topic.updateDate).format("MMMM D, YYYY")}
+              </span>{" "}
+              by <span className='text-primary'>{topic.updatedBy}</span>
+            </div>
+            <Button
+              size='sm'
+              className='col-md-2 me-3'
+              variant='secondary'
+              onClick={() => {
+                setFocusedTopic(topic);
+              }}
+            >
+              Edit
+            </Button>
+          </Row>
+        </Card.Footer>
       </Card>
-      <div className='row pt-3 px-3'>
+    );
+  };
+
+  const topicsList = topics
+    .sort((a, b) => {
+      return (
+        a.priority - b.priority || dayjs(b.updateDate).diff(dayjs(a.updateDate))
+      );
+    })
+    .map((topic, topic_idx) => {
+      return <Topic key={topic_idx} topic={topic} />;
+    });
+
+  return (
+    <div>
+      {topicsList}
+      <div className='d-flex pt-3 px-3'>
+        <OverlayTrigger
+          placement='top'
+          overlay={
+            <Popover>
+              <Popover.Header>Topics</Popover.Header>
+              <Popover.Body>
+                Use this tab to add potential topics to cover with the student.
+                Topics can be assigned a priority level to help organize the
+                student's learning plan.
+              </Popover.Body>
+            </Popover>
+          }
+        >
+          <i className='bi bi-info-square ms-auto me-3 align-self-center'></i>
+        </OverlayTrigger>
         <Button
-          className='col-2 me-3'
+          className=''
           variant='primary'
           onClick={() => {
-            if (editing) {
-              updateTopics();
-            } else {
-              setEditing(true);
-            }
+            setFocusedTopic({
+              topic: "",
+              description: "",
+              updateDate: "",
+              updatedBy: "",
+              priority: "",
+            });
           }}
         >
-          {editing ? "Save" : "Edit"}
+          Add New Topic
         </Button>
-        {editing ? (
-          <Button
-            className='col-2'
-            variant='secondary'
-            onClick={() => {
-              setEditing(false);
-            }}
-          >
-            Cancel
-          </Button>
-        ) : null}
-        <div className='text-muted col text-end'>
-          Last updated by{" "}
-          {topics.updatedBy === "" ? (
-            "N/A"
-          ) : (
-            <span className='text-primary'>{topics.updatedBy}</span>
-          )}{" "}
-          on{" "}
-          {topics.updateDate === "" ? (
-            "N/A"
-          ) : (
-            <span className='text-primary'>
-              {dayjs(topics.updateDate).format("M/D/YYYY")}
-            </span>
-          )}
-        </div>
       </div>
       <ASCIIMathTip show={showTypesettingTip} setShow={setShowTypesettingTip} />
+      <EditTopic topic={focusedTopic} />
     </div>
   );
 };
