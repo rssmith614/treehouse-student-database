@@ -9,10 +9,18 @@ import {
   Popover,
 } from "react-bootstrap";
 import StandardInfo from "../../Standards/Components/StandardInfo";
+import { useNavigate } from "react-router-dom";
 
-const EvalSuggestions = ({ standardSuggestions, studentName }) => {
+const EvalSuggestions = ({
+  standardSuggestions,
+  studentid,
+  studentName,
+  topics,
+}) => {
   const [showStandardInfo, setShowStandardInfo] = useState(false);
   const [selectedStandard, setSelectedStandard] = useState(null);
+
+  const navigate = useNavigate();
 
   function color(progression) {
     const parsed = parseFloat(progression);
@@ -192,6 +200,75 @@ const EvalSuggestions = ({ standardSuggestions, studentName }) => {
               </Container>
             </Card.Body>
           </Card>
+          {topics.length > 0 && <hr />}
+          {topics.length > 0 && (
+            <Card className='d-flex flex-column bg-light-subtle mt-3'>
+              <Card.Header>
+                <div className='h4'>Topics</div>
+                <Card.Subtitle className='text-muted'>
+                  Suggestions for {studentName}
+                </Card.Subtitle>
+              </Card.Header>
+              <Card.Body>
+                {topics
+                  .sort((a, b) => {
+                    return (
+                      a.priority - b.priority ||
+                      dayjs(b.updateDate).diff(dayjs(a.updateDate))
+                    );
+                  })
+                  .map((topic, topic_idx) => (
+                    <Card key={topic_idx} className='mb-3'>
+                      <Card.Header className='d-flex'>
+                        <h5>{topic.topic}</h5>
+                        <div className='ms-auto'>
+                          {topic.priority === "1" ? (
+                            <div className='badge bg-danger'>High Priority</div>
+                          ) : topic.priority === "2" ? (
+                            <div className='badge bg-warning'>
+                              Medium Priority
+                            </div>
+                          ) : topic.priority === "3" ? (
+                            <div className='badge bg-success'>Low Priority</div>
+                          ) : null}
+                        </div>
+                      </Card.Header>
+                      <Card.Body>
+                        <Card className='bg-light-subtle p-3'>
+                          {topic.description === "" ? (
+                            <div className='text-muted'>No description</div>
+                          ) : (
+                            topic.description
+                          )}
+                        </Card>
+                      </Card.Body>
+                      <Card.Footer>
+                        <div className='text-muted'>
+                          Last updated{" "}
+                          <span className='text-primary'>
+                            {dayjs(topic.updateDate).format("MMMM D, YYYY")}
+                          </span>{" "}
+                          by{" "}
+                          <span className='text-primary'>
+                            {topic.updatedBy}
+                          </span>
+                        </div>
+                      </Card.Footer>
+                    </Card>
+                  ))}
+              </Card.Body>
+              <Button
+                variant='primary'
+                className='align-self-end me-3 mb-3'
+                onClick={() => {
+                  localStorage.setItem("student_tab", "topics");
+                  navigate(`/students/${studentid}`);
+                }}
+              >
+                Go to Topics
+              </Button>
+            </Card>
+          )}
         </div>
       </Collapse>
       <StandardInfo
