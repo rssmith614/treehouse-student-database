@@ -68,8 +68,8 @@ const EvalHeader = ({ evaluation, handleEvalChange, loading, draft }) => {
           )}
         </div>
       )}
-      <div className='row my-3 justify-content-center'>
-        <div className='col-12 col-md-6 pb-3'>
+      <div className='row my-3'>
+        <div className='col'>
           <label className='form-label h5'>Tutor</label>
           <Form.Select
             id='tutor'
@@ -92,7 +92,7 @@ const EvalHeader = ({ evaluation, handleEvalChange, loading, draft }) => {
           </Form.Select>
           <div className='invalid-feedback'>Please select a tutor</div>
         </div>
-        <div className='col col-xs'>
+        <div className='col'>
           <label className='form-label h5'>Date</label>
           <input
             id='date'

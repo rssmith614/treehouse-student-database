@@ -3,7 +3,7 @@ import { Form, OverlayTrigger, Popover } from "react-bootstrap";
 const EvalFooter = ({ evaluation, handleEvalChange }) => {
   return (
     <div className='row my-3'>
-      <div className='col-12 col-md-4 pb-3'>
+      <div className='col'>
         <label className='form-label h5'>Worksheet</label>
         <Form.Select
           className='mb-2'
@@ -26,9 +26,9 @@ const EvalFooter = ({ evaluation, handleEvalChange }) => {
         <input id='worksheet' className='form-control' type='file' />
         <div className='invalid-feedback'>Please provide a valid URL</div>
       </div>
-      <div className='col-12 col-md-4 pb-3'>
+      <div className='col'>
         <label className='form-label h5'>Worksheet Completion</label>
-        <textarea
+        <input
           id='worksheet_completion'
           className='form-control'
           type='text'
@@ -40,7 +40,7 @@ const EvalFooter = ({ evaluation, handleEvalChange }) => {
           }}
         />
       </div>
-      <div className='col-12 col-md-4'>
+      <div className='col'>
         <div className='d-flex'>
           <label className='form-label h5'>Next Session Plans</label>
           <OverlayTrigger

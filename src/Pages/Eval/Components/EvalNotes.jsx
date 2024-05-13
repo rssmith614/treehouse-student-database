@@ -32,13 +32,11 @@ const EvalNotes = ({ recentEvals, standardSuggestions, topics }) => {
     }
   }, [showNotes]);
 
-  if (recentEvals.length === 0) return null;
-
   return (
-    <div className='pb-3'>
+    <>
       <Button
         variant=''
-        className='w-100 ms-auto'
+        className='w-25 ms-auto'
         onClick={() => setShowNotes(true)}
       >
         <Card className='shadow' style={{ cursor: "pointer" }}>
@@ -130,7 +128,7 @@ const EvalNotes = ({ recentEvals, standardSuggestions, topics }) => {
           />
         </Modal.Body>
       </Modal>
-    </div>
+    </>
   );
 };
 

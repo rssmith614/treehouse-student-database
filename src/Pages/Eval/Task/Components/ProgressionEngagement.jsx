@@ -1,11 +1,4 @@
-import {
-  Button,
-  ButtonGroup,
-  Collapse,
-  OverlayTrigger,
-  Popover,
-} from "react-bootstrap";
-import { useMediaQuery } from "react-responsive";
+import { Button, ButtonGroup, OverlayTrigger, Popover } from "react-bootstrap";
 
 const ProgressionEngagement = ({
   task,
@@ -13,11 +6,9 @@ const ProgressionEngagement = ({
   tasks,
   handleTasksChange,
 }) => {
-  const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
-
   const Progression = () => {
     return (
-      <div className='d-flex flex-column w-100'>
+      <div className='d-flex flex-column pe-3'>
         <div className='h5 d-flex'>
           Progression
           <OverlayTrigger
@@ -64,7 +55,7 @@ const ProgressionEngagement = ({
 
   const Engagement = () => {
     return (
-      <div className='ms-auto w-100'>
+      <div className='ms-auto flex-fill'>
         <div className='d-flex flex-column'>
           <div className='h5 d-flex'>
             Engagement
@@ -111,7 +102,7 @@ const ProgressionEngagement = ({
     );
   };
 
-  return isDesktop ? (
+  return (
     <div className='d-flex'>
       <div
         style={{
@@ -127,21 +118,6 @@ const ProgressionEngagement = ({
         style={{
           width: task.standards.length > 0 ? "100%" : "50%",
           transition: "width 0.35s",
-        }}
-      >
-        {Engagement()}
-      </div>
-    </div>
-  ) : (
-    <div className='d-flex flex-column'>
-      <Collapse in={task.standards.length === 0} dimension={"height"} appear>
-        <div>{Progression()}</div>
-      </Collapse>
-      <div
-        className={"d-flex" + (task.standards.length > 0 ? "" : " pt-3")}
-        style={{
-          height: task.standards.length > 0 ? "100%" : "50%",
-          transition: "height 0.35s",
         }}
       >
         {Engagement()}

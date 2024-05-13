@@ -261,7 +261,7 @@ const NewProfile = () => {
       <div className='d-flex display-1'>New Student</div>
       <div className='d-flex flex-column'>
         {/* <form onSubmit={addStudent}> */}
-        <div className='d-flex p-3 card bg-light-subtle'>
+        <div className='d-flex p-3 m-3 card bg-light-subtle'>
           <div className='row'>
             <div className='col mb-3'>
               <label htmlFor='studentName' className='form-label h5'>
@@ -296,7 +296,7 @@ const NewProfile = () => {
           </div>
           <div className='row'>
             <div className='col mb-3'>
-              <label htmlFor='parentName' className='form-label h5 text-nowrap'>
+              <label htmlFor='parentName' className='form-label h5'>
                 Parent Name
               </label>
               <input
@@ -310,10 +310,7 @@ const NewProfile = () => {
               />
             </div>
             <div className='col mb-3'>
-              <label
-                htmlFor='parentPhone'
-                className='form-label h5 text-nowrap'
-              >
+              <label htmlFor='parentPhone' className='form-label h5'>
                 Parent Phone Number
               </label>
               <input

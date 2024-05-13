@@ -59,7 +59,7 @@ const About = ({ tutorid }) => {
       >
         <div className='d-flex flex-column p-3'>
           <Row>
-            <Col className='d-flex'>
+            <Col className='col-md-auto'>
               <Card className='bg-dark p-1'>
                 <Avatar
                   size={100}

@@ -3,9 +3,8 @@ import { Button, Card, Col, Collapse, Modal, Row } from "react-bootstrap";
 import { AbilityContext } from "../../../Services/can";
 import { Standard } from "../../../Services/defineAbility";
 import { doc, getDoc } from "firebase/firestore";
-import { db, storage } from "../../../Services/firebase";
+import { db } from "../../../Services/firebase";
 import { useNavigate } from "react-router-dom";
-import { getDownloadURL, ref } from "firebase/storage";
 
 const StandardInfo = ({
   selectedStandard,
@@ -19,9 +18,6 @@ const StandardInfo = ({
 
   const [compiledPreReqs, setCompiledPreReqs] = useState([]);
   const [compiledPostReqs, setCompiledPostReqs] = useState([]);
-
-  const [standardImageURL, setStandardImageURL] = useState("");
-  const [questionImageURL, setQuestionImageURL] = useState("");
 
   const navigate = useNavigate();
 
@@ -46,28 +42,6 @@ const StandardInfo = ({
       setCompiledPostReqs(standards);
     });
   }, [selectedStandard?.postrequisites]);
-
-  useEffect(() => {
-    if (/^standards\/.*/.test(selectedStandard?.image || "")) {
-      const standardImageRef = ref(storage, selectedStandard?.image);
-      getDownloadURL(standardImageRef).then((url) => {
-        setStandardImageURL(url);
-      });
-    } else {
-      setStandardImageURL(selectedStandard?.image);
-    }
-  }, [selectedStandard?.image]);
-
-  useEffect(() => {
-    if (/^standards\/.*/.test(selectedStandard?.question_image || "")) {
-      const questionImageRef = ref(storage, selectedStandard?.question_image);
-      questionImageRef.getDownloadURL().then((url) => {
-        setQuestionImageURL(url);
-      });
-    } else {
-      setQuestionImageURL(selectedStandard?.question_image);
-    }
-  }, [selectedStandard?.question_image]);
 
   function color(progression) {
     const parsed = parseFloat(progression);
@@ -137,20 +111,18 @@ const StandardInfo = ({
         <p className='fst-italic text-decoration-underline'>Description</p>
         <Card className='bg-light-subtle'>
           <Card.Body>
-            <Row>
-              {standardImageURL ? (
-                <Col>
-                  <img
-                    src={standardImageURL}
-                    alt={selectedStandard?.description}
-                    style={{ maxHeight: "250px" }}
-                  />
-                </Col>
+            <div className='d-flex'>
+              {selectedStandard?.image ? (
+                <img
+                  src={selectedStandard?.image}
+                  alt={selectedStandard.description}
+                  style={{ maxHeight: "250px" }}
+                />
               ) : null}
-              <Col className='p-3'>
+              <div className='p-3'>
                 <p>{selectedStandard ? selectedStandard.description : ""}</p>
-              </Col>
-            </Row>
+              </div>
+            </div>
             <div className='d-flex pt-3'>
               <div className='me-3 w-50'>
                 <p className='fst-italic text-decoration-underline'>
@@ -218,23 +190,21 @@ const StandardInfo = ({
             </p>
             <Card className='p-3 bg-light-subtle'>
               <Card.Body>
-                <Row>
-                  {questionImageURL ? (
-                    <Col>
-                      <img
-                        src={questionImageURL}
-                        alt={selectedStandard?.question}
-                        style={{ maxHeight: "250px" }}
-                      />
-                    </Col>
+                <div className='d-flex'>
+                  {selectedStandard?.question_image ? (
+                    <img
+                      src={selectedStandard?.question_image}
+                      alt={selectedStandard.question}
+                      style={{ maxHeight: "250px" }}
+                    />
                   ) : null}
-                  <Col className='d-flex flex-column p-3'>
+                  <div className='d-flex flex-column p-3'>
                     <div className='fw-bold py-1'>
                       {selectedStandard?.question}
                     </div>
                     <div>Sample Answer: {selectedStandard?.answer}</div>
-                  </Col>
-                </Row>
+                  </div>
+                </div>
               </Card.Body>
             </Card>
           </div>

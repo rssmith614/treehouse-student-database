@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import ComboTableHeader from "../../Components/ComboTableHeader";
 import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
 import FilterTableHeader from "../../Components/FilterTableHeader";
-import { useMediaQuery } from "react-responsive";
 
 const TutorProfilesList = () => {
   const [tutors, setTutors] = useState([]);
@@ -19,8 +18,6 @@ const TutorProfilesList = () => {
   const [subjectFilter, setSubjectFilter] = useState("");
 
   const navigate = useNavigate();
-
-  const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
 
   useEffect(() => {
     const tutorCollRef = collection(db, "tutors");
@@ -92,20 +89,12 @@ const TutorProfilesList = () => {
           <td className='align-middle'>
             {tutorData.displayName || "Not Activated"}
           </td>
-          {isDesktop && <td className='align-middle'>{tutorData.email}</td>}
-          {isDesktop && (
-            <td className='align-middle'>
-              {capitalize(tutorData.clearance) || "None Assigned"}
-            </td>
-          )}
-          {isDesktop && (
-            <td className='align-middle'>{tutorData.preferredAges || ""}</td>
-          )}
-          {isDesktop && (
-            <td className='align-middle'>
-              {tutorData.preferredSubjects || ""}
-            </td>
-          )}
+          <td className='align-middle'>{tutorData.email}</td>
+          <td className='align-middle'>
+            {capitalize(tutorData.clearance) || "None Assigned"}
+          </td>
+          <td className='align-middle'>{tutorData.preferredAges || ""}</td>
+          <td className='align-middle'>{tutorData.preferredSubjects || ""}</td>
         </tr>
       );
     });
@@ -190,23 +179,21 @@ const TutorProfilesList = () => {
               />
             </Dropdown>
           </th>
-          {isDesktop && <th>Email</th>}
-          {isDesktop && <th>Role</th>}
-          {isDesktop && <th>Preferred Students</th>}
-          {isDesktop && (
-            <th style={{ cursor: "pointer" }}>
-              <Dropdown drop='up' autoClose='outside'>
-                <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                  Preferred Subjects {filterIcon("subjects")}
-                </Dropdown.Toggle>
-                <Dropdown.Menu
-                  as={FilterTableHeader}
-                  value={subjectFilter}
-                  valueSetter={setSubjectFilter}
-                />
-              </Dropdown>
-            </th>
-          )}
+          <th>Email</th>
+          <th>Role</th>
+          <th>Preferred Students</th>
+          <th style={{ cursor: "pointer" }}>
+            <Dropdown drop='up' autoClose='outside'>
+              <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                Preferred Subjects {filterIcon("subjects")}
+              </Dropdown.Toggle>
+              <Dropdown.Menu
+                as={FilterTableHeader}
+                value={subjectFilter}
+                valueSetter={setSubjectFilter}
+              />
+            </Dropdown>
+          </th>
         </tr>
       </thead>
       <tbody>{tutorRows()}</tbody>

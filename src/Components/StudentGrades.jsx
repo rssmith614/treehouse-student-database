@@ -8,14 +8,13 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { Button, Modal } from "react-bootstrap";
+import { Button, Offcanvas } from "react-bootstrap";
 import dayjs from "dayjs";
 import { Can } from "../Services/can";
 import { Grade } from "../Services/defineAbility";
 import PaginatedTable from "./PaginatedTable";
 import StudentGradesEdit from "./StudentGradesEdit";
 import StudentGradesDetail from "./StudentGradesDetail";
-import { useMediaQuery } from "react-responsive";
 
 const StudentGrades = ({ student }) => {
   const [gradesHistory, setGradesHistory] = useState([]);
@@ -23,8 +22,6 @@ const StudentGrades = ({ student }) => {
 
   const [show, setShow] = useState(false);
   const [edit, setEdit] = useState(false);
-
-  const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -122,7 +119,7 @@ const StudentGrades = ({ student }) => {
           <td className='align-middle'>
             {dayjs(grade.date).format("MMMM D, YYYY")}
           </td>
-          {isDesktop && <td className='align-middle'>{grade.tutor_name}</td>}
+          <td className='align-middle'>{grade.tutor_name}</td>
           <td>
             <ul className='list-group'>
               {grade.grades.map((currGrade, index) => {
@@ -189,8 +186,8 @@ const StudentGrades = ({ student }) => {
           <thead>
             <tr>
               <th>Date</th>
-              {isDesktop && <th>Recorded By</th>}
-              <th>Grades</th>
+              <th>Recorded By</th>
+              <th className='w-50'>Grades</th>
             </tr>
           </thead>
         }
@@ -207,44 +204,44 @@ const StudentGrades = ({ student }) => {
         </Button>
       </div>
 
-      <Modal
+      <Offcanvas
         show={show}
         onHide={() => setShow(false)}
         onExited={() => {
           setFocusedGradeEntry({});
           setEdit(false);
         }}
-        size='lg'
-        centered
+        placement='end'
+        className='w-75'
       >
         {edit ? (
           <>
-            <Modal.Header closeButton>
-              <Modal.Title>Record Grades</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
+            <Offcanvas.Header closeButton>
+              <Offcanvas.Title>Record Grades</Offcanvas.Title>
+            </Offcanvas.Header>
+            <Offcanvas.Body>
               <StudentGradesEdit
                 gradeEntry={focusedGradeEntry}
                 setGradeEntry={setFocusedGradeEntry}
                 setEdit={setEdit}
                 setShow={setShow}
               />
-            </Modal.Body>
+            </Offcanvas.Body>
           </>
         ) : (
           <>
-            <Modal.Header closeButton>
-              <Modal.Title>View Grades</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
+            <Offcanvas.Header closeButton>
+              <Offcanvas.Title>View Grades</Offcanvas.Title>
+            </Offcanvas.Header>
+            <Offcanvas.Body>
               <StudentGradesDetail
                 gradeEntry={focusedGradeEntry}
                 setEdit={setEdit}
               />
-            </Modal.Body>
+            </Offcanvas.Body>
           </>
         )}
-      </Modal>
+      </Offcanvas>
     </div>
   );
 };

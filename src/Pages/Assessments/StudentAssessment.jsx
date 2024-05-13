@@ -9,7 +9,6 @@ import { Assessment } from "../../Services/defineAbility";
 import { useAbility } from "@casl/react";
 import dayjs from "dayjs";
 import StandardInfo from "../Standards/Components/StandardInfo";
-import { useMediaQuery } from "react-responsive";
 
 const grades = {
   K: "Kindergarten",
@@ -35,8 +34,6 @@ const StudentAssessment = () => {
   const ability = useAbility(AbilityContext);
 
   const navigate = useNavigate();
-
-  const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -130,25 +127,6 @@ const StudentAssessment = () => {
   }
 
   let amtInstance = new Assessment(assessment);
-
-  if (!isDesktop) {
-    return (
-      <div className='p-3 d-flex flex-column'>
-        <h1 className='display-1'>Student Assessment</h1>
-        <div className='d-flex flex-fill card p-3 bg-light-subtle'>
-          This page is not available on mobile devices. Please use a desktop
-          device to view this page.
-        </div>
-        <Button
-          variant='secondary'
-          className='m-3'
-          onClick={() => navigate(-1)}
-        >
-          Back
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <>

@@ -25,7 +25,7 @@ const StudentEvalsList = () => {
   return (
     <div className='p-3 d-flex flex-column'>
       <div className='display-1 d-flex'>Evaluations - {studentName}</div>
-      <div className='d-flex pt-3 px-3 card bg-light-subtle'>
+      <div className='d-flex pt-3 px-3 m-3 card bg-light-subtle'>
         <EvalsTable filterBy='student' id={params.studentid} _limit={20} />
       </div>
       <button

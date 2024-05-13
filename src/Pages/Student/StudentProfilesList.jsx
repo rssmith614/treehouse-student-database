@@ -6,20 +6,11 @@ import { db } from "../../Services/firebase";
 import React, { useEffect, useState } from "react";
 import { Can } from "../../Services/can";
 import dayjs from "dayjs";
-import {
-  Dropdown,
-  InputGroup,
-  Form,
-  Button,
-  Table,
-  Row,
-  Col,
-} from "react-bootstrap";
+import { Dropdown, InputGroup, Form, Button, Table } from "react-bootstrap";
 import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
 import FilterTableHeader from "../../Components/FilterTableHeader";
 import SortTableHeader from "../../Components/SortTableHeader";
 import PaginatedTable from "../../Components/PaginatedTable";
-import { useMediaQuery } from "react-responsive";
 
 const StudentProfilesList = () => {
   const [students, setStudents] = useState(null);
@@ -34,8 +25,6 @@ const StudentProfilesList = () => {
   const [tableSort, setTableSort] = useState("name_asc");
 
   const navigate = useNavigate();
-
-  const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
 
   useEffect(() => {
     const unsubscribeStudents = onSnapshot(
@@ -145,13 +134,11 @@ const StudentProfilesList = () => {
           style={{ cursor: "pointer" }}
         >
           <td>{studentData.student_name}</td>
-          {isDesktop && <td>{studentData.preferred_tutor_name}</td>}
+          <td>{studentData.preferred_tutor_name}</td>
           <td>{studentData.student_school}</td>
-          {isDesktop && <td>{studentData.student_source}</td>}
+          <td>{studentData.student_source}</td>
           <td>{studentData.student_grade}</td>
-          {isDesktop && (
-            <td>{dayjs(studentData.student_dob).format("MMMM D, YYYY")}</td>
-          )}
+          <td>{dayjs(studentData.student_dob).format("MMMM D, YYYY")}</td>
         </tr>
       );
     });
@@ -284,27 +271,23 @@ const StudentProfilesList = () => {
     <div className='p-3 d-flex flex-column'>
       <div className='display-1 d-flex flex-row'>Students</div>
       <div className='d-flex pt-3 px-3 card bg-light-subtle'>
-        <Row>
-          <Col md={3} xs={12}>
-            <InputGroup className='mb-3'>
-              <Form.Control
-                type='text'
-                placeholder='Search Student'
-                value={nameFilter}
-                onChange={(e) => {
-                  setNameFilter(e.target.value);
-                }}
-                autoFocus
-              />
-              <Button
-                variant='secondary'
-                className='bi bi-x-lg input-group-text'
-                style={{ cursor: "pointer" }}
-                onClick={() => setNameFilter("")}
-              />
-            </InputGroup>
-          </Col>
-        </Row>
+        <InputGroup className='w-25 mb-3'>
+          <Form.Control
+            type='text'
+            placeholder='Search Student'
+            value={nameFilter}
+            onChange={(e) => {
+              setNameFilter(e.target.value);
+            }}
+            autoFocus
+          />
+          <Button
+            variant='secondary'
+            className='bi bi-x-lg input-group-text'
+            style={{ cursor: "pointer" }}
+            onClick={() => setNameFilter("")}
+          />
+        </InputGroup>
         {loading ? (
           loadingTable
         ) : (
@@ -326,20 +309,18 @@ const StudentProfilesList = () => {
                       />
                     </Dropdown>
                   </th>
-                  {isDesktop && (
-                    <th style={{ cursor: "pointer" }}>
-                      <Dropdown drop='up' autoClose='outside'>
-                        <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                          Preferred Tutor {filterIcon("tutor")}
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu
-                          as={FilterTableHeader}
-                          value={tutorFilter}
-                          valueSetter={setTutorFilter}
-                        />
-                      </Dropdown>
-                    </th>
-                  )}
+                  <th style={{ cursor: "pointer" }}>
+                    <Dropdown drop='up' autoClose='outside'>
+                      <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                        Preferred Tutor {filterIcon("tutor")}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu
+                        as={FilterTableHeader}
+                        value={tutorFilter}
+                        valueSetter={setTutorFilter}
+                      />
+                    </Dropdown>
+                  </th>
                   <th style={{ cursor: "pointer" }}>
                     <Dropdown drop='up' autoClose='outside'>
                       <Dropdown.Toggle as={DropdownTableHeaderToggle}>
@@ -352,20 +333,18 @@ const StudentProfilesList = () => {
                       />
                     </Dropdown>
                   </th>
-                  {isDesktop && (
-                    <th style={{ cursor: "pointer" }}>
-                      <Dropdown drop='up' autoClose='outside'>
-                        <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                          Student Source {filterIcon("source")}
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu
-                          as={FilterTableHeader}
-                          value={sourceFilter}
-                          valueSetter={setSourceFilter}
-                        />
-                      </Dropdown>
-                    </th>
-                  )}
+                  <th style={{ cursor: "pointer" }}>
+                    <Dropdown drop='up' autoClose='outside'>
+                      <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                        Student Source {filterIcon("source")}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu
+                        as={FilterTableHeader}
+                        value={sourceFilter}
+                        valueSetter={setSourceFilter}
+                      />
+                    </Dropdown>
+                  </th>
                   <th style={{ cursor: "pointer" }}>
                     <Dropdown drop='up' autoClose='outside'>
                       <Dropdown.Toggle as={DropdownTableHeaderToggle}>
@@ -378,27 +357,21 @@ const StudentProfilesList = () => {
                       />
                     </Dropdown>
                   </th>
-                  {isDesktop && (
-                    <th style={{ cursor: "pointer" }}>
-                      <Dropdown drop='up'>
-                        <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                          Date of Birth {filterIcon("dob")}
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                          <Dropdown.Item
-                            onClick={() => setTableSort("dob_desc")}
-                          >
-                            Descending
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            onClick={() => setTableSort("dob_asc")}
-                          >
-                            Ascending
-                          </Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </th>
-                  )}
+                  <th style={{ cursor: "pointer" }}>
+                    <Dropdown drop='up'>
+                      <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+                        Date of Birth {filterIcon("dob")}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu>
+                        <Dropdown.Item onClick={() => setTableSort("dob_desc")}>
+                          Descending
+                        </Dropdown.Item>
+                        <Dropdown.Item onClick={() => setTableSort("dob_asc")}>
+                          Ascending
+                        </Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </th>
                 </tr>
               </thead>
             }
@@ -419,19 +392,15 @@ const StudentProfilesList = () => {
           />
         )}
       </div>
-      <Row className='d-flex justify-content-start'>
+      <div className='d-flex justify-content-start'>
         <Can I='export' on='students'>
-          <Button
-            className='m-3 col text-nowrap'
-            variant='secondary'
-            onClick={csvExport}
-          >
+          <Button className='my-3 me-3' variant='secondary' onClick={csvExport}>
             Export Student Data as CSV
           </Button>
         </Can>
         <Can I='export' on='grades'>
           <Button
-            className='m-3 col text-nowrap'
+            className='my-3 me-3'
             variant='secondary'
             onClick={gradesExport}
           >
@@ -440,13 +409,13 @@ const StudentProfilesList = () => {
         </Can>
         <Can do='add' on='students'>
           <button
-            className='btn btn-primary m-3 col text-nowrap'
+            className='btn btn-primary my-3 ms-auto'
             onClick={() => navigate(`/newstudent`)}
           >
             Add New Student
           </button>
         </Can>
-      </Row>
+      </div>
     </div>
   );
 };

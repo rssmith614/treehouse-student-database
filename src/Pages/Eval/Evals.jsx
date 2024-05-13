@@ -4,15 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { db } from "../../Services/firebase";
 import React, { useEffect, useState } from "react";
-import {
-  Dropdown,
-  InputGroup,
-  Form,
-  Button,
-  Table,
-  Row,
-  Col,
-} from "react-bootstrap";
+import { Dropdown, InputGroup, Form, Button, Table } from "react-bootstrap";
 import FilterTableHeader from "../../Components/FilterTableHeader";
 import DropdownTableHeaderToggle from "../../Components/DropdownTableHeaderToggle";
 import SortTableHeader from "../../Components/SortTableHeader";
@@ -163,28 +155,24 @@ const Evals = () => {
       <div className='display-1 d-flex'>View All Session Evaluations</div>
       <div className='h5'>Select a Student</div>
       <div className='d-flex pt-3 px-3 card bg-light-subtle'>
-        <Row>
-          <Col xs={12} md={3}>
-            <InputGroup className='mb-3'>
-              <Form.Control
-                id='search-student'
-                type='text'
-                placeholder='Search Student'
-                value={nameFilter}
-                onChange={(e) => {
-                  setNameFilter(e.target.value);
-                }}
-                autoFocus
-              />
-              <Button
-                variant='secondary'
-                className='bi bi-x-lg input-group-text'
-                style={{ cursor: "pointer" }}
-                onClick={() => setNameFilter("")}
-              />
-            </InputGroup>
-          </Col>
-        </Row>
+        <InputGroup className='w-25 mb-3'>
+          <Form.Control
+            id='search-student'
+            type='text'
+            placeholder='Search Student'
+            value={nameFilter}
+            onChange={(e) => {
+              setNameFilter(e.target.value);
+            }}
+            autoFocus
+          />
+          <Button
+            variant='secondary'
+            className='bi bi-x-lg input-group-text'
+            style={{ cursor: "pointer" }}
+            onClick={() => setNameFilter("")}
+          />
+        </InputGroup>
         {loading ? (
           loadingTable
         ) : (

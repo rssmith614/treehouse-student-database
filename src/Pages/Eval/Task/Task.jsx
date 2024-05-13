@@ -1,9 +1,8 @@
-import { Card, Col, Collapse, Dropdown, Row } from "react-bootstrap";
+import { Card, Collapse, Dropdown } from "react-bootstrap";
 import TaskSummary from "./Components/TaskSummary";
 import TaskStandards from "./Components/TaskStandards";
 import React, { useState } from "react";
 import { TaskMenu, TaskMenuToggle } from "./Components/TaskMenu";
-import MediaQuery from "react-responsive";
 
 const Task = ({
   task,
@@ -42,72 +41,34 @@ const Task = ({
           </Dropdown>
         </Card.Header>
         <Card.Body className='d-flex'>
-          <MediaQuery minWidth={992}>
-            <div className='d-flex flex-column flex-fill'>
-              <TaskSummary
-                task={task}
-                task_idx={task_idx}
-                tasks={tasks}
-                handleTasksChange={handleTasksChange}
-                entered={entered}
-                showPreview={showPreview}
-                setShowPreview={setShowPreview}
-              />
-            </div>
-            <Collapse in={task.standards.length > 0} dimension={"width"} appear>
-              <div>
-                <div className='d-flex h-100'>
-                  <div className='vr mx-3' />
-                  <div className='d-flex flex-column'>
-                    <TaskStandards
-                      task={task}
-                      task_idx={task_idx}
-                      tasks={tasks}
-                      handleTasksChange={handleTasksChange}
-                      standards={standards}
-                      setStandards={setStandards}
-                    />
-                  </div>
+          <div className='d-flex flex-column flex-fill'>
+            <TaskSummary
+              task={task}
+              task_idx={task_idx}
+              tasks={tasks}
+              handleTasksChange={handleTasksChange}
+              entered={entered}
+              showPreview={showPreview}
+              setShowPreview={setShowPreview}
+            />
+          </div>
+          <Collapse in={task.standards.length > 0} dimension={"width"} appear>
+            <div>
+              <div className='d-flex h-100'>
+                <div className='vr mx-3' />
+                <div className='d-flex flex-column'>
+                  <TaskStandards
+                    task={task}
+                    task_idx={task_idx}
+                    tasks={tasks}
+                    handleTasksChange={handleTasksChange}
+                    standards={standards}
+                    setStandards={setStandards}
+                  />
                 </div>
               </div>
-            </Collapse>
-          </MediaQuery>
-          <MediaQuery maxWidth={991}>
-            <Row className='flex-column flex-fill'>
-              <Col className='flex-column flex-fill'>
-                <TaskSummary
-                  task={task}
-                  task_idx={task_idx}
-                  tasks={tasks}
-                  handleTasksChange={handleTasksChange}
-                  entered={entered}
-                  showPreview={showPreview}
-                  setShowPreview={setShowPreview}
-                />
-              </Col>
-              <Collapse
-                in={task.standards.length > 0}
-                dimension={"height"}
-                appear
-              >
-                <div>
-                  <div className='d-flex pt-3'>
-                    <hr />
-                    <div className='d-flex flex-column'>
-                      <TaskStandards
-                        task={task}
-                        task_idx={task_idx}
-                        tasks={tasks}
-                        handleTasksChange={handleTasksChange}
-                        standards={standards}
-                        setStandards={setStandards}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </Collapse>
-            </Row>
-          </MediaQuery>
+            </div>
+          </Collapse>
         </Card.Body>
       </Card>
     </Collapse>
