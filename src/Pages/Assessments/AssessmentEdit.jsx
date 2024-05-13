@@ -89,13 +89,14 @@ const AssessmentEdit = () => {
 
       if (res.data().file === "" || res.data().file === undefined) return;
 
-      assessmentFileRef.current = ref(storage, res.data().file);
-      getDownloadURL(assessmentFileRef.current)
-        .then((url) => setAssessmentFile(url))
-        .catch((err) => {
-          console.error(err);
-          setAssessmentFile("");
-        });
+      if (/^standards\/.*/.test(res.data().file)) {
+        assessmentFileRef.current = ref(storage, res.data().file);
+        getDownloadURL(assessmentFileRef.current).then((url) =>
+          setAssessmentFile(url),
+        );
+      } else {
+        setAssessmentFile("");
+      }
     });
   }, [params.assessmentid]);
 

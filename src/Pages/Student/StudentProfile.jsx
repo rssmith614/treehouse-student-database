@@ -196,7 +196,7 @@ const StudentProfile = () => {
         Student Profile - {student.student_name}
       </h1>
       <div className='d-flex '>
-        <div className='d-flex m-3 card bg-light-subtle flex-fill'>
+        <div className='d-flex card bg-light-subtle flex-fill'>
           {innerContent}
         </div>
       </div>

@@ -13,7 +13,7 @@ import {
   where,
 } from "firebase/firestore";
 import { useContext, useEffect, useRef, useState } from "react";
-import { Button, Card, Collapse, Form, Modal } from "react-bootstrap";
+import { Button, Card, Col, Collapse, Form, Modal, Row } from "react-bootstrap";
 import { db, storage } from "../../../Services/firebase";
 import { ToastContext } from "../../../Services/toast";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -24,11 +24,9 @@ const EditStandard = () => {
   const [selectedStandard, setSelectedStandard] = useState();
 
   const [imageType, setImageType] = useState("link");
-  const [image, setImage] = useState(selectedStandard?.image || "");
+  const [image, setImage] = useState("");
   const [questionImageType, setQuestionImageType] = useState("link");
-  const [questionImage, setQuestionImage] = useState(
-    selectedStandard?.question_image || "",
-  );
+  const [questionImage, setQuestionImage] = useState("");
 
   const [prerequisites, setPrerequisites] = useState([]);
   const [postrequisites, setPostrequisites] = useState([]);
@@ -47,8 +45,27 @@ const EditStandard = () => {
           return;
         }
         setSelectedStandard({ ...standard.data(), id: standard.id });
-        setImage(standard.data().image || "");
-        setQuestionImage(standard.data().question_image || "");
+
+        if (/^standards\/.*/.test(standard.data()?.image || "")) {
+          const standardImageRef = ref(storage, standard.data()?.image || "");
+          getDownloadURL(standardImageRef).then((url) => {
+            setImage(url);
+          });
+        } else {
+          setImage(standard.data()?.image || "");
+        }
+
+        if (/^standards\/.*/.test(standard.data()?.question_image || "")) {
+          const questionImageRef = ref(
+            storage,
+            standard.data()?.question_image || "",
+          );
+          getDownloadURL(questionImageRef).then((url) => {
+            setQuestionImage(url);
+          });
+        } else {
+          setQuestionImage(standard.data()?.question_image || "");
+        }
       },
     );
   }, [params.standardid]);
@@ -124,7 +141,7 @@ const EditStandard = () => {
         );
 
         await uploadBytes(imageRef, imageUpload).then(async (snapshot) => {
-          const downloadURL = await getDownloadURL(snapshot.ref);
+          const downloadURL = snapshot.ref.fullPath;
           imageURL = downloadURL;
         });
       }
@@ -145,7 +162,7 @@ const EditStandard = () => {
 
         await uploadBytes(questionImageRef, questionImageUpload).then(
           async (snapshot) => {
-            const downloadURL = await getDownloadURL(snapshot.ref);
+            const downloadURL = snapshot.ref.fullPath;
             questionImageURL = downloadURL;
           },
         );
@@ -315,9 +332,9 @@ const EditStandard = () => {
                 />
 
                 <Form.Label className='pt-3'>Image</Form.Label>
-                <div className='d-flex'>
+                <Row className='justify-content-center'>
                   {image !== "" ? (
-                    <div className='d-flex flex-column'>
+                    <Col className='d-flex flex-column col-auto'>
                       <Card className=''>
                         <Card.Header>Image Preview</Card.Header>
                         <Card.Body>
@@ -338,9 +355,9 @@ const EditStandard = () => {
                       >
                         Remove Image
                       </Button>
-                    </div>
+                    </Col>
                   ) : null}
-                  <div className='d-flex flex-column w-100 mx-3 justify-content-center'>
+                  <Col className='d-flex flex-column mx-3 pt-3 justify-content-center'>
                     <Form.Select
                       value={imageType}
                       className='mb-3'
@@ -356,7 +373,7 @@ const EditStandard = () => {
                         id='image'
                         type='text'
                         placeholder='https://example.image.com'
-                        defaultValue={selectedStandard.image}
+                        defaultValue={image}
                         onBlur={(e) => setImage(e.target.value)}
                       />
                     ) : (
@@ -368,8 +385,8 @@ const EditStandard = () => {
                         }
                       />
                     )}
-                  </div>
-                </div>
+                  </Col>
+                </Row>
               </Card.Body>
             </Card>
 
@@ -379,43 +396,53 @@ const EditStandard = () => {
               <Card.Header>
                 <h3>Standard Relationships</h3>
               </Card.Header>
-              <Card.Body className='d-flex'>
-                <Card className='w-50 align-self-start'>
-                  <Card.Header>Prerequisites</Card.Header>
-                  <Card.Body className='d-flex flex-column'>
-                    {prerequisites.length > 0 && (
-                      <ul className='list-group mb-3'>{prerequisitesList}</ul>
-                    )}
-                    <Button
-                      // className='mt-auto'
-                      variant='secondary'
-                      onClick={() => {
-                        standards.current = "pre";
-                        setShowNewStandardPane(true);
-                      }}
-                    >
-                      Add Prerequisite
-                    </Button>
-                  </Card.Body>
-                </Card>
-                <Card className='w-50 ms-3 align-self-start'>
-                  <Card.Header>Postrequisites</Card.Header>
-                  <Card.Body className='d-flex flex-column'>
-                    {postrequisites.length > 0 && (
-                      <ul className='list-group mb-3'>{postrequisitesList}</ul>
-                    )}
-                    <Button
-                      // className='mt-auto'
-                      variant='secondary'
-                      onClick={() => {
-                        standards.current = "post";
-                        setShowNewStandardPane(true);
-                      }}
-                    >
-                      Add Postrequisite
-                    </Button>
-                  </Card.Body>
-                </Card>
+              <Card.Body className='d-flex justify-content-center'>
+                <Row className='w-100'>
+                  <Col xs={12} md={6}>
+                    <Card className='align-self-start'>
+                      <Card.Header>Prerequisites</Card.Header>
+                      <Card.Body className='d-flex flex-column'>
+                        {prerequisites.length > 0 && (
+                          <ul className='list-group mb-3'>
+                            {prerequisitesList}
+                          </ul>
+                        )}
+                        <Button
+                          // className='mt-auto'
+                          variant='secondary'
+                          onClick={() => {
+                            standards.current = "pre";
+                            setShowNewStandardPane(true);
+                          }}
+                        >
+                          Add Prerequisite
+                        </Button>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col xs={12} md={6}>
+                    <Card className='align-self-start'>
+                      <Card.Header>Postrequisites</Card.Header>
+                      <Card.Body className='d-flex flex-column'>
+                        {postrequisites.length > 0 && (
+                          <ul className='list-group mb-3'>
+                            {postrequisitesList}
+                          </ul>
+                        )}
+                        <Button
+                          // className='text-wrap'
+                          variant='secondary'
+                          onClick={() => {
+                            standards.current = "post";
+                            setShowNewStandardPane(true);
+                          }}
+                        >
+                          Add Postrequisite
+                        </Button>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
               </Card.Body>
             </Card>
             <hr />
@@ -443,9 +470,9 @@ const EditStandard = () => {
 
                 <Form.Label className='pt-3'>Question Image</Form.Label>
 
-                <div className='d-flex w-100 justify-content-center'>
+                <Row className='justify-content-center'>
                   {questionImage !== "" ? (
-                    <div className='d-flex flex-column'>
+                    <Col className='d-flex flex-column col-auto'>
                       <Card className='mt-3'>
                         <Card.Header>Image Preview</Card.Header>
                         <Card.Body>
@@ -466,9 +493,9 @@ const EditStandard = () => {
                       >
                         Remove Image
                       </Button>
-                    </div>
+                    </Col>
                   ) : null}
-                  <div className='d-flex flex-column w-100 px-3 align-self-center'>
+                  <Col className='d-flex flex-column w-100 mx-3 pt-3 align-self-center'>
                     <Form.Select
                       className='mb-3'
                       value={questionImageType}
@@ -484,7 +511,7 @@ const EditStandard = () => {
                         id='question_image'
                         type='text'
                         placeholder='https://example.image.com'
-                        defaultValue={selectedStandard.question_image}
+                        defaultValue={questionImage}
                         onBlur={(e) => setQuestionImage(e.target.value)}
                       />
                     ) : (
@@ -498,8 +525,8 @@ const EditStandard = () => {
                         }
                       />
                     )}
-                  </div>
-                </div>
+                  </Col>
+                </Row>
               </Card.Body>
             </Card>
 

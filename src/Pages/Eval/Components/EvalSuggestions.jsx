@@ -55,10 +55,10 @@ const EvalSuggestions = ({
               </Card.Header>
               <Card.Body>
                 <Container>
-                  <div className='row cols-auto justify-content-between'>
+                  <div className='row'>
                     {standardSuggestions.filter((s) => s.progression).length >
                       0 && (
-                      <Card className='col'>
+                      <Card className='col-12 col-md-6'>
                         <Card.Body>
                           <div className='d-flex justify-content-between'>
                             <h4>To Review</h4>
@@ -122,7 +122,7 @@ const EvalSuggestions = ({
                     {standardSuggestions.filter(
                       (s) => s.progression === undefined,
                     ).length > 0 && (
-                      <Card className='col'>
+                      <Card className='col-12 col-md-6'>
                         <Card.Body>
                           <div className='d-flex justify-content-between'>
                             <h4>Up Next</h4>
@@ -149,7 +149,7 @@ const EvalSuggestions = ({
                                   className='bg-light-subtle w-100 m-1'
                                   key={standard.id}
                                 >
-                                  <Card.Body className='d-flex justify-content-between align-items-center'>
+                                  <Card.Body className='d-flex justify-content-between align-items-center w-auto'>
                                     <div className='d-flex flex-column'>
                                       <div className='d-flex justify-content-between align-items-center'>
                                         <Button

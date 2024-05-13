@@ -25,6 +25,7 @@ import { Eval } from "../../Services/defineAbility";
 import { ToastContext } from "../../Services/toast";
 import { useAbility } from "@casl/react";
 import dayjs from "dayjs";
+import { useMediaQuery } from "react-responsive";
 
 const progressions = {
   1: "1 - Far Below Expectations",
@@ -66,6 +67,13 @@ const StudentEval = () => {
 
   const addToast = useContext(ToastContext);
   const ability = useAbility(AbilityContext);
+
+  const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
+
+  // scroll to top on load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const unsubscribeEval = onSnapshot(evalRef.current, async (res) => {
@@ -146,7 +154,7 @@ const StudentEval = () => {
       <Col className='d-flex w-100 flex-column' key={task_idx}>
         <Card className='mb-3 flex-fill' key={task_idx}>
           <Card.Header>Task {task_idx + 1}</Card.Header>
-          <Card.Body className='d-flex'>
+          <Card.Body className={"d-flex" + (!isDesktop ? " flex-column" : "")}>
             <div className='d-flex flex-column flex-fill'>
               <div className='h5 d-flex'>Summary</div>
               <div className='d-flex card bg-light-subtle'>
@@ -177,12 +185,12 @@ const StudentEval = () => {
               <></>
             ) : (
               <>
-                <div className='vr ms-3' />
-                <div className='d-flex flex-column flex-shrink-0'>
-                  <div className='h5 ms-3'>Standards</div>
-                  <div className='d-flex px-3 flex-shrink-0'>
-                    <Card className='p-3 bg-light-subtle flex-shrink-0'>
-                      <ul className='list-group flex-shrink-0'>
+                {isDesktop ? <div className='vr mx-3' /> : <hr />}
+                <div className='d-flex flex-column'>
+                  <div className='h5'>Standards</div>
+                  <div className='d-flex'>
+                    <Card className='p-3 bg-light-subtle'>
+                      <ul className='list-group'>
                         {task.standards.map((standard, standard_idx) => {
                           return (
                             <OverlayTrigger
@@ -206,10 +214,14 @@ const StudentEval = () => {
                                 </Popover>
                               }
                             >
-                              <li className='list-group-item d-flex flex-shrink-0'>
-                                <div className='mx-2 flex-shrink-0'>
+                              <li className='list-group-item d-flex'>
+                                <div className='mx-2'>
                                   <div className='fw-bold'>{standard.key}</div>
-                                  {progressions[standard.progression]}
+                                  <div
+                                    className={isDesktop ? "text-nowrap" : ""}
+                                  >
+                                    {progressions[standard.progression]}
+                                  </div>
                                 </div>
                               </li>
                             </OverlayTrigger>
@@ -240,10 +252,10 @@ const StudentEval = () => {
             </label>
             <br />
             <button
-              className='btn btn-link me-auto h3 link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
+              className='btn btn-link me-auto h3 link-underline link-underline-opacity-0 link-underline-opacity-75-hover text-nowrap'
               data-toggle='tooltip'
               title={"View " + evaluation.student_name + "'s Profile"}
-              style={{ cursor: "pointer" }}
+              style={{ cursor: "pointer", "--bs-btn-padding-x": "0px" }}
               onClick={() => navigate(`/students/${evaluation.student_id}`)}
             >
               {evaluation.student_name}
@@ -257,16 +269,16 @@ const StudentEval = () => {
             {ability.can("view", "Tutor") && evaluation.tutor_id !== "" ? (
               <button
                 id='tutor'
-                className='btn btn-link h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
+                className='btn btn-link h6 link-underline link-underline-opacity-0 link-underline-opacity-75-hover text-nowrap'
                 data-toggle='tooltip'
                 title={"View " + evaluation.tutor_name + "'s Profile"}
-                style={{ cursor: "pointer" }}
+                style={{ cursor: "pointer", "--bs-btn-padding-x": "0px" }}
                 onClick={() => navigate(`/tutor/${evaluation.tutor_id}`)}
               >
                 {evaluation.tutor_name}
               </button>
             ) : (
-              <div id='tutor' className='h6'>
+              <div id='tutor' className='h6 text-nowrap'>
                 {evaluation.tutor_name}
               </div>
             )}
@@ -275,7 +287,7 @@ const StudentEval = () => {
             <label className='form-label h5 text-decoration-underline'>
               Date
             </label>
-            <div id='date' className=''>
+            <div id='date' className='text-nowrap'>
               {dayjs(evaluation.date).format("MMMM D, YYYY")}
             </div>
           </div>
@@ -304,15 +316,14 @@ const StudentEval = () => {
           )}
         </Container>
         <hr />
-        <div className='row my-3'>
+        <div className='row mt-3'>
           <div className='col'>
             <label className='form-label h5 text-decoration-underline'>
               Worksheet
             </label>
-            <div>
+            <div className='mb-3'>
               <a
                 id='worksheet'
-                className=''
                 href={worksheet}
                 target='_blank'
                 rel='noreferrer'
@@ -322,20 +333,18 @@ const StudentEval = () => {
             </div>
           </div>
           <div className='col'>
-            <label className='form-label h5 text-decoration-underline'>
+            <label className='form-label h5 text-decoration-underline text-nowrap'>
               Worksheet Completion
             </label>
-            <div id='worksheet_completion' className=''>
+            <div id='worksheet_completion' className='mb-3'>
               {evaluation.worksheet_completion}
             </div>
           </div>
           <div className='col'>
-            <label className='form-label h5 text-decoration-underline'>
+            <label className='form-label h5 text-decoration-underline text-nowrap'>
               Next Session Plans
             </label>
-            <div id='next_session' className=''>
-              {evaluation.next_session}
-            </div>
+            <div id='next_session'>{evaluation.next_session}</div>
           </div>
         </div>
         <Can I='manage' an={Eval}>
