@@ -1,12 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
 import { auth, db } from "../Services/firebase";
-import {
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { useEffect } from "react";
@@ -99,48 +94,48 @@ const Login = ({ setUserProfile }) => {
     }
   };
 
-  const handleEmailSignIn = (e) => {
-    e.preventDefault();
-    if (!auth.currentUser) {
-      const email = document.querySelector('input[type="email"]').value;
-      const password = document.querySelector('input[type="password"]').value;
-      signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {
-            if (userDoc.exists()) {
-              setUserProfile(userDoc);
-              navigate("/students");
-            } else {
-              setDoc(doc(db, "tutors", user.uid), {
-                ...JSON.parse(JSON.stringify(user.toJSON())),
-                clearance: "admin",
-                activated: true,
-              }).then((res) => {
-                setUserProfile(res);
-                navigate("/students");
-              });
-            }
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-          if (error.code === "auth/user-not-found") {
-            window.alert(
-              "User not found. Please sign in with Google or try again later.",
-            );
-          } else if (error.code === "auth/wrong-password") {
-            window.alert("Incorrect password.");
-          } else if (error.code === "auth/invalid-email") {
-            window.alert("Invalid email.");
-          } else {
-            window.alert("An error occurred. Please try again later.");
-          }
-        });
-    } else {
-      navigate(`/students`);
-    }
-  };
+  // const handleEmailSignIn = (e) => {
+  //   e.preventDefault();
+  //   if (!auth.currentUser) {
+  //     const email = document.querySelector('input[type="email"]').value;
+  //     const password = document.querySelector('input[type="password"]').value;
+  //     signInWithEmailAndPassword(auth, email, password)
+  //       .then((userCredential) => {
+  //         const user = userCredential.user;
+  //         getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {
+  //           if (userDoc.exists()) {
+  //             setUserProfile(userDoc);
+  //             navigate("/students");
+  //           } else {
+  //             setDoc(doc(db, "tutors", user.uid), {
+  //               ...JSON.parse(JSON.stringify(user.toJSON())),
+  //               clearance: "admin",
+  //               activated: true,
+  //             }).then((res) => {
+  //               setUserProfile(res);
+  //               navigate("/students");
+  //             });
+  //           }
+  //         });
+  //       })
+  //       .catch((error) => {
+  //         console.log(error);
+  //         if (error.code === "auth/user-not-found") {
+  //           window.alert(
+  //             "User not found. Please sign in with Google or try again later.",
+  //           );
+  //         } else if (error.code === "auth/wrong-password") {
+  //           window.alert("Incorrect password.");
+  //         } else if (error.code === "auth/invalid-email") {
+  //           window.alert("Invalid email.");
+  //         } else {
+  //           window.alert("An error occurred. Please try again later.");
+  //         }
+  //       });
+  //   } else {
+  //     navigate(`/students`);
+  //   }
+  // };
 
   return (
     <div className='d-flex flex-column vh-100 justify-content-center align-items-center p-3'>
