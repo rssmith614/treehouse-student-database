@@ -128,7 +128,7 @@ const StandardsOfCategory = ({
                   return (
                     <Col key={i}>
                       <OverlayTrigger
-                        placement='right'
+                        placement='top'
                         flip={true}
                         show={poppedStandard === standard}
                         overlay={

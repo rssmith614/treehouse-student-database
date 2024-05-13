@@ -50,7 +50,7 @@ const StandardDropdownToggle = React.forwardRef(
     <>
       {selected.key !== "" ? (
         <OverlayTrigger
-          placement='right'
+          placement='top'
           flip={true}
           key={id_}
           overlay={

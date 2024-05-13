@@ -15,7 +15,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import dayjs from "dayjs";
 import { ref, uploadBytes } from "firebase/storage";
-import { Button, OverlayTrigger, Popover } from "react-bootstrap";
+import { Button, Col, OverlayTrigger, Popover, Row } from "react-bootstrap";
 import { auth, db, storage } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
 import EvalFooter from "./Components/EvalFooter";
@@ -597,15 +597,17 @@ const NewStudentEval = () => {
   return (
     <>
       <div className='p-3 d-flex flex-column'>
-        <div className='d-flex'>
-          <h1 className='display-1'>New Session Evaluation</h1>
-          <EvalNotes
-            recentEvals={recentEvals}
-            standardSuggestions={standardSuggestions}
-            topics={topics}
-          />
-        </div>
-        <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
+        <Row className='justify-content-center'>
+          <h1 className='display-1 col-md-9'>New Session Evaluation</h1>
+          <Col md={3}>
+            <EvalNotes
+              recentEvals={recentEvals}
+              standardSuggestions={standardSuggestions}
+              topics={topics}
+            />
+          </Col>
+        </Row>
+        <div className='d-flex flex-fill card p-3 bg-light-subtle'>
           <EvalHeader
             evaluation={evaluation}
             handleEvalChange={handleEvalChange}
