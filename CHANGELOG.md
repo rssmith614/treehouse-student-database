@@ -1,3 +1,8 @@
+## [1.7.1] - 2024-05-14
+
+### Changed
+- Display of emergency contacts to cards for better visibility and interactibility on mobile ([#197](https://github.com/rssmith614/treehouse-student-database/issues/197))
+
 ## [1.7.0] - 2024-05-07
 
 ### Added

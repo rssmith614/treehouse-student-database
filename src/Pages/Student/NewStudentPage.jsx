@@ -5,6 +5,7 @@ import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { ToastContext } from "../../Services/toast";
 import dayjs from "dayjs";
+import EmergencyContacts from "./Components/EmergencyContacts";
 
 const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 
@@ -64,13 +65,6 @@ const NewProfile = () => {
   useEffect(() => {
     localStorage.setItem("eContacts", JSON.stringify(emergencyContacts));
   }, [emergencyContacts]);
-
-  function addEContact() {
-    setEmergencyContacts([
-      ...emergencyContacts,
-      { name: "", relation: "", phone: "" },
-    ]);
-  }
 
   async function addStudent(e) {
     e.preventDefault();
@@ -163,88 +157,6 @@ const NewProfile = () => {
       )
       .then(() => navigate(-1));
   }
-
-  function updateEContacts() {
-    let newList = emergencyContacts.map((e) => {
-      return e;
-    });
-    newList.forEach((eContact, i) => {
-      eContact.name = document.getElementById(`contact${i}name`).value;
-      eContact.relation = document.getElementById(`contact${i}rel`).value;
-      eContact.phone = document.getElementById(`contact${i}phone`).value;
-    });
-
-    setEmergencyContacts(newList);
-  }
-
-  function removeEContact(idx) {
-    if (typeof idx === "object") idx.preventDefault();
-    let newList = emergencyContacts.map((e) => {
-      return e;
-    });
-
-    newList.forEach((eContact, i) => {
-      document.getElementById(`contact${i}name`).value = "";
-      document.getElementById(`contact${i}rel`).value = "";
-      document.getElementById(`contact${i}phone`).value = "";
-    });
-
-    newList.splice(idx, 1);
-
-    newList.forEach((eContact, i) => {
-      document.getElementById(`contact${i}name`).value = eContact.name;
-      document.getElementById(`contact${i}rel`).value = eContact.relation;
-      document.getElementById(`contact${i}phone`).value = eContact.phone;
-    });
-
-    setEmergencyContacts(newList);
-  }
-
-  const emergencyContactList = () => {
-    if (!emergencyContacts) return null;
-    return emergencyContacts.map((c, i) => {
-      let rowid = "contact" + i;
-      return (
-        <tr key={i}>
-          <td>
-            <button
-              id={rowid + "del"}
-              type='button'
-              className='btn btn-danger'
-              onClick={() => {
-                removeEContact(i);
-              }}
-              disabled={emergencyContacts.length === 1}
-            >
-              <i className='bi bi-trash-fill' />
-            </button>
-          </td>
-          <td>
-            <input
-              id={rowid + "name"}
-              className='form-control'
-              onBlur={updateEContacts}
-            />
-          </td>
-          <td>
-            <input
-              id={rowid + "rel"}
-              className='form-control'
-              onBlur={updateEContacts}
-            />
-          </td>
-          <td>
-            <input
-              id={rowid + "phone"}
-              type='tel'
-              className='form-control'
-              onBlur={updateEContacts}
-            />
-          </td>
-        </tr>
-      );
-    });
-  };
 
   function tutorOptions() {
     return tutors.map((tutor) => {
@@ -433,24 +345,10 @@ const NewProfile = () => {
           </div>
           <div className='mb-3 h5'>Emergency Contacts</div>
           <div className='d-flex flex-column mx-3 mb-3' id='emergencyContacts'>
-            <table className='table table-striped'>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Name</th>
-                  <th>Relation</th>
-                  <th>Phone Number</th>
-                </tr>
-              </thead>
-              <tbody>{emergencyContactList()}</tbody>
-            </table>
-            <button
-              className='btn btn-secondary mb-3 me-auto'
-              type='button'
-              onClick={addEContact}
-            >
-              Add New Emergency Contact
-            </button>
+            <EmergencyContacts
+              emergencyContacts={emergencyContacts}
+              setEmergencyContacts={setEmergencyContacts}
+            />
           </div>
         </div>
         <div className='d-flex'>
