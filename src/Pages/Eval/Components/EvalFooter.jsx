@@ -64,12 +64,16 @@ const EvalFooter = ({ evaluation, handleEvalChange }) => {
         </div>
         <textarea
           id='next_session'
-          className='form-control'
+          className='form-control text-break'
           value={evaluation?.next_session || ""}
           onChange={(e) => {
             const newEval = { ...evaluation };
             newEval.next_session = e.target.value;
             handleEvalChange(newEval);
+            e.target.style.height = "auto";
+            e.target.style.height = `${e.target.scrollHeight}px`;
+          }}
+          onMouseEnter={(e) => {
             e.target.style.height = "auto";
             e.target.style.height = `${e.target.scrollHeight}px`;
           }}

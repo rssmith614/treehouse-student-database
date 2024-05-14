@@ -144,6 +144,7 @@ const TaskSummary = ({
                   <div
                     id={`${task_idx}_comments_preview`}
                     className='placeholder-glow word-wrap text-break'
+                    style={{ whiteSpace: "pre-wrap" }}
                   >
                     <div className={loadingPreview ? "" : ""}>
                       {task.comments}
