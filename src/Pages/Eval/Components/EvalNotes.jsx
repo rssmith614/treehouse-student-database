@@ -92,7 +92,9 @@ const EvalNotes = ({ recentEvals, standardSuggestions, topics }) => {
                 </div>
               </div>
               <hr />
-              <div className=''>{notes[notesIndex]?.notes}</div>
+              <div className='' style={{ whiteSpace: "pre-wrap" }}>
+                {notes[notesIndex]?.notes}
+              </div>
             </Card.Body>
             <Card.Footer className='d-flex'>
               <Button
