@@ -20,7 +20,7 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app, firebaseConfig.databaseId);
 const auth = getAuth();
-auth.tenantId = firebaseConfig.tenantId;
+auth.tenantId = firebaseConfig?.tenantId || null;
 const storage = getStorage(app);
 // const functions = getFunctions(app);
 

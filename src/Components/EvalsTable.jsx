@@ -209,7 +209,11 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
               <ul className='list-group'>
                 {evaluation.tasks.map((t, i) => {
                   return (
-                    <li key={i} className='text-break list-group-item'>
+                    <li
+                      key={i}
+                      className='text-break list-group-item'
+                      style={{ whiteSpace: "pre-wrap" }}
+                    >
                       {t}
                     </li>
                   );

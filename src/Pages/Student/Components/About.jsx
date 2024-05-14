@@ -2,22 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { Can } from "../../../Services/can";
 import { Col, Row, Table } from "react-bootstrap";
 import dayjs from "dayjs";
+import EmergencyContacts from "./EmergencyContacts";
 
 const About = ({ student, loading }) => {
   const navigate = useNavigate();
-
-  const emergencyContactList = () => {
-    if (!student.emergency_contacts) return null;
-    return student.emergency_contacts.map((c, i) => {
-      return (
-        <tr key={i}>
-          <td>{c.name}</td>
-          <td>{c.relation}</td>
-          <td>{c.phone}</td>
-        </tr>
-      );
-    });
-  };
 
   return (
     <div className={(loading && "placeholder-wave") || ""}>
@@ -148,16 +136,7 @@ const About = ({ student, loading }) => {
               </tbody>
             </Table>
           ) : (
-            <table className='table table-striped'>
-              <thead>
-                <tr>
-                  <th scope='col'>Name</th>
-                  <th scope='col'>Relation</th>
-                  <th scope='col'>Phone Number</th>
-                </tr>
-              </thead>
-              <tbody>{emergencyContactList()}</tbody>
-            </table>
+            <EmergencyContacts emergencyContacts={student.emergency_contacts} />
           )}
         </div>
       </div>

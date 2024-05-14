@@ -15,6 +15,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ToastContext } from "../../Services/toast";
 import dayjs from "dayjs";
 import { Col, Row } from "react-bootstrap";
+import EmergencyContacts from "./Components/EmergencyContacts";
 
 const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 
@@ -219,97 +220,6 @@ const StudentProfileEdit = () => {
     });
   }
 
-  function addEContact() {
-    setEmergencyContacts([
-      ...emergencyContacts,
-      { name: "", relation: "", phone: "" },
-    ]);
-  }
-
-  function updateEContacts() {
-    let newList = emergencyContacts.map((e) => {
-      return e;
-    });
-    newList.forEach((eContact, i) => {
-      eContact.name = document.getElementById(`contact${i}name`).value;
-      eContact.relation = document.getElementById(`contact${i}rel`).value;
-      eContact.phone = document.getElementById(`contact${i}phone`).value;
-    });
-
-    setEmergencyContacts(newList);
-  }
-
-  function removeEContact(idx) {
-    if (typeof idx === "object") idx.preventDefault();
-    let newList = emergencyContacts.map((e) => {
-      return e;
-    });
-
-    newList.forEach((eContact, i) => {
-      document.getElementById(`contact${i}name`).value = "";
-      document.getElementById(`contact${i}rel`).value = "";
-      document.getElementById(`contact${i}phone`).value = "";
-    });
-
-    newList.splice(idx, 1);
-
-    newList.forEach((eContact, i) => {
-      document.getElementById(`contact${i}name`).value = eContact.name;
-      document.getElementById(`contact${i}rel`).value = eContact.relation;
-      document.getElementById(`contact${i}phone`).value = eContact.phone;
-    });
-
-    setEmergencyContacts(newList);
-  }
-
-  const emergencyContactList = () => {
-    if (Object.keys(student).length === 0) return null;
-    return emergencyContacts.map((c, i) => {
-      let rowid = "contact" + i;
-      return (
-        <tr key={i}>
-          <td>
-            <button
-              id={rowid + "del"}
-              type='button'
-              className='btn btn-danger'
-              onClick={() => {
-                removeEContact(i);
-              }}
-              disabled={emergencyContacts.length === 1}
-            >
-              <i className='bi bi-trash-fill' />
-            </button>
-          </td>
-          <td>
-            <input
-              id={rowid + "name"}
-              className='form-control'
-              defaultValue={c.name}
-              onBlur={updateEContacts}
-            />
-          </td>
-          <td>
-            <input
-              id={rowid + "rel"}
-              className='form-control'
-              defaultValue={c.relation}
-              onBlur={updateEContacts}
-            />
-          </td>
-          <td>
-            <input
-              id={rowid + "phone"}
-              className='form-control'
-              defaultValue={c.phone}
-              onBlur={updateEContacts}
-            />
-          </td>
-        </tr>
-      );
-    });
-  };
-
   const innerForm = (
     <>
       <Row className='d-flex justify-content-start'>
@@ -430,6 +340,10 @@ const StudentProfileEdit = () => {
               e.target.style.height = "auto";
               e.target.style.height = `${e.target.scrollHeight}px`;
             }}
+            onMouseEnter={(e) => {
+              e.target.style.height = "auto";
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
           />
         </Col>
         <Col className='d-flex p-3 flex-column' xs={12} md={6}>
@@ -443,29 +357,19 @@ const StudentProfileEdit = () => {
               e.target.style.height = "auto";
               e.target.style.height = `${e.target.scrollHeight}px`;
             }}
+            onMouseEnter={(e) => {
+              e.target.style.height = "auto";
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
           />
         </Col>
       </Row>
-      <div className='d-flex p-3 h5'>Emergency Contacts</div>
-      <div className='d-flex flex-column'>
-        <table className='table table-striped'>
-          <thead>
-            <tr>
-              <th></th>
-              <th>Name</th>
-              <th>Relation</th>
-              <th>Phone Number</th>
-            </tr>
-          </thead>
-          <tbody>{emergencyContactList()}</tbody>
-        </table>
-        <button
-          type='button'
-          className='btn btn-secondary me-auto'
-          onClick={addEContact}
-        >
-          Add New Emergency Contact
-        </button>
+      <div className='d-flex py-3 h5'>Emergency Contacts</div>
+      <div className='d-flex flex-column align-items-center'>
+        <EmergencyContacts
+          emergencyContacts={emergencyContacts}
+          setEmergencyContacts={setEmergencyContacts}
+        />
       </div>
     </>
   );
