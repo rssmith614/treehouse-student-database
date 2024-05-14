@@ -161,7 +161,12 @@ const StudentEval = () => {
                 {/* <div className='card-header'>Comments</div> */}
                 <div className='card-body'>
                   <div className='d-flex flex-column'>
-                    <div className='text-break'>{task.comments}</div>
+                    <div
+                      className='text-break'
+                      style={{ whiteSpace: "pre-wrap" }}
+                    >
+                      {task.comments}
+                    </div>
                   </div>
                   <hr />
                   {task.standards.length === 0 ? (
@@ -344,7 +349,9 @@ const StudentEval = () => {
             <label className='form-label h5 text-decoration-underline text-nowrap'>
               Next Session Plans
             </label>
-            <div id='next_session'>{evaluation.next_session}</div>
+            <div id='next_session' style={{ whiteSpace: "pre-wrap" }}>
+              {evaluation.next_session}
+            </div>
           </div>
         </div>
         <Can I='manage' an={Eval}>
