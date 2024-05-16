@@ -154,7 +154,7 @@ const StudentAssessment = () => {
     <>
       <div className='p-3 d-flex flex-column'>
         <h1 className='display-1'>Student Assessment</h1>
-        <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
+        <div className='d-flex flex-fill card p-3 bg-light-subtle'>
           <label className='form-label h5'>Student</label>
           <button
             className='btn btn-link h3 link-underline link-underline-opacity-0 link-underline-opacity-75-hover me-auto'

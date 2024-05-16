@@ -1,3 +1,11 @@
+## [1.7.2] - 2024-05-16
+
+### Added
+- GitHub action for better merging between client branches
+
+### Changed
+- Styling on a few pages to make spacing around central card consistent ([#202](https://github.com/rssmith614/treehouse-student-database/issues/202))
+
 ## [1.7.1] - 2024-05-14
 
 ### Added

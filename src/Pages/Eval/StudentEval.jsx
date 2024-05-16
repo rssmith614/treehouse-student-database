@@ -249,7 +249,7 @@ const StudentEval = () => {
   return (
     <div className='p-3 d-flex flex-column'>
       <h1 className='display-1'>Session Evaluation</h1>
-      <div className='d-flex flex-fill card p-3 m-3 bg-light-subtle'>
+      <div className='d-flex flex-fill card p-3 bg-light-subtle'>
         <div className='row mt-3'>
           <div className='col'>
             <label className='form-label h5 text-decoration-underline'>

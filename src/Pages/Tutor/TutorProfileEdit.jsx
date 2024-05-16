@@ -261,7 +261,7 @@ const TutorProfileEdit = () => {
       <h1 className='d-flex display-1'>Tutor Profile - {tutor?.displayName}</h1>
       <form onSubmit={handleSubmit}>
         <div className='d-flex flex-row justify-content-center'>
-          <div className='d-flex flex-fill m-3 pt-3 px-3 card bg-light-subtle justify-content-center'>
+          <div className='d-flex flex-fill pt-3 px-3 card bg-light-subtle justify-content-center'>
             {innerContent}
           </div>
         </div>
