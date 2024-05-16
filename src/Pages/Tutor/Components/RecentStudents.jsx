@@ -53,7 +53,7 @@ const RecentStudents = ({ tutorid }) => {
 
   if (loading) {
     return (
-      <Card className='bg-light-subtle m-3 flex-fill'>
+      <Card className='bg-light-subtle flex-fill my-3'>
         <Card.Header>
           <div className='h3 pt-1'>
             <i className='bi bi-journal-plus pe-2' />
@@ -86,7 +86,7 @@ const RecentStudents = ({ tutorid }) => {
   }
 
   return (
-    <Card className='bg-light-subtle m-3 flex-fill'>
+    <Card className='bg-light-subtle flex-fill my-3'>
       <Card.Header>
         <div className='h3 pt-1'>
           <i className='bi bi-journal-plus pe-2' />
