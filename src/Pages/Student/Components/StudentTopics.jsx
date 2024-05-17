@@ -198,7 +198,7 @@ const StudentTopics = ({ student, topics }) => {
             </div>
             <Button
               size='sm'
-              className='col-md-2 me-3'
+              className='col-2 me-3'
               variant='secondary'
               onClick={() => {
                 setFocusedTopic(topic);

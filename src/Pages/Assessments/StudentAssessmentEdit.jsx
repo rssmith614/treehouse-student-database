@@ -189,7 +189,7 @@ const StudentAssessmentEdit = () => {
   return (
     <div className='p-3'>
       <div className='display-1'>Edit Student Assessment</div>
-      <Card className='bg-light-subtle m-3'>
+      <Card className='bg-light-subtle'>
         <Card.Body>
           {/* <Form onSubmit={handleSubmit}> */}
           <div className='h3'>{assessment.student_name}</div>

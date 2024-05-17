@@ -46,7 +46,7 @@ const About = ({ tutorid }) => {
   let tutorInstance = new Tutor(tutor);
 
   return (
-    <Card className='d-flex flex-fill bg-light-subtle justify-content-center m-3'>
+    <Card className='d-flex flex-fill bg-light-subtle justify-content-center my-3'>
       <Card.Header>
         <div className='h3 pt-1'>
           <i className='bi bi-info-circle-fill pe-2' />
@@ -78,48 +78,50 @@ const About = ({ tutorid }) => {
               )}
             </Col>
           </Row>
-          <Row xs={{ cols: "auto" }}>
-            <Col>
-              <div className='d-flex flex-column p-3'>
-                <div className='h3'>Email</div>
-                {loading ? (
-                  <div className='placeholder' />
-                ) : (
-                  <div>{tutor?.email}</div>
-                )}
-              </div>
-            </Col>
-            <Col>
-              <div className='d-flex flex-column p-3'>
-                <div className='h3'>Role</div>
-                {loading ? (
-                  <div className='placeholder' />
-                ) : (
-                  <div>{capitalize(tutor?.clearance)}</div>
-                )}
-              </div>
-            </Col>
-            <Col>
-              <div className='d-flex flex-column p-3'>
-                <div className='h3'>Preferred Student Ages</div>
-                {loading ? (
-                  <div className='placeholder' />
-                ) : (
-                  <div>{tutor?.preferredAges || ""}</div>
-                )}
-              </div>
-            </Col>
-            <Col>
-              <div className='d-flex flex-column p-3'>
-                <div className='h3'>Preferred Subjects</div>
-                {loading ? (
-                  <div className='placeholder' />
-                ) : (
-                  <div>{tutor?.preferredSubjects || ""}</div>
-                )}
-              </div>
-            </Col>
-          </Row>
+          <Card className='mt-3'>
+            <Card.Body className='row row-cols-auto'>
+              <Col>
+                <div className='d-flex flex-column p-3'>
+                  <div className='h3'>Email</div>
+                  {loading ? (
+                    <div className='placeholder' />
+                  ) : (
+                    <div>{tutor?.email}</div>
+                  )}
+                </div>
+              </Col>
+              <Col>
+                <div className='d-flex flex-column p-3'>
+                  <div className='h3'>Role</div>
+                  {loading ? (
+                    <div className='placeholder' />
+                  ) : (
+                    <div>{capitalize(tutor?.clearance)}</div>
+                  )}
+                </div>
+              </Col>
+              <Col>
+                <div className='d-flex flex-column p-3'>
+                  <div className='h3 '>Preferred Student Ages</div>
+                  {loading ? (
+                    <div className='placeholder' />
+                  ) : (
+                    <div>{tutor?.preferredAges || ""}</div>
+                  )}
+                </div>
+              </Col>
+              <Col>
+                <div className='d-flex flex-column p-3'>
+                  <div className='h3 '>Preferred Subjects</div>
+                  {loading ? (
+                    <div className='placeholder' />
+                  ) : (
+                    <div>{tutor?.preferredSubjects || ""}</div>
+                  )}
+                </div>
+              </Col>
+            </Card.Body>
+          </Card>
         </div>
         <div className='d-flex'>
           <Can I='edit' this={tutorInstance}>
