@@ -1,3 +1,11 @@
+## [1.7.3] - 2024-05-17
+
+### Added
+- CSS is now compiled at build time ([#206](https://github.com/rssmith614/treehouse-student-database/issues/206))
+
+### Changed
+- `src/css/` is now `.gitingore`d
+
 ## [1.7.2] - 2024-05-16
 
 ### Added

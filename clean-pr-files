@@ -1,6 +1,7 @@
 firebase.json
 src/Services/firebase-config.json
 src/Components/Navbar.jsx
+src/Pages/Login.jsx
 public/index.html
 public/logo192.png
 public/logo512.png
