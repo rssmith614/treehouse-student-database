@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Check that there are 2 arguments
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <source> <dest>"
+    exit 1
+fi
+
+SOURCE=$1
+DEST=$2
+CLEANED_SOURCE="${SOURCE}-clean"
+
+UNIQUE_FILES=""
+while read -r line; do
+    UNIQUE_FILES="$UNIQUE_FILES $line"
+done < clean-pr-files
+
+git checkout -b $CLEANED_SOURCE $1
+git checkout origin/$DEST -- $UNIQUE_FILES
+git add .
+git commit -m "Cleaned up PR files for client merge"
+git push origin $CLEANED_SOURCE
+
+gh pr create --base $DEST --head $CLEANED_SOURCE --title "Merge changes from $SOURCE to $DEST"
