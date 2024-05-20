@@ -1,3 +1,8 @@
+## [1.7.4] - 2024-05-20
+
+### Fixed
+- Paginated table navigation widget has a fixed number of buttons to avoid horizontal overflow ([#209](https://github.com/rssmith614/treehouse-student-database/issues/209))
+
 ## [1.7.3] - 2024-05-17
 
 ### Added

@@ -15,6 +15,8 @@ while read -r line; do
     UNIQUE_FILES="$UNIQUE_FILES $line"
 done < clean-pr-files
 
+git branch -D $CLEANED_SOURCE
+
 git checkout -b $CLEANED_SOURCE $1
 git checkout origin/$DEST -- $UNIQUE_FILES
 git add .

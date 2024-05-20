@@ -7,37 +7,63 @@ const PageNavigation = ({
   cursorIndex,
   setCursorIndex,
 }) => {
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const maxPage = Math.floor((numRecords - 1) / pageLimit) + 1;
+
   return (
     <Pagination className='align-self-end'>
-      <Pagination.First onClick={() => setCursorIndex(0)} />
-      <Pagination.Prev
-        onClick={() => setCursorIndex(Math.max(cursorIndex - pageLimit, 0))}
+      <Pagination.First
+        disabled={pageNumber === 1}
+        onClick={() => {
+          setPageNumber(1);
+          setCursorIndex(0);
+        }}
       />
-      {Array.from({ length: Math.ceil(numRecords / pageLimit) }, (_, i) => (
+      {pageNumber > 2 && (
+        <Pagination.Ellipsis
+          onClick={() => {
+            setPageNumber(pageNumber - 2);
+            setCursorIndex((pageNumber - 3) * pageLimit);
+          }}
+        />
+      )}
+      {pageNumber > 1 && (
         <Pagination.Item
-          key={i}
-          active={i * pageLimit === cursorIndex}
-          onClick={() => setCursorIndex(i * pageLimit)}
+          active={false}
+          onClick={() => {
+            setPageNumber(pageNumber - 1);
+            setCursorIndex((pageNumber - 2) * pageLimit);
+          }}
         >
-          {i + 1}
+          {pageNumber - 1}
         </Pagination.Item>
-      ))}
-      <Pagination.Next
-        onClick={() =>
-          setCursorIndex(
-            Math.min(
-              cursorIndex + pageLimit,
-              Math.max(0, Math.floor((numRecords - 1) / pageLimit) * pageLimit),
-            ),
-          )
-        }
-      />
+      )}
+      <Pagination.Item active={true}>{pageNumber}</Pagination.Item>
+      {pageNumber < maxPage && (
+        <Pagination.Item
+          active={false}
+          onClick={() => {
+            setPageNumber(pageNumber + 1);
+            setCursorIndex(pageNumber * pageLimit);
+          }}
+        >
+          {pageNumber + 1}
+        </Pagination.Item>
+      )}
+      {pageNumber < maxPage - 1 && (
+        <Pagination.Ellipsis
+          onClick={() => {
+            setPageNumber(pageNumber + 2);
+            setCursorIndex((pageNumber + 1) * pageLimit);
+          }}
+        />
+      )}
       <Pagination.Last
-        onClick={() =>
-          setCursorIndex(
-            Math.max(0, Math.floor((numRecords - 1) / pageLimit) * pageLimit),
-          )
-        }
+        onClick={() => {
+          setPageNumber(maxPage);
+          setCursorIndex((maxPage - 1) * pageLimit);
+        }}
       />
     </Pagination>
   );
