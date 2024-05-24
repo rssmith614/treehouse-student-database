@@ -60,3 +60,12 @@ To create a new client, you need to follow these steps:
     - Copy standard assets
       - GCP Console > Storage Transfer > Create Transfer
       - Transfer the `standards` folder in the Treehouse bucket to the new-client bucket, in a new folder called `standards`
+
+# Merging changes between client branches
+If you have bug fixes or other updates made to one branch (`master`, for example) that you want to be applied to a client's site (`new-client`, for example), merging `master->new-client` would cause issues with trying to merge the site-specific configurations as well. So there is the `clean-pr` script.
+
+```
+./clean-pr master new-client
+```
+
+This will create a new branch `master-clean` which has changes from `master` yet has pulled firebase config files from `new-client`. It will then walk you through creating a pull request `master-clean->new-client`
