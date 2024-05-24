@@ -16,7 +16,7 @@ const ComboTableHeader = React.forwardRef(
   ) => (
     <div
       ref={ref}
-      style={style}
+      style={{ ...style, zIndex: 1021 }}
       className={className}
       aria-labelledby={labeledBy}
     >

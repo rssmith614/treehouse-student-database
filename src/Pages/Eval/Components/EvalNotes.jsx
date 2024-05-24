@@ -131,6 +131,15 @@ const EvalNotes = ({ recentEvals, standardSuggestions, topics }) => {
             topics={topics}
           />
         </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant='secondary'
+            onClick={() => setShowNotes(false)}
+            style={{ "--bs-bg-opacity": "0" }}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
     </div>
   );

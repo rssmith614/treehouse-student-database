@@ -126,7 +126,7 @@ const TutorProfilesList = () => {
           style={{ cursor: "pointer" }}
         >
           <td>{tutorData.displayName || "Not Activated"}</td>
-          <td>{tutorData.email}</td>
+          {isDesktop && <td>{tutorData.email}</td>}
         </tr>
       );
     });
@@ -214,14 +214,14 @@ const TutorProfilesList = () => {
   );
 
   const pendingTable = (
-    <Card className='d-flex pt-3 px-3 m-3 bg-light-subtle'>
+    <Card className='d-flex pt-3 px-3 bg-light-subtle'>
       <table className='table table-striped table-hover'>
         <thead>
           <tr>
             <th style={{ cursor: "pointer" }}>
               <Dropdown drop='up' autoClose='outside'>
                 <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                  Student Name {filterIcon("name")}
+                  Name {filterIcon("name")}
                 </Dropdown.Toggle>
                 <Dropdown.Menu
                   as={ComboTableHeader}
@@ -230,7 +230,7 @@ const TutorProfilesList = () => {
                 />
               </Dropdown>
             </th>
-            <th>Email</th>
+            {isDesktop && <th>Email</th>}
           </tr>
         </thead>
         <tbody>{pendingTutorRows()}</tbody>
