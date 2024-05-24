@@ -60,7 +60,7 @@ const About = ({ tutorid }) => {
         <div className='d-flex flex-column p-3'>
           <Row>
             <Col className='d-flex'>
-              <Card className='bg-dark p-1'>
+              <Card className='bg-dark p-1 align-self-center'>
                 <Avatar
                   size={100}
                   name={tutor.displayName + tutor?.seed || ""}
@@ -74,7 +74,9 @@ const About = ({ tutorid }) => {
               {loading ? (
                 <div className='placeholder display-4 col-6 mt-4' />
               ) : (
-                <div className='display-4 pt-3'>{tutor?.displayName}</div>
+                <div className='display-4 pt-3 text-end'>
+                  {tutor?.displayName}
+                </div>
               )}
             </Col>
           </Row>
@@ -123,11 +125,11 @@ const About = ({ tutorid }) => {
             </Card.Body>
           </Card>
         </div>
-        <div className='d-flex'>
+        <Row>
           <Can I='edit' this={tutorInstance}>
             {tutor?.clearance === "pending" ? (
               <Button
-                className='btn btn-danger m-3 ms-auto'
+                className='btn btn-danger m-3 col'
                 onClick={() => denyAccess(tutor.id)}
               >
                 Deny Access Request
@@ -136,14 +138,14 @@ const About = ({ tutorid }) => {
               <></>
             )}
             <button
-              className='btn btn-info m-3 ms-auto'
+              className='btn btn-info m-3 col'
               onClick={() => navigate(`/tutor/edit/${tutor.id}`)}
             >
               Make Changes
               <i className='bi bi-pencil-fill ps-2' />
             </button>
           </Can>
-        </div>
+        </Row>
       </Card.Body>
     </Card>
   );

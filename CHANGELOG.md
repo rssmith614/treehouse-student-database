@@ -1,3 +1,19 @@
+## [1.7.5] - 2024-05-24
+
+### Added
+- Placeholder when a student has no topics ([#212](https://github.com/rssmith614/treehouse-student-database/issues/212))
+- Error toast for eval query when the query fails
+
+### Fixed
+- Behavior of page buttons in paginated table navigation widget
+- Margins on pending tutor table
+- Header of pending tutor table which said "Student Name"
+- Mobile styling of pending tutor table
+- Button placement on profile of pending tutor
+- Alignment of tutor name on profile
+- Added close button to the bottom of large modals
+- CSV export for eval query
+
 ## [1.7.4] - 2024-05-20
 
 ### Fixed

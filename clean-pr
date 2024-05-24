@@ -10,15 +10,23 @@ SOURCE=$1
 DEST=$2
 CLEANED_SOURCE="${SOURCE}-clean"
 
+# Files that we don't want shared between client branches
 UNIQUE_FILES=""
 while read -r line; do
     UNIQUE_FILES="$UNIQUE_FILES $line"
 done < clean-pr-files
 
+# New branch for pr
+git branch -D $CLEANED_SOURCE
 git checkout -b $CLEANED_SOURCE $1
+
+# Remove files that we don't want shared between client branches
 git checkout origin/$DEST -- $UNIQUE_FILES
+
+# Commit changes
 git add .
 git commit -m "Cleaned up PR files for client merge"
 git push origin $CLEANED_SOURCE
 
+# Create PR
 gh pr create --base $DEST --head $CLEANED_SOURCE --title "Merge changes from $SOURCE to $DEST"

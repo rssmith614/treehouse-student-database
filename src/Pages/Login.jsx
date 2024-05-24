@@ -30,8 +30,8 @@ const Login = ({ setUserProfile }) => {
       signInWithPopup(auth, provider)
         .then(async (result) => {
           const user = result.user;
-          console.log(user);
-          console.log(auth.tenantId);
+          // console.log(user);
+          // console.log(auth.tenantId);
 
           // Check if user is in the database
           getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {

@@ -39,7 +39,9 @@ const PageNavigation = ({
           {pageNumber - 1}
         </Pagination.Item>
       )}
-      <Pagination.Item active={true}>{pageNumber}</Pagination.Item>
+      <Pagination.Item active={numRecords > 0} disabled={numRecords === 0}>
+        {pageNumber}
+      </Pagination.Item>
       {pageNumber < maxPage && (
         <Pagination.Item
           active={false}
@@ -60,6 +62,7 @@ const PageNavigation = ({
         />
       )}
       <Pagination.Last
+        disabled={pageNumber >= maxPage}
         onClick={() => {
           setPageNumber(maxPage);
           setCursorIndex((maxPage - 1) * pageLimit);
