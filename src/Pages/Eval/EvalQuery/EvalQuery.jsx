@@ -142,35 +142,46 @@ const EvalQuery = () => {
       );
     }
 
-    getDocs(
-      query.apply(null, [
-        collection(db, "evaluations"),
-        where("draft", "==", false),
-        ...evalQueryConditions,
-      ]),
-    ).then(async (snapshot) => {
-      let tempEvals = snapshot.docs.map(async (evaluation) => {
-        let evalData = { ...evaluation.data(), id: evaluation.id };
-        let tasksSnapshot = await getDocs(collection(evaluation.ref, "tasks"));
-        let tasksCount = tasksSnapshot.size;
-        let tasks = tasksSnapshot.docs.map((task) => {
-          return { ...task.data(), id: task.id };
+    try {
+      getDocs(
+        query.apply(null, [
+          collection(db, "evaluations"),
+          where("draft", "==", false),
+          ...evalQueryConditions,
+        ]),
+      ).then(async (snapshot) => {
+        let tempEvals = snapshot.docs.map(async (evaluation) => {
+          let evalData = { ...evaluation.data(), id: evaluation.id };
+          let tasksSnapshot = await getDocs(
+            collection(evaluation.ref, "tasks"),
+          );
+          let tasksCount = tasksSnapshot.size;
+          let tasks = tasksSnapshot.docs.map((task) => {
+            return { ...task.data(), id: task.id };
+          });
+          return { ...evalData, tasks: tasks, tasksCount };
         });
-        return { ...evalData, ...tasks, tasksCount };
-      });
-      Promise.all(tempEvals).then((evaluations) => {
-        addToast({
-          header: "Query Complete",
-          message: `${evaluations.length} result${
-            evaluations.length === 1 ? "" : "s"
-          }`,
+        Promise.all(tempEvals).then((evaluations) => {
+          addToast({
+            header: "Query Complete",
+            message: `${evaluations.length} result${
+              evaluations.length === 1 ? "" : "s"
+            }`,
+          });
+          setEvals(evaluations);
+          e.target.removeAttribute("disabled");
+          e.target.innerHTML = "Query!";
+          localStorage.setItem("evalQueryResults", JSON.stringify(evaluations));
         });
-        setEvals(evaluations);
-        e.target.removeAttribute("disabled");
-        e.target.innerHTML = "Query!";
-        localStorage.setItem("evalQueryResults", JSON.stringify(evaluations));
       });
-    });
+    } catch (err) {
+      addToast({
+        header: "Query Error",
+        message: err.message,
+      });
+      e.target.removeAttribute("disabled");
+      e.target.innerHTML = "Query!";
+    }
   }
 
   async function exportCSV() {
@@ -192,19 +203,12 @@ const EvalQuery = () => {
         }
 
         return Promise.all(
-          (
-            await getDocs(
-              query(
-                collection(db, "evaluations", evaluation.id, "tasks"),
-                where("draft", "==", false),
-              ),
-            )
-          ).docs.map(async (task) => {
-            if (task.data().standards) {
+          evaluation.tasks.map(async (task) => {
+            if (task.standards) {
               return {
-                ...task.data(),
+                ...task,
                 standards: await Promise.all(
-                  task.data().standards.map(async (standard) => {
+                  task.standards.map(async (standard) => {
                     return (
                       (
                         await getDoc(
@@ -216,15 +220,14 @@ const EvalQuery = () => {
                 ).then((standards) => {
                   return `"${standards.join(", ")}"`;
                 }),
-                progression: `"${task
-                  .data()
-                  .standards.map((standard) => {
+                progression: `"${task.standards
+                  .map((standard) => {
                     return standard.progression;
                   })
                   .join(", ")}"`,
               };
             } else {
-              return { ...task.data(), standards: "" };
+              return { ...task, standards: "" };
             }
           }),
         ).then((tasks) => {

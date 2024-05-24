@@ -226,7 +226,17 @@ const StudentTopics = ({ student, topics }) => {
 
   return (
     <div>
-      {topicsList}
+      {topicsList.length > 0 ? (
+        topicsList
+      ) : (
+        <Card className='mb-3'>
+          <Card.Body>
+            <div className='text-muted text-center'>
+              No topics for this student yet...
+            </div>
+          </Card.Body>
+        </Card>
+      )}
       <div className='d-flex pt-3 px-3'>
         <OverlayTrigger
           placement='top'
