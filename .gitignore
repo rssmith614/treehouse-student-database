@@ -13,6 +13,7 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
@@ -35,3 +36,6 @@ firebase-export-*
 .firebase/
 
 src/css
+
+# Million Lint
+.million

@@ -1,3 +1,8 @@
+## [1.7.6] - 2024-05-29
+
+### Changed
+- Switched build tool from `create-react-app` to `vite`
+
 ## [1.7.5] - 2024-05-24
 
 ### Added
