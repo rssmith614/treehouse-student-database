@@ -1,7 +1,7 @@
 {
   "hosting": {
-    "site": "student-database-test",
-    "public": "dist",
+    "site": "student-database-2aa8d",
+    "public": "build",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -44,7 +44,7 @@
   },
   "firestore": {
     "rules": "firestore.rules",
-    "database": "test",
+    "database": "(default)",
     "indexes": "firestore.indexes.json"
   },
   "storage": {
