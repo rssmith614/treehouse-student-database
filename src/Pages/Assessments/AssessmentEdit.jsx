@@ -25,7 +25,7 @@ import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 import { ToastContext } from "../../Services/toast";
 import PickStandard from "../Standards/Components/PickStandard";
 
-const csv = require("csvtojson");
+import csv from "csvtojson";
 
 const grades = {
   K: "Kindergarten",

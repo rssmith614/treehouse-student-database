@@ -1,7 +1,7 @@
 {
   "hosting": {
     "site": "student-database-test",
-    "public": "build",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",
