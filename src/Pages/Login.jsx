@@ -10,7 +10,7 @@ import { sendAuthRequestEmail } from "../Services/email";
 
 import history from "history/browser";
 
-const treehouseLogo = require("../images/Treehouse-Logo-New.svg").default;
+import treehouseLogo from "../images/Treehouse-Logo-New.svg";
 
 const Login = ({ setUserProfile }) => {
   const provider = new GoogleAuthProvider();
