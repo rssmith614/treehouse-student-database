@@ -1,3 +1,14 @@
+## [1.8.0] - 2024-06-03
+
+### Added
+- Support for Firebase Functions
+
+### Changed
+- Email notifications are now handled by Firebase Functions
+
+### Removed
+- `emailjs` library
+
 ## [1.7.6] - 2024-05-29
 
 ### Changed
