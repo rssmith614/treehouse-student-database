@@ -3,3 +3,4 @@
 
 npx lint-staged --allow-empty
 npm run export-rules
+npm run export-functions

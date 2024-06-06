@@ -1,8 +1,9 @@
-import { init, send } from "@emailjs/browser";
 import { getDocs, query, collection, where } from "firebase/firestore";
-import { db } from "./firebase";
+import { db, functions } from "./firebase";
+import { httpsCallable } from "firebase/functions";
 
-init('EEoUW9pUcXKWuGEY1');
+const sendAccessRequest = httpsCallable(functions, 'sendAccessRequestEmail');
+const sendAccessGranted = httpsCallable(functions, 'sendAccessGrantedEmail');
 
 function sendAuthRequestEmail(userName, userEmail) {
     let adminEmails = [];
@@ -13,11 +14,15 @@ function sendAuthRequestEmail(userName, userEmail) {
             });
         })
         .then(() => {
-            console.log(adminEmails)
-            send('service_tb1cwud', 'template_new_access', {
-                send_to: adminEmails.join(';'),
+            sendAccessRequest({
+                admin_list: adminEmails.join(";"),
                 user_name: userName,
                 user_email: userEmail,
+                host: location.host,
+            }).then((result) => {
+                console.log(result);
+            }).catch((error) => {
+                console.error(error);
             });
         })
 }
@@ -31,12 +36,16 @@ function sendAuthApprovedEmail(userName, userEmail) {
             });
         })
         .then(() => {
-            console.log(adminEmails)
-            send('service_tb1cwud', 'template_access_granted', {
-                user_email: userEmail,
+            sendAccessGranted({
+                admin_list: adminEmails.join(";"),
                 user_name: userName,
-                admins: adminEmails.join(';'),
-            })
+                user_email: userEmail,
+                host: location.host,
+            }).then((result) => {
+                console.log(result);
+            }).catch((error) => {
+                console.error(error);
+            });
         })
 }
 
