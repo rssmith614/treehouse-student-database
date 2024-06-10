@@ -14,9 +14,10 @@ async function sendAuthRequestEmail(userName, userEmail) {
             admin_list: adminEmails.map((doc) => doc.data().email).join(";"),
             user_name: userName,
             user_email: userEmail,
+            host: window.location.host,
         });
         if (result.data.error) {
-            throw new Error(result.error);
+            throw new Error(result.data.error);
         } else {
             return result;
         }
@@ -33,9 +34,10 @@ async function sendAuthApprovedEmail(userName, userEmail) {
             admin_list: adminEmails.map((doc) => doc.data().email).join(";"),
             user_name: userName,
             user_email: userEmail,
+            host: window.location.host,
         });
         if (result.data.error) {
-            throw new Error(result.error);
+            throw new Error(result.data.error);
         } else {
             return result;
         }
