@@ -4,49 +4,66 @@ import { httpsCallable } from "firebase/functions";
 
 const sendAccessRequest = httpsCallable(functions, 'sendAccessRequestEmail');
 const sendAccessGranted = httpsCallable(functions, 'sendAccessGrantedEmail');
+const sendEvalOwnershipRequest = httpsCallable(functions, 'sendEvalOwnershipRequestEmail');
 
-function sendAuthRequestEmail(userName, userEmail) {
-    let adminEmails = [];
-    getDocs(query(collection(db, 'tutors'), where('clearance', '==', 'admin')))
-        .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                adminEmails.push(doc.data().email);
-            });
-        })
-        .then(() => {
-            sendAccessRequest({
-                admin_list: adminEmails.join(";"),
-                user_name: userName,
-                user_email: userEmail,
-                host: location.host,
-            }).then((result) => {
-                console.log(result);
-            }).catch((error) => {
-                console.error(error);
-            });
-        })
+async function sendAuthRequestEmail(userName, userEmail) {
+    let adminEmails = (await getDocs(query(collection(db, 'tutors'), where('clearance', '==', 'admin')))).docs;
+    
+    try {
+        let result = await sendAccessRequest({
+            admin_list: adminEmails.map((doc) => doc.data().email).join(";"),
+            user_name: userName,
+            user_email: userEmail,
+        });
+        if (result.data.error) {
+            throw new Error(result.error);
+        } else {
+            return result;
+        }
+    } catch (error) {
+        throw new Error(error);
+    }
 }
 
-function sendAuthApprovedEmail(userName, userEmail) {
-    let adminEmails = [];
-    getDocs(query(collection(db, 'tutors'), where('clearance', '==', 'admin')))
-        .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                adminEmails.push(doc.data().email);
-            });
-        })
-        .then(() => {
-            sendAccessGranted({
-                admin_list: adminEmails.join(";"),
-                user_name: userName,
-                user_email: userEmail,
-                host: location.host,
-            }).then((result) => {
-                console.log(result);
-            }).catch((error) => {
-                console.error(error);
-            });
-        })
+async function sendAuthApprovedEmail(userName, userEmail) {
+    let adminEmails = (await getDocs(query(collection(db, 'tutors'), where('clearance', '==', 'admin')))).docs;
+
+    try {
+        let result = await sendAccessGranted({
+            admin_list: adminEmails.map((doc) => doc.data().email).join(";"),
+            user_name: userName,
+            user_email: userEmail,
+        });
+        if (result.data.error) {
+            throw new Error(result.error);
+        } else {
+            return result;
+        }
+    } catch (error) {
+        throw new Error(error);
+    }
 }
 
-export { sendAuthRequestEmail, sendAuthApprovedEmail };
+async function sendEvalOwnershipRequestEmail(userName, evalUrl, evalTutor, evalStudent, evalDate) {
+    let adminEmails = (await getDocs(query(collection(db, 'tutors'), where('clearance', '==', 'admin')))).docs;
+
+    try {
+        let result = await sendEvalOwnershipRequest({
+            admin_list: adminEmails.map((doc) => doc.data().email).join(";"),
+            user_name: userName,
+            eval_url: evalUrl,
+            eval_tutor: evalTutor,
+            eval_student: evalStudent,
+            eval_date: evalDate,
+        });
+        if (result.data.error) {
+            throw new Error(result.error);
+        } else {
+            return result;
+        }
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+export { sendAuthRequestEmail, sendAuthApprovedEmail, sendEvalOwnershipRequestEmail };

@@ -8,7 +8,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 
-import { db, storage } from "../../Services/firebase";
+import { auth, db, storage } from "../../Services/firebase";
 import { AbilityContext, Can } from "../../Services/can";
 import { getDownloadURL, ref } from "firebase/storage";
 import {
@@ -26,6 +26,7 @@ import { ToastContext } from "../../Services/toast";
 import { useAbility } from "@casl/react";
 import dayjs from "dayjs";
 import { useMediaQuery } from "react-responsive";
+import { sendEvalOwnershipRequestEmail } from "../../Services/email";
 
 const progressions = {
   1: "1 - Far Below Expectations",
@@ -378,6 +379,7 @@ const StudentEval = () => {
         </Can>
         <Can not I='edit' this={evalInstance}>
           <Button
+            id='edit'
             variant='info'
             className='m-3 ms-auto'
             onClick={() => setShowModal(true)}
@@ -391,11 +393,7 @@ const StudentEval = () => {
             <Modal.Body>
               <p>
                 You don't have permission to edit this evaluation. You can
-                request ownership by sending a message to an Admin.
-              </p>
-              <p className='lead'>
-                Hello, I would like to request ownership of evaluation #
-                {params.evalid}.
+                request ownership from an Admin in order to make changes.
               </p>
             </Modal.Body>
             <Modal.Footer>
@@ -405,19 +403,45 @@ const StudentEval = () => {
               <Button
                 variant='primary'
                 onClick={() => {
-                  navigator.clipboard.writeText(
-                    "Hello, I would like to request ownership of evaluation #" +
-                      params.evalid +
-                      ".",
-                  );
+                  document
+                    .getElementById("edit")
+                    .setAttribute("disabled", true);
+                  document.getElementById("edit").innerHTML =
+                    "Sending Email <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>";
+                  sendEvalOwnershipRequestEmail(
+                    auth.currentUser.displayName,
+                    window.location.href,
+                    evaluation.tutor_name,
+                    evaluation.student_name,
+                    evaluation.date,
+                  )
+                    .then(() => {
+                      addToast({
+                        header: "Success",
+                        message: "Message sent.",
+                      });
+                      document
+                        .getElementById("edit")
+                        .removeAttribute("disabled");
+                      document.getElementById("edit").innerHTML =
+                        "Make Changes";
+                    })
+                    .catch((error) => {
+                      addToast({
+                        header: "Error",
+                        message: "Message failed to send.",
+                      });
+                      console.log(error);
+                      document
+                        .getElementById("edit")
+                        .removeAttribute("disabled");
+                      document.getElementById("edit").innerHTML =
+                        "Make Changes";
+                    });
                   setShowModal(false);
-                  addToast({
-                    header: "Success",
-                    message: "Message copied to clipboard.",
-                  });
                 }}
               >
-                Copy Message
+                Send Email to Admins
               </Button>
             </Modal.Footer>
           </Modal>
