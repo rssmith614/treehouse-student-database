@@ -2,6 +2,8 @@
 
 ### Added
 - Support for Firebase Functions
+- Grades reminders can now be managed manually
+- Grades reminders are sent to admins monthly
 
 ### Changed
 - Email notifications are now handled by Firebase Functions

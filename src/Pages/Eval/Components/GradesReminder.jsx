@@ -18,7 +18,7 @@ const GradesReminder = ({ studentid }) => {
   const [studentName, setStudentName] = useState("");
 
   const [gradesReminderMessage, setGradesReminderMessage] = useState("");
-  const [studentOverElementary, setStudentOverElementary] = useState(false);
+  const [reminderEligibility, setReminderEligibility] = useState(false);
   const [showGradesReminder, setShowGradesReminder] = useState(false);
 
   const [gradesTooltip, setGradesTooltip] = useState("");
@@ -31,11 +31,7 @@ const GradesReminder = ({ studentid }) => {
     getDoc(doc(db, "students", studentid)).then((student) => {
       setStudentName(student.data().student_name);
 
-      if (parseInt(student.data().student_grade) >= 6) {
-        setStudentOverElementary(true);
-      } else {
-        setStudentOverElementary(false);
-      }
+      setReminderEligibility(student.data().reminders || false);
     });
   }, [studentid]);
 
@@ -54,18 +50,20 @@ const GradesReminder = ({ studentid }) => {
         if (gradesSnapshot.docs.length > 0) {
           const grade = gradesSnapshot.docs[0].data();
           if (dayjs(grade.date).isBefore(dayjs().subtract(2, "week"))) {
-            setGradesReminderMessage(
-              `${studentName} has not had their class grades updated since ${dayjs(
-                grade.date,
-              ).format("MMMM D, YYYY")}.`,
-            );
-            setGradesTooltip(
-              `We keep track of student progress and performance by recording their class grades every two weeks.`,
-            );
-            setShowGradesReminder(true);
+            if (reminderEligibility) {
+              setGradesReminderMessage(
+                `${studentName} has not had their class grades updated since ${dayjs(
+                  grade.date,
+                ).format("MMMM D, YYYY")}.`,
+              );
+              setGradesTooltip(
+                `We keep track of student progress and performance by recording their class grades every two weeks.`,
+              );
+              setShowGradesReminder(true);
+            }
           }
         } else {
-          if (studentOverElementary) {
+          if (reminderEligibility) {
             setGradesReminderMessage(
               `${studentName} has not had their class grades entered yet.`,
             );
@@ -81,7 +79,7 @@ const GradesReminder = ({ studentid }) => {
     return () => {
       unsubscribeGrades();
     };
-  }, [studentid, studentOverElementary, studentName]);
+  }, [studentid, reminderEligibility, studentName]);
 
   return (
     <Modal
