@@ -1,12 +1,12 @@
 {
   "name": "student-database",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "homepage": "/",
   "dependencies": {
     "@casl/ability": "^6.5.0",
     "@casl/react": "^3.1.0",
-    "@emailjs/browser": "^3.12.1",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -35,7 +35,8 @@
     "eject": "react-scripts eject",
     "emulate": "firebase emulators:start --import=./test/firestore_exports/firestore_export --export-on-exit",
     "prepare": "husky install",
-    "export-rules": "firebase deploy --only firestore:rules"
+    "export-rules": "firebase deploy --only firestore:rules",
+    "export-functions": "firebase deploy --only functions"
   },
   "eslintConfig": {
     "extends": [
