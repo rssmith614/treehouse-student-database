@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "student-database-2aa8d",
+    "site": "student-database-test",
     "public": "dist",
     "ignore": [
       "firebase.json",
@@ -44,7 +44,7 @@
   },
   "firestore": {
     "rules": "firestore.rules",
-    "database": "(default)",
+    "database": "test",
     "indexes": "firestore.indexes.json"
   },
   "storage": {
@@ -55,11 +55,13 @@
       "source": "functions",
       "codebase": "default",
       "ignore": [
-        "venv",
+        "node_modules",
         ".git",
         "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
+        "firebase-debug.*.log"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
       ]
     }
   ]
