@@ -6,29 +6,42 @@ import {
   getDoc,
   onSnapshot,
   query,
+  setDoc,
   where,
 } from "firebase/firestore";
-import { Button, Modal } from "react-bootstrap";
+import {
+  Button,
+  Form,
+  Modal,
+  OverlayTrigger,
+  Popover,
+  Tooltip,
+} from "react-bootstrap";
 import dayjs from "dayjs";
-import { Can } from "../Services/can";
-import { Grade } from "../Services/defineAbility";
+import { AbilityContext, Can } from "../Services/can";
+import { Grade, Student } from "../Services/defineAbility";
 import PaginatedTable from "./PaginatedTable";
 import StudentGradesEdit from "./StudentGradesEdit";
 import StudentGradesDetail from "./StudentGradesDetail";
 import { useMediaQuery } from "react-responsive";
+import { useAbility } from "@casl/react";
 
-const StudentGrades = ({ student }) => {
+const StudentGrades = ({ studentid }) => {
+  const [student, setStudent] = useState({});
+
   const [gradesHistory, setGradesHistory] = useState([]);
   const [focusedGradeEntry, setFocusedGradeEntry] = useState({});
 
   const [show, setShow] = useState(false);
   const [edit, setEdit] = useState(false);
 
+  const ability = useAbility(AbilityContext);
+
   const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      query(collection(db, "grades"), where("student_id", "==", student)),
+      query(collection(db, "grades"), where("student_id", "==", studentid)),
       (querySnapshot) => {
         const data = [];
         querySnapshot.forEach((doc) => {
@@ -39,7 +52,15 @@ const StudentGrades = ({ student }) => {
     );
 
     return () => unsubscribe();
-  }, [student]);
+  }, [studentid]);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(db, "students", studentid), (s) => {
+      setStudent({ ...s.data(), id: s.id });
+    });
+
+    return () => unsubscribe();
+  }, [studentid]);
 
   function exportCSV(e) {
     e.preventDefault();
@@ -69,7 +90,7 @@ const StudentGrades = ({ student }) => {
     if (gradesHistory.length > 0) {
       setFocusedGradeEntry({
         date: dayjs().format("YYYY-MM-DD"),
-        student_id: student,
+        student_id: studentid,
         tutor_id: auth.currentUser.uid,
         tutor_name: (
           await getDoc(doc(db, "tutors", auth.currentUser.uid))
@@ -85,7 +106,7 @@ const StudentGrades = ({ student }) => {
     } else {
       setFocusedGradeEntry({
         date: dayjs().format("YYYY-MM-DD"),
-        student_id: student,
+        student_id: studentid,
         tutor_id: auth.currentUser.uid,
         tutor_name: (
           await getDoc(doc(db, "tutors", auth.currentUser.uid))
@@ -182,6 +203,46 @@ const StudentGrades = ({ student }) => {
 
   return (
     <div className='d-flex flex-column'>
+      {ability.cannot("update", new Student(student)) ? (
+        <OverlayTrigger
+          placement='top'
+          trigger={["hover", "focus"]}
+          overlay={
+            <Tooltip>
+              Remiders for this student are currently{" "}
+              {student.reminders ? "enabled" : "disabled"}. Contact an
+              administrator to change this setting.
+            </Tooltip>
+          }
+        >
+          <div className='ms-auto'>
+            <Form.Switch
+              label='Allow Grade Entry Reminders'
+              reverse
+              className='mb-3'
+              checked={student?.reminders || false}
+              disabled
+              readOnly
+            />
+          </div>
+        </OverlayTrigger>
+      ) : (
+        <Form.Switch
+          label='Allow Grade Entry Reminders'
+          reverse
+          className='mb-3'
+          checked={student?.reminders || false}
+          onChange={(e) => {
+            setDoc(
+              doc(db, "students", studentid),
+              {
+                reminders: e.target.checked,
+              },
+              { merge: true },
+            );
+          }}
+        />
+      )}
       <PaginatedTable
         records={gradesList}
         pageLimit={5}

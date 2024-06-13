@@ -116,7 +116,15 @@ const Login = ({ setUserProfile }) => {
           getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {
             if (userDoc.exists()) {
               setUserProfile(userDoc);
-              navigate("/students");
+              if (
+                location.state &&
+                location.state.from &&
+                location.state.from !== "/login"
+              ) {
+                navigate(location.state.from);
+              } else {
+                navigate(`/tutor/${userDoc.id}`);
+              }
             } else {
               setDoc(doc(db, "tutors", user.uid), {
                 ...JSON.parse(JSON.stringify(user.toJSON())),
@@ -144,7 +152,15 @@ const Login = ({ setUserProfile }) => {
           }
         });
     } else {
-      navigate(`/students`);
+      if (
+        location.state &&
+        location.state.from &&
+        location.state.from !== "/login"
+      ) {
+        navigate(location.state.from);
+      } else {
+        navigate(`/tutor/${auth.currentUser.uid}`);
+      }
     }
   };
 

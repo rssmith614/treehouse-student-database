@@ -1,0 +1,47 @@
+<html>
+<head>
+    <style>
+        body {{
+            font-family: Arial, Helvetica, sans-serif;
+        }}
+        .footer {{
+            font-style: italic;
+            font-size: small;
+            color: grey;
+        }}
+        table {{
+            width: 50%;
+        }}
+        td {{
+            padding: 5px;
+        }}
+    </style>
+</head>
+
+<body>
+        <div class="content">
+            Hello, <br>
+            <br>
+            Here is a summary of students whose grades should be tracked, but have not been updated for a while:
+            <br>
+            <br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Last Grade Entry</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {0}
+                </tbody>
+            </table>
+            <br>
+            <br>
+            Remind the tutors to update the grades for these students, or you can manage these reminders
+            on the Grades tab of the Student's profile.
+        </div>
+        <div class="footer">
+            <p>This email was sent automatically by the Treehouse Student Database</p>
+        </div>
+</html>

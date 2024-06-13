@@ -1,3 +1,12 @@
+## [1.8.1] - 2024-06-13
+
+### Added
+- Grades reminders can now be managed manually ([[#218](https://github.com/rssmith614/treehouse-student-database/issues/218)])
+- Grades reminders are sent to admins monthly
+
+### Fixed
+- Bug that hid the footer logo in most circumstances
+
 ## [1.8.0] - 2024-06-03
 
 ### Added
