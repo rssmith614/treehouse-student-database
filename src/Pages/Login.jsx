@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { auth, db } from "../Services/firebase";
 import {
@@ -21,20 +21,25 @@ import { useEffect, useState } from "react";
 
 import { sendAuthRequestEmail } from "../Services/email";
 
-import history from "history/browser";
-
 import treehouseLogo from "../images/Treehouse-Logo-New.svg";
 
 const Login = ({ setUserProfile }) => {
   const provider = new GoogleAuthProvider();
+
+  const location = useLocation();
 
   const navigate = useNavigate();
 
   const [showEmailLogin, setShowEmailLogin] = useState(false);
 
   useEffect(() => {
-    if (auth.currentUser && history.location.key !== "default") {
-      history.back();
+    if (
+      auth.currentUser &&
+      location.state &&
+      location.state.from &&
+      location.state.from !== "/login"
+    ) {
+      navigate(location.state.from);
     }
   });
 
@@ -66,7 +71,15 @@ const Login = ({ setUserProfile }) => {
               } else {
                 // successful login
                 setUserProfile(userDoc);
-                navigate(`/tutor/${userDoc.id}`);
+                if (
+                  location.state &&
+                  location.state.from &&
+                  location.state.from !== "/login"
+                ) {
+                  navigate(location.state.from);
+                } else {
+                  navigate(`/tutor/${userDoc.id}`);
+                }
               }
             } else {
               // unrecognized user
@@ -101,7 +114,15 @@ const Login = ({ setUserProfile }) => {
           console.log(error);
         });
     } else {
-      navigate(`/tutor/${auth.currentUser.uid}`);
+      if (
+        location.state &&
+        location.state.from &&
+        location.state.from !== "/login"
+      ) {
+        navigate(location.state.from);
+      } else {
+        navigate(`/tutor/${auth.currentUser.uid}`);
+      }
     }
   };
 
@@ -116,7 +137,15 @@ const Login = ({ setUserProfile }) => {
           getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {
             if (userDoc.exists()) {
               setUserProfile(userDoc);
-              navigate("/students");
+              if (
+                location.state &&
+                location.state.from &&
+                location.state.from !== "/login"
+              ) {
+                navigate(location.state.from);
+              } else {
+                navigate(`/tutor/${userDoc.id}`);
+              }
             } else {
               setDoc(doc(db, "tutors", user.uid), {
                 ...JSON.parse(JSON.stringify(user.toJSON())),
@@ -144,7 +173,15 @@ const Login = ({ setUserProfile }) => {
           }
         });
     } else {
-      navigate(`/students`);
+      if (
+        location.state &&
+        location.state.from &&
+        location.state.from !== "/login"
+      ) {
+        navigate(location.state.from);
+      } else {
+        navigate(`/tutor/${auth.currentUser.uid}`);
+      }
     }
   };
 
