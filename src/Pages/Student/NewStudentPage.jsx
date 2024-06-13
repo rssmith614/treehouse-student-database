@@ -23,6 +23,7 @@ const NewProfile = () => {
           student_source: "",
           preferred_tutor: "",
           classes: "",
+          reminders: false,
           other: "",
           medical_conditions: "",
         },

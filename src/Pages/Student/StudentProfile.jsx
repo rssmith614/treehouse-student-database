@@ -161,7 +161,7 @@ const StudentProfile = () => {
           </div>
         </Tab.Pane>
         <Tab.Pane eventKey='grades'>
-          <StudentGrades student={studentRef.current.id} />
+          <StudentGrades studentid={studentRef.current.id} />
         </Tab.Pane>
         <Tab.Pane eventKey='topics'>
           <StudentTopics
