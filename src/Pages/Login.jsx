@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { auth, db } from "../Services/firebase";
 import {
@@ -21,25 +21,20 @@ import { useEffect, useState } from "react";
 
 import { sendAuthRequestEmail } from "../Services/email";
 
+import history from "history/browser";
+
 import treehouseLogo from "../images/Treehouse-Logo-New.svg";
 
 const Login = ({ setUserProfile }) => {
   const provider = new GoogleAuthProvider();
-
-  const location = useLocation();
 
   const navigate = useNavigate();
 
   const [showEmailLogin, setShowEmailLogin] = useState(false);
 
   useEffect(() => {
-    if (
-      auth.currentUser &&
-      location.state &&
-      location.state.from &&
-      location.state.from !== "/login"
-    ) {
-      navigate(location.state.from);
+    if (auth.currentUser && history.location.key !== "default") {
+      history.back();
     }
   });
 
@@ -71,15 +66,7 @@ const Login = ({ setUserProfile }) => {
               } else {
                 // successful login
                 setUserProfile(userDoc);
-                if (
-                  location.state &&
-                  location.state.from &&
-                  location.state.from !== "/login"
-                ) {
-                  navigate(location.state.from);
-                } else {
-                  navigate(`/tutor/${userDoc.id}`);
-                }
+                navigate(`/tutor/${userDoc.id}`);
               }
             } else {
               // unrecognized user
@@ -114,15 +101,7 @@ const Login = ({ setUserProfile }) => {
           console.log(error);
         });
     } else {
-      if (
-        location.state &&
-        location.state.from &&
-        location.state.from !== "/login"
-      ) {
-        navigate(location.state.from);
-      } else {
-        navigate(`/tutor/${auth.currentUser.uid}`);
-      }
+      navigate(`/tutor/${auth.currentUser.uid}`);
     }
   };
 

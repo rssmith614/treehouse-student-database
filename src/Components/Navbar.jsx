@@ -27,8 +27,8 @@ const Navbar = ({ userProfile }) => {
   }, [userProfile]);
 
   useEffect(() => {
-    if (!auth.currentUser && pathname !== "/login") {
-      navigate("/login", { state: { from: pathname } });
+    if (!auth.currentUser) {
+      navigate("/login");
     }
   }, [navigate]);
 
