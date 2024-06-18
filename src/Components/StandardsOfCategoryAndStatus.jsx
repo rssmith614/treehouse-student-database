@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Col, Container, Nav, Row } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Col,
+  Container,
+  Dropdown,
+  Form,
+  InputGroup,
+  Nav,
+  Row,
+} from "react-bootstrap";
 import {
   collection,
   getDocs,
@@ -27,7 +37,7 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
   const [loading, setLoading] = useState(true);
   const [subcategories, setSubcategories] = useState({});
 
-  const [show, setShow] = useState(false);
+  const [showStandardInfo, setShowStandardInfo] = useState(false);
   const [selectedStandard, setSelectedStandard] = useState({});
 
   const [standardAverages, setStandardAverages] = useState({});
@@ -35,6 +45,11 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
   const [grade, setGrade] = useState(localStorage.getItem("grade") || "K");
   const [category, setCategory] = useState(
     localStorage.getItem("category") || "Math",
+  );
+
+  const [standardFilter, setStandardFilter] = useState("");
+  const [show, setShow] = useState(
+    localStorage.getItem("showStandards") || "all",
   );
 
   useEffect(() => {
@@ -182,17 +197,17 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
   function color(standard) {
     let temp = standardAverages[standard.id];
     if (temp === undefined) {
-      return "text-body";
+      return "body";
     } else if (temp >= 3.5) {
-      return "text-success";
+      return "success";
     } else if (temp >= 2.5) {
-      return "text-primary";
+      return "primary";
     } else if (temp >= 1.5) {
-      return "text-warning";
+      return "warning";
     } else if (temp >= 0) {
-      return "text-danger";
+      return "danger";
     }
-    return "text-secondary";
+    return "secondary";
   }
 
   const listedStandards = Object.entries(subcategories)
@@ -200,26 +215,35 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
     .map((subCat, i) => {
       return (
         <Card className='p-3 my-3' key={i}>
-          {true ? (
-            <Button
-              variant='link'
-              className='me-auto link-underline link-underline-opacity-0'
-              style={{ cursor: "default" }}
-            >
-              <h4>{subCat[0]}</h4>
-            </Button>
-          ) : (
-            <Button
-              variant='link'
-              className='me-auto link-underline link-underline-opacity-0'
-              style={{ cursor: "default" }}
-            >
-              <h4>{subCat[0]}</h4>
-            </Button>
-          )}
+          <Button
+            variant='link'
+            className='me-auto link-underline link-underline-opacity-0'
+            style={{ cursor: "default" }}
+          >
+            <h4>{subCat[0]}</h4>
+          </Button>
           <Container>
             <Row xs={{ cols: "auto" }}>
               {subCat[1]
+                .filter((s) => {
+                  return -(
+                    s.key
+                      .toLowerCase()
+                      .includes(standardFilter.toLowerCase()) ||
+                    s.category
+                      .toLowerCase()
+                      .includes(standardFilter.toLowerCase()) ||
+                    s.sub_category
+                      .toLowerCase()
+                      .includes(standardFilter.toLowerCase()) ||
+                    s.description
+                      .toLowerCase()
+                      .includes(standardFilter.toLowerCase())
+                  );
+                })
+                .filter((s) => {
+                  return show === "all" || standardAverages[s.id] !== undefined;
+                })
                 .sort((a, b) => {
                   return (
                     a.key.split(".")[1].localeCompare(b.key.split(".")[1]) ||
@@ -231,36 +255,9 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
                 .map((standard, i) => {
                   return (
                     <Col key={i}>
-                      {/* <OverlayTrigger
-                        placement='right'
-                        flip={true}
-                        trigger={["hover", "focus", "click"]}
-                        overlay={
-                          <Popover className=''>
-                            <Popover.Header>{standard.key}</Popover.Header>
-                            <Popover.Body>
-                              <div className='text-decoration-underline'>
-                                Description
-                              </div>
-                              {standard.description}
-                              {standardAverages[standard.id] !== undefined ? (
-                                <>
-                                  <hr />
-                                  <div className='text-decoration-underline'>
-                                    Average Progression
-                                  </div>
-                                  {standardAverages[standard.id]}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </Popover.Body>
-                          </Popover>
-                        }
-                      > */}
                       <button
-                        className={`btn btn-link ${color(standard)}
-                        link-underline link-underline-opacity-0 link-underline-opacity-0-hover`}
+                        className={`btn btn-link text-${color(standard)}
+                        link-${color(standard)} link-offset-2 link-underline-opacity-50 link-underline-opacity-100-hover`}
                         style={{ cursor: "pointer" }}
                         onClick={() => {
                           let standardToShow = standard;
@@ -271,12 +268,11 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
                             };
                           }
                           setSelectedStandard(standardToShow);
-                          setShow(true);
+                          setShowStandardInfo(true);
                         }}
                       >
                         {standard.key}
                       </button>
-                      {/* </OverlayTrigger> */}
                     </Col>
                   );
                 })}
@@ -288,6 +284,70 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
 
   return (
     <div>
+      <Row className=''>
+        <Col xs={12} md={3}>
+          <InputGroup className='mb-3'>
+            <Form.Control
+              type='text'
+              placeholder={`Search ${grades.find((g) => g[0] === grade[0])} ${category}`}
+              value={standardFilter}
+              onChange={(e) => {
+                setStandardFilter(e.target.value);
+              }}
+            />
+            <Button
+              variant='secondary'
+              className='bi bi-x-lg input-group-text'
+              style={{ cursor: "pointer" }}
+              onClick={() => setStandardFilter("")}
+            />
+          </InputGroup>
+        </Col>
+        <Col xs={12} md={6}>
+          <div className='d-flex'>
+            <Dropdown className='mb-3'>
+              <Dropdown.Toggle variant='secondary' id='dropdown-basic'>
+                Showing{" "}
+                {show === "all"
+                  ? "All Standards"
+                  : "Only This Student's Standards"}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item
+                  onClick={() => {
+                    setShow("all");
+                    localStorage.setItem("showStandards", "all");
+                  }}
+                >
+                  All
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => {
+                    setShow("this student");
+                    localStorage.setItem("showStandards", "this student");
+                  }}
+                >
+                  This Student
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+            {(show !== "all" || standardFilter !== "") && (
+              <Button
+                variant='link'
+                className='mb-3'
+                onClick={() => {
+                  setStandardFilter("");
+                  setShow("all");
+                  localStorage.setItem("showStandards", "all");
+                }}
+              >
+                Clear Filters
+              </Button>
+            )}
+          </div>
+        </Col>
+        <Col xs={12} md={3}></Col>
+      </Row>
       <Card className='bg-light-subtle'>
         <Card.Header>
           <Nav variant='underline' activeKey={grade}>
@@ -337,9 +397,9 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
         </Card.Body>
       </Card>
       <StandardInfo
-        show={show}
-        setShow={setShow}
-        close={() => setShow(false)}
+        show={showStandardInfo}
+        setShow={setShowStandardInfo}
+        close={() => setShowStandardInfo(false)}
         selectedStandard={selectedStandard}
         setSelectedStandard={setSelectedStandard}
       />
