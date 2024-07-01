@@ -12,7 +12,7 @@ import { Button, Card, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { db } from "../../../Services/firebase";
 
-const RecentStudents = ({ tutorid }) => {
+const RecentStudentsNewEval = ({ tutorid }) => {
   const [recentStudents, setRecentStudents] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -56,8 +56,8 @@ const RecentStudents = ({ tutorid }) => {
       <Card className='bg-light-subtle flex-fill my-3'>
         <Card.Header>
           <div className='h3 pt-1'>
-            <i className='bi bi-people-fill pe-2' />
-            View Profile
+            <i className='bi bi-journal-plus pe-2' />
+            New Evaluation
           </div>
           <div className='h5'>Recent Students</div>
         </Card.Header>
@@ -75,7 +75,7 @@ const RecentStudents = ({ tutorid }) => {
                   ></li>
                 ))}
               </ul>
-              <Button onClick={() => navigate(`/students/`)}>
+              <Button onClick={() => navigate("/eval/new")}>
                 Find another Student
               </Button>
             </div>
@@ -89,8 +89,8 @@ const RecentStudents = ({ tutorid }) => {
     <Card className='bg-light-subtle flex-fill my-3'>
       <Card.Header>
         <div className='h3 pt-1'>
-          <i className='bi bi-people-fill pe-2' />
-          View Profile
+          <i className='bi bi-journal-plus pe-2' />
+          New Evaluation
         </div>
         <div className='h5'>Recent Students</div>
       </Card.Header>
@@ -99,7 +99,7 @@ const RecentStudents = ({ tutorid }) => {
           {recentStudents.length === 0 ? (
             <div className='d-flex flex-column'>
               <p className='h5'>No recent students</p>
-              <Button onClick={() => navigate("/students/")}>
+              <Button onClick={() => navigate("/eval/new")}>
                 Find a Student
               </Button>
             </div>
@@ -113,7 +113,7 @@ const RecentStudents = ({ tutorid }) => {
                   >
                     <Button
                       className='flex-fill'
-                      onClick={() => navigate(`/students/${student.id}`)}
+                      onClick={() => navigate(`/eval/new/${student.id}`)}
                       size='lg'
                       variant=''
                     >
@@ -134,4 +134,4 @@ const RecentStudents = ({ tutorid }) => {
   );
 };
 
-export default RecentStudents;
+export default RecentStudentsNewEval;
