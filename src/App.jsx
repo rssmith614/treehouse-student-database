@@ -45,6 +45,10 @@ import EvalsPendingReview from "./Pages/Eval/EvalsPendingReview";
 import Footer from "./Components/Footer";
 import EditStandard from "./Pages/Standards/Components/EditStandard";
 import EvalDrafts from "./Pages/Eval/EvalDrafts";
+import ParentProfilesList from "./Pages/Parent/ParentProfilesList";
+import ParentProfile from "./Pages/Parent/ParentProfile";
+import ParentProfileEdit from "./Pages/Parent/ParentProfileEdit";
+import NewParentProfile from "./Pages/Parent/NewParentProfile";
 
 function App() {
   // THEME MANAGEMENT
@@ -170,6 +174,14 @@ function App() {
             <Route path='/tutors' element={<TutorProfilesList />} />
             <Route path='/tutor/:tutorid' element={<TutorProfile />} />
             <Route path='/tutor/edit/:tutorid' element={<TutorProfileEdit />} />
+
+            <Route path='/parents' element={<ParentProfilesList />} />
+            <Route path='/parent/:parentid' element={<ParentProfile />} />
+            <Route
+              path='/parent/edit/:parentid'
+              element={<ParentProfileEdit />}
+            />
+            <Route path='/parent/new' element={<NewParentProfile />} />
 
             <Route path='/standards' element={<StandardsList />} />
             <Route

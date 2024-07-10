@@ -90,6 +90,20 @@ const Navbar = ({ userProfile }) => {
             </Nav.Link>
           </Can>
 
+          <Can I='read' on='Parent'>
+            <Nav.Link
+              className='d-flex align-items-center'
+              onClick={() => {
+                setExpanded(false);
+                navigate("/parents");
+              }}
+              style={{ cursor: "pointer" }}
+            >
+              <i className='bi bi-person-fill pe-2 fs-4' />
+              Parents
+            </Nav.Link>
+          </Can>
+
           <Dropdown
             show={shownSubMenu === "evals"}
             onToggle={(e) => setShownSubMenu(e ? "evals" : "")}
