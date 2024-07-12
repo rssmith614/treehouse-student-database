@@ -24,6 +24,10 @@ const ParentProfilesList = () => {
     };
   }, []);
 
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
   const pendingTable = (
     <Table striped>
       <thead>
@@ -85,6 +89,7 @@ const ParentProfilesList = () => {
               <tr>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Clearance</th>
               </tr>
             </thead>
             <tbody>
@@ -99,8 +104,9 @@ const ParentProfilesList = () => {
                       onClick={() => navigate(`/parent/${parent.id}`)}
                       style={{ cursor: "pointer" }}
                     >
-                      <td>{parent.data().name}</td>
+                      <td>{parent.data().displayName}</td>
                       <td>{parent.data().email}</td>
+                      <td>{capitalize(parent.data().clearance)}</td>
                     </tr>
                   );
                 })}

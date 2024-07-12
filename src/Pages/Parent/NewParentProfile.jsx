@@ -91,7 +91,7 @@ const NewParentProfile = () => {
       students: selectedStudents.map((s) => s.id),
       clearance: "pending",
     }).then((result) => {
-      navigate(`/parent/${result.id}`);
+      navigate(-1);
     });
   }
 

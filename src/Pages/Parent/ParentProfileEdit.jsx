@@ -40,7 +40,7 @@ const ParentProfileEdit = () => {
         setParent({ id: parent.id, ...parent.data() });
         setFollowedStudents(
           await Promise.all(
-            (parent.data().students ?? []).map(async (studentId) => {
+            (parent.data()?.students ?? []).map(async (studentId) => {
               const student = await getDoc(doc(db, "students", studentId));
               return { ...student.data(), id: student.id };
             }),
@@ -72,7 +72,7 @@ const ParentProfileEdit = () => {
     if (window.confirm("Are you sure you want to delete this parent?")) {
       // Delete parent from database
       deleteDoc(doc(db, "parents", params.parentid)).then(() => {
-        navigate(-1);
+        navigate(-2);
       });
     }
   }

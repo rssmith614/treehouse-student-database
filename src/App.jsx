@@ -86,6 +86,14 @@ function App() {
           .then((userDoc) => {
             if (userDoc.exists()) {
               setUserProfile(userDoc);
+            } else {
+              getDoc(doc(db, "parents", user.uid)).then((userDoc) => {
+                if (userDoc.exists()) {
+                  setUserProfile(userDoc);
+                } else {
+                  setUserProfile(null);
+                }
+              });
             }
           })
           .catch((err) => {
@@ -164,7 +172,14 @@ function App() {
             <Route path='/evals/drafts' element={<EvalDrafts />} />
 
             <Route path='/newstudent' element={<NewStudentPage />} />
-            <Route path='/students' element={<StudentProfilesList />} />
+            <Route
+              path='/students'
+              element={
+                <StudentProfilesList
+                  allowedStudents={userProfile?.data().students}
+                />
+              }
+            />
             <Route path='/students/:studentid' element={<StudentProfile />} />
             <Route
               path='students/edit/:studentid'
