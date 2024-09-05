@@ -149,29 +149,14 @@ const NewStudentEval = () => {
       );
       hasCache.current = true;
     } else {
-      setEvaluation({
-        tutor_id: auth.currentUser?.uid || "",
-        tutor_name: "",
-        date: dayjs().format("YYYY-MM-DD"),
-        worksheet: "",
-        worksheet_completion: "",
-        next_session: "",
-      });
+      setEvaluation(blankEval);
     }
 
     if (localStorage.getItem(`${params.studentid}_tasks`)) {
       setTasks(JSON.parse(localStorage.getItem(`${params.studentid}_tasks`)));
       hasCache.current = true;
     } else {
-      setTasks([
-        {
-          subject: "",
-          standards: [],
-          progression: "",
-          engagement: "",
-          comments: "",
-        },
-      ]);
+      setTasks([blankTask]);
     }
 
     if (hasCache.current) {
@@ -525,7 +510,6 @@ const NewStudentEval = () => {
             !document
               .getElementById("flagForReview")
               .classList.contains("d-none"),
-          ...blankEval,
         })
           .then((doc) => {
             tasks.forEach((t, task_idx) =>
@@ -536,7 +520,6 @@ const NewStudentEval = () => {
                 standards: t.standards.map((s) => {
                   return { id: s.id, progression: s.progression };
                 }),
-                ...blankTask,
               }),
             );
             addToast({

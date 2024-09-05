@@ -642,7 +642,7 @@ const StudentEvalEdit = () => {
             type='button'
             className='btn btn-secondary m-3 col text-nowrap'
             onClick={() => {
-              history.back();
+              navigate(-1);
             }}
           >
             Back
