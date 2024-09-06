@@ -15,7 +15,16 @@ import dayjs from "dayjs";
 
 import { db } from "../Services/firebase";
 import { useNavigate } from "react-router-dom";
-import { Dropdown, Button, Table, Collapse } from "react-bootstrap";
+import {
+  Dropdown,
+  Button,
+  Table,
+  Collapse,
+  Container,
+  Row,
+  Col,
+  Card,
+} from "react-bootstrap";
 import DropdownTableHeaderToggle from "./DropdownTableHeaderToggle";
 import FilterTableHeader from "./FilterTableHeader";
 import PaginatedTable from "./PaginatedTable";
@@ -174,87 +183,124 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
     }, [evaluation]);
 
     return (
-      <tr
+      <li
         key={evaluation.id}
+        className='list-group-item list-group-item-action'
         onClick={() => navigate(`/eval/${evaluation.id}`)}
         style={{ cursor: "pointer" }}
       >
-        <td className='align-middle'>
-          {/* {isDesktop
-            ? dayjs(evaluation.date).format("MMMM D, YYYY")
-            : dayjs(evaluation.date).format("MM/DD/YY")} */}
-          {dayjs(evaluation.date).format("MMMM D, YYYY")}
-        </td>
-        <td className='align-middle'>
-          {filterBy === "tutor"
-            ? evaluation.student_name
-            : evaluation.tutor_name}
-        </td>
-        {isDesktop && (
-          <td className='align-middle'>
-            <Collapse in={!expanded}>
-              <ul className='list-group'>
-                <li className='d-flex list-group-item justify-content-between align-items-center'>
-                  <span className='text-truncate pe-3'>
-                    {evaluation.tasks[0]}
-                  </span>
-                  <span className='badge text-bg-primary'>
-                    {evaluation.tasks.length} Task
-                    {evaluation.tasks.length > 1 ? "s" : ""}
-                  </span>
-                </li>
-              </ul>
-            </Collapse>
-            <Collapse in={expanded}>
-              <ul className='list-group'>
-                {evaluation.tasks.map((t, i) => {
-                  return (
-                    <li
-                      key={i}
-                      className='text-break list-group-item'
-                      style={{ whiteSpace: "pre-wrap" }}
-                    >
-                      {t}
-                    </li>
-                  );
-                })}
-              </ul>
-            </Collapse>
-          </td>
-        )}
-        {isDesktop && (
-          <td className='text-center'>
+        <div className='d-flex w-100 justify-content-between'>
+          <h5 className='mb-1'>
+            {dayjs(evaluation.date).format("MMMM D, YYYY")}
+          </h5>
+          <div className='d-flex flex-column'>
+            <small>{evaluation.student_name}</small>
             <Button
-              className='ms-auto btn-sm mt-1'
               variant='secondary'
+              size='sm'
               onClick={(e) => {
                 e.stopPropagation();
                 setExpanded(!expanded);
               }}
             >
-              {expanded ? (
-                <div className='d-flex'>
-                  <span className='me-1'>Less</span>
-                  <i className='bi bi-chevron-up' />
-                </div>
-              ) : (
-                <div className='d-flex'>
-                  <span className='me-1'>More</span>
-                  <i className='bi bi-chevron-down' />
-                </div>
-              )}
+              {expanded ? "Collapse" : "Expand"}
             </Button>
-          </td>
+          </div>
+        </div>
+        {expanded ? (
+          <ul>
+            {evaluation.tasks.map((task, idx) => (
+              <li key={idx}>{task}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>{evaluation.tasks[0]}</p>
         )}
-        {!isDesktop && (
-          <td className='text-center'>
-            <span className='badge text-bg-primary'>
-              {evaluation.tasks.length} Task
-              {evaluation.tasks.length > 1 ? "s" : ""}
-            </span>
-          </td>
-        )}
-      </tr>
+        <small>
+          {evaluation.tasks.length} Task{evaluation.tasks.length > 1 ? "s" : ""}
+        </small>
+      </li>
+      // <tr
+      //   key={evaluation.id}
+      //   onClick={() => navigate(`/eval/${evaluation.id}`)}
+      //   style={{ cursor: "pointer" }}
+      // >
+      //   <td className='align-middle'>
+      //     {/* {isDesktop
+      //       ? dayjs(evaluation.date).format("MMMM D, YYYY")
+      //       : dayjs(evaluation.date).format("MM/DD/YY")} */}
+      //     {dayjs(evaluation.date).format("MMMM D, YYYY")}
+      //   </td>
+      //   <td className='align-middle'>
+      //     {filterBy === "tutor"
+      //       ? evaluation.student_name
+      //       : evaluation.tutor_name}
+      //   </td>
+      //   {isDesktop && (
+      //     <td className='align-middle'>
+      //       <Collapse in={!expanded}>
+      //         <ul className='list-group'>
+      //           <li className='d-flex list-group-item justify-content-between align-items-center'>
+      //             <span className='text-truncate pe-3'>
+      //               {evaluation.tasks[0]}
+      //             </span>
+      //             <span className='badge text-bg-primary'>
+      //               {evaluation.tasks.length} Task
+      //               {evaluation.tasks.length > 1 ? "s" : ""}
+      //             </span>
+      //           </li>
+      //         </ul>
+      //       </Collapse>
+      //       <Collapse in={expanded}>
+      //         <ul className='list-group'>
+      //           {evaluation.tasks.map((t, i) => {
+      //             return (
+      //               <li
+      //                 key={i}
+      //                 className='text-break list-group-item'
+      //                 style={{ whiteSpace: "pre-wrap" }}
+      //               >
+      //                 {t}
+      //               </li>
+      //             );
+      //           })}
+      //         </ul>
+      //       </Collapse>
+      //     </td>
+      //   )}
+      //   {isDesktop && (
+      //     <td className='text-center'>
+      //       <Button
+      //         className='ms-auto btn-sm mt-1'
+      //         variant='secondary'
+      //         onClick={(e) => {
+      //           e.stopPropagation();
+      //           setExpanded(!expanded);
+      //         }}
+      //       >
+      //         {expanded ? (
+      //           <div className='d-flex'>
+      //             <span className='me-1'>Less</span>
+      //             <i className='bi bi-chevron-up' />
+      //           </div>
+      //         ) : (
+      //           <div className='d-flex'>
+      //             <span className='me-1'>More</span>
+      //             <i className='bi bi-chevron-down' />
+      //           </div>
+      //         )}
+      //       </Button>
+      //     </td>
+      //   )}
+      //   {!isDesktop && (
+      //     <td className='text-center'>
+      //       <span className='badge text-bg-primary'>
+      //         {evaluation.tasks.length} Task
+      //         {evaluation.tasks.length > 1 ? "s" : ""}
+      //       </span>
+      //     </td>
+      //   )}
+      // </tr>
     );
   };
 
@@ -312,89 +358,90 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
     );
 
   return (
-    <PaginatedTable
-      records={evalList()}
-      pageLimit={_limit}
-      header={
-        <>
-          {isDesktop ? (
-            <colgroup>
-              <col style={{ width: "20%" }} />
-              <col style={{ width: "30%" }} />
-              <col style={{ width: "40%" }} />
-              <col style={{ width: "10%" }} />
-            </colgroup>
-          ) : (
-            <colgroup>
-              <col style={{ width: "30%" }} />
-              <col style={{ width: "40%" }} />
-              <col style={{ width: "30%" }} />
-            </colgroup>
-          )}
-          <thead>
-            <tr>
-              <th className='' style={{ cursor: "pointer" }}>
-                <Dropdown variant='' drop='up'>
-                  <Dropdown.Toggle as={DropdownTableHeaderToggle}>
-                    Date {filterIcon("date")}
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => setTableSort("date_desc")}>
-                      Newer First
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setTableSort("date_asc")}>
-                      Older First
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
-              </th>
-              {filterBy === "tutor" ? (
-                <th className='' style={{ cursor: "pointer" }}>
-                  <Dropdown autoClose='outside' drop='up'>
-                    <Dropdown.Toggle
-                      as={DropdownTableHeaderToggle}
-                      id='student-filter'
-                    >
-                      Student {filterIcon("student")}
-                    </Dropdown.Toggle>
+    // <PaginatedTable
+    //   records={evalList()}
+    //   pageLimit={_limit}
+    //   header={
+    //     <>
+    //       {isDesktop ? (
+    //         <colgroup>
+    //           <col style={{ width: "20%" }} />
+    //           <col style={{ width: "30%" }} />
+    //           <col style={{ width: "40%" }} />
+    //           <col style={{ width: "10%" }} />
+    //         </colgroup>
+    //       ) : (
+    //         <colgroup>
+    //           <col style={{ width: "30%" }} />
+    //           <col style={{ width: "40%" }} />
+    //           <col style={{ width: "30%" }} />
+    //         </colgroup>
+    //       )}
+    //       <thead>
+    //         <tr>
+    //           <th className='' style={{ cursor: "pointer" }}>
+    //             <Dropdown variant='' drop='up'>
+    //               <Dropdown.Toggle as={DropdownTableHeaderToggle}>
+    //                 Date {filterIcon("date")}
+    //               </Dropdown.Toggle>
+    //               <Dropdown.Menu>
+    //                 <Dropdown.Item onClick={() => setTableSort("date_desc")}>
+    //                   Newer First
+    //                 </Dropdown.Item>
+    //                 <Dropdown.Item onClick={() => setTableSort("date_asc")}>
+    //                   Older First
+    //                 </Dropdown.Item>
+    //               </Dropdown.Menu>
+    //             </Dropdown>
+    //           </th>
+    //           {filterBy === "tutor" ? (
+    //             <th className='' style={{ cursor: "pointer" }}>
+    //               <Dropdown autoClose='outside' drop='up'>
+    //                 <Dropdown.Toggle
+    //                   as={DropdownTableHeaderToggle}
+    //                   id='student-filter'
+    //                 >
+    //                   Student {filterIcon("student")}
+    //                 </Dropdown.Toggle>
 
-                    <Dropdown.Menu
-                      as={FilterTableHeader}
-                      value={studentFilter}
-                      valueSetter={setStudentFilter}
-                    />
-                  </Dropdown>
-                </th>
-              ) : (
-                <th className='' style={{ cursor: "pointer" }}>
-                  <Dropdown autoClose='outside' drop='up'>
-                    <Dropdown.Toggle
-                      as={DropdownTableHeaderToggle}
-                      id='tutor-filter'
-                    >
-                      Tutor {filterIcon("tutor")}
-                    </Dropdown.Toggle>
+    //                 <Dropdown.Menu
+    //                   as={FilterTableHeader}
+    //                   value={studentFilter}
+    //                   valueSetter={setStudentFilter}
+    //                 />
+    //               </Dropdown>
+    //             </th>
+    //           ) : (
+    //             <th className='' style={{ cursor: "pointer" }}>
+    //               <Dropdown autoClose='outside' drop='up'>
+    //                 <Dropdown.Toggle
+    //                   as={DropdownTableHeaderToggle}
+    //                   id='tutor-filter'
+    //                 >
+    //                   Tutor {filterIcon("tutor")}
+    //                 </Dropdown.Toggle>
 
-                    <Dropdown.Menu
-                      as={FilterTableHeader}
-                      value={tutorFilter}
-                      valueSetter={setTutorFilter}
-                    />
-                  </Dropdown>
-                </th>
-              )}
-              <th>Tasks</th>
-              {isDesktop && <th></th>}
-            </tr>
-          </thead>
-        </>
-      }
-      filtered={studentFilter !== "" || tutorFilter !== ""}
-      clearFilters={() => {
-        setStudentFilter("");
-        setTutorFilter("");
-      }}
-    />
+    //                 <Dropdown.Menu
+    //                   as={FilterTableHeader}
+    //                   value={tutorFilter}
+    //                   valueSetter={setTutorFilter}
+    //                 />
+    //               </Dropdown>
+    //             </th>
+    //           )}
+    //           <th>Tasks</th>
+    //           {isDesktop && <th></th>}
+    //         </tr>
+    //       </thead>
+    //     </>
+    //   }
+    //   filtered={studentFilter !== "" || tutorFilter !== ""}
+    //   clearFilters={() => {
+    //     setStudentFilter("");
+    //     setTutorFilter("");
+    //   }}
+    // />
+    <ul className='list-group'>{evalList()}</ul>
   );
 };
 
