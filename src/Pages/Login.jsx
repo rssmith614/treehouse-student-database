@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "../Services/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import {
-  addDoc,
   collection,
   deleteDoc,
   doc,
@@ -12,11 +11,18 @@ import {
   limit,
   query,
   setDoc,
-  updateDoc,
   where,
 } from "firebase/firestore";
-import { Button, Card, Col, Container, Row } from "react-bootstrap";
-import { useEffect } from "react";
+import {
+  Button,
+  Card,
+  Col,
+  Container,
+  Row,
+  Collapse,
+  Form,
+} from "react-bootstrap";
+import { useEffect, useState } from "react";
 
 import { sendAuthRequestEmail } from "../Services/email";
 
