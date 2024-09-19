@@ -1,32 +1,40 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { auth, db } from "../Services/firebase";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { Button, Card, Col, Container, Row } from "react-bootstrap";
-import { useEffect } from "react";
+import {
+  Button,
+  Card,
+  Col,
+  Collapse,
+  Container,
+  Form,
+  Row,
+} from "react-bootstrap";
+import { useEffect, useState } from "react";
 
 import { sendAuthRequestEmail } from "../Services/email";
+
+import history from "history/browser";
 
 import treehouseLogo from "../images/Treehouse-Logo-New.svg";
 
 const Login = ({ setUserProfile }) => {
   const provider = new GoogleAuthProvider();
 
-  const location = useLocation();
-
   const navigate = useNavigate();
 
-  // const [showEmailLogin, setShowEmailLogin] = useState(false);
+  const [showEmailLogin, setShowEmailLogin] = useState(false);
 
   useEffect(() => {
-    if (
-      auth.currentUser &&
-      location.state &&
-      location.state.from &&
-      location.state.from !== "/login"
-    ) {
-      navigate(location.state.from);
+    if (auth.currentUser && history.location.key !== "default") {
+      history.back();
     }
   });
 
@@ -36,7 +44,6 @@ const Login = ({ setUserProfile }) => {
         .then(async (result) => {
           const user = result.user;
           // console.log(user);
-          // console.log(auth.tenantId);
 
           // Check if user is in the database
           getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {
@@ -59,15 +66,7 @@ const Login = ({ setUserProfile }) => {
               } else {
                 // successful login
                 setUserProfile(userDoc);
-                if (
-                  location.state &&
-                  location.state.from &&
-                  location.state.from !== "/login"
-                ) {
-                  navigate(location.state.from);
-                } else {
-                  navigate(`/tutor/${userDoc.id}`);
-                }
+                navigate(`/tutor/${userDoc.id}`);
               }
             } else {
               // unrecognized user
@@ -99,8 +98,58 @@ const Login = ({ setUserProfile }) => {
           });
         })
         .catch((error) => {
-          console.log(auth.tenantId);
           console.log(error);
+        });
+    } else {
+      navigate(`/tutor/${auth.currentUser.uid}`);
+    }
+  };
+
+  const handleEmailSignIn = (e) => {
+    e.preventDefault();
+    if (!auth.currentUser) {
+      const email = document.querySelector('input[type="email"]').value;
+      const password = document.querySelector('input[type="password"]').value;
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {
+            if (userDoc.exists()) {
+              setUserProfile(userDoc);
+              if (
+                location.state &&
+                location.state.from &&
+                location.state.from !== "/login"
+              ) {
+                navigate(location.state.from);
+              } else {
+                navigate(`/tutor/${userDoc.id}`);
+              }
+            } else {
+              setDoc(doc(db, "tutors", user.uid), {
+                ...JSON.parse(JSON.stringify(user.toJSON())),
+                clearance: "admin",
+                activated: true,
+              }).then((res) => {
+                setUserProfile(res);
+                navigate("/students");
+              });
+            }
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+          if (error.code === "auth/user-not-found") {
+            window.alert(
+              "User not found. Please sign in with Google or try again later.",
+            );
+          } else if (error.code === "auth/wrong-password") {
+            window.alert("Incorrect password.");
+          } else if (error.code === "auth/invalid-email") {
+            window.alert("Invalid email.");
+          } else {
+            window.alert("An error occurred. Please try again later.");
+          }
         });
     } else {
       if (
@@ -114,49 +163,6 @@ const Login = ({ setUserProfile }) => {
       }
     }
   };
-
-  // const handleEmailSignIn = (e) => {
-  //   e.preventDefault();
-  //   if (!auth.currentUser) {
-  //     const email = document.querySelector('input[type="email"]').value;
-  //     const password = document.querySelector('input[type="password"]').value;
-  //     signInWithEmailAndPassword(auth, email, password)
-  //       .then((userCredential) => {
-  //         const user = userCredential.user;
-  //         getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {
-  //           if (userDoc.exists()) {
-  //             setUserProfile(userDoc);
-  //             navigate("/students");
-  //           } else {
-  //             setDoc(doc(db, "tutors", user.uid), {
-  //               ...JSON.parse(JSON.stringify(user.toJSON())),
-  //               clearance: "admin",
-  //               activated: true,
-  //             }).then((res) => {
-  //               setUserProfile(res);
-  //               navigate("/students");
-  //             });
-  //           }
-  //         });
-  //       })
-  //       .catch((error) => {
-  //         console.log(error);
-  //         if (error.code === "auth/user-not-found") {
-  //           window.alert(
-  //             "User not found. Please sign in with Google or try again later.",
-  //           );
-  //         } else if (error.code === "auth/wrong-password") {
-  //           window.alert("Incorrect password.");
-  //         } else if (error.code === "auth/invalid-email") {
-  //           window.alert("Invalid email.");
-  //         } else {
-  //           window.alert("An error occurred. Please try again later.");
-  //         }
-  //       });
-  //   } else {
-  //     navigate(`/students`);
-  //   }
-  // };
 
   return (
     <div className='d-flex flex-column vh-100 justify-content-center align-items-center p-3'>
@@ -177,26 +183,26 @@ const Login = ({ setUserProfile }) => {
             </Col>
             <Col>
               <div className='d-flex flex-column justify-content-evenly align-items-center text-center'>
-                <div className='display-1'>Treehouse Tutoring</div>
+                <div className='display-1'>TEST Tutoring</div>
                 <div className='h3'>Student Database</div>
                 <div className='d-flex'>
                   <Button variant='primary' className='' onClick={handleSignIn}>
                     Sign In <i className='bi bi-google' />
                   </Button>
-                  {/* <Button
+                  <Button
                     variant={showEmailLogin ? "outline-primary" : "primary"}
                     className='ms-3'
                     onClick={() => setShowEmailLogin(!showEmailLogin)}
                   >
                     Sign In <i className='bi bi-envelope-fill' />
-                  </Button> */}
+                  </Button>
                 </div>
               </div>
             </Col>
           </Row>
         </Container>
       </Card>
-      {/* <Collapse in={showEmailLogin}>
+      <Collapse in={showEmailLogin}>
         <div>
           <Card className='bg-light-subtle p-3 mt-3'>
             <Form onSubmit={handleEmailSignIn}>
@@ -218,7 +224,7 @@ const Login = ({ setUserProfile }) => {
             </Form>
           </Card>
         </div>
-      </Collapse> */}
+      </Collapse>
     </div>
   );
 };
