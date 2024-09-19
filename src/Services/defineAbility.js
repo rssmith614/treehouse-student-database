@@ -23,11 +23,20 @@ function defineAbilityFor(user) {
     can('edit', Tutor, { uid: user.id });
     cannot('edit', Tutor, ['clearance'], { uid: user.id }).because("Tutor cannot change their own clearance");
 
+    can('read', Student);
+
+    can('create', Eval);
     can('edit', Eval, { owner: user.id });
 
+    can('issue', Assessment);
     can('edit', Assessment, { issued_by: user.id });
 
+    can('create', Grade);
     can('edit', Grade, { tutor_id: user.id });
+
+    can('read', StudentTopic);
+    can('create', StudentTopic);
+    can('edit', StudentTopic);
   }
 
   return build({ detectSubjectType: item => item.constructor });
@@ -94,4 +103,24 @@ class Student {
   }
 }
 
-export { defineAbilityFor, Tutor, Eval, Assessment, Standard, Grade, Student }
+class Parent {
+  constructor(dict) {
+    for (const key in dict) {
+      if (dict.hasOwnProperty(key)) {
+        this[key] = dict[key];
+      }
+    }
+  }
+}
+
+class StudentTopic {
+  constructor(dict) {
+    for (const key in dict) {
+      if (dict.hasOwnProperty(key)) {
+        this[key] = dict[key];
+      }
+    }
+  }
+}
+
+export { defineAbilityFor, Tutor, Eval, Assessment, Standard, Grade, Student, Parent, StudentTopic }

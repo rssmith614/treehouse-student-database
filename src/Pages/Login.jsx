@@ -1,23 +1,22 @@
 import { useNavigate } from "react-router-dom";
 
 import { auth, db } from "../Services/firebase";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import {
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import {
-  Button,
-  Card,
-  Col,
-  Collapse,
-  Container,
-  Form,
-  Row,
-} from "react-bootstrap";
-import { useEffect, useState } from "react";
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
+import { useEffect } from "react";
 
 import { sendAuthRequestEmail } from "../Services/email";
 
@@ -43,11 +42,13 @@ const Login = ({ setUserProfile }) => {
       signInWithPopup(auth, provider)
         .then(async (result) => {
           const user = result.user;
+          let userType = "unrecognized";
           // console.log(user);
 
-          // Check if user is in the database
-          getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {
+          // Check if user is in the database as a tutor
+          await getDoc(doc(db, "tutors", user.uid)).then(async (userDoc) => {
             if (userDoc.exists()) {
+              userType = "tutor";
               if (
                 userDoc.data().clearance === "held" ||
                 userDoc.data().clearance === "revoked"
@@ -69,33 +70,115 @@ const Login = ({ setUserProfile }) => {
                 navigate(`/tutor/${userDoc.id}`);
               }
             } else {
-              // unrecognized user
-              if (
-                !window.confirm(
-                  "You are not registered in the database. Would you like to request access?",
-                )
-              ) {
-                signOut(auth);
-              } else {
-                // auth request
-                let { apiKey: _, ...rest } = {
-                  ...JSON.parse(JSON.stringify(user.toJSON())),
-                  activated: false,
-                  clearance: "pending",
-                };
-                setDoc(doc(db, "tutors", user.uid), rest)
-                  .then(() => {
-                    sendAuthRequestEmail(user.displayName, user.email);
-                  })
-                  .then(() => {
-                    window.alert(
-                      "Your request has been sent. You will be notified when your account is activated.",
-                    );
-                    signOut(auth);
-                  });
-              }
+              await getDoc(doc(db, "parents", user.uid)).then(
+                async (userDoc) => {
+                  if (userDoc.exists()) {
+                    userType = "parent";
+                    if (userDoc.data().clearance === "held") {
+                      // deny access based on clearance
+                      window.alert(
+                        "You do not have access to the Treehouse Student Database. Contact an administrator.",
+                      );
+                      signOut(auth);
+                    } else {
+                      // successful login
+                      setUserProfile(userDoc);
+                      if (
+                        location.state &&
+                        location.state.from &&
+                        location.state.from !== "/login"
+                      ) {
+                        navigate(location.state.from);
+                      } else {
+                        navigate(`/students`);
+                      }
+                    }
+                  } else {
+                    await getDocs(
+                      query(
+                        collection(db, "parents"),
+                        where("email", "==", user.email),
+                        limit(1),
+                      ),
+                    ).then((result) => {
+                      if (result.docs.length > 0 && result.docs[0].exists()) {
+                        userType = "parent";
+                        if (result.docs[0].data().clearance === "held") {
+                          // deny access based on clearance
+                          window.alert(
+                            "You do not have access to the Treehouse Student Database. Contact an administrator.",
+                          );
+                          signOut(auth);
+                        } else if (
+                          result.docs[0].data().clearance === "pending"
+                        ) {
+                          // special case for pending clearance
+                          // updateDoc(doc(db, "parents", user.uid), {
+                          //   ...JSON.parse(JSON.stringify(user.toJSON())),
+                          //   clearance: "active",
+                          // }).then(() => {
+                          //   setUserProfile(result.docs[0]);
+                          //   navigate('/students');
+                          // });
+                          setDoc(doc(db, "parents", user.uid), {
+                            ...JSON.parse(JSON.stringify(user.toJSON())),
+                            clearance: "active",
+                            students: result.docs[0].data().students,
+                          }).then((res) => {
+                            deleteDoc(doc(db, "parents", result.docs[0].id));
+                            setUserProfile(res);
+                            navigate(`/students`);
+                          });
+                        } else {
+                          // successful login
+                          setUserProfile(result.docs[0]);
+                          if (
+                            location.state &&
+                            location.state.from &&
+                            location.state.from !== "/login"
+                          ) {
+                            navigate(location.state.from);
+                          } else {
+                            navigate(`/students`);
+                          }
+                        }
+                      } else {
+                        return;
+                      }
+                    });
+                  }
+                },
+              );
             }
           });
+
+          if (userType === "unrecognized") {
+            // unrecognized user
+            if (
+              !window.confirm(
+                "You are not registered in the database. If you are a tutor, would you like to request access?",
+              )
+            ) {
+              signOut(auth);
+            } else {
+              // auth request
+              let { apiKey: _, ...rest } = {
+                ...JSON.parse(JSON.stringify(user.toJSON())),
+                activated: false,
+                clearance: "pending",
+              };
+              setDoc(doc(db, "tutors", user.uid), rest)
+                .then(() => {
+                  sendAuthRequestEmail(user.displayName, user.email);
+                })
+                .then(() => {
+                  window.alert(
+                    "Your request has been sent. You will be notified when your account is activated.",
+                  );
+                  signOut(auth);
+                });
+            }
+          }
         })
         .catch((error) => {
           console.log(error);
@@ -159,7 +242,7 @@ const Login = ({ setUserProfile }) => {
       ) {
         navigate(location.state.from);
       } else {
-        navigate(`/tutor/${auth.currentUser.uid}`);
+        navigate(`/students`);
       }
     }
   };

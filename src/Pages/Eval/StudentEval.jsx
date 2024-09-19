@@ -377,75 +377,77 @@ const StudentEval = () => {
             Make Changes
           </button>
         </Can>
-        <Can not I='edit' this={evalInstance}>
-          <Button
-            id='edit'
-            variant='info'
-            className='m-3 ms-auto'
-            onClick={() => setShowModal(true)}
-          >
-            Make Changes
-          </Button>
-          <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-            <Modal.Header closeButton>
-              <Modal.Title>Ownership Request</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <p>
-                You don't have permission to edit this evaluation. You can
-                request ownership from an Admin in order to make changes.
-              </p>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant='secondary' onClick={() => setShowModal(false)}>
-                Cancel
-              </Button>
-              <Button
-                variant='primary'
-                onClick={() => {
-                  document
-                    .getElementById("edit")
-                    .setAttribute("disabled", true);
-                  document.getElementById("edit").innerHTML =
-                    "Sending Email <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>";
-                  sendEvalOwnershipRequestEmail(
-                    auth.currentUser.displayName,
-                    window.location.href,
-                    evaluation.tutor_name,
-                    evaluation.student_name,
-                    evaluation.date,
-                  )
-                    .then(() => {
-                      addToast({
-                        header: "Success",
-                        message: "Message sent.",
+        {ability.can("edit", Eval) && ability.cannot("edit", evalInstance) && (
+          <>
+            <Button
+              id='edit'
+              variant='info'
+              className='m-3 ms-auto'
+              onClick={() => setShowModal(true)}
+            >
+              Make Changes
+            </Button>
+            <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+              <Modal.Header closeButton>
+                <Modal.Title>Ownership Request</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <p>
+                  You don't have permission to edit this evaluation. You can
+                  request ownership from an Admin in order to make changes.
+                </p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant='secondary' onClick={() => setShowModal(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant='primary'
+                  onClick={() => {
+                    document
+                      .getElementById("edit")
+                      .setAttribute("disabled", true);
+                    document.getElementById("edit").innerHTML =
+                      "Sending Email <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>";
+                    sendEvalOwnershipRequestEmail(
+                      auth.currentUser.displayName,
+                      window.location.href,
+                      evaluation.tutor_name,
+                      evaluation.student_name,
+                      evaluation.date,
+                    )
+                      .then(() => {
+                        addToast({
+                          header: "Success",
+                          message: "Message sent.",
+                        });
+                        document
+                          .getElementById("edit")
+                          .removeAttribute("disabled");
+                        document.getElementById("edit").innerHTML =
+                          "Make Changes";
+                      })
+                      .catch((error) => {
+                        addToast({
+                          header: "Error",
+                          message: "Message failed to send.",
+                        });
+                        console.log(error);
+                        document
+                          .getElementById("edit")
+                          .removeAttribute("disabled");
+                        document.getElementById("edit").innerHTML =
+                          "Make Changes";
                       });
-                      document
-                        .getElementById("edit")
-                        .removeAttribute("disabled");
-                      document.getElementById("edit").innerHTML =
-                        "Make Changes";
-                    })
-                    .catch((error) => {
-                      addToast({
-                        header: "Error",
-                        message: "Message failed to send.",
-                      });
-                      console.log(error);
-                      document
-                        .getElementById("edit")
-                        .removeAttribute("disabled");
-                      document.getElementById("edit").innerHTML =
-                        "Make Changes";
-                    });
-                  setShowModal(false);
-                }}
-              >
-                Send Email to Admins
-              </Button>
-            </Modal.Footer>
-          </Modal>
-        </Can>
+                    setShowModal(false);
+                  }}
+                >
+                  Send Email to Admins
+                </Button>
+              </Modal.Footer>
+            </Modal>
+          </>
+        )}
       </div>
       {evaluation.flagged ? (
         <Can I='review' an='eval'>

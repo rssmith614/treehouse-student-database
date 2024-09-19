@@ -3,12 +3,24 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function isWorker(uid) {
+      return exists(/databases/$(database)/documents/tutors/$(uid));
+    }
+
     function isAdmin(uid) {
-      return get(/databases/$(database)/documents/tutors/$(uid)).data.clearance == 'admin';
+      return isWorker(uid) && get(/databases/$(database)/documents/tutors/$(uid)).data.clearance == 'admin';
     }
 
     function isTutor(uid) {
-      return get(/databases/$(database)/documents/tutors/$(uid)).data.clearance == 'tutor';
+      return isWorker(uid) && get(/databases/$(database)/documents/tutors/$(uid)).data.clearance == 'tutor';
+    }
+
+    function isParent(uid) {
+      return exists(/databases/$(database)/documents/parents/$(uid));
+    }
+
+    function isParentOfStudent(parentId, studentId) {
+      return isParent(parentId) && get(/databases/$(database)/documents/parents/$(parentId)).data.students.hasAny([studentId]);
     }
 
     function resourceOwnedByUser(resourceOwner, uid) {
@@ -24,10 +36,24 @@ service cloud.firestore {
       allow update:
         if request.auth != null && isTutor(request.auth.uid) && resourceOwnedByUser(request.auth.uid, request.resource.data.uid);
     }
+    
+    match /parents/{document} {
+        allow read, write:
+            if request.auth != null && isAdmin(request.auth.uid);
+        allow read: if true;
+        allow write:
+        	if request.auth != null;
+    }
 
     match /students/{document} {
-      allow read, write: if request.auth != null && isAdmin(request.auth.uid);
-      allow read: if request.auth != null && isTutor(request.auth.uid);
+      // allow read, write: if request.auth != null && isAdmin(request.auth.uid);
+      // allow read: if request.auth != null && isTutor(request.auth.uid);
+
+      // allow read: if request.auth != null && isParentOfStudent(request.auth.uid, document);
+
+      allow read: if request.auth != null && (isAdmin(request.auth.uid) || isTutor(request.auth.uid) || isParentOfStudent(request.auth.uid, resource.id));
+
+      allow write: if request.auth != null && isAdmin(request.auth.uid);
 
       match /standards/{document} {
         allow read, write: if request.auth != null && isAdmin(request.auth.uid);
@@ -36,6 +62,8 @@ service cloud.firestore {
 
       match /topics/{document} {
         allow read, write: if request.auth != null && (isAdmin(request.auth.uid) || isTutor(request.auth.uid));
+
+        allow read: if request.auth != null && isParentOfStudent(request.auth.uid, document);
       }
     }
 
@@ -45,6 +73,8 @@ service cloud.firestore {
       allow read, create: if request.auth != null && isTutor(request.auth.uid);
       allow update, delete:
         if request.auth != null && isTutor(request.auth.uid) && resourceOwnedByUser(resource.data.owner, request.auth.uid);
+
+      allow read: if request.auth != null && isParentOfStudent(request.auth.uid, resource.data.student_id);
     
       match /tasks/{task} {
         allow read, write: if request.auth != null && isAdmin(request.auth.uid);
@@ -52,6 +82,8 @@ service cloud.firestore {
         allow read: if request.auth != null && isTutor(request.auth.uid);
         allow write:
           if request.auth != null && isTutor(request.auth.uid);
+
+        allow read: if request.auth != null && isParentOfStudent(request.auth.uid, get(/databases/$(database)/documents/evaluations/$(eval)).data.student_id);
       }
     }
 
@@ -70,6 +102,8 @@ service cloud.firestore {
         if request.auth != null && isTutor(request.auth.uid) && resourceOwnedByUser(resource.data.issued_by, request.auth.uid);
       allow read, create: if request.auth != null && isTutor(request.auth.uid);
     	allow read, write: if request.auth != null && isAdmin(request.auth.uid);
+
+      allow read: if request.auth != null && isParentOfStudent(request.auth.uid, resource.data.student_id);
     }
 
     match /grades/{grade} {
@@ -77,6 +111,8 @@ service cloud.firestore {
       allow write: if request.auth != null && isAdmin(request.auth.uid);
       allow create: if request.auth != null && isTutor(request.auth.uid);
       allow update, delete: if request.auth != null && isTutor(request.auth.uid) && resourceOwnedByUser(resource.data.tutor_id, request.auth.uid);
+
+      allow read: if request.auth != null && isParentOfStudent(request.auth.uid, resource.data.student_id);
     }
 
   }
