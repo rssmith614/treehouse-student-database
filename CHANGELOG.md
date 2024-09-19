@@ -1,3 +1,9 @@
+## [1.8.2] - 2024-09-05
+
+### Fixed
+- Bug that caused eval fields to be empty when submitting a new eval with a worksheet
+- Added link to existing worksheet on eval edit page
+
 ## [1.8.1] - 2024-06-13
 
 ### Added

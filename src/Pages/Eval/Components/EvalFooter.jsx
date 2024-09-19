@@ -1,6 +1,23 @@
+import { getDownloadURL, ref } from "firebase/storage";
+import { useRef } from "react";
 import { Form, OverlayTrigger, Popover } from "react-bootstrap";
+import { storage } from "../../../Services/firebase";
 
 const EvalFooter = ({ evaluation, handleEvalChange }) => {
+  const worksheetRef = useRef(null);
+  const worksheetLink = useRef(null);
+
+  if (evaluation.worksheet !== "") {
+    try {
+      worksheetRef.current = ref(storage, evaluation.worksheet);
+      getDownloadURL(worksheetRef.current).then((url) => {
+        worksheetLink.current = url;
+      });
+    } catch (err) {
+      worksheetLink.current = "";
+    }
+  }
+
   return (
     <div className='row my-3'>
       <div className='col-12 col-md-4 pb-3'>
@@ -23,8 +40,19 @@ const EvalFooter = ({ evaluation, handleEvalChange }) => {
           <option value='url'>URL</option>
         </Form.Select>
 
-        <input id='worksheet' className='form-control' type='file' />
+        <input id='worksheet' className='form-control mb-2' type='file' />
         <div className='invalid-feedback'>Please provide a valid URL</div>
+
+        {worksheetLink.current && (
+          <a
+            href={worksheetLink.current}
+            target='_blank'
+            rel='noreferrer'
+            className='text-end'
+          >
+            View Current Worksheet
+          </a>
+        )}
       </div>
       <div className='col-12 col-md-4 pb-3'>
         <label className='form-label h5'>Worksheet Completion</label>
