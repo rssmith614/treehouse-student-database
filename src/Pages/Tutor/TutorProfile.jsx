@@ -12,7 +12,7 @@ const TutorProfile = () => {
   return (
     <div className='p-3 d-flex flex-column'>
       <h1 className='d-flex display-1'>Tutor Profile</h1>
-      <Row className='justify-content-center'>
+      <Row className=''>
         <Col className='col-md-8 d-flex'>
           <About tutorid={params.tutorid} />
         </Col>

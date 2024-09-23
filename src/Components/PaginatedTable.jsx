@@ -105,10 +105,13 @@ const PaginatedTable = ({
           </>
         ) : null}
       </div>
-      <Table striped hover style={{ tableLayout: "fixed" }}>
+      {/* <Table striped hover style={{ tableLayout: "fixed" }}>
         {header}
         <tbody>{records.slice(cursorIndex, cursorIndex + pageLimit)}</tbody>
-      </Table>
+      </Table> */}
+      <ul className='list-group mb-3'>
+        {records.slice(cursorIndex, cursorIndex + pageLimit)}
+      </ul>
       <PageNavigation
         numRecords={records.length}
         pageLimit={pageLimit}

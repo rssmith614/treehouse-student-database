@@ -189,118 +189,30 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
         onClick={() => navigate(`/eval/${evaluation.id}`)}
         style={{ cursor: "pointer" }}
       >
-        <div className='d-flex w-100 justify-content-between'>
-          <h5 className='mb-1'>
-            {dayjs(evaluation.date).format("MMMM D, YYYY")}
-          </h5>
-          <div className='d-flex flex-column'>
-            <small>{evaluation.student_name}</small>
-            <Button
-              variant='secondary'
-              size='sm'
-              onClick={(e) => {
-                e.stopPropagation();
-                setExpanded(!expanded);
-              }}
-            >
-              {expanded ? "Collapse" : "Expand"}
-            </Button>
+        <div className='d-flex w-100 align-items-center'>
+          <div className='flex-shrink-0 col-4'>
+            <h5 className='mb-1'>
+              {dayjs(evaluation.date).format("MMMM D, YYYY")}
+            </h5>
+            {filterBy === "tutor" ? (
+              <small className='text-muted'>
+                Student: {evaluation.student_name}
+              </small>
+            ) : (
+              <small className='text-muted'>
+                Tutor: {evaluation.tutor_name}
+              </small>
+            )}
           </div>
+          <div className='text-truncate px-3'>
+            <small>{evaluation.tasks[0]}</small>
+          </div>
+          <small className='badge text-bg-primary ms-auto'>
+            {evaluation.tasks.length} Task
+            {evaluation.tasks.length > 1 ? "s" : ""}
+          </small>
         </div>
-        {expanded ? (
-          <ul>
-            {evaluation.tasks.map((task, idx) => (
-              <li key={idx}>{task}</li>
-            ))}
-          </ul>
-        ) : (
-          <p>{evaluation.tasks[0]}</p>
-        )}
-        <small>
-          {evaluation.tasks.length} Task{evaluation.tasks.length > 1 ? "s" : ""}
-        </small>
       </li>
-      // <tr
-      //   key={evaluation.id}
-      //   onClick={() => navigate(`/eval/${evaluation.id}`)}
-      //   style={{ cursor: "pointer" }}
-      // >
-      //   <td className='align-middle'>
-      //     {/* {isDesktop
-      //       ? dayjs(evaluation.date).format("MMMM D, YYYY")
-      //       : dayjs(evaluation.date).format("MM/DD/YY")} */}
-      //     {dayjs(evaluation.date).format("MMMM D, YYYY")}
-      //   </td>
-      //   <td className='align-middle'>
-      //     {filterBy === "tutor"
-      //       ? evaluation.student_name
-      //       : evaluation.tutor_name}
-      //   </td>
-      //   {isDesktop && (
-      //     <td className='align-middle'>
-      //       <Collapse in={!expanded}>
-      //         <ul className='list-group'>
-      //           <li className='d-flex list-group-item justify-content-between align-items-center'>
-      //             <span className='text-truncate pe-3'>
-      //               {evaluation.tasks[0]}
-      //             </span>
-      //             <span className='badge text-bg-primary'>
-      //               {evaluation.tasks.length} Task
-      //               {evaluation.tasks.length > 1 ? "s" : ""}
-      //             </span>
-      //           </li>
-      //         </ul>
-      //       </Collapse>
-      //       <Collapse in={expanded}>
-      //         <ul className='list-group'>
-      //           {evaluation.tasks.map((t, i) => {
-      //             return (
-      //               <li
-      //                 key={i}
-      //                 className='text-break list-group-item'
-      //                 style={{ whiteSpace: "pre-wrap" }}
-      //               >
-      //                 {t}
-      //               </li>
-      //             );
-      //           })}
-      //         </ul>
-      //       </Collapse>
-      //     </td>
-      //   )}
-      //   {isDesktop && (
-      //     <td className='text-center'>
-      //       <Button
-      //         className='ms-auto btn-sm mt-1'
-      //         variant='secondary'
-      //         onClick={(e) => {
-      //           e.stopPropagation();
-      //           setExpanded(!expanded);
-      //         }}
-      //       >
-      //         {expanded ? (
-      //           <div className='d-flex'>
-      //             <span className='me-1'>Less</span>
-      //             <i className='bi bi-chevron-up' />
-      //           </div>
-      //         ) : (
-      //           <div className='d-flex'>
-      //             <span className='me-1'>More</span>
-      //             <i className='bi bi-chevron-down' />
-      //           </div>
-      //         )}
-      //       </Button>
-      //     </td>
-      //   )}
-      //   {!isDesktop && (
-      //     <td className='text-center'>
-      //       <span className='badge text-bg-primary'>
-      //         {evaluation.tasks.length} Task
-      //         {evaluation.tasks.length > 1 ? "s" : ""}
-      //       </span>
-      //     </td>
-      //   )}
-      // </tr>
     );
   };
 
@@ -441,7 +353,16 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
     //     setTutorFilter("");
     //   }}
     // />
-    <ul className='list-group'>{evalList()}</ul>
+    // <ul className='list-group'>{evalList()}</ul>
+    <PaginatedTable
+      records={evalList()}
+      pageLimit={_limit}
+      filtered={studentFilter !== "" || tutorFilter !== ""}
+      clearFilters={() => {
+        setStudentFilter("");
+        setTutorFilter("");
+      }}
+    />
   );
 };
 
