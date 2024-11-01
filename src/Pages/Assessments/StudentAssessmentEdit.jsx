@@ -7,7 +7,7 @@ import {
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Card, Form, Table } from "react-bootstrap";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { db, storage } from "../../Services/firebase";
 import { ToastContext } from "../../Services/toast";
 import { deleteObject, ref } from "firebase/storage";
@@ -35,6 +35,7 @@ const StudentAssessmentEdit = () => {
   const params = useParams();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const addToast = useContext(ToastContext);
 
@@ -82,7 +83,7 @@ const StudentAssessmentEdit = () => {
         header: "Student Assessment Updated",
         message: "The student assessment has been updated successfully",
       });
-      navigate(-1);
+      navigate(`/assessments/student/${params.assessmentid}`);
     });
   }
 
@@ -107,7 +108,8 @@ const StudentAssessmentEdit = () => {
       header: "Student Assessment Deleted",
       message: "The student assessment has been deleted successfully",
     });
-    navigate(-2);
+    localStorage.setItem("student_tab", "assessments");
+    navigate(`/students/${assessment.student_id}`);
   }
 
   function tutorOptions() {

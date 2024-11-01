@@ -1,7 +1,7 @@
 import { addDoc, collection, doc, onSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Form, Row, Table } from "react-bootstrap";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { auth, db, storage } from "../../Services/firebase";
 import dayjs from "dayjs";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -37,6 +37,7 @@ const NewStudentAssessment = () => {
   const params = useParams();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
 
@@ -141,7 +142,7 @@ const NewStudentAssessment = () => {
           completed_file: completedAssessmentRef.fullPath,
         }).then(() => {
           localStorage.setItem("student_tab", "assessments");
-          navigate(-1);
+          navigate(`/students/${student.id}`);
         });
       });
     } else {
@@ -155,7 +156,7 @@ const NewStudentAssessment = () => {
         completed_file: "",
       }).then(() => {
         localStorage.setItem("student_tab", "assessments");
-        navigate(-1);
+        navigate(`/students/${student.id}`);
       });
     }
 

@@ -207,7 +207,7 @@ const StudentProfileEdit = () => {
           message: `Student ${student.student_name}'s profile has been updated`,
         }),
       )
-      .then(() => navigate(-1));
+      .then(() => navigate(`/students/${params.studentid}`));
   }
 
   function tutorOptions() {

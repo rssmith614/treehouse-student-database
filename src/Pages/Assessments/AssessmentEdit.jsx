@@ -9,7 +9,7 @@ import {
   where,
 } from "firebase/firestore";
 import { useContext, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { db, storage } from "../../Services/firebase";
 import {
   Button,
@@ -62,6 +62,7 @@ const AssessmentEdit = () => {
   const addToast = useContext(ToastContext);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const params = useParams();
 

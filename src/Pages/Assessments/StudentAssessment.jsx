@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { AbilityContext, Can } from "../../Services/can";
 import { Button, Col, Row, Table } from "react-bootstrap";
 import { useEffect, useState } from "react";
@@ -35,6 +35,7 @@ const StudentAssessment = () => {
   const ability = useAbility(AbilityContext);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
 

@@ -14,9 +14,7 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-
-import history from "history/browser";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { deleteObject, ref, uploadBytes } from "firebase/storage";
 import {
@@ -566,7 +564,7 @@ const StudentEvalEdit = () => {
           message: `Session evaluation for ${evaluation?.student_name} was successfully updated`,
         }),
       )
-      .then(() => navigate(-1));
+      .then(() => navigate(`/eval/${params.evalid}`));
   }
 
   async function handleDelete(e) {
@@ -594,8 +592,11 @@ const StudentEvalEdit = () => {
 
       // delete evaluation
       await deleteDoc(evalRef.current).then(() => {
-        navigate(-1);
-        if (!evaluation.draft) navigate(-1); // if not a draft, need to go back twice to avoid eval page
+        if (evaluation.draft) {
+          navigate(`/evals/drafts`);
+        } else {
+          navigate(-2);
+        }
         addToast({
           header: "Evaluation Deleted",
           message: `Session evaluation for ${evaluation?.student_name} has been deleted`,

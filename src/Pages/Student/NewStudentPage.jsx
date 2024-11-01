@@ -156,7 +156,7 @@ const NewProfile = () => {
           message: `Student ${student.student_name} has been registered`,
         }),
       )
-      .then(() => navigate(-1));
+      .then(() => navigate(`/students`));
   }
 
   function tutorOptions() {

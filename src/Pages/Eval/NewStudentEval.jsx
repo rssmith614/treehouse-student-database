@@ -558,7 +558,7 @@ const NewStudentEval = () => {
           })
           .then(() => {
             localStorage.setItem("student_tab", "evals");
-            navigate(-1);
+            navigate(`/students/${params.studentid}`);
           }),
       );
     } else {
@@ -594,7 +594,7 @@ const NewStudentEval = () => {
         })
         .then(() => {
           localStorage.setItem("student_tab", "evals");
-          navigate(-1);
+          navigate(`/students/${params.studentid}`);
         });
     }
   }
@@ -640,7 +640,7 @@ const NewStudentEval = () => {
             type='button'
             className='btn btn-secondary my-3 me-auto'
             onClick={() => {
-              navigate(-1);
+              navigate(`/students/${params.studentid}`);
             }}
           >
             Back
