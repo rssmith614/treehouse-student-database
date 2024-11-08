@@ -75,7 +75,7 @@ const RecentStudentsNewEval = ({ tutorid }) => {
                   ></li>
                 ))}
               </ul>
-              <Button onClick={() => navigate("/eval/new")}>
+              <Button className='mt-auto' onClick={() => navigate("/eval/new")}>
                 Find another Student
               </Button>
             </div>
@@ -95,7 +95,7 @@ const RecentStudentsNewEval = ({ tutorid }) => {
         <div className='h5'>Recent Students</div>
       </Card.Header>
       <Card.Body>
-        <Container className='d-flex justify-content-center'>
+        <Container className='d-flex justify-content-center h-100'>
           {recentStudents.length === 0 ? (
             <div className='d-flex flex-column'>
               <p className='h5'>No recent students</p>
@@ -122,7 +122,10 @@ const RecentStudentsNewEval = ({ tutorid }) => {
                   </li>
                 ))}
               </ul>
-              <Button onClick={() => navigate("/eval/new")}>
+              <Button
+                className='mt-auto mb-3'
+                onClick={() => navigate("/eval/new")}
+              >
                 Find another Student
                 <i className='bi bi-arrow-right ms-2' />
               </Button>

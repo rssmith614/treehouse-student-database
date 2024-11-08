@@ -1,4 +1,4 @@
-import { Card } from "react-bootstrap";
+import { Card, Form } from "react-bootstrap";
 import EvalsTable from "../../../Components/EvalsTable";
 
 const RecentEvals = ({ tutorid }) => {
@@ -12,7 +12,7 @@ const RecentEvals = ({ tutorid }) => {
       </Card.Header>
       <Card.Body>
         <div className='d-flex flex-column'>
-          <EvalsTable filterBy='tutor' id={tutorid} _limit={6} />
+          <EvalsTable filterBy='tutor' id={tutorid} _limit={10} />
         </div>
       </Card.Body>
     </Card>

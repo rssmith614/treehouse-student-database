@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import { Button, Pagination, Table } from "react-bootstrap";
+import {
+  Button,
+  Dropdown,
+  Form,
+  InputGroup,
+  Pagination,
+  Row,
+  Table,
+} from "react-bootstrap";
+import { useMediaQuery } from "react-responsive";
 
 const PageNavigation = ({
   numRecords,
@@ -75,16 +84,32 @@ const PageNavigation = ({
 const PaginatedTable = ({
   records,
   pageLimit,
-  header,
+  tableSort,
+  setTableSort,
+  filterBy,
+  filter,
+  setFilter,
   filtered,
   clearFilters,
 }) => {
   const [cursorIndex, setCursorIndex] = useState(0);
 
+  const [dropdownLabel, setDropdownLabel] = useState("Newest First");
+
+  const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
+
   useEffect(() => {
     if (cursorIndex >= records.length) setCursorIndex(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [records.length]);
+
+  useEffect(() => {
+    if (tableSort === "date_desc") {
+      setDropdownLabel("Newest First");
+    } else {
+      setDropdownLabel("Oldest First");
+    }
+  }, [tableSort]);
 
   return (
     <div className='d-flex flex-column'>
@@ -109,6 +134,34 @@ const PaginatedTable = ({
         {header}
         <tbody>{records.slice(cursorIndex, cursorIndex + pageLimit)}</tbody>
       </Table> */}
+      <Row className={`my-1 ${isDesktop && "w-50"}`}>
+        <Dropdown className={`col col-${isDesktop ? "5" : "5"}`}>
+          <Dropdown.Toggle variant='secondary'>{dropdownLabel}</Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={() => setTableSort("date_desc")}>
+              Newest First
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => setTableSort("date_asc")}>
+              Oldest First
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+        <div className={`col col-${isDesktop ? "7" : "7"}`}>
+          <InputGroup>
+            <Form.Control
+              type='text'
+              placeholder={`Search ${filterBy === "tutor" ? "Student" : "Tutor"}`}
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            />
+            <i
+              className='bi bi-x-lg input-group-text btn btn-secondary'
+              style={{ cursor: "pointer" }}
+              onClick={() => setFilter("")}
+            />
+          </InputGroup>
+        </div>
+      </Row>
       <ul className='list-group mb-3'>
         {records.slice(cursorIndex, cursorIndex + pageLimit)}
       </ul>

@@ -21,10 +21,10 @@ const TutorProfile = () => {
         </Col>
       </Row>
       <Row>
-        <Col className='col-md-4 d-flex'>
+        {/* <Col className='col-md-4 d-flex'>
           <RecentStudents tutorid={params.tutorid} />
-        </Col>
-        <Col className='col-md-8 d-flex'>
+        </Col> */}
+        <Col className=' d-flex'>
           <RecentEvals tutorid={params.tutorid} />
         </Col>
       </Row>

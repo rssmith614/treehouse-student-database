@@ -180,7 +180,7 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
         window.MathJax.typesetClear();
         window.MathJax.typesetPromise();
       }
-    }, [evaluation]);
+    }, []);
 
     return (
       <li
@@ -190,23 +190,21 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
         style={{ cursor: "pointer" }}
       >
         <div className='d-flex w-100 align-items-center'>
-          <div className='flex-shrink-0 col-4'>
+          <div className={`flex-shrink-0 col-${isDesktop ? "4" : "6"}`}>
             <h5 className='mb-1'>
-              {dayjs(evaluation.date).format("MMMM D, YYYY")}
+              {dayjs(evaluation.date).format(
+                isDesktop ? "MMMM DD, YYYY" : "MMM DD, YYYY",
+              )}
             </h5>
             {filterBy === "tutor" ? (
-              <small className='text-muted'>
-                Student: {evaluation.student_name}
-              </small>
+              <small className='text-muted'>{evaluation.student_name}</small>
             ) : (
-              <small className='text-muted'>
-                Tutor: {evaluation.tutor_name}
-              </small>
+              <small className='text-muted'>{evaluation.tutor_name}</small>
             )}
           </div>
-          <div className='text-truncate px-3'>
-            <small>{evaluation.tasks[0]}</small>
-          </div>
+          {isDesktop && (
+            <div className='text-truncate px-3'>{evaluation.tasks[0]}</div>
+          )}
           <small className='badge text-bg-primary ms-auto'>
             {evaluation.tasks.length} Task
             {evaluation.tasks.length > 1 ? "s" : ""}
@@ -357,6 +355,11 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
     <PaginatedTable
       records={evalList()}
       pageLimit={_limit}
+      tableSort={tableSort}
+      setTableSort={setTableSort}
+      filterBy={filterBy}
+      filter={filterBy === "tutor" ? studentFilter : tutorFilter}
+      setFilter={filterBy === "tutor" ? setStudentFilter : setTutorFilter}
       filtered={studentFilter !== "" || tutorFilter !== ""}
       clearFilters={() => {
         setStudentFilter("");
