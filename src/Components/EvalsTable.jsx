@@ -353,6 +353,7 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
     // />
     // <ul className='list-group'>{evalList()}</ul>
     <PaginatedTable
+      tableType='list'
       records={evalList()}
       pageLimit={_limit}
       tableSort={tableSort}
