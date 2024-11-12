@@ -1,0 +1,10 @@
+#!/bin/bash
+
+tmux new-session -d -s test-env -n emulator
+
+tmux send-keys -t test-env:emulator 'npm run emulate' C-m
+
+tmux split-window -h
+tmux send-keys -t test-env:emulator 'npm start' C-m
+
+tmux a -t test-env
