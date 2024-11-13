@@ -56,6 +56,8 @@ const StudentEvalEdit = () => {
 
   const [showNewStandardPane, setShowNewStandardPane] = useState(false);
 
+  const [showReviewFlag, setShowReviewFlag] = useState(false);
+
   const addToast = useContext(ToastContext);
 
   const params = useParams();
@@ -321,11 +323,11 @@ const StudentEvalEdit = () => {
         tasks[i].progression !== "" &&
         tasks[i].progression <= 2
       ) {
-        document.getElementById("flagForReview").classList.remove("d-none");
+        setShowReviewFlag(true);
         return;
       }
       if (tasks[i].engagement !== "" && tasks[i].engagement <= 2) {
-        document.getElementById("flagForReview").classList.remove("d-none");
+        setShowReviewFlag(true);
         return;
       }
       for (let j = 0; j < tasks[i].standards.length; j++) {
@@ -333,14 +335,45 @@ const StudentEvalEdit = () => {
           tasks[i].standards[j].progression &&
           tasks[i].standards[j].progression <= 2
         ) {
-          document.getElementById("flagForReview").classList.remove("d-none");
+          setShowReviewFlag(true);
           return;
         }
       }
     }
 
-    document.getElementById("flagForReview").classList.add("d-none");
+    setShowReviewFlag(false);
+    setEvaluation((prev) => {
+      return { ...prev, flagged: false };
+    });
   }, [tasks]);
+
+  useEffect(() => {
+    if (showReviewFlag) {
+      document.getElementById("flagForReview").classList.remove("d-none");
+    } else {
+      document.getElementById("flagForReview").classList.add("d-none");
+    }
+  }, [showReviewFlag]);
+
+  useEffect(() => {
+    if (evaluation.flagged) {
+      document
+        .getElementById("flagForReviewBtn")
+        .classList.remove("btn-danger");
+      document
+        .getElementById("flagForReviewBtn")
+        .classList.add("btn-outline-danger");
+      document.getElementById("flagForReviewBtn").innerHTML =
+        "Flagged for Admin Review";
+    } else {
+      document
+        .getElementById("flagForReviewBtn")
+        .classList.remove("btn-outline-danger");
+      document.getElementById("flagForReviewBtn").classList.add("btn-danger");
+      document.getElementById("flagForReviewBtn").innerHTML =
+        "Flag for Admin Review?";
+    }
+  }, [evaluation.flagged]);
 
   function handleEvalChange(newEval) {
     setEvaluation(newEval);
@@ -442,15 +475,6 @@ const StudentEvalEdit = () => {
 
     evalUpload.tutor_id = selectedTutor;
     evalUpload.tutor_name = tutorName;
-
-    if (
-      document
-        .getElementById("flagForReview")
-        .classList.contains("btn-outline-danger") &&
-      !document.getElementById("flagForReview").classList.contains("d-none")
-    ) {
-      evalUpload.flagged = true;
-    }
 
     let worksheetUpload = null;
     let worksheetReplacement = false;
@@ -672,7 +696,7 @@ const StudentEvalEdit = () => {
             Submit
           </button>
         </Row>
-        <div id='flagForReview' className='mx-3 ms-auto'>
+        <div id='flagForReview' className='ms-auto'>
           <OverlayTrigger
             placement='left'
             overlay={
@@ -689,18 +713,19 @@ const StudentEvalEdit = () => {
             <i className='bi bi-question-square mx-3'></i>
           </OverlayTrigger>
           <Button
+            id='flagForReviewBtn'
             variant='danger'
             className=''
             onClick={(e) => {
               e.preventDefault();
-              if (e.target.classList.contains("btn-danger")) {
-                e.target.classList.remove("btn-danger");
-                e.target.classList.add("btn-outline-danger");
-                e.target.innerHTML = "Flagged for Admin Review";
+              if (evaluation.flagged) {
+                setEvaluation((prev) => {
+                  return { ...prev, flagged: false };
+                });
               } else {
-                e.target.classList.remove("btn-outline-danger");
-                e.target.classList.add("btn-danger");
-                e.target.innerHTML = "Flag for Admin Review?";
+                setEvaluation((prev) => {
+                  return { ...prev, flagged: true };
+                });
               }
             }}
           >
