@@ -1,32 +1,45 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { auth, db } from "../Services/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { Button, Card, Col, Container, Row } from "react-bootstrap";
-import { useEffect } from "react";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
+import {
+  Button,
+  Card,
+  Col,
+  Container,
+  Row,
+  Collapse,
+  Form,
+} from "react-bootstrap";
+import { useEffect, useState } from "react";
 
 import { sendAuthRequestEmail } from "../Services/email";
+
+import history from "history/browser";
 
 import treehouseLogo from "../images/Treehouse-Logo-New.svg";
 
 const Login = ({ setUserProfile }) => {
   const provider = new GoogleAuthProvider();
 
-  const location = useLocation();
-
   const navigate = useNavigate();
 
-  // const [showEmailLogin, setShowEmailLogin] = useState(false);
+  const [showEmailLogin, setShowEmailLogin] = useState(false);
 
   useEffect(() => {
-    if (
-      auth.currentUser &&
-      location.state &&
-      location.state.from &&
-      location.state.from !== "/login"
-    ) {
-      navigate(location.state.from);
+    if (auth.currentUser && history.location.key !== "default") {
+      history.back();
     }
   });
 
@@ -35,12 +48,13 @@ const Login = ({ setUserProfile }) => {
       signInWithPopup(auth, provider)
         .then(async (result) => {
           const user = result.user;
+          let userType = "unrecognized";
           // console.log(user);
-          // console.log(auth.tenantId);
 
-          // Check if user is in the database
-          getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {
+          // Check if user is in the database as a tutor
+          await getDoc(doc(db, "tutors", user.uid)).then(async (userDoc) => {
             if (userDoc.exists()) {
+              userType = "tutor";
               if (
                 userDoc.data().clearance === "held" ||
                 userDoc.data().clearance === "revoked"
@@ -59,48 +73,172 @@ const Login = ({ setUserProfile }) => {
               } else {
                 // successful login
                 setUserProfile(userDoc);
-                if (
-                  location.state &&
-                  location.state.from &&
-                  location.state.from !== "/login"
-                ) {
-                  navigate(location.state.from);
-                } else {
-                  navigate(`/tutor/${userDoc.id}`);
-                }
+                navigate(`/tutor/${userDoc.id}`);
               }
             } else {
-              // unrecognized user
+              await getDoc(doc(db, "parents", user.uid)).then(
+                async (userDoc) => {
+                  if (userDoc.exists()) {
+                    userType = "parent";
+                    if (userDoc.data().clearance === "held") {
+                      // deny access based on clearance
+                      window.alert(
+                        "You do not have access to the Treehouse Student Database. Contact an administrator.",
+                      );
+                      signOut(auth);
+                    } else {
+                      // successful login
+                      setUserProfile(userDoc);
+                      if (
+                        location.state &&
+                        location.state.from &&
+                        location.state.from !== "/login"
+                      ) {
+                        navigate(location.state.from);
+                      } else {
+                        navigate(`/students`);
+                      }
+                    }
+                  } else {
+                    await getDocs(
+                      query(
+                        collection(db, "parents"),
+                        where("email", "==", user.email),
+                        limit(1),
+                      ),
+                    ).then((result) => {
+                      if (result.docs.length > 0 && result.docs[0].exists()) {
+                        userType = "parent";
+                        if (result.docs[0].data().clearance === "held") {
+                          // deny access based on clearance
+                          window.alert(
+                            "You do not have access to the Treehouse Student Database. Contact an administrator.",
+                          );
+                          signOut(auth);
+                        } else if (
+                          result.docs[0].data().clearance === "pending"
+                        ) {
+                          // special case for pending clearance
+                          // updateDoc(doc(db, "parents", user.uid), {
+                          //   ...JSON.parse(JSON.stringify(user.toJSON())),
+                          //   clearance: "active",
+                          // }).then(() => {
+                          //   setUserProfile(result.docs[0]);
+                          //   navigate('/students');
+                          // });
+                          setDoc(doc(db, "parents", user.uid), {
+                            ...JSON.parse(JSON.stringify(user.toJSON())),
+                            clearance: "active",
+                            students: result.docs[0].data().students,
+                          }).then((res) => {
+                            deleteDoc(doc(db, "parents", result.docs[0].id));
+                            setUserProfile(res);
+                            navigate(`/students`);
+                          });
+                        } else {
+                          // successful login
+                          setUserProfile(result.docs[0]);
+                          if (
+                            location.state &&
+                            location.state.from &&
+                            location.state.from !== "/login"
+                          ) {
+                            navigate(location.state.from);
+                          } else {
+                            navigate(`/students`);
+                          }
+                        }
+                      } else {
+                        return;
+                      }
+                    });
+                  }
+                },
+              );
+            }
+          });
+
+          if (userType === "unrecognized") {
+            // unrecognized user
+            if (
+              !window.confirm(
+                "You are not registered in the database. If you are a tutor, would you like to request access?",
+              )
+            ) {
+              signOut(auth);
+            } else {
+              // auth request
+              let { apiKey: _, ...rest } = {
+                ...JSON.parse(JSON.stringify(user.toJSON())),
+                activated: false,
+                clearance: "pending",
+              };
+              setDoc(doc(db, "tutors", user.uid), rest)
+                .then(() => {
+                  sendAuthRequestEmail(user.displayName, user.email);
+                })
+                .then(() => {
+                  window.alert(
+                    "Your request has been sent. You will be notified when your account is activated.",
+                  );
+                  signOut(auth);
+                });
+            }
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      navigate(`/tutor/${auth.currentUser.uid}`);
+    }
+  };
+
+  const handleEmailSignIn = (e) => {
+    e.preventDefault();
+    if (!auth.currentUser) {
+      const email = document.querySelector('input[type="email"]').value;
+      const password = document.querySelector('input[type="password"]').value;
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {
+            if (userDoc.exists()) {
+              setUserProfile(userDoc);
               if (
-                !window.confirm(
-                  "You are not registered in the database. Would you like to request access?",
-                )
+                location.state &&
+                location.state.from &&
+                location.state.from !== "/login"
               ) {
-                signOut(auth);
+                navigate(location.state.from);
               } else {
-                // auth request
-                let { apiKey: _, ...rest } = {
-                  ...JSON.parse(JSON.stringify(user.toJSON())),
-                  activated: false,
-                  clearance: "pending",
-                };
-                setDoc(doc(db, "tutors", user.uid), rest)
-                  .then(() => {
-                    sendAuthRequestEmail(user.displayName, user.email);
-                  })
-                  .then(() => {
-                    window.alert(
-                      "Your request has been sent. You will be notified when your account is activated.",
-                    );
-                    signOut(auth);
-                  });
+                navigate(`/tutor/${userDoc.id}`);
               }
+            } else {
+              setDoc(doc(db, "tutors", user.uid), {
+                ...JSON.parse(JSON.stringify(user.toJSON())),
+                clearance: "admin",
+                activated: true,
+              }).then((res) => {
+                setUserProfile(res);
+                navigate("/students");
+              });
             }
           });
         })
         .catch((error) => {
-          console.log(auth.tenantId);
           console.log(error);
+          if (error.code === "auth/user-not-found") {
+            window.alert(
+              "User not found. Please sign in with Google or try again later.",
+            );
+          } else if (error.code === "auth/wrong-password") {
+            window.alert("Incorrect password.");
+          } else if (error.code === "auth/invalid-email") {
+            window.alert("Invalid email.");
+          } else {
+            window.alert("An error occurred. Please try again later.");
+          }
         });
     } else {
       if (
@@ -110,53 +248,10 @@ const Login = ({ setUserProfile }) => {
       ) {
         navigate(location.state.from);
       } else {
-        navigate(`/tutor/${auth.currentUser.uid}`);
+        navigate(`/students`);
       }
     }
   };
-
-  // const handleEmailSignIn = (e) => {
-  //   e.preventDefault();
-  //   if (!auth.currentUser) {
-  //     const email = document.querySelector('input[type="email"]').value;
-  //     const password = document.querySelector('input[type="password"]').value;
-  //     signInWithEmailAndPassword(auth, email, password)
-  //       .then((userCredential) => {
-  //         const user = userCredential.user;
-  //         getDoc(doc(db, "tutors", user.uid)).then((userDoc) => {
-  //           if (userDoc.exists()) {
-  //             setUserProfile(userDoc);
-  //             navigate("/students");
-  //           } else {
-  //             setDoc(doc(db, "tutors", user.uid), {
-  //               ...JSON.parse(JSON.stringify(user.toJSON())),
-  //               clearance: "admin",
-  //               activated: true,
-  //             }).then((res) => {
-  //               setUserProfile(res);
-  //               navigate("/students");
-  //             });
-  //           }
-  //         });
-  //       })
-  //       .catch((error) => {
-  //         console.log(error);
-  //         if (error.code === "auth/user-not-found") {
-  //           window.alert(
-  //             "User not found. Please sign in with Google or try again later.",
-  //           );
-  //         } else if (error.code === "auth/wrong-password") {
-  //           window.alert("Incorrect password.");
-  //         } else if (error.code === "auth/invalid-email") {
-  //           window.alert("Invalid email.");
-  //         } else {
-  //           window.alert("An error occurred. Please try again later.");
-  //         }
-  //       });
-  //   } else {
-  //     navigate(`/students`);
-  //   }
-  // };
 
   return (
     <div className='d-flex flex-column vh-100 justify-content-center align-items-center p-3'>
@@ -177,26 +272,26 @@ const Login = ({ setUserProfile }) => {
             </Col>
             <Col>
               <div className='d-flex flex-column justify-content-evenly align-items-center text-center'>
-                <div className='display-1'>Treehouse Tutoring</div>
+                <div className='display-1'>TEST Tutoring</div>
                 <div className='h3'>Student Database</div>
                 <div className='d-flex'>
                   <Button variant='primary' className='' onClick={handleSignIn}>
                     Sign In <i className='bi bi-google' />
                   </Button>
-                  {/* <Button
+                  <Button
                     variant={showEmailLogin ? "outline-primary" : "primary"}
                     className='ms-3'
                     onClick={() => setShowEmailLogin(!showEmailLogin)}
                   >
                     Sign In <i className='bi bi-envelope-fill' />
-                  </Button> */}
+                  </Button>
                 </div>
               </div>
             </Col>
           </Row>
         </Container>
       </Card>
-      {/* <Collapse in={showEmailLogin}>
+      <Collapse in={showEmailLogin}>
         <div>
           <Card className='bg-light-subtle p-3 mt-3'>
             <Form onSubmit={handleEmailSignIn}>
@@ -218,7 +313,7 @@ const Login = ({ setUserProfile }) => {
             </Form>
           </Card>
         </div>
-      </Collapse> */}
+      </Collapse>
     </div>
   );
 };
