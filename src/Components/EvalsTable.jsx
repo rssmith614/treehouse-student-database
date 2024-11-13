@@ -105,9 +105,12 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
                 if (task.data().standards.length === 0) {
                   return task.data().comments;
                 } else {
-                  return `${task.data().comments}: ${
-                    (await standardsLabel(task.data().standards)) || ""
-                  }`;
+                  return (
+                    <div>
+                      <div>{task.data().comments}</div>
+                      {await standardsLabel(task.data().standards)}
+                    </div>
+                  );
                 }
               } else {
                 return task.data().comments;
@@ -134,16 +137,21 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
 
   async function standardsLabel(standards) {
     if (standards.length === 0) return "None";
-    else if (standards.length === 1)
-      return (
-        await getDoc(doc(db, "standards", standards[0]?.id || standards[0]))
-      ).data().key;
-    else
-      return `${
-        (
-          await getDoc(doc(db, "standards", standards[0]?.id || standards[0]))
-        ).data().key
-      } +${standards.length - 1} more`;
+    else {
+      return await Promise.all(
+        standards.map(async (standard) => {
+          return (
+            <span className='badge bg-secondary me-1'>
+              {
+                (
+                  await getDoc(doc(db, "standards", standard.id || standard))
+                ).data().key
+              }
+            </span>
+          );
+        }),
+      );
+    }
   }
 
   const EvalRow = ({ evaluation }) => {
@@ -162,7 +170,7 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
         style={{ cursor: "pointer" }}
       >
         <div className='d-flex w-100 align-items-center'>
-          <div className={`flex-shrink-0 col-${isDesktop ? "4" : "6"}`}>
+          <div className={`flex-shrink-0 col-${isDesktop ? "3" : "6"}`}>
             <h5 className='mb-1'>
               {dayjs(evaluation.date).format(
                 isDesktop ? "MMMM DD, YYYY" : "MMM DD, YYYY",
