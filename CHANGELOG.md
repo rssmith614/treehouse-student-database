@@ -1,3 +1,12 @@
+## [1.8.3] - 2024-09-23
+
+### Fixed
+- Evals being submitted or edited with flag for review now actually get flagged for review ([#230](https://https://github.com/rssmith614/treehouse-student-database/issues/230))
+
+### Changed
+- Logic of flag for review button
+- Adjusted positioning of buttons on new eval and edit eval pages
+
 ## [1.8.2] - 2024-09-05
 
 ### Fixed
