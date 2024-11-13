@@ -263,9 +263,11 @@ const StudentGrades = ({ studentid }) => {
             Export Grades as CSV
           </Button>
         </Can>
-        <Button variant='primary' className='ms-auto' onClick={newGrades}>
-          Record Grades
-        </Button>
+        <Can I='create' a={Grade}>
+          <Button variant='primary' className='ms-auto' onClick={newGrades}>
+            Record Grades
+          </Button>
+        </Can>
       </div>
 
       <Modal

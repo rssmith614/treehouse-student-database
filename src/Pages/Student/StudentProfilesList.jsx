@@ -1,8 +1,17 @@
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import {
+  FieldPath,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
 
 import { useNavigate } from "react-router-dom";
 
-import { db } from "../../Services/firebase";
+import { auth, db } from "../../Services/firebase";
 import React, { useEffect, useState } from "react";
 import { Can } from "../../Services/can";
 import dayjs from "dayjs";
@@ -21,8 +30,8 @@ import SortTableHeader from "../../Components/SortTableHeader";
 import PaginatedTable from "../../Components/PaginatedTable";
 import { useMediaQuery } from "react-responsive";
 
-const StudentProfilesList = () => {
-  const [students, setStudents] = useState(null);
+const StudentProfilesList = ({ allowedStudents }) => {
+  const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [nameFilter, setNameFilter] = useState("");
@@ -38,18 +47,23 @@ const StudentProfilesList = () => {
   const isDesktop = useMediaQuery({ query: "(min-width: 992px)" });
 
   useEffect(() => {
-    const unsubscribeStudents = onSnapshot(
-      collection(db, "students"),
-      (snapshot) => {
-        setStudents(snapshot.docs);
+    if (allowedStudents) {
+      Promise.all(
+        allowedStudents.map(async (studentId) => {
+          if (!studentId) return null;
+          return await getDoc(doc(db, "students", studentId));
+        }),
+      ).then((docs) => {
+        setStudents(docs);
         setLoading(false);
-      },
-    );
-
-    return () => {
-      unsubscribeStudents();
-    };
-  }, []);
+      });
+    } else if (auth.currentUser) {
+      getDocs(collection(db, "students")).then((querySnapshot) => {
+        setStudents(querySnapshot.docs);
+        setLoading(false);
+      });
+    }
+  }, [auth, allowedStudents]);
 
   function selectStudent(id) {
     navigate(`/students/${id}`);

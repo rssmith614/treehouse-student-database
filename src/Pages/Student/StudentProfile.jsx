@@ -15,6 +15,8 @@ import StandardsOfCategoryAndStatus from "../../Components/StandardsOfCategoryAn
 import StudentGrades from "../../Components/StudentGrades";
 import About from "./Components/About";
 import StudentTopics from "./Components/StudentTopics";
+import { Can } from "../../Services/can";
+import { Assessment, Eval } from "../../Services/defineAbility";
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
@@ -133,12 +135,14 @@ const StudentProfile = () => {
               id={studentRef.current.id}
               _limit={10}
             />
-            <button
-              className='btn btn-primary my-3 align-self-end'
-              onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}
-            >
-              New Session Eval
-            </button>
+            <Can I='create' an={Eval}>
+              <button
+                className='btn btn-primary my-3 align-self-end'
+                onClick={() => navigate(`/eval/new/${studentRef.current.id}`)}
+              >
+                New Session Eval
+              </button>
+            </Can>
           </div>
         </Tab.Pane>
         <Tab.Pane eventKey='standards'>
@@ -149,16 +153,18 @@ const StudentProfile = () => {
             student={studentRef.current}
             setSelectedAssessment={() => {}}
           />
-          <div className='d-flex justify-content-end'>
-            <button
-              className='btn btn-primary m-3'
-              onClick={() =>
-                navigate(`/assessments/new/${studentRef.current.id}`)
-              }
-            >
-              Issue New Assessment
-            </button>
-          </div>
+          <Can I='issue' an={Assessment}>
+            <div className='d-flex justify-content-end'>
+              <button
+                className='btn btn-primary m-3'
+                onClick={() =>
+                  navigate(`/assessments/new/${studentRef.current.id}`)
+                }
+              >
+                Issue New Assessment
+              </button>
+            </div>
+          </Can>
         </Tab.Pane>
         <Tab.Pane eventKey='grades'>
           <StudentGrades studentid={studentRef.current.id} />
