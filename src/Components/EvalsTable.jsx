@@ -103,11 +103,17 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
                 }
               } else if (task.data().standards) {
                 if (task.data().standards.length === 0) {
-                  return task.data().comments;
+                  return (
+                    <div className='text-truncate pe-3'>
+                      {task.data().comments}
+                    </div>
+                  );
                 } else {
                   return (
                     <div>
-                      <div>{task.data().comments}</div>
+                      <div className='text-truncate pe-3'>
+                        {task.data().comments}
+                      </div>
                       {await standardsLabel(task.data().standards)}
                     </div>
                   );
@@ -141,7 +147,7 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
       return await Promise.all(
         standards.map(async (standard) => {
           return (
-            <span className='badge bg-secondary me-1'>
+            <span className='badge bg-secondary me-1' key={standard.id}>
               {
                 (
                   await getDoc(doc(db, "standards", standard.id || standard))
@@ -183,7 +189,7 @@ const EvalsTable = ({ filterBy, id, _limit, draft = false }) => {
             )}
           </div>
           {isDesktop && (
-            <div className='text-truncate px-3'>{evaluation.tasks[0]}</div>
+            <div className='text-truncate'>{evaluation.tasks[0]}</div>
           )}
           <small className='badge text-bg-primary ms-auto'>
             {evaluation.tasks.length} Task
