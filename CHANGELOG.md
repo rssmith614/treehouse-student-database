@@ -1,3 +1,12 @@
+## [1.8.4] - 2024-11-12
+
+### Added
+- Standards listed on student profile can now be filtered by whether or not the student has worked on them ([[#222](https://github.com/rssmith614/treehouse-student-database/issues/222)])
+
+### Changed
+- Eval table looks a bit nicer ([[#223](https://github.com/rssmith614/treehouse-student-database/issues/223)])
+- Eval table now utlizes firestore pagination, so it doesn't load all evals at once
+
 ## [1.8.3] - 2024-09-23
 
 ### Fixed

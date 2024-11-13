@@ -7,6 +7,7 @@ import {
   Dropdown,
   Form,
   InputGroup,
+  Modal,
   Nav,
   Row,
 } from "react-bootstrap";
@@ -51,6 +52,8 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
   const [show, setShow] = useState(
     localStorage.getItem("showStandards") || "all",
   );
+
+  const [showTip, setShowTip] = useState(false);
 
   useEffect(() => {
     const unsubscribeStandards = onSnapshot(
@@ -331,22 +334,23 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
-            {(show !== "all" || standardFilter !== "") && (
-              <Button
-                variant='link'
-                className='mb-3'
-                onClick={() => {
-                  setStandardFilter("");
-                  setShow("all");
-                  localStorage.setItem("showStandards", "all");
-                }}
-              >
-                Clear Filters
-              </Button>
-            )}
           </div>
         </Col>
-        <Col xs={12} md={3}></Col>
+        <Col xs={12} md={3} className='d-flex justify-content-end'>
+          {(show !== "all" || standardFilter !== "") && (
+            <Button
+              variant='link'
+              className='mb-3'
+              onClick={() => {
+                setStandardFilter("");
+                setShow("all");
+                localStorage.setItem("showStandards", "all");
+              }}
+            >
+              Clear Filters
+            </Button>
+          )}
+        </Col>
       </Row>
       <Card className='bg-light-subtle'>
         <Card.Header>
@@ -394,6 +398,13 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
           ) : (
             listedStandards
           )}
+          <Button
+            variant='link'
+            className='ms-auto me-3 text-light'
+            onClick={() => setShowTip(true)}
+          >
+            <i className='bi bi-question-square align-self-center'></i>
+          </Button>
         </Card.Body>
       </Card>
       <StandardInfo
@@ -403,6 +414,67 @@ const StandardsOfCategoryAndStatus = ({ student }) => {
         selectedStandard={selectedStandard}
         setSelectedStandard={setSelectedStandard}
       />
+      <Modal show={showTip} onHide={() => setShowTip(false)} centered size='lg'>
+        <Modal.Header closeButton>
+          <Modal.Title>Standards</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>This is a collection of the California Common Core Standards.</p>
+          <p>
+            On this page, you can view the standards for a specific grade and
+            subject, along with the student's progression on each standard.
+          </p>
+          <p>
+            The student's progression is calculated based on their average
+            performance in{" "}
+            <span className='fw-bold fst-italic'>evaluations</span> and{" "}
+            <span className='fw-bold fst-italic'>assessments</span> on a scale
+            of 1-4.
+          </p>
+          <div className='d-flex justify-content-center'>
+            <table className='table w-75 text-center'>
+              <thead>
+                <tr>
+                  <th>Average Progression</th>
+                  <th>Performance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>3.5 +</td>
+                  <td>
+                    <span className='badge bg-success'>
+                      Exceeds Expectations
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2.5 - 3.4</td>
+                  <td>
+                    <span className='badge bg-primary text-dark'>
+                      Meets Expectations
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>1.5 - 2.4</td>
+                  <td>
+                    <span className='badge bg-warning'>Below Expectations</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>1 - 1.4</td>
+                  <td>
+                    <span className='badge bg-danger'>
+                      Far Below Expectations
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
