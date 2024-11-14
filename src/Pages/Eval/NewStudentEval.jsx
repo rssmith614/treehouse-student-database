@@ -505,61 +505,59 @@ const NewStudentEval = () => {
     let worksheetUpload = null;
     let worksheetURL = null;
 
-    if (document.getElementById("worksheet").value !== "") {
-      if (document.getElementById("worksheet").type === "url") {
-        try {
-          let input = document.getElementById("worksheet").value;
-          if (!/^(ftp|http|https):\/\/[^ "]+$/.test(input)) {
-            input = `https://${input}`;
-          }
-          let worksheetLink = new URL(input);
-          worksheetURL = worksheetLink.href;
-        } catch (err) {
-          document.getElementById("worksheet").classList.add("is-invalid");
-          return;
-        }
-      } else if (document.getElementById("worksheet").files.length > 0) {
-        worksheetUpload = document.getElementById("worksheet").files[0];
-      }
-    }
+    // if (document.getElementById("worksheet").value !== "") {
+    //   if (document.getElementById("worksheet").type === "url") {
+    //     try {
+    //       let input = document.getElementById("worksheet").value;
+    //       if (!/^(ftp|http|https):\/\/[^ "]+$/.test(input)) {
+    //         input = `https://${input}`;
+    //       }
+    //       let worksheetLink = new URL(input);
+    //       worksheetURL = worksheetLink.href;
+    //     } catch (err) {
+    //       document.getElementById("worksheet").classList.add("is-invalid");
+    //       return;
+    //     }
+    //   } else if (document.getElementById("worksheet").files.length > 0) {
+    //     worksheetUploads = document.getElementById("worksheet").files;
+    //   }
+    // }
+
+    // let worksheetPaths = [];
 
     if (worksheetUpload) {
-      const worksheetRef = ref(
-        storage,
-        `worksheets/${studentRef.current.id}/${worksheetUpload.name}`,
-      );
-
       uploadBytes(worksheetRef, worksheetUpload).then(() =>
-        addDoc(collection(db, "evaluations"), {
-          ...evaluation,
-          owner: auth.currentUser.uid,
-          worksheet: worksheetRef.fullPath,
-          draft: draft,
-        })
-          .then((doc) => {
-            tasks.forEach((t, task_idx) =>
-              addDoc(collection(doc, "tasks"), {
-                ...t,
-                idx: task_idx,
-                progression: t.standards.length === 0 ? t.progression : null,
-                standards: t.standards.map((s) => {
-                  return { id: s.id, progression: s.progression };
-                }),
-              }),
-            );
-            addToast({
-              header: "Evaluation Submitted",
-              message: `Session evaluation for ${evaluation.student_name} was successfully uploaded`,
-            });
-          })
-          .then(() => {
-            localStorage.removeItem(`${params.studentid}_eval`);
-            localStorage.removeItem(`${params.studentid}_tasks`);
-          })
-          .then(() => {
-            localStorage.setItem("student_tab", "evals");
-            navigate(-1);
-          }),
+        // addDoc(collection(db, "evaluations"), {
+        //   ...evaluation,
+        //   owner: auth.currentUser.uid,
+        //   worksheet: worksheetRef.fullPath,
+        //   draft: draft,
+        // })
+        //   .then((doc) => {
+        //     tasks.forEach((t, task_idx) =>
+        //       addDoc(collection(doc, "tasks"), {
+        //         ...t,
+        //         idx: task_idx,
+        //         progression: t.standards.length === 0 ? t.progression : null,
+        //         standards: t.standards.map((s) => {
+        //           return { id: s.id, progression: s.progression };
+        //         }),
+        //       }),
+        //     );
+        //     addToast({
+        //       header: "Evaluation Submitted",
+        //       message: `Session evaluation for ${evaluation.student_name} was successfully uploaded`,
+        //     });
+        //   })
+        //   .then(() => {
+        //     localStorage.removeItem(`${params.studentid}_eval`);
+        //     localStorage.removeItem(`${params.studentid}_tasks`);
+        //   })
+        //   .then(() => {
+        //     localStorage.setItem("student_tab", "evals");
+        //     navigate(-1);
+        //   }),
+        worksheetPaths.push(worksheetRef.fullPath),
       );
     } else {
       addDoc(collection(db, "evaluations"), {
