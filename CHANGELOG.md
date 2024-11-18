@@ -1,3 +1,11 @@
+## [1.8.5] - 2024-11-18
+
+### Added
+- Support for multiple worksheets per eval ([[#233](https://github.com/rssmith614/treehouse-student-database/issues/233)])
+
+### Changed
+- Legacy worksheet upload will show up as a list with one element with normal edit support
+
 ## [1.8.4] - 2024-11-12
 
 ### Added
