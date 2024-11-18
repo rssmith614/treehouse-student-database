@@ -1,29 +1,34 @@
 import { doc } from "firebase/firestore";
-import { getDownloadURL } from "firebase/storage";
+import { getDownloadURL, ref } from "firebase/storage";
 import { useEffect, useRef, useState } from "react";
 import { Button, Col, Collapse, Form, Row } from "react-bootstrap";
 import { useMediaQuery } from "react-responsive";
 import { storage } from "../../../Services/firebase";
 
-const WorksheetItem = ({ worksheet, handleWorksheetChange }) => {
+const WorksheetItem = ({ idx, worksheet, handleWorksheetChange }) => {
   const isDesktop = useMediaQuery({ query: "(min-width: 768px)" });
 
-  const worksheetFileDownloadLink = useRef(null);
+  const [worksheetType, setWorksheetType] = useState(worksheet.type || "file");
+  const [completion, setCompletion] = useState(worksheet.completion || "");
+  const [worksheetFileDownloadLink, setWorksheetFileDownloadLink] =
+    useState(null);
 
   const [show, setShow] = useState(true);
 
   useEffect(() => {
-    if (worksheet.type === "file" && worksheet.path) {
-      try {
-        let worksheetRef = doc(storage, worksheet.path);
-        getDownloadURL(worksheetRef).then((url) => {
-          worksheetFileDownloadLink.current = url;
-        });
-      } catch (error) {
-        console.error(error);
+    if (worksheetType === "file") {
+      if (worksheet.path) {
+        try {
+          let worksheetRef = ref(storage, worksheet.path);
+          getDownloadURL(worksheetRef).then((url) => {
+            setWorksheetFileDownloadLink(url);
+          });
+        } catch (error) {
+          console.error(error);
+        }
       }
     }
-  }, [worksheet]);
+  }, [worksheetType]);
 
   return (
     <Collapse in={show} appear onExited={() => handleWorksheetChange(null)}>
@@ -41,31 +46,10 @@ const WorksheetItem = ({ worksheet, handleWorksheetChange }) => {
             </Button>
             <Form.Select
               className={`mb-2 order-2`}
-              value={worksheet?.type || "file"}
+              value={worksheetType || "file"}
               onChange={(e) => {
-                let newWorksheet = { ...worksheet };
-                if (e.target.value === "file") {
-                  newWorksheet.type = "file";
-
-                  document.getElementById("worksheet").type = "file";
-                  document.getElementById("worksheet").onchange = (e) => {
-                    let newWorksheet = { ...worksheet };
-                    newWorksheet.path = e.target.files[0];
-                    handleWorksheetChange(newWorksheet);
-                  };
-                } else {
-                  newWorksheet.type = "url";
-
-                  document.getElementById("worksheet").type = "url";
-                  document.getElementById("worksheet").placeholder =
-                    "Link to Worksheet";
-                  document.getElementById("worksheet").value = worksheet.link;
-                  document.getElementById("worksheet").onchange = (e) => {
-                    let newWorksheet = { ...worksheet };
-                    newWorksheet.link = e.target.value;
-                    handleWorksheetChange(newWorksheet);
-                  };
-                }
+                setWorksheetType(e.target.value);
+                let newWorksheet = { ...worksheet, type: e.target.value };
                 handleWorksheetChange(newWorksheet);
               }}
             >
@@ -74,11 +58,39 @@ const WorksheetItem = ({ worksheet, handleWorksheetChange }) => {
             </Form.Select>
           </div>
 
-          <input id='worksheet' className='form-control mb-2' type='file' />
+          {worksheetType === "file" ? (
+            <input
+              id={`worksheet_${idx}`}
+              className='form-control mb-2'
+              type='file'
+              // value=''
+              onChange={(e) => {
+                if (!e) return;
+                let newWorksheet = { ...worksheet };
+                newWorksheet.file = e.target.files[0];
+                handleWorksheetChange(newWorksheet);
+              }}
+            />
+          ) : (
+            <input
+              id={`worksheet_${idx}`}
+              className='form-control mb-2'
+              type='url'
+              placeholder='Link to Worksheet'
+              value={worksheet.link}
+              onChange={(e) => {
+                if (!e) return;
+                let newWorksheet = { ...worksheet };
+                newWorksheet.link = e.target.value;
+                handleWorksheetChange(newWorksheet);
+              }}
+            />
+          )}
+          <div className='invalid-feedback'>Please provide a worksheet.</div>
 
-          {worksheetFileDownloadLink.current && (
+          {worksheetFileDownloadLink && (
             <a
-              href={worksheetFileDownloadLink.current}
+              href={worksheetFileDownloadLink}
               target='_blank'
               rel='noreferrer'
               className='text-end'
@@ -92,11 +104,12 @@ const WorksheetItem = ({ worksheet, handleWorksheetChange }) => {
             className='form-control h-100 mb-2'
             placeholder='Comments'
             type='text'
-            value={worksheet.completion || ""}
+            value={completion || ""}
             onChange={(e) => {
               let newWorksheet = { ...worksheet };
               newWorksheet.completion = e.target.value;
               handleWorksheetChange(newWorksheet);
+              setCompletion(e.target.value);
             }}
           />
         </Col>
@@ -112,20 +125,34 @@ const Worksheets = ({ evaluation, handleEvalChange }) => {
     setWorksheets(evaluation?.worksheets || []);
   }, [evaluation]);
 
-  // if (evaluation.worksheet !== "") {
-  //   let oldWorksheet = {};
-  //   try {
-  //     let worksheetRef = ref(storage, evaluation.worksheet);
-  //     getDownloadURL(worksheetRef).then((url) => {
-  //       oldWorksheet.link = url;
-  //       oldWorksheet.type = "file";
-  //     });
-  //   } catch (err) {
-  //     oldWorksheet.link = evaluation.worksheet;
-  //     oldWorksheet.type = "url";
-  //   }
-  //   setWorksheets([oldWorksheet]);
-  // }
+  useEffect(() => {
+    if (evaluation?.worksheet || "" !== "") {
+      let oldWorksheet = {};
+      try {
+        let worksheetRef = ref(storage, evaluation.worksheet);
+        getDownloadURL(worksheetRef).then((url) => {
+          oldWorksheet.link = "";
+          oldWorksheet.path = evaluation.worksheet;
+          oldWorksheet.type = "file";
+          oldWorksheet.completion = evaluation.worksheet_completion;
+        });
+      } catch (err) {
+        console.log(err);
+        oldWorksheet.link = evaluation.worksheet;
+        oldWorksheet.path = "";
+        oldWorksheet.type = "url";
+        oldWorksheet.completion = evaluation.worksheet_completion;
+      }
+      const newEval = {
+        ...evaluation,
+        worksheets: [oldWorksheet],
+        worksheet: "",
+        worksheet_completion: "",
+      };
+      handleEvalChange(newEval);
+      setWorksheets([oldWorksheet]);
+    }
+  }, [evaluation.worksheet, evaluation.worksheet_completion]);
 
   return (
     <div>
@@ -134,6 +161,7 @@ const Worksheets = ({ evaluation, handleEvalChange }) => {
         {worksheets.map((worksheet, index) => (
           <WorksheetItem
             key={index}
+            idx={index}
             worksheet={worksheet}
             handleWorksheetChange={(newWorksheet) => {
               const newWorksheets = [...worksheets];

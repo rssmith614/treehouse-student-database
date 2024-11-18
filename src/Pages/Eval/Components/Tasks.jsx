@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Container } from "react-bootstrap";
+import { Button, Card, Container } from "react-bootstrap";
 import Task from "../Task/Task";
 
 const Tasks = ({
@@ -39,16 +39,20 @@ const Tasks = ({
 
   return (
     <>
-      <Container>{tasksList}</Container>
-      <Button
-        type='button'
-        variant='secondary'
-        className='me-auto'
-        onClick={addTask}
-      >
-        Add Task
-        <i className='bi bi-plus ps-2' />
-      </Button>
+      <Container>
+        {tasksList}
+        <Card className='p-3'>
+          <Button
+            type='button'
+            variant='secondary'
+            className=''
+            onClick={addTask}
+          >
+            Add Task
+            <i className='bi bi-plus ps-2' />
+          </Button>
+        </Card>
+      </Container>
     </>
   );
 };
