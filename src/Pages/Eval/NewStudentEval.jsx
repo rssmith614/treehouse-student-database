@@ -65,8 +65,9 @@ const NewStudentEval = () => {
     tutor_id: auth.currentUser?.uid || "",
     tutor_name: "",
     date: dayjs().format("YYYY-MM-DD"),
-    worksheet: "",
-    worksheet_completion: "",
+    // worksheet: "",
+    // worksheet_completion: "",
+    worksheets: [],
     next_session: "",
     owner: auth.currentUser?.uid || "",
     draft: false,
@@ -122,6 +123,7 @@ const NewStudentEval = () => {
   }, [evaluation.tutor_id]);
 
   useEffect(() => {
+    if (!auth.currentUser) return;
     const unsubscribeDrafts = onSnapshot(
       query(
         collection(db, "evaluations"),
@@ -140,7 +142,7 @@ const NewStudentEval = () => {
     return () => {
       unsubscribeDrafts();
     };
-  }, [params.studentid]);
+  }, [params.studentid, auth.currentUser]);
 
   // load cached eval data
   useEffect(() => {
@@ -429,7 +431,7 @@ const NewStudentEval = () => {
     localStorage.setItem(`${params.studentid}_tasks`, JSON.stringify(newTasks));
   }
 
-  function sumbitEval(e) {
+  async function sumbitEval(e) {
     e.preventDefault();
     let draft = false;
     if (e.target.id === "saveDraft") {
@@ -498,105 +500,75 @@ const NewStudentEval = () => {
       clean = false;
     }
 
+    for (let i = 0; i < evaluation.worksheets.length; i++) {
+      if (evaluation.worksheets[i].type === "file") {
+        if (!evaluation.worksheets[i].file) {
+          document.getElementById(`worksheet_${i}`).classList.add("is-invalid");
+          clean = false;
+        }
+      } else {
+        if (!evaluation.worksheets[i].link) {
+          document.getElementById(`worksheet_${i}`).classList.add("is-invalid");
+          clean = false;
+        }
+      }
+    }
+
     if (!clean && !draft) return;
 
     document.getElementById("submit").innerHTML =
       "Submit <span class='spinner-border spinner-border-sm' />";
-    let worksheetUpload = null;
-    let worksheetURL = null;
 
-    if (document.getElementById("worksheet").value !== "") {
-      if (document.getElementById("worksheet").type === "url") {
-        try {
-          let input = document.getElementById("worksheet").value;
-          if (!/^(ftp|http|https):\/\/[^ "]+$/.test(input)) {
-            input = `https://${input}`;
-          }
-          let worksheetLink = new URL(input);
-          worksheetURL = worksheetLink.href;
-        } catch (err) {
-          document.getElementById("worksheet").classList.add("is-invalid");
-          return;
-        }
-      } else if (document.getElementById("worksheet").files.length > 0) {
-        worksheetUpload = document.getElementById("worksheet").files[0];
+    let worksheetsForUpload = [...evaluation.worksheets];
+
+    for (let i = 0; i < worksheetsForUpload.length; i++) {
+      let worksheet = worksheetsForUpload[i];
+      if (worksheet.type === "file") {
+        const worksheetRef = ref(
+          storage,
+          `worksheets/${studentRef.current.id}/${worksheet.file.name}`,
+        );
+        await uploadBytes(worksheetRef, worksheet.file);
+        worksheet.path = worksheetRef.fullPath;
+        delete worksheet.file;
       }
     }
 
-    if (worksheetUpload) {
-      const worksheetRef = ref(
-        storage,
-        `worksheets/${studentRef.current.id}/${worksheetUpload.name}`,
-      );
-
-      uploadBytes(worksheetRef, worksheetUpload).then(() =>
-        addDoc(collection(db, "evaluations"), {
-          ...evaluation,
-          owner: auth.currentUser.uid,
-          worksheet: worksheetRef.fullPath,
-          draft: draft,
-        })
-          .then((doc) => {
-            tasks.forEach((t, task_idx) =>
-              addDoc(collection(doc, "tasks"), {
-                ...t,
-                idx: task_idx,
-                progression: t.standards.length === 0 ? t.progression : null,
-                standards: t.standards.map((s) => {
-                  return { id: s.id, progression: s.progression };
-                }),
-              }),
-            );
-            addToast({
-              header: "Evaluation Submitted",
-              message: `Session evaluation for ${evaluation.student_name} was successfully uploaded`,
-            });
-          })
-          .then(() => {
-            localStorage.removeItem(`${params.studentid}_eval`);
-            localStorage.removeItem(`${params.studentid}_tasks`);
-          })
-          .then(() => {
-            localStorage.setItem("student_tab", "evals");
-            navigate(-1);
-          }),
-      );
-    } else {
-      addDoc(collection(db, "evaluations"), {
-        ...evaluation,
-        tutor_id: evaluation.tutor_id || "",
-        tutor_name: evaluation.tutor_name || "",
-        student_id: evaluation.student_id || "",
-        student_name: evaluation.student_name || "",
-        owner: auth.currentUser.uid,
-        worksheet: worksheetURL,
-        draft: draft,
-      })
-        .then((d) => {
-          tasks.forEach((t, task_idx) => {
-            addDoc(collection(d, "tasks"), {
-              ...t,
-              idx: task_idx,
-              progression: t.standards.length === 0 ? t.progression : null,
-              standards: t.standards.map((s) => {
-                return { id: s.id, progression: s.progression };
-              }),
-            });
+    addDoc(collection(db, "evaluations"), {
+      ...evaluation,
+      tutor_id: evaluation.tutor_id || "",
+      tutor_name: evaluation.tutor_name || "",
+      student_id: evaluation.student_id || "",
+      student_name: evaluation.student_name || "",
+      owner: auth.currentUser.uid,
+      // worksheet: worksheetURL,
+      worksheets: worksheetsForUpload,
+      draft: draft,
+    })
+      .then((d) => {
+        tasks.forEach((t, task_idx) => {
+          addDoc(collection(d, "tasks"), {
+            ...t,
+            idx: task_idx,
+            progression: t.standards.length === 0 ? t.progression : null,
+            standards: t.standards.map((s) => {
+              return { id: s.id, progression: s.progression };
+            }),
           });
-          addToast({
-            header: "Evaluation Submitted",
-            message: `Session evaluation for ${evaluation.student_name} was successfully uploaded`,
-          });
-        })
-        .then(() => {
-          localStorage.removeItem(`${params.studentid}_eval`);
-          localStorage.removeItem(`${params.studentid}_tasks`);
-        })
-        .then(() => {
-          localStorage.setItem("student_tab", "evals");
-          navigate(-1);
         });
-    }
+        addToast({
+          header: "Evaluation Submitted",
+          message: `Session evaluation for ${evaluation.student_name} was successfully uploaded`,
+        });
+      })
+      .then(() => {
+        localStorage.removeItem(`${params.studentid}_eval`);
+        localStorage.removeItem(`${params.studentid}_tasks`);
+      })
+      .then(() => {
+        localStorage.setItem("student_tab", "evals");
+        navigate(-1);
+      });
   }
 
   return (

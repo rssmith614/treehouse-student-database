@@ -57,12 +57,11 @@ const StudentEval = () => {
 
   const [showModal, setShowModal] = useState(false); // For ownership request
 
-  const [worksheet, setWorksheet] = useState(null);
+  const [worksheets, setWorksheets] = useState([]);
 
   const params = useParams();
 
   const evalRef = useRef(doc(db, "evaluations", params.evalid));
-  const worksheetRef = useRef();
 
   const navigate = useNavigate();
 
@@ -82,14 +81,61 @@ const StudentEval = () => {
       await getDoc(doc(db, "tutors", res.data().owner)).then((owner) => {
         setEvalOwnerName(owner.data().displayName);
       });
+
+      if (res.data().worksheets) {
+        const worksheetPromises = res
+          .data()
+          .worksheets.map(async (worksheet) => {
+            if (worksheet.type === "file") {
+              try {
+                let worksheetRef = ref(storage, worksheet.path);
+                let url = await getDownloadURL(worksheetRef);
+                return {
+                  path: worksheetRef.name,
+                  downloadUrl: url,
+                  type: "file",
+                  completion: worksheet.completion,
+                };
+              } catch (err) {
+                return {
+                  link: worksheet.link,
+                  type: "url",
+                  completion: worksheet.completion,
+                };
+              }
+            } else {
+              return {
+                link: worksheet.link,
+                type: "url",
+                completion: worksheet.completion,
+              };
+            }
+          });
+        const worksheetsData = await Promise.all(worksheetPromises);
+        setWorksheets([...worksheetsData]);
+      }
+
       if (res.data().worksheet === "" || !res.data().worksheet) return;
 
       try {
-        worksheetRef.current = ref(storage, res.data().worksheet);
-        let url = await getDownloadURL(worksheetRef.current);
-        setWorksheet(url);
+        let worksheetRef = ref(storage, res.data().worksheet);
+        let url = await getDownloadURL(worksheetRef);
+        setWorksheets([
+          {
+            path: res.data().worksheet,
+            downloadUrl: url,
+            type: "file",
+            completion: res.data().worksheet_completion,
+          },
+        ]);
       } catch (err) {
-        setWorksheet(res.data().worksheet);
+        setWorksheets([
+          {
+            link: res.data().worksheet,
+            type: "url",
+            completion: res.data().worksheet_completion,
+          },
+        ]);
       }
     });
 
@@ -323,30 +369,44 @@ const StudentEval = () => {
         </Container>
         <hr />
         <div className='row mt-3'>
-          <div className='col'>
+          <div className='col-md-6'>
             <label className='form-label h5 text-decoration-underline'>
-              Worksheet
+              Worksheets
             </label>
-            <div className='mb-3'>
-              <a
-                id='worksheet'
-                href={worksheet}
-                target='_blank'
-                rel='noreferrer'
-              >
-                {evaluation.worksheet}
-              </a>
-            </div>
+            <Container>
+              {worksheets.map((worksheet, idx) => {
+                return (
+                  <Card key={idx} className='p-3 mb-1'>
+                    <div className='d-flex'>
+                      {worksheet.type === "file" ? (
+                        <a
+                          href={worksheet.downloadUrl}
+                          target='_blank'
+                          rel='noreferrer'
+                          className='text-end'
+                        >
+                          {worksheet.path}
+                        </a>
+                      ) : (
+                        <a
+                          href={worksheet.link}
+                          target='_blank'
+                          rel='noreferrer'
+                          className='text-end'
+                        >
+                          {worksheet.link}
+                        </a>
+                      )}
+                    </div>
+                    <div className='d-flex'>
+                      <div className=''>{worksheet.completion}</div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </Container>
           </div>
-          <div className='col'>
-            <label className='form-label h5 text-decoration-underline text-nowrap'>
-              Worksheet Completion
-            </label>
-            <div id='worksheet_completion' className='mb-3'>
-              {evaluation.worksheet_completion}
-            </div>
-          </div>
-          <div className='col'>
+          <div className='col-md-6'>
             <label className='form-label h5 text-decoration-underline text-nowrap'>
               Next Session Plans
             </label>

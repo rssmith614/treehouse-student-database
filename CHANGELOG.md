@@ -1,8 +1,25 @@
-## [1.9.0] - 2024-09-18
+## [1.9.0] - 2024-11-26
 
 ### Added
 - Accounts for parents ([#224](https://github.com/rssmith614/treehouse-student-database/issues/224))
-- 
+
+## [1.8.5] - 2024-11-18
+
+### Added
+- Support for multiple worksheets per eval ([[#233](https://github.com/rssmith614/treehouse-student-database/issues/233)])
+
+### Changed
+- Legacy worksheet upload will show up as a list with one element with normal edit support
+
+## [1.8.4] - 2024-11-12
+
+### Added
+- Standards listed on student profile can now be filtered by whether or not the student has worked on them ([[#222](https://github.com/rssmith614/treehouse-student-database/issues/222)])
+
+### Changed
+- Eval table looks a bit nicer ([[#223](https://github.com/rssmith614/treehouse-student-database/issues/223)])
+- Eval table now utlizes firestore pagination, so it doesn't load all evals at once
+
 ## [1.8.3] - 2024-09-23
 
 ### Fixed

@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
 import { Button, Pagination, Table } from "react-bootstrap";
+import { useMediaQuery } from "react-responsive";
 
-const PageNavigation = ({
-  numRecords,
-  pageLimit,
-  cursorIndex,
-  setCursorIndex,
-}) => {
+const PageNavigation = ({ numRecords, pageLimit, setCursorIndex }) => {
   const [pageNumber, setPageNumber] = useState(1);
 
   const maxPage = Math.floor((numRecords - 1) / pageLimit) + 1;
@@ -73,9 +69,9 @@ const PageNavigation = ({
 };
 
 const PaginatedTable = ({
+  header,
   records,
   pageLimit,
-  header,
   filtered,
   clearFilters,
 }) => {

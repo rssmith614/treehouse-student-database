@@ -1,7 +1,8 @@
 import { getDownloadURL, ref } from "firebase/storage";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Form, OverlayTrigger, Popover } from "react-bootstrap";
 import { storage } from "../../../Services/firebase";
+import Worksheets from "./Worksheets";
 
 const EvalFooter = ({ evaluation, handleEvalChange }) => {
   const worksheetRef = useRef(null);
@@ -20,8 +21,8 @@ const EvalFooter = ({ evaluation, handleEvalChange }) => {
 
   return (
     <div className='row my-3'>
-      <div className='col-12 col-md-4 pb-3'>
-        <label className='form-label h5'>Worksheet</label>
+      <div className='col-12 col-md-8 pb-3'>
+        {/* <label className='form-label h5'>Worksheet</label>
         <Form.Select
           className='mb-2'
           defaultValue='file'
@@ -40,7 +41,7 @@ const EvalFooter = ({ evaluation, handleEvalChange }) => {
           <option value='url'>URL</option>
         </Form.Select>
 
-        <input id='worksheet' className='form-control mb-2' type='file' />
+        <input id='worksheet' className='form-control mb-2' type='file' multiple />
         <div className='invalid-feedback'>Please provide a valid URL</div>
 
         {worksheetLink.current && (
@@ -66,9 +67,13 @@ const EvalFooter = ({ evaluation, handleEvalChange }) => {
             newEval.worksheet_completion = e.target.value;
             handleEvalChange(newEval);
           }}
+        /> */}
+        <Worksheets
+          evaluation={evaluation}
+          handleEvalChange={handleEvalChange}
         />
       </div>
-      <div className='col-12 col-md-4'>
+      <div className='col-12 col-md-4 pb-3'>
         <div className='d-flex'>
           <label className='form-label h5'>Next Session Plans</label>
           <OverlayTrigger
@@ -98,13 +103,13 @@ const EvalFooter = ({ evaluation, handleEvalChange }) => {
             const newEval = { ...evaluation };
             newEval.next_session = e.target.value;
             handleEvalChange(newEval);
-            e.target.style.height = "auto";
-            e.target.style.height = `${e.target.scrollHeight}px`;
+            // e.target.style.height = "auto";
+            // e.target.style.height = `${e.target.scrollHeight}px`;
           }}
-          onMouseEnter={(e) => {
-            e.target.style.height = "auto";
-            e.target.style.height = `${e.target.scrollHeight}px`;
-          }}
+          // onMouseEnter={(e) => {
+          //   e.target.style.height = "auto";
+          //   e.target.style.height = `${e.target.scrollHeight}px`;
+          // }}
         />
         <div className='invalid-feedback'>
           Please enter plans for the next session

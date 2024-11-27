@@ -187,20 +187,20 @@ const EvalQuery = () => {
   async function exportCSV() {
     let csvContent = "data:text/csv;charset=utf-8,";
 
-    csvContent += `Date,Student,Tutor,Worksheet Link,Worksheet Completion, Next Session Plans,Standards,Progression,Engagement,Comments\n`;
+    csvContent += `Date,Student,Tutor,Next Session Plans,Standards,Progression,Engagement,Comments\n`;
 
     let exportData = Promise.all(
       evals.map(async (evaluation) => {
-        let worksheetDownloadUrl = "";
-        if (evaluation.worksheet !== "") {
-          try {
-            worksheetDownloadUrl = await getDownloadURL(
-              ref(storage, evaluation.worksheet),
-            );
-          } catch (err) {
-            worksheetDownloadUrl = evaluation.worksheet;
-          }
-        }
+        // let worksheetDownloadUrl = "";
+        // if (evaluation.worksheet !== "") {
+        //   try {
+        //     worksheetDownloadUrl = await getDownloadURL(
+        //       ref(storage, evaluation.worksheet),
+        //     );
+        //   } catch (err) {
+        //     worksheetDownloadUrl = evaluation.worksheet;
+        //   }
+        // }
 
         return Promise.all(
           evaluation.tasks.map(async (task) => {
@@ -238,8 +238,8 @@ const EvalQuery = () => {
                 date: evaluation.date,
                 student: evaluation.student_name,
                 tutor: evaluation.tutor_name,
-                worksheet: `"${worksheetDownloadUrl}"`,
-                worksheet_completion: `"${evaluation.worksheet_completion}"`,
+                // worksheet: `"${worksheetDownloadUrl}"`,
+                // worksheet_completion: `"${evaluation.worksheet_completion}"`,
                 next_session: `"${evaluation.next_session}"`,
                 // subject: task.subject,
                 standards: task.standards,
@@ -255,7 +255,7 @@ const EvalQuery = () => {
 
     (await exportData).forEach((evaluation) => {
       evaluation.tasks.forEach((task) => {
-        csvContent += `${task.date},${task.student},${task.tutor},${task.worksheet},${task.worksheet_completion},${task.next_session},${task.standards},${task.progression},${task.engagement},${task.comments}\n`;
+        csvContent += `${task.date},${task.student},${task.tutor},${task.next_session},${task.standards},${task.progression},${task.engagement},${task.comments}\n`;
       });
     });
 

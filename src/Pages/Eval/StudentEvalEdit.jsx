@@ -452,6 +452,20 @@ const StudentEvalEdit = () => {
       clean = false;
     }
 
+    for (let i = 0; i < evaluation.worksheets.length; i++) {
+      if (evaluation.worksheets[i].type === "file") {
+        if (!evaluation.worksheets[i].file && !evaluation.worksheets[i].path) {
+          document.getElementById(`worksheet_${i}`).classList.add("is-invalid");
+          clean = false;
+        }
+      } else {
+        if (!evaluation.worksheets[i].link) {
+          document.getElementById(`worksheet_${i}`).classList.add("is-invalid");
+          clean = false;
+        }
+      }
+    }
+
     if (!clean && !draft) {
       document.getElementById("submit").innerHTML = "Submit";
       document.getElementById("submit").disabled = false;
@@ -476,57 +490,22 @@ const StudentEvalEdit = () => {
     evalUpload.tutor_id = selectedTutor;
     evalUpload.tutor_name = tutorName;
 
-    let worksheetUpload = null;
-    let worksheetReplacement = false;
+    let worksheetsForUpload = [...evaluation.worksheets];
 
-    if (
-      document.getElementById("worksheet").type === "url" &&
-      document.getElementById("worksheet").value !== ""
-    ) {
-      try {
-        let input = document.getElementById("worksheet").value;
-        if (!/^(ftp|http|https):\/\/[^ "]+$/.test(input)) {
-          input = `https://${input}`;
-        }
-        let worksheetLink = new URL(input);
-        evalUpload.worksheet = worksheetLink.href;
-        worksheetReplacement = true;
-      } catch (err) {
-        document.getElementById("worksheet").classList.add("is-invalid");
-        document.getElementById("submit").innerHTML = "Submit";
-        document.getElementById("submit").disabled = false;
-        return;
-      }
-    } else if (
-      document.getElementById("worksheet").type === "file" &&
-      document.getElementById("worksheet").files.length > 0
-    ) {
-      worksheetUpload = document.getElementById("worksheet").files[0];
-      worksheetReplacement = true;
-    }
-
-    if (worksheetReplacement) {
-      if (evaluation?.worksheet !== "" && evaluation?.worksheet !== undefined) {
-        try {
-          console.log(evaluation?.worksheet);
-          let oldRef = ref(storage, evaluation?.worksheet);
-          await deleteObject(oldRef);
-        } catch (err) {}
-      }
-
-      if (worksheetUpload !== null) {
+    for (let i = 0; i < worksheetsForUpload.length; i++) {
+      let worksheet = worksheetsForUpload[i];
+      if (worksheet.type === "file" && worksheet.file) {
         const worksheetRef = ref(
           storage,
-          `worksheets/${evalUpload.student_id}/${worksheetUpload.name}`,
+          `worksheets/${evalUpload.student_id}/${worksheet.file.name}`,
         );
-
-        await uploadBytes(worksheetRef, worksheetUpload).then(() => {
-          evalUpload.worksheet = worksheetRef.fullPath;
-        });
+        await uploadBytes(worksheetRef, worksheet.file);
+        worksheet.path = worksheetRef.fullPath;
+        delete worksheet.file;
       }
-    } else {
-      evalUpload.worksheet = evaluation?.worksheet;
     }
+
+    evalUpload.worksheets = worksheetsForUpload;
 
     updateDoc(evalRef.current, evalUpload)
       .then(() => {
