@@ -51,15 +51,15 @@ const Navbar = ({ userProfile }) => {
       sticky='top'
       expand='lg'
       expanded={expanded}
-      style={{
-        background: `repeating-linear-gradient(
-        135deg,
-        #000,
-        #000 10px,
-        #666600 10px,
-        #666600 20px
-      )`,
-      }}
+      // style={{
+      //   background: `repeating-linear-gradient(
+      //   135deg,
+      //   #000,
+      //   #000 10px,
+      //   #666600 10px,
+      //   #666600 20px
+      // )`,
+      // }}
     >
       <BsNavbar.Brand
         aria-expanded='false'
