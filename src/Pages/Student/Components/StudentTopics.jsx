@@ -19,6 +19,8 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import ASCIIMathTip from "../../../Components/ASCIIMathTip";
+import { Can } from "../../../Services/can";
+import { StudentTopic } from "../../../Services/defineAbility";
 
 const StudentTopics = ({ student, topics }) => {
   // const [editing, setEditing] = useState(false);
@@ -196,16 +198,18 @@ const StudentTopics = ({ student, topics }) => {
               </span>{" "}
               by <span className='text-primary'>{topic.updatedBy}</span>
             </div>
-            <Button
-              size='sm'
-              className='col-2 me-3'
-              variant='secondary'
-              onClick={() => {
-                setFocusedTopic(topic);
-              }}
-            >
-              Edit
-            </Button>
+            <Can I='edit' a={StudentTopic}>
+              <Button
+                size='sm'
+                className='col-2 me-3'
+                variant='secondary'
+                onClick={() => {
+                  setFocusedTopic(topic);
+                }}
+              >
+                Edit
+              </Button>
+            </Can>
           </Row>
         </Card.Footer>
       </Card>
@@ -237,38 +241,40 @@ const StudentTopics = ({ student, topics }) => {
           </Card.Body>
         </Card>
       )}
-      <div className='d-flex pt-3 px-3'>
-        <OverlayTrigger
-          placement='top'
-          overlay={
-            <Popover>
-              <Popover.Header>Topics</Popover.Header>
-              <Popover.Body>
-                Use this tab to add potential topics to cover with the student.
-                Topics can be assigned a priority level to help organize the
-                student's learning plan.
-              </Popover.Body>
-            </Popover>
-          }
-        >
-          <i className='bi bi-info-square ms-auto me-3 align-self-center'></i>
-        </OverlayTrigger>
-        <Button
-          className=''
-          variant='primary'
-          onClick={() => {
-            setFocusedTopic({
-              topic: "",
-              description: "",
-              updateDate: "",
-              updatedBy: "",
-              priority: "",
-            });
-          }}
-        >
-          Add New Topic
-        </Button>
-      </div>
+      <Can I='create' a={StudentTopic}>
+        <div className='d-flex pt-3 px-3'>
+          <OverlayTrigger
+            placement='top'
+            overlay={
+              <Popover>
+                <Popover.Header>Topics</Popover.Header>
+                <Popover.Body>
+                  Use this tab to add potential topics to cover with the
+                  student. Topics can be assigned a priority level to help
+                  organize the student's learning plan.
+                </Popover.Body>
+              </Popover>
+            }
+          >
+            <i className='bi bi-info-square ms-auto me-3 align-self-center'></i>
+          </OverlayTrigger>
+          <Button
+            className=''
+            variant='primary'
+            onClick={() => {
+              setFocusedTopic({
+                topic: "",
+                description: "",
+                updateDate: "",
+                updatedBy: "",
+                priority: "",
+              });
+            }}
+          >
+            Add New Topic
+          </Button>
+        </div>
+      </Can>
       <ASCIIMathTip show={showTypesettingTip} setShow={setShowTypesettingTip} />
       <EditTopic topic={focusedTopic} />
     </div>

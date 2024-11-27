@@ -1,3 +1,8 @@
+## [1.9.0] - 2024-11-26
+
+### Added
+- Accounts for parents ([#224](https://github.com/rssmith614/treehouse-student-database/issues/224))
+
 ## [1.8.5] - 2024-11-18
 
 ### Added
