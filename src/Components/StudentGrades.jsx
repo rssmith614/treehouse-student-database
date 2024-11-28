@@ -140,10 +140,8 @@ const StudentGrades = ({ studentid }) => {
             setShow(true);
           }}
         >
-          <td className='align-middle'>
-            {dayjs(grade.date).format("MMMM D, YYYY")}
-          </td>
-          {isDesktop && <td className='align-middle'>{grade.tutor_name}</td>}
+          <td className=''>{dayjs(grade.date).format("MMMM D, YYYY")}</td>
+          {isDesktop && <td className=''>{grade.tutor_name}</td>}
           <td>
             <ul className='list-group'>
               {grade.grades.map((currGrade, index) => {
@@ -247,13 +245,18 @@ const StudentGrades = ({ studentid }) => {
         records={gradesList}
         pageLimit={5}
         header={
-          <thead>
-            <tr>
-              <th>Date</th>
-              {isDesktop && <th>Recorded By</th>}
-              <th>Grades</th>
-            </tr>
-          </thead>
+          <>
+            <col style={{ width: "20%" }} />
+            {isDesktop && <col style={{ width: "20%" }} />}
+            <col style={{ width: "60%" }} />
+            <thead>
+              <tr>
+                <th>Date</th>
+                {isDesktop && <th>Recorded By</th>}
+                <th>Grades</th>
+              </tr>
+            </thead>
+          </>
         }
       />
 

@@ -1,0 +1,5 @@
+name: student-database
+channels:
+  - defaults
+dependencies:
+  - python
