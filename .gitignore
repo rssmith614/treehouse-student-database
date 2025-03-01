@@ -39,3 +39,5 @@ src/css
 
 # Million Lint
 .million
+
+.venv

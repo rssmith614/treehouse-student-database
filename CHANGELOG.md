@@ -1,3 +1,8 @@
+## [1.8.6] - 2025-02-28
+
+### Added
+- Standard example questions are visible on standard popover ([#238](https://github.com/rssmith614/treehouse-student-database/issues/238)])
+
 ## [1.8.5] - 2024-11-18
 
 ### Added

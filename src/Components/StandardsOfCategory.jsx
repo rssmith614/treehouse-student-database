@@ -139,6 +139,20 @@ const StandardsOfCategory = ({
                                 Description
                               </div>
                               <div>{standard.description}</div>
+                              {standard.question && (
+                                <>
+                                  <hr />
+                                  <div className='text-decoration-underline'>
+                                    Example
+                                  </div>
+                                  <div className='fst-italic'>
+                                    {standard.question}
+                                  </div>
+                                  <div className='text-end fw-bold'>
+                                    {standard.answer}
+                                  </div>
+                                </>
+                              )}
                               <div className='d-flex'>
                                 {track ? (
                                   <Button
